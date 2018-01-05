@@ -26,7 +26,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
 def get_windows_script_location():
     packages = site.getsitepackages()
     for folder in packages:
-        folder_contents = subprocess.run(['ls', folder], stdout=subprocess.PIPE)
+        folder_contents = subprocess.run(['dir', folder, '/b'], stdout=subprocess.PIPE)
         if folder_contents.returncode != 0 and 'mkvirtualenv.bat' in folder_contents.stdout.decode().split('\n'):
             return folder
     raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
