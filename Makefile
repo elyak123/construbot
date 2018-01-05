@@ -1,5 +1,4 @@
 install-dev:
-	pip3 install virtualenvwrapper
 	@export WORKON_HOME=$HOME/.virtualenvs
 	@export PROJECT_HOME=$HOME/WebDev
 	@export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
