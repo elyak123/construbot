@@ -1,8 +1,8 @@
 import subprocess, shlex
 from pathlib import Path
-import os, sys
+import os, sys, site
 
-home = home = str(Path.home())
+home = str(Path.home())
 VIRTUAL_ENV_NAME = 'construbot'
 VIRTUAL_ENV_FOLDER = home + '/.virtualenvs/{}/'.format(VIRTUAL_ENV_NAME)
 POSTACTIVE_LOCATION = VIRTUAL_ENV_FOLDER + 'bin/postactivate'
@@ -23,7 +23,13 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
         package = 'virtualenvwrapper-win'
     subprocess.run(['pip3', 'install', package])
 
-
+def get_windows_script_location():
+    packages = site.getsitepackages()
+    for folder in packages:
+        folder_contents = subprocess.run(['ls', folder], stdout=subprocess.PIPE)
+        if folder_contents.returncode != 0 and 'mkvirtualenv.bat' in folder_contents.stdout.decode().split('\n'):
+            return folder
+    raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
 
 def run_bash_function(library_path, function_name, params):
     params = shlex.split('"source %s; %s %s"' % (library_path, function_name, params))
@@ -39,7 +45,17 @@ def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
         run_bash_function(script_location, 'mkvirtualenv', name)
     else:
-        script_location = VIRTUAL_ENV_FOLDER + 'Scripts/mkvirtualenv.bat'
+        script_location = get_windows_script_location()
+        # for location in site.getsitepackages():
+        #     try:
+        #         script = location + 'Scripts/mkvirtualenv.bat/'
+        #         subprocess.run([script])
+        #         break
+        #     except FileNotFoundError:
+        #         continue
+        # raise FileNotFoundError
+        #
+        # script_location = VIRTUAL_ENV_FOLDER + 'Scripts/mkvirtualenv.bat'
         subprocess.run([script_location])
 
 def configure_virtual_env(postactive_location=POSTACTIVE_LOCATION, name=VIRTUAL_ENV_NAME):
