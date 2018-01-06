@@ -27,8 +27,9 @@ def get_windows_script_location():
     packages = site.getsitepackages()
     for folder in packages:
         folder = os.path.join(folder, 'Scripts')
-        folder_contents = subprocess.run(['dir', '\ad', folder, shell=True], stdout=subprocess.PIPE)
-        if folder_contents.returncode != 0 and 'mkvirtualenv.bat' in folder_contents.stdout.decode().split('\n'):
+        command = subprocess.run(['dir', '\ad', folder, shell=True], stdout=subprocess.PIPE)
+        folder_contents = str(command.stdout.decode('utf-8', errors='ignore').encode('utf-8'))
+        if command.returncode != 0 and 'mkvirtualenv.bat' in folder_contents.stdout.decode().split('\n'):
             return folder
     raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
 
