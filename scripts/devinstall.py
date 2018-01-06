@@ -1,5 +1,5 @@
-import subprocess, shlex
 from pathlib import Path
+import subprocess, shlex
 import os, sys, site
 
 home = str(Path.home())
@@ -22,6 +22,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
     else:
         package = 'virtualenvwrapper-win'
     subprocess.run(['pip3', 'install', package])
+    return package
 
 def get_windows_script_location(target_script):
     packages = site.getsitepackages()
