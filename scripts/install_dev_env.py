@@ -29,8 +29,9 @@ def get_windows_script_location():
         folder = os.path.join(folder, 'Scripts')
         command = subprocess.run(['dir', '\ad', folder], shell=True, stdout=subprocess.PIPE)
         folder_contents = str(command.stdout.decode('utf-8', errors='ignore').encode('utf-8'))
-        if command.returncode != 0 and 'mkvirtualenv.bat' in folder_contents:
-            return folder
+        if command.returncode == 0 and 'mkvirtualenv.bat' in folder_contents:
+            file_name = folder + 'mkvirtualenv.bat'
+            return file_name
     raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
 
 def run_bash_function(library_path, function_name, params):
@@ -58,7 +59,7 @@ def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
         # raise FileNotFoundError
         #
         # script_location = VIRTUAL_ENV_FOLDER + 'Scripts/mkvirtualenv.bat'
-        subprocess.run([script_location])
+        subprocess.run([script_location], shell=True)
 
 def configure_virtual_env(postactive_location=POSTACTIVE_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
