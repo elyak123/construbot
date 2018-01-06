@@ -23,14 +23,14 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
         package = 'virtualenvwrapper-win'
     subprocess.run(['pip3', 'install', package])
 
-def get_windows_script_location():
+def get_windows_script_location(target_script):
     packages = site.getsitepackages()
     for folder in packages:
         folder = os.path.join(folder, 'Scripts')
         command = subprocess.run(['dir', '\ad', folder], shell=True, stdout=subprocess.PIPE)
         folder_contents = str(command.stdout.decode('utf-8', errors='ignore').encode('utf-8'))
-        if command.returncode == 0 and 'mkvirtualenv.bat' in folder_contents:
-            file_name = folder + '\mkvirtualenv.bat'
+        if command.returncode == 0 and target_script in folder_contents:
+            file_name = folder + '\\' + target_script
             return file_name
     raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
 
@@ -48,20 +48,9 @@ def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
         run_bash_function(script_location, 'mkvirtualenv', name)
     else:
-        script_location = get_windows_script_location()
-        # for location in site.getsitepackages():
-        #     try:
-        #         script = location + 'Scripts/mkvirtualenv.bat/'
-        #         subprocess.run([script])
-        #         break
-        #     except FileNotFoundError:
-        #         continue
-        # raise FileNotFoundError
-        #
-        # script_location = VIRTUAL_ENV_FOLDER + 'Scripts/mkvirtualenv.bat'
+        script_location = get_windows_script_location('mkvirtualenv.bat')
         command = script_location + ' construbot'
         proceso = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #import pdb; pdb.set_trace()
         if proceso.returncode != 0:
             raise RuntimeError("'%s' failed, error code: '%s'" % (
                 ' '.join(script_location), proceso.returncode))
@@ -75,14 +64,18 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     if get_platform() == 'unix':
         pip_location = venv_folder + 'bin/pip'
     else:
-        pip_location = venv_folder + 'Scripts/pip'
+        pip_location = venv_folder + '\Scripts\pip'
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
 
 def main(venv_name=VIRTUAL_ENV_NAME, venv_wrapper=SCRIPT_LOCATION, postactive_location=POSTACTIVE_LOCATION):
     install_virtualenvwrapper()
     make_virtual_env()
     configure_virtual_env()
-    update_virtual_env()
+    if get_platform() == 'unix':
+        update_virtual_env()
+    else:
+        pip_location = home + '\\' + 'Envs\\' + venv_name
+        update_virtual_env(venv_folder=pip_location)
 
 
 if __name__ == '__main__':
