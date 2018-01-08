@@ -1,4 +1,4 @@
-install-dev:
+dev_env:
 	@export WORKON_HOME=$HOME/.virtualenvs
 	@export PROJECT_HOME=$HOME/WebDev
 	@export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3

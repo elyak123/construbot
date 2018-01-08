@@ -23,7 +23,7 @@ from django.test  import TestCase
 from scripts import devinstall
 
 
-class ManagementFunctionsTest(TestCase):
+class OSVariableTest(TestCase):
 
     @mock.patch('sys.platform', 'win32')
     def test_platform_returns_correct_variable_for_windows(self):
@@ -40,6 +40,8 @@ class ManagementFunctionsTest(TestCase):
         platform = devinstall.get_platform()
         self.assertEqual(platform, 'unix')
 
+
+class VirtualenvWapperInstall(TestCase):
     @mock.patch('sys.platform', 'linux')
     def test_installs_correct_virtualenvwrapper(self):
         with mock.patch('subprocess.run') as run_mock:
@@ -75,3 +77,28 @@ class ManagementFunctionsTest(TestCase):
             self.assertTrue(run_mock.called)
             run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper-win'])
             self.assertEqual(process, 'virtualenvwrapper-win')
+
+
+class MakeVirtualEnv(TestCase):
+
+    def platform_unix(self):
+        return 'unix'
+
+    def test_run_bash_function(self):
+        pass
+
+    def test_get_windows_script_path(self):
+        pass
+    def test_make_virtual_env(self):
+        with mock.patch('subprocess.run') as run_mock:
+            with mock.patch.object('devinstall', 'get_platform', return_value='unix') as mock_platform:
+                mocked = mock.Mock()
+                attrs = {'communicate.return_value': ('output', 'error')}
+                mocked.configure_mock(**attrs)
+                run_mock.return_value = mocked
+                process = devinstall.make_virtual_env()
+                self.assertTrue(run_mock.called)
+                run_mock.assert_called_with(['bash', '-c', '/usr/local/bin/virtualenvwrapper.sh', 'mkvirtualenv'],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+                )
+            #self.assertEqual(process, 'virtualenvwrapper-win')

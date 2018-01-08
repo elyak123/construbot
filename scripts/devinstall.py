@@ -87,8 +87,10 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
         pip_location = venv_folder + '\Scripts\pip'
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
     coverage_location = venv_folder + 'bin/coverage'
+    # Tenemos que checar si los binarios tambien se instalaron correctamente....
     bin_test = subprocess.run([coverage_location, '-h'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     if bin_test.returncode != 0:
+        # Si no... hay que reinstalar todas las dependencias... issue #1
         raise RuntimeError('Dependencies installed correctly, however binaries didn\'t. Please run:\n'
             'pip uninstall -r requirements.txt -y && pip install -r requirements.txt\n'
             'from inside the virtual environment')
