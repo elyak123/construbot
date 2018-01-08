@@ -62,7 +62,7 @@ def run_bash_function(library_path, function_name, params):
     if process.returncode != 0:
         raise RuntimeError("'%s' failed, error code: '%s', stdout: '%s', stderr: '%s'" % (
             ' '.join(cmdline), process.returncode, stdout.rstrip(), stderr.rstrip()))
-    return print(stdout.strip())
+    return stdout.strip()
 
 def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
@@ -88,7 +88,9 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
     coverage_location = venv_folder + 'bin/coverage'
     # Tenemos que checar si los binarios tambien se instalaron correctamente....
-    bin_test = subprocess.run([coverage_location, '-h'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    bin_test = subprocess.run([coverage_location, '-h'], 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+    )
     if bin_test.returncode != 0:
         # Si no... hay que reinstalar todas las dependencias... issue #1
         raise RuntimeError('Dependencies installed correctly, however binaries didn\'t. Please run:\n'

@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys
+import sys, subprocess
 from unittest import mock
 from django.test  import TestCase
 from scripts import devinstall
@@ -81,24 +81,40 @@ class VirtualenvWapperInstall(TestCase):
 
 class MakeVirtualEnv(TestCase):
 
-    def platform_unix(self):
-        return 'unix'
-
     def test_run_bash_function(self):
         pass
 
     def test_get_windows_script_path(self):
         pass
-    def test_make_virtual_env(self):
-        with mock.patch('subprocess.run') as run_mock:
-            with mock.patch.object('devinstall', 'get_platform', return_value='unix') as mock_platform:
-                mocked = mock.Mock()
-                attrs = {'communicate.return_value': ('output', 'error')}
-                mocked.configure_mock(**attrs)
-                run_mock.return_value = mocked
-                process = devinstall.make_virtual_env()
-                self.assertTrue(run_mock.called)
-                run_mock.assert_called_with(['bash', '-c', '/usr/local/bin/virtualenvwrapper.sh', 'mkvirtualenv'],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
-                )
-            #self.assertEqual(process, 'virtualenvwrapper-win')
+
+    @mock.patch('scripts.devinstall.get_platform',)
+    def test_make_virtual_env_success(self, mock_platform):
+        with mock.patch('subprocess.Popen') as run_mock:
+            mock_platform.return_value = 'unix'
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode' : 0,
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            process = devinstall.make_virtual_env()
+            self.assertTrue(run_mock.called)
+            run_mock.assert_called_with(
+                ['bash', '-c', 'source /usr/local/bin/virtualenvwrapper.sh; mkvirtualenv construbot'],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+            )
+
+    @mock.patch('scripts.devinstall.get_platform',)
+    def test_make_virtual_env_raises_error(self, mock_platform):
+        with mock.patch('subprocess.Popen') as run_mock:
+            mock_platform.return_value = 'unix'
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode' : 1,
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            with self.assertRaises(RuntimeError) as err:
+                devinstall.make_virtual_env()
