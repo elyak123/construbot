@@ -87,8 +87,8 @@ class MakeVirtualEnv(TestCase):
     def test_get_windows_script_path(self):
         pass
 
-    @mock.patch('scripts.devinstall.get_platform',)
-    def test_make_virtual_env_success(self, mock_platform):
+    @mock.patch('scripts.devinstall.get_platform')
+    def test_make_unix_virtual_env_success(self, mock_platform):
         with mock.patch('subprocess.Popen') as run_mock:
             mock_platform.return_value = 'unix'
             mocked = mock.Mock()
@@ -105,8 +105,8 @@ class MakeVirtualEnv(TestCase):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
             )
 
-    @mock.patch('scripts.devinstall.get_platform',)
-    def test_make_virtual_env_raises_error(self, mock_platform):
+    @mock.patch('scripts.devinstall.get_platform')
+    def test_make_unix_virtual_env_raises_error(self, mock_platform):
         with mock.patch('subprocess.Popen') as run_mock:
             mock_platform.return_value = 'unix'
             mocked = mock.Mock()
@@ -118,3 +118,23 @@ class MakeVirtualEnv(TestCase):
             run_mock.return_value = mocked
             with self.assertRaises(RuntimeError) as err:
                 devinstall.make_virtual_env()
+
+    @mock.patch('scripts.devinstall.get_platform')
+    @mock.patch('scripts.devinstall.get_windows_script_location')
+    def test_make_windows_virtual_env(self, mock_platform, win_script_path):
+        with mock.patch('subprocess.run') as run_mock:
+            mock_platform.return_value = 'windows'
+            win_script_path.return_value = 'C:\\mkvirtualenv.bat'
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode' : 0,
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            process = devinstall.make_virtual_env()
+            run_mock.assert_called_with(
+                ['C:\\mkvirtualenv.bat construbot'],
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+
