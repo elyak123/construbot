@@ -48,9 +48,13 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
     subprocess.run(['pip3', 'install', package])
     return package
 
+def get_site_packages():
+    packages = site.getsitepackages()
+    return packages
+
 
 def get_windows_script_location(target_script):
-    packages = site.getsitepackages()
+    packages = get_site_packages()
     for folder in packages:
         folder = os.path.join(folder, 'Scripts')
         command = subprocess.run(['dir', '\ad', folder], shell=True, stdout=subprocess.PIPE)
@@ -95,7 +99,6 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
         pip_location = venv_folder + 'bin/pip'
         coverage_location = venv_folder + 'bin/coverage'
     else:
-        # venv_folder = get_windows_script_location('coverage')
         pip_location = venv_folder + '\Scripts\pip'
         coverage_location = venv_folder + '\Scripts\coverage'
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])

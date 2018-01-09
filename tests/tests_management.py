@@ -18,6 +18,7 @@
 """
 
 import subprocess
+import site
 from unittest import mock
 from django.test import TestCase
 from scripts import devinstall
@@ -120,8 +121,48 @@ class MakeVirtualEnv(TestCase):
                     universal_newlines=True
                 )
 
-    def test_get_windows_script_path(self):
-        pass
+
+    @mock.patch('scripts.devinstall.get_site_packages')
+    def test_get_windows_script_path(self, packages_list):
+        with mock.patch('subprocess.run') as run_mock:
+            packages_list.return_value = ['C:\\', 'D:\\']
+            mocked = mock.Mock()
+            decode_mock = mock.Mock()
+            folder_contents = ['mkvirtualenv', 'rmvirtualenv']
+            decode_attrs = {
+                'encode.return_value': folder_contents,
+            }
+            attrs = {
+                'stdout.decode.return_value': decode_mock,
+                'returncode': 0,
+            }
+            decode_mock.configure_mock(**decode_attrs)
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            devinstall.get_windows_script_location('mkvirtualenv')
+            run_mock.assert_called_with(['dir', '\ad', 'C:\\/Scripts'], shell=True, stdout=subprocess.PIPE)
+
+
+    @mock.patch('scripts.devinstall.get_site_packages')
+    def test_get_windows_script_path_raises_error(self, packages_list):
+        with mock.patch('subprocess.run') as run_mock:
+            packages_list.return_value = ['C:\\', 'D:\\']
+            mocked = mock.Mock()
+            decode_mock = mock.Mock()
+            folder_contents = ['othercommand', 'rmvirtualenv']
+            decode_attrs = {
+                'encode.return_value': folder_contents,
+            }
+            attrs = {
+                'stdout.decode.return_value': decode_mock,
+                'returncode': 0,
+            }
+            decode_mock.configure_mock(**decode_attrs)
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            with self.assertRaises(FileNotFoundError):
+                devinstall.get_windows_script_location('mkvirtualenv')
+
 
     @mock.patch('scripts.devinstall.get_platform')
     def test_make_unix_virtual_env_success(self, mock_platform):
