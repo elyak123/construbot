@@ -231,3 +231,24 @@ class MakeVirtualEnv(TestCase):
             run_mock.return_value = mocked
             with self.assertRaises(RuntimeError):
                 devinstall.make_virtual_env()
+
+
+class ConfigureVirtualEnv(TestCase):
+
+    @mock.patch('scripts.devinstall.POSTACTIVE_LOCATION', '/Users/bin/postactivate')
+    @mock.patch('scripts.devinstall.cwd', '/Users/myuser')
+    @mock.patch('sys.platform', 'unix')
+    def test_configure_virtual_env(self):
+        mopen = mock.mock_open()
+        with mock.patch('__main__.open', mopen):
+            import pdb; pdb.set_trace()
+            devinstall.configure_virtual_env()
+            #mopen.assert_called_once_with('foo', 'w')
+            mopen.assert_called_with(
+                 'construbot_root=/Users/myuser \ncd $construbot_root\nPATH=$construbot_root/bin:$PATH',
+
+            )
+            # handle = mopen.write.assert_called_once_with(
+            #     'construbot_root=%s \ncd $construbot_root\nPATH=$construbot_root/bin:$PATH' % devinstall.cwd
+            # )
+
