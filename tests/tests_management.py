@@ -81,8 +81,44 @@ class VirtualenvWapperInstall(TestCase):
 
 class MakeVirtualEnv(TestCase):
 
-    def test_run_bash_function(self):
-        pass
+    @mock.patch('sys.platform', 'darwin')
+    def test_run_bash_function_success(self):
+        with mock.patch('subprocess.Popen') as run_mock:
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 0
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            devinstall.make_virtual_env()
+            run_mock.assert_called_with([
+                'bash', '-c', 'source /usr/local/bin/'
+                'virtualenvwrapper.sh; mkvirtualenv construbot'], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                universal_newlines=True
+            )
+
+    @mock.patch('sys.platform', 'darwin')
+    def test_run_bash_function_err(self):
+        with mock.patch('subprocess.Popen') as run_mock:
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 1
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            with self.assertRaises(RuntimeError) as err:
+                devinstall.make_virtual_env()
+                run_mock.assert_called_with([
+                    'bash', '-c', 'source /usr/local/bin/'
+                    'virtualenvwrapper.sh; mkvirtualenv construbot'], 
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE, 
+                    universal_newlines=True
+                )
 
     def test_get_windows_script_path(self):
         pass
@@ -121,7 +157,7 @@ class MakeVirtualEnv(TestCase):
 
     @mock.patch('scripts.devinstall.get_platform')
     @mock.patch('scripts.devinstall.get_windows_script_location')
-    def test_make_windows_virtual_env(self, mock_platform, win_script_path):
+    def test_make_windows_virtual_env(self, win_script_path, mock_platform):
         with mock.patch('subprocess.run') as run_mock:
             mock_platform.return_value = 'windows'
             win_script_path.return_value = 'C:\\mkvirtualenv.bat'
@@ -134,7 +170,7 @@ class MakeVirtualEnv(TestCase):
             run_mock.return_value = mocked
             process = devinstall.make_virtual_env()
             run_mock.assert_called_with(
-                ['C:\\mkvirtualenv.bat construbot'],
+                'C:\\mkvirtualenv.bat construbot',
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 

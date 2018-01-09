@@ -97,7 +97,6 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
             'pip uninstall -r requirements.txt -y && pip install -r requirements.txt\n'
             'from inside the virtual environment')
 
-
 def main(venv_name=VIRTUAL_ENV_NAME, venv_wrapper=SCRIPT_LOCATION, postactive_location=POSTACTIVE_LOCATION):
     install_virtualenvwrapper()
     make_virtual_env()
