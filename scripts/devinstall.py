@@ -18,8 +18,11 @@
 """
 
 from pathlib import Path
-import subprocess, shlex
-import os, sys, site
+import subprocess
+import shlex
+import os
+import sys
+import site
 
 home = str(Path.home())
 VIRTUAL_ENV_NAME = 'construbot'
@@ -29,10 +32,12 @@ SCRIPT_LOCATION = '/usr/local/bin/virtualenvwrapper.sh'
 ACTIVATE = home + VIRTUAL_ENV_FOLDER + 'bin/activate'
 cwd = os.getcwd()
 
+
 def get_platform():
     windows = ['win32', 'cygwin']
     platform = 'unix' if sys.platform not in windows else 'windows'
     return platform
+
 
 def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
     platform = get_platform()
@@ -42,6 +47,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
         package = 'virtualenvwrapper-win'
     subprocess.run(['pip3', 'install', package])
     return package
+
 
 def get_windows_script_location(target_script):
     packages = site.getsitepackages()
@@ -54,6 +60,7 @@ def get_windows_script_location(target_script):
             return file_name
     raise FileNotFoundError('El script no se encuentra, virtualenvwrapper esta instalado?')
 
+
 def run_bash_function(library_path, function_name, params):
     params = shlex.split('"source %s; %s %s"' % (library_path, function_name, params))
     cmdline = ['bash', '-c'] + params
@@ -63,6 +70,7 @@ def run_bash_function(library_path, function_name, params):
         raise RuntimeError("'%s' failed, error code: '%s', stdout: '%s', stderr: '%s'" % (
             ' '.join(cmdline), process.returncode, stdout.rstrip(), stderr.rstrip()))
     return stdout.strip()
+
 
 def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
@@ -75,10 +83,12 @@ def make_virtual_env(script_location=SCRIPT_LOCATION, name=VIRTUAL_ENV_NAME):
             raise RuntimeError("'%s' failed, error code: '%s'" % (
                 ' '.join(script_location), proceso.returncode))
 
+
 def configure_virtual_env(postactive_location=POSTACTIVE_LOCATION, name=VIRTUAL_ENV_NAME):
     if get_platform() == 'unix':
         with open(postactive_location, 'w', newline='\n') as file:
             file.write('{0}_root={1}\ncd ${0}_root\nPATH=${0}_root/bin:$PATH'.format(name, cwd))
+
 
 def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     if get_platform() == 'unix':
@@ -88,14 +98,19 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
     coverage_location = venv_folder + 'bin/coverage'
     # Tenemos que checar si los binarios tambien se instalaron correctamente....
-    bin_test = subprocess.run([coverage_location, '-h'], 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+    bin_test = subprocess.run(
+        [coverage_location, '-h'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True
     )
     if bin_test.returncode != 0:
         # Si no... hay que reinstalar todas las dependencias... issue #1
-        raise RuntimeError('Dependencies installed correctly, however binaries didn\'t. Please run:\n'
+        raise RuntimeError(
+            'Dependencies installed correctly, however binaries didn\'t. Please run:\n'
             'pip uninstall -r requirements.txt -y && pip install -r requirements.txt\n'
             'from inside the virtual environment')
+
 
 def main(venv_name=VIRTUAL_ENV_NAME, venv_wrapper=SCRIPT_LOCATION, postactive_location=POSTACTIVE_LOCATION):
     install_virtualenvwrapper()

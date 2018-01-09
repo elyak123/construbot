@@ -17,9 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys, subprocess
+import subprocess
 from unittest import mock
-from django.test  import TestCase
+from django.test import TestCase
 from scripts import devinstall
 
 
@@ -94,9 +94,9 @@ class MakeVirtualEnv(TestCase):
             devinstall.make_virtual_env()
             run_mock.assert_called_with([
                 'bash', '-c', 'source /usr/local/bin/'
-                'virtualenvwrapper.sh; mkvirtualenv construbot'], 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
+                'virtualenvwrapper.sh; mkvirtualenv construbot'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 universal_newlines=True
             )
 
@@ -110,13 +110,13 @@ class MakeVirtualEnv(TestCase):
             }
             mocked.configure_mock(**attrs)
             run_mock.return_value = mocked
-            with self.assertRaises(RuntimeError) as err:
+            with self.assertRaises(RuntimeError):
                 devinstall.make_virtual_env()
                 run_mock.assert_called_with([
                     'bash', '-c', 'source /usr/local/bin/'
-                    'virtualenvwrapper.sh; mkvirtualenv construbot'], 
-                    stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE, 
+                    'virtualenvwrapper.sh; mkvirtualenv construbot'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     universal_newlines=True
                 )
 
@@ -130,11 +130,11 @@ class MakeVirtualEnv(TestCase):
             mocked = mock.Mock()
             attrs = {
                 'communicate.return_value': ('output', 'error'),
-                'returncode' : 0,
+                'returncode': 0,
             }
             mocked.configure_mock(**attrs)
             run_mock.return_value = mocked
-            process = devinstall.make_virtual_env()
+            devinstall.make_virtual_env()
             self.assertTrue(run_mock.called)
             run_mock.assert_called_with(
                 ['bash', '-c', 'source /usr/local/bin/virtualenvwrapper.sh; mkvirtualenv construbot'],
@@ -148,11 +148,11 @@ class MakeVirtualEnv(TestCase):
             mocked = mock.Mock()
             attrs = {
                 'communicate.return_value': ('output', 'error'),
-                'returncode' : 1,
+                'returncode': 1,
             }
             mocked.configure_mock(**attrs)
             run_mock.return_value = mocked
-            with self.assertRaises(RuntimeError) as err:
+            with self.assertRaises(RuntimeError):
                 devinstall.make_virtual_env()
 
     @mock.patch('scripts.devinstall.get_platform')
@@ -164,13 +164,12 @@ class MakeVirtualEnv(TestCase):
             mocked = mock.Mock()
             attrs = {
                 'communicate.return_value': ('output', 'error'),
-                'returncode' : 0,
+                'returncode': 0,
             }
             mocked.configure_mock(**attrs)
             run_mock.return_value = mocked
-            process = devinstall.make_virtual_env()
+            devinstall.make_virtual_env()
             run_mock.assert_called_with(
                 'C:\\mkvirtualenv.bat construbot',
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-
