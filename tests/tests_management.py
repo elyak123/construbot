@@ -214,3 +214,20 @@ class MakeVirtualEnv(TestCase):
                 'C:\\mkvirtualenv.bat construbot',
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+
+
+    @mock.patch('scripts.devinstall.get_platform')
+    @mock.patch('scripts.devinstall.get_windows_script_location')
+    def test_make_windows_virtual_env_raises_error(self, win_script_path, mock_platform):
+        with mock.patch('subprocess.run') as run_mock:
+            mock_platform.return_value = 'windows'
+            win_script_path.return_value = 'C:\\mkvirtualenv.bat'
+            mocked = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 1,
+            }
+            mocked.configure_mock(**attrs)
+            run_mock.return_value = mocked
+            with self.assertRaises(RuntimeError):
+                devinstall.make_virtual_env()
