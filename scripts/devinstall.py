@@ -93,10 +93,12 @@ def configure_virtual_env(postactive_location=POSTACTIVE_LOCATION, name=VIRTUAL_
 def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     if get_platform() == 'unix':
         pip_location = venv_folder + 'bin/pip'
+        coverage_location = venv_folder + 'bin/coverage'
     else:
+        # venv_folder = get_windows_script_location('coverage')
         pip_location = venv_folder + '\Scripts\pip'
+        coverage_location = venv_folder + '\Scripts\coverage'
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
-    coverage_location = venv_folder + 'bin/coverage'
     # Tenemos que checar si los binarios tambien se instalaron correctamente....
     bin_test = subprocess.run(
         [coverage_location, '-h'],
