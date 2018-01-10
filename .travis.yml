@@ -1,3 +1,5 @@
+before_install:
+  - sudo apt-get install apache2-dev
 languaje: python
 python:
   - "3.5"
