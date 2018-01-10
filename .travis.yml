@@ -1,0 +1,3 @@
+languaje: python
+script:
+  - python manage.py test
