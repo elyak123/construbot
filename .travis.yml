@@ -1,8 +1,7 @@
-before_install:
-  - sudo apt-get install apache2-dev
-languaje: python
+sudo: required
+dist: trusty
+language: python
 python:
-  - "3.5"
   - "3.6"
 install:
   - pip install -r requirements.txt
