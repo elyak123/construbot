@@ -48,6 +48,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
     subprocess.run(['pip3', 'install', package])
     return package
 
+
 def get_site_packages():
     packages = site.getsitepackages()
     return packages
@@ -102,7 +103,7 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
         pip_location = venv_folder + '\Scripts\pip'
         coverage_location = venv_folder + '\Scripts\coverage'
     subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
-    # Tenemos que checar si los binarios tambien se instalaron correctamente....
+    # Tenemos que checar si los binarios tambien se instalaron correctamente...
     bin_test = subprocess.run(
         [coverage_location, '-h'],
         stdout=subprocess.PIPE,

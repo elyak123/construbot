@@ -18,7 +18,6 @@
 """
 
 import subprocess
-import site
 from unittest import mock
 from django.test import TestCase
 from scripts import devinstall
@@ -121,7 +120,6 @@ class MakeVirtualEnv(TestCase):
                     universal_newlines=True
                 )
 
-
     @mock.patch('scripts.devinstall.get_site_packages')
     def test_get_windows_script_path(self, packages_list):
         with mock.patch('subprocess.run') as run_mock:
@@ -140,8 +138,10 @@ class MakeVirtualEnv(TestCase):
             mocked.configure_mock(**attrs)
             run_mock.return_value = mocked
             devinstall.get_windows_script_location('mkvirtualenv')
-            run_mock.assert_called_with(['dir', '\ad', 'C:\\/Scripts'], shell=True, stdout=subprocess.PIPE)
-
+            run_mock.assert_called_with(
+                ['dir', '\ad', 'C:\\/Scripts'],
+                shell=True, stdout=subprocess.PIPE
+            )
 
     @mock.patch('scripts.devinstall.get_site_packages')
     def test_get_windows_script_path_raises_error(self, packages_list):
@@ -163,7 +163,6 @@ class MakeVirtualEnv(TestCase):
             with self.assertRaises(FileNotFoundError):
                 devinstall.get_windows_script_location('mkvirtualenv')
 
-
     @mock.patch('scripts.devinstall.get_platform')
     def test_make_unix_virtual_env_success(self, mock_platform):
         with mock.patch('subprocess.Popen') as run_mock:
@@ -179,7 +178,9 @@ class MakeVirtualEnv(TestCase):
             self.assertTrue(run_mock.called)
             run_mock.assert_called_with(
                 ['bash', '-c', 'source /usr/local/bin/virtualenvwrapper.sh; mkvirtualenv construbot'],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True
             )
 
     @mock.patch('scripts.devinstall.get_platform')
@@ -215,7 +216,6 @@ class MakeVirtualEnv(TestCase):
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 
-
     @mock.patch('scripts.devinstall.get_platform')
     @mock.patch('scripts.devinstall.get_windows_script_location')
     def test_make_windows_virtual_env_raises_error(self, win_script_path, mock_platform):
@@ -235,20 +235,10 @@ class MakeVirtualEnv(TestCase):
 
 class ConfigureVirtualEnv(TestCase):
 
+    @mock.patch('builtins.open', new_callable=mock.mock_open)
     @mock.patch('scripts.devinstall.POSTACTIVE_LOCATION', '/Users/bin/postactivate')
     @mock.patch('scripts.devinstall.cwd', '/Users/myuser')
     @mock.patch('sys.platform', 'unix')
-    def test_configure_virtual_env(self):
-        mopen = mock.mock_open()
-        with mock.patch('__main__.open', mopen):
-            import pdb; pdb.set_trace()
-            devinstall.configure_virtual_env()
-            #mopen.assert_called_once_with('foo', 'w')
-            mopen.assert_called_with(
-                 'construbot_root=/Users/myuser \ncd $construbot_root\nPATH=$construbot_root/bin:$PATH',
-
-            )
-            # handle = mopen.write.assert_called_once_with(
-            #     'construbot_root=%s \ncd $construbot_root\nPATH=$construbot_root/bin:$PATH' % devinstall.cwd
-            # )
-
+    def test_configure_virtual_env(self, mopen):
+        devinstall.configure_virtual_env(devinstall.POSTACTIVE_LOCATION)
+        mopen.assert_called_with('/Users/bin/postactivate', 'w', newline='\n')
