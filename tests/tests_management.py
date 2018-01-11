@@ -112,7 +112,7 @@ class MakeVirtualEnv(TestCase):
             run_mock.return_value = mocked
             with self.assertRaises(RuntimeError):
                 devinstall.make_virtual_env()
-                run_mock.assert_called_with([
+                run_mock.assert_called_with([  # pragma: no cover
                     'bash', '-c', 'source /usr/local/bin/'
                     'virtualenvwrapper.sh; mkvirtualenv construbot'],
                     stdout=subprocess.PIPE,
@@ -243,6 +243,12 @@ class ConfigureVirtualEnv(TestCase):
         devinstall.configure_virtual_env(devinstall.POSTACTIVE_LOCATION)
         mopen.assert_called_with('/Users/bin/postactivate', 'w', newline='\n')
 
+    @mock.patch('builtins.open', new_callable=mock.mock_open)
+    @mock.patch('sys.platform', 'win32')
+    def test_configure_virtual_env_not_called_windows(self, mopen):
+        devinstall.configure_virtual_env(devinstall.POSTACTIVE_LOCATION)
+        mopen.assert_not_called()
+
 
 class UpdateVirtualenV(TestCase):
 
@@ -289,7 +295,7 @@ class UpdateVirtualenV(TestCase):
                 )
 
     @mock.patch('sys.platform', 'win32')
-    def test_update_virtual_env(self):
+    def test_update_virtual_env_windows(self):
         with mock.patch('subprocess.run') as run_mock:
             install_req = mock.Mock()
             attrs = {
@@ -312,3 +318,58 @@ class UpdateVirtualenV(TestCase):
                     'install', '-r', 'requirements.txt'
                 ]),
             ], any_order=True)
+
+
+class DevInstallMain(TestCase):
+
+    @mock.patch('scripts.devinstall.update_virtual_env')
+    @mock.patch('scripts.devinstall.configure_virtual_env')
+    @mock.patch('scripts.devinstall.make_virtual_env')
+    @mock.patch('scripts.devinstall.install_virtualenvwrapper')
+    @mock.patch('scripts.devinstall.get_platform')
+    @mock.patch('scripts.devinstall.home', '/Users/myuser')
+    def test_main_excecutes_right_order(self, mock_platform, install_vew, make_vew, configure_vew, update_vew):
+        manager = mock.Mock()
+        mock_platform.return_value = 'unix'
+        install_vew.return_value = 'I install virtualenvwrapper'
+        make_vew.return_value = 'I make a virtualenv with virtualenvwrapper'
+        configure_vew.return_value = 'I configure the virtualenv'
+        update_vew.return_value = 'I update the virtualenv'
+        manager.attach_mock(install_vew, 'install_virtualenvwrapper')
+        manager.attach_mock(make_vew, 'make_virtual_env')
+        manager.attach_mock(configure_vew, 'configure_virtual_env')
+        manager.attach_mock(update_vew, 'update_virtual_env')
+        devinstall.main()
+        expected_calls = [
+            mock.call.install_virtualenvwrapper(),
+            mock.call.make_virtual_env(),
+            mock.call.configure_virtual_env(),
+            mock.call.update_virtual_env()
+        ]
+        self.assertEqual(manager.mock_calls, expected_calls)
+
+    @mock.patch('scripts.devinstall.update_virtual_env')
+    @mock.patch('scripts.devinstall.configure_virtual_env')
+    @mock.patch('scripts.devinstall.make_virtual_env')
+    @mock.patch('scripts.devinstall.install_virtualenvwrapper')
+    @mock.patch('scripts.devinstall.get_platform')
+    @mock.patch('scripts.devinstall.home', 'C:\\Users\\myuser')
+    def test_main_excecutes_right_order_windows(self, mock_platform, install_vew, make_vew, configure_vew, update_vew):
+        manager = mock.Mock()
+        mock_platform.return_value = 'windows'
+        install_vew.return_value = 'I install virtualenvwrapper'
+        make_vew.return_value = 'I make a virtualenv with virtualenvwrapper'
+        configure_vew.return_value = 'I configure the virtualenv'
+        update_vew.return_value = 'I update the virtualenv'
+        manager.attach_mock(install_vew, 'install_virtualenvwrapper')
+        manager.attach_mock(make_vew, 'make_virtual_env')
+        manager.attach_mock(configure_vew, 'configure_virtual_env')
+        manager.attach_mock(update_vew, 'update_virtual_env')
+        devinstall.main()
+        expected_calls = [
+            mock.call.install_virtualenvwrapper(),
+            mock.call.make_virtual_env(),
+            mock.call.configure_virtual_env(),
+            mock.call.update_virtual_env(venv_folder='C:\\Users\\myuser\\Envs\\construbot')
+        ]
+        self.assertEqual(manager.mock_calls, expected_calls)

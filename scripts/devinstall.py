@@ -49,7 +49,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
     return package
 
 
-def get_site_packages():
+def get_site_packages():  # pragma: no cover
     packages = site.getsitepackages()
     return packages
 
