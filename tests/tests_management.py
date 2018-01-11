@@ -245,6 +245,7 @@ class ConfigureVirtualEnv(TestCase):
 
 
 class UpdateVirtualenV(TestCase):
+
     @mock.patch('sys.platform', 'unix')
     def test_update_virtual_env(self):
         with mock.patch('subprocess.run') as run_mock:
@@ -266,6 +267,48 @@ class UpdateVirtualenV(TestCase):
                 ),
                 mock.call([
                     '/Users/myuser/.virtualenvs/construbot/bin/pip',
+                    'install', '-r', 'requirements.txt'
+                ]),
+            ], any_order=True)
+
+    @mock.patch('sys.platform', 'unix')
+    def test_update_virtual_env_raises_error(self):
+        with mock.patch('subprocess.run') as run_mock:
+            install_req = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 0,
+            }
+            install_req.configure_mock(**attrs)
+            attrs['returncode'] = 1
+            bin_test = mock.Mock(**attrs)
+            run_mock.side_effect = [install_req, bin_test]
+            with self.assertRaises(RuntimeError):
+                devinstall.update_virtual_env(
+                    venv_folder='/Users/myuser/.virtualenvs/construbot/'
+                )
+
+    @mock.patch('sys.platform', 'win32')
+    def test_update_virtual_env(self):
+        with mock.patch('subprocess.run') as run_mock:
+            install_req = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 0,
+            }
+            install_req.configure_mock(**attrs)
+            bin_test = mock.Mock(**attrs)
+            run_mock.side_effect = [install_req, bin_test]
+            devinstall.update_virtual_env(venv_folder='C:\\Users\\myuser\\Envs\\construbot')
+            run_mock.assert_has_calls([
+                mock.call(
+                    ['C:\\Users\\myuser\\Envs\\construbot\Scripts\coverage', '-h'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True
+                ),
+                mock.call([
+                    'C:\\Users\\myuser\\Envs\\construbot\\Scripts\\pip',
                     'install', '-r', 'requirements.txt'
                 ]),
             ], any_order=True)
