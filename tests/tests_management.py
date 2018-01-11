@@ -242,3 +242,30 @@ class ConfigureVirtualEnv(TestCase):
     def test_configure_virtual_env(self, mopen):
         devinstall.configure_virtual_env(devinstall.POSTACTIVE_LOCATION)
         mopen.assert_called_with('/Users/bin/postactivate', 'w', newline='\n')
+
+
+class UpdateVirtualenV(TestCase):
+    @mock.patch('sys.platform', 'unix')
+    def test_(self):
+        with mock.patch('subprocess.run') as run_mock:
+            install_req = mock.Mock()
+            attrs = {
+                'communicate.return_value': ('output', 'error'),
+                'returncode': 0,
+            }
+            install_req.configure_mock(**attrs)
+            bin_test = mock.Mock(**attrs)
+            run_mock.side_effect = [install_req, bin_test]
+            devinstall.update_virtual_env(venv_folder='/Users/myuser/.virtualenvs/construbot/')
+            run_mock.assert_has_calls([
+                subprocess.run(
+                    ['/Users/myuser/.virtualenvs/construbot/bin/coverage', '-h'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True
+                ),
+                subprocess.run([
+                    '/Users/myuser/.virtualenvs/construbot/bin/pip',
+                    'install', '-r', 'requirements.txt'
+                ]),
+            ])
