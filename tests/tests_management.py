@@ -268,4 +268,4 @@ class UpdateVirtualenV(TestCase):
                     '/Users/myuser/.virtualenvs/construbot/bin/pip',
                     'install', '-r', 'requirements.txt'
                 ]),
-            ])
+            ], any_order=True)
