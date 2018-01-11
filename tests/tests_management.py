@@ -246,7 +246,7 @@ class ConfigureVirtualEnv(TestCase):
 
 class UpdateVirtualenV(TestCase):
     @mock.patch('sys.platform', 'unix')
-    def test_(self):
+    def test_update_virtual_env(self):
         with mock.patch('subprocess.run') as run_mock:
             install_req = mock.Mock()
             attrs = {
@@ -258,13 +258,13 @@ class UpdateVirtualenV(TestCase):
             run_mock.side_effect = [install_req, bin_test]
             devinstall.update_virtual_env(venv_folder='/Users/myuser/.virtualenvs/construbot/')
             run_mock.assert_has_calls([
-                subprocess.run(
+                mock.call(
                     ['/Users/myuser/.virtualenvs/construbot/bin/coverage', '-h'],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     universal_newlines=True
                 ),
-                subprocess.run([
+                mock.call([
                     '/Users/myuser/.virtualenvs/construbot/bin/pip',
                     'install', '-r', 'requirements.txt'
                 ]),
