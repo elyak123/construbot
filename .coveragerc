@@ -1,7 +1,8 @@
 [run]
 branch = True
-omit =
-    */migrations/* 
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
 [report]
 exclude_lines =
   pragma: no cover

@@ -51,6 +51,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
+staticfiles/
 *.log
 local_settings.py
 
@@ -83,6 +84,7 @@ celerybeat-schedule
 .env
 
 # virtualenv
+.env
 .venv
 venv/
 ENV/
@@ -99,3 +101,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+### Node template
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
