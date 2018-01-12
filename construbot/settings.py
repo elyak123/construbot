@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
+from construbot import dbsettings
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -20,17 +20,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '**#xod=_3b9d&j*^^=2j8@^yhnk0^dnrv3(w7q*9v00eb!m!wx'
+SECRET_KEY = dbsettings.sk.sky 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = dbsettings.debg.debug 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = dbsettings.ah.allowed_hosts
 
 
 # Application definition
 
 INSTALLED_APPS = [
+	'accounts.apps.AccountsConfig',
+	'contratos.apps.ContratosConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,8 +77,12 @@ WSGI_APPLICATION = 'construbot.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': dbsettings.dbname.dbn,
+        'USER': dbsettings.user.usr,
+        'PASSWORD': dbsettings.pwd.pd,
+        'HOST': '127.0.0.1',
+        'PORT': dbsettings.dbport.dbp,
     }
 }
 
@@ -99,6 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# AUTH_USER_MODEL = 'core.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

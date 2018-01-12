@@ -1,0 +1,22 @@
+{% extends 'home/base.html' %}
+{% load bootstrap3 %}
+{% block content %}
+  <div class="wrapper"style="text-align: center;">
+{% if form.errors %}
+  <div class="alert alert-danger alert-dismissible" role="alert" style="display: inline-block;">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    El usuario o la contraseña son incorrectos.
+  </div>
+{% endif %}
+    <form class="form-signin form" method="post"> 
+    {% csrf_token  %}      
+      <h2 class="form-signin-heading">Ingresar.</h2>
+      <input type="text" class="form-control" name="username" placeholder="Usuario" required="" autofocus="" />
+      <input type="password" class="form-control" name="password" placeholder="Contraseña" required=""/>      
+      <label class="checkbox">
+        <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Recuérdame
+      </label>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Ingresar</button>   
+    </form>
+  </div>
+{% endblock %}
