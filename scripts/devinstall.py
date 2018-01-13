@@ -99,10 +99,12 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     if get_platform() == 'unix':
         pip_location = venv_folder + 'bin/pip'
         coverage_location = venv_folder + 'bin/coverage'
+        requirements_path = 'requirements/local.txt'
     else:
         pip_location = venv_folder + '\Scripts\pip'
         coverage_location = venv_folder + '\Scripts\coverage'
-    subprocess.run([pip_location, 'install', '-r', 'requirements.txt'])
+        requirements_path = 'requirements\\local.txt'
+    subprocess.run([pip_location, 'install', '-r', requirements_path])
     # Tenemos que checar si los binarios tambien se instalaron correctamente...
     bin_test = subprocess.run(
         [coverage_location, '-h'],

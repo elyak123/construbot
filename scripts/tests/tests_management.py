@@ -273,7 +273,7 @@ class UpdateVirtualenV(TestCase):
                 ),
                 mock.call([
                     '/Users/myuser/.virtualenvs/construbot/bin/pip',
-                    'install', '-r', 'requirements.txt'
+                    'install', '-r', 'requirements/local.txt'
                 ]),
             ], any_order=True)
 
@@ -315,7 +315,7 @@ class UpdateVirtualenV(TestCase):
                 ),
                 mock.call([
                     'C:\\Users\\myuser\\Envs\\construbot\\Scripts\\pip',
-                    'install', '-r', 'requirements.txt'
+                    'install', '-r', 'requirements\\local.txt'
                 ]),
             ], any_order=True)
 
