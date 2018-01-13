@@ -1,3 +1,4 @@
+from . import factories
 from test_plus.test import TestCase
 
 from ..admin import MyUserCreationForm
@@ -6,6 +7,7 @@ from ..admin import MyUserCreationForm
 class TestMyUserCreationForm(TestCase):
 
     def setUp(self):
+        self.user_factory = factories.UserFactory
         self.user = self.make_user('notalamode', 'notalamodespassword')
 
     def test_clean_username_success(self):

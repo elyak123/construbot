@@ -2,6 +2,8 @@ from django.test import RequestFactory
 
 from test_plus.test import TestCase
 
+from . import factories
+
 from ..views import (
     UserRedirectView,
     UserUpdateView
@@ -11,6 +13,7 @@ from ..views import (
 class BaseUserTestCase(TestCase):
 
     def setUp(self):
+        self.user_factory = factories.UserFactory
         self.user = self.make_user()
         self.factory = RequestFactory()
 

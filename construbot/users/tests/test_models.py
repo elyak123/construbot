@@ -1,9 +1,11 @@
+from . import factories
 from test_plus.test import TestCase
 
 
 class TestUser(TestCase):
 
     def setUp(self):
+        self.user_factory = factories.UserFactory
         self.user = self.make_user()
 
     def test__str__(self):

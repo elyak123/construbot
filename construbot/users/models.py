@@ -7,26 +7,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 
-class ExtendUserManager(UserManager):
-    def create_superuser(self, username, email, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        try:
-            Customer.objects.get(id=1)
-        except ObjectDoesNotExist:
-            Customer.objects.create(customer_name='God')
-
-        extra_fields.setdefault('customer', Customer.objects.all().first())
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(username, email, password, **extra_fields)
-
-
 @python_2_unicode_compatible
 class Customer(models.Model):
     customer_name = models.CharField(max_length=120, unique=True)
@@ -51,6 +31,26 @@ class Company(models.Model):
 
     def __str__(self):
         return self.company_name
+
+
+class ExtendUserManager(UserManager):
+    def create_superuser(self, username, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        try:
+            Customer.objects.get(id=1)
+        except ObjectDoesNotExist:
+            Customer.objects.create(customer_name='God')
+
+        extra_fields.setdefault('customer', Customer.objects.all().first())
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(username, email, password, **extra_fields)
 
 
 @python_2_unicode_compatible
