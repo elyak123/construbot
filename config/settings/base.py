@@ -253,7 +253,7 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-
+ACCOUNT_SIGNUP_FORM_CLASS = 'construbot.users.forms.UserForm'
 ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
 ACCOUNT_ADAPTER = 'construbot.users.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'construbot.users.adapters.SocialAccountAdapter'
