@@ -10,7 +10,7 @@ class CustomerFactory(factory.django.DjangoModelFactory):
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
-    customer = factory.Sequence(lambda n: 'company-{0}'.format(n))
+    company_name = factory.Sequence(lambda n: 'company-{0}'.format(n))
     customer = factory.SubFactory(CustomerFactory)
 
     class Meta:
@@ -22,7 +22,6 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Sequence(lambda n: 'user-{0}@example.com'.format(n))
     password = factory.PostGenerationMethodCall('set_password', 'password')
     customer = factory.SubFactory(CustomerFactory)
-    # company = factory.SubFactory(CompanyFactory)
 
     class Meta:
         model = User

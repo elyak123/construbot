@@ -15,7 +15,7 @@ class Customer(models.Model):
         verbose_name = 'Customer'
         verbose_name_plural = 'Customers'
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.customer_name
 
 
@@ -30,7 +30,7 @@ class Company(models.Model):
         verbose_name_plural = 'Companies'
 
     def __str__(self):
-        return self.company_name
+        return self.company_name  # pragma: no cover
 
 
 class ExtendUserManager(UserManager):

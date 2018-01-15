@@ -19,3 +19,19 @@ class TestUser(TestCase):
             self.user.get_absolute_url(),
             '/users/testuser/'
         )
+
+
+class TestFactories(TestCase):
+
+    def test_UserFactory_saved_to_db(self):
+        user = factories.UserFactory()
+        user.full_clean()
+        user.save()
+        # Just checking it was saved to db
+        self.assertIn('user', user.username)
+
+    def test_Company_Factory_saved(self):
+        company = factories.CompanyFactory()
+        company.full_clean()
+        company.save()
+        self.assertIn('company', company.company_name)

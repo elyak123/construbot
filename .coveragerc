@@ -22,5 +22,7 @@ exclude_lines =
  
 omit =
     */migrations/*
+    config/settings/*
+    docs/conf.py
     construbot/wsgi.py
 show_missing = True
