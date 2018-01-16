@@ -11,7 +11,7 @@ services:
       dockerfile: ./compose/local/django/Dockerfile
     depends_on:
       - postgres
-      - mailhog
+#      - mailhog
     volumes:
       - .:/app
     environment:
@@ -31,32 +31,32 @@ services:
     environment:
       - POSTGRES_USER=construbot
 
-  mailhog:
-    image: mailhog/mailhog:v1.0.0
-    ports:
-      - "8025:8025"
+  # mailhog:
+  #   image: mailhog/mailhog:v1.0.0
+  #   ports:
+  #     - "8025:8025"
 
 
-  redis:
-    image: redis:3.0
+  # redis:
+  #   image: redis:3.0
 
-  celeryworker:
-    # https://github.com/docker/compose/issues/3220
-    <<: *django
-    depends_on:
-      - redis
-      - postgres
-      - mailhog
-    ports: []
-    command: /start-celeryworker.sh
+  # celeryworker:
+  #   # https://github.com/docker/compose/issues/3220
+  #   <<: *django
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #     - mailhog
+  #   ports: []
+  #   command: /start-celeryworker.sh
 
-  celerybeat:
-    # https://github.com/docker/compose/issues/3220
-    <<: *django
-    depends_on:
-      - redis
-      - postgres
-      - mailhog
-    ports: []
-    command: /start-celerybeat.sh
+  # celerybeat:
+  #   # https://github.com/docker/compose/issues/3220
+  #   <<: *django
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #     - mailhog
+  #   ports: []
+  #   command: /start-celerybeat.sh
 
