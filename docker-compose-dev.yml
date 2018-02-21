@@ -3,6 +3,8 @@ version: '2'
 volumes:
   postgres_data_local: {}
   postgres_backup_local: {}
+  django-sync:
+    external: true
 
 services:
   django: &django
@@ -13,7 +15,7 @@ services:
       - postgres
 #      - mailhog
     volumes:
-      - .:/app
+      - django-sync:/app:nocopy
     environment:
       - POSTGRES_USER=construbot
       - USE_DOCKER=yes

@@ -1,0 +1,8 @@
+version: "2"
+
+syncs:
+  django-sync:
+    src: './construbot'
+    sync_host_ip: 'auto'
+    sync_userid: 33
+    sync_strategy: 'native_osx'
