@@ -14,11 +14,9 @@ services:
 #      - mailhog
     volumes:
       - .:/app
-    environment:
-      - POSTGRES_USER=construbot
-      - USE_DOCKER=yes
+    env_file: .env
     ports:
-      - "8000:8000"
+      - "8343:8343"
     command: /start.sh
 
   postgres:
@@ -28,9 +26,7 @@ services:
     volumes:
       - postgres_data_local:/var/lib/postgresql/data
       - postgres_backup_local:/backups
-    environment:
-      - POSTGRES_USER=construbot
-
+    env_file: .env
   # mailhog:
   #   image: mailhog/mailhog:v1.0.0
   #   ports:
