@@ -51,7 +51,7 @@ class VirtualenvWapperInstall(TestCase):
             run_mock.return_value = mocked
             process = devinstall.install_virtualenvwrapper()
             self.assertTrue(run_mock.called)
-            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper'])
+            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper', '-q'])
             self.assertEqual(process, 'virtualenvwrapper')
 
     @mock.patch('sys.platform', 'darwin')
@@ -63,7 +63,7 @@ class VirtualenvWapperInstall(TestCase):
             run_mock.return_value = mocked
             process = devinstall.install_virtualenvwrapper()
             self.assertTrue(run_mock.called)
-            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper'])
+            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper', '-q'])
             self.assertEqual(process, 'virtualenvwrapper')
 
     @mock.patch('sys.platform', 'win32')
@@ -75,7 +75,7 @@ class VirtualenvWapperInstall(TestCase):
             run_mock.return_value = mocked
             process = devinstall.install_virtualenvwrapper()
             self.assertTrue(run_mock.called)
-            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper-win'])
+            run_mock.assert_called_with(['pip3', 'install', 'virtualenvwrapper-win', '-q'])
             self.assertEqual(process, 'virtualenvwrapper-win')
 
 
@@ -273,7 +273,7 @@ class UpdateVirtualenV(TestCase):
                 ),
                 mock.call([
                     '/Users/myuser/.virtualenvs/construbot/bin/pip',
-                    'install', '-r', 'requirements/local.txt'
+                    'install', '-r', 'requirements/local.txt', '-q'
                 ]),
             ], any_order=True)
 
@@ -315,7 +315,7 @@ class UpdateVirtualenV(TestCase):
                 ),
                 mock.call([
                     'C:\\Users\\myuser\\Envs\\construbot\\Scripts\\pip',
-                    'install', '-r', 'requirements\\local.txt'
+                    'install', '-r', 'requirements\\local.txt', '-q'
                 ]),
             ], any_order=True)
 
