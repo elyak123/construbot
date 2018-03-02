@@ -45,7 +45,7 @@ def install_virtualenvwrapper(venv_folder=VIRTUAL_ENV_FOLDER):
         package = 'virtualenvwrapper'
     else:
         package = 'virtualenvwrapper-win'
-    subprocess.run(['pip3', 'install', package])
+    subprocess.run(['pip3', 'install', package, '-q'])
     return package
 
 
@@ -104,7 +104,7 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
         pip_location = venv_folder + '\Scripts\pip'
         coverage_location = venv_folder + '\Scripts\coverage'
         requirements_path = 'requirements\\local.txt'
-    subprocess.run([pip_location, 'install', '-r', requirements_path])
+    subprocess.run([pip_location, 'install', '-r', requirements_path, '-q'])
     # Tenemos que checar si los binarios tambien se instalaron correctamente...
     bin_test = subprocess.run(
         [coverage_location, '-h'],
@@ -115,9 +115,10 @@ def update_virtual_env(venv_folder=VIRTUAL_ENV_FOLDER):
     if bin_test.returncode != 0:
         # Si no... hay que reinstalar todas las dependencias... issue #1
         raise RuntimeError(
-            'Dependencies installed correctly, however binaries didn\'t. Please run:\n'
-            'pip uninstall -r requirements.txt -y && pip install -r requirements.txt\n'
-            'from inside the virtual environment')
+            'Dependencies installed correctly, however binaries didn\'t.This is a known issue.'
+            'Now, Please run in order:\n'
+            'workon %s\n'
+            'pip freeze | xargs pip uninstall -y -q && pip install -r requirements/local.txt -q\n' % VIRTUAL_ENV_NAME)
 
 
 def main(venv_name=VIRTUAL_ENV_NAME, venv_wrapper=SCRIPT_LOCATION, postactive_location=POSTACTIVE_LOCATION):
