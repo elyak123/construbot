@@ -18,5 +18,7 @@ clean:
 	@docker rm $(shell docker ps -a -q) -f
 	@docker rmi $(shell docker images -q) -f
 
+test:
+	@coverage run --source='.' manage.py test && coverage report
 cleanhard: clean
 	@docker volume prune -f

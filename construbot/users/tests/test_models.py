@@ -1,5 +1,7 @@
 from . import factories
+from django.contrib.auth.models import Group
 from test_plus.test import TestCase
+from construbot.users.models import User
 
 
 class TestUser(TestCase):
@@ -19,6 +21,27 @@ class TestUser(TestCase):
             self.user.get_absolute_url(),
             '/users/testuser/'
         )
+
+    def test_no_soy_administrador(self):
+        soy_admin = self.user.is_administrator()
+        self.assertEqual(soy_admin, False)
+
+    def test_si_soy_admin(self):
+        admin_group = Group.objects.create(name='Administrators')
+        self.user.groups.add(admin_group)
+        self.user.save()
+        soy_admin = self.user.is_administrator()
+        self.assertEqual(soy_admin, True)
+
+    def test_creacion_superusuario(self):
+        with self.assertRaises(ValueError):
+            super_user = User.objects.create_superuser(
+                username='super_user',
+                email='bla@bla.com',
+                password='top_secret',
+                is_staff=False,
+                is_superuser=False
+            )
 
 
 class TestFactories(TestCase):
