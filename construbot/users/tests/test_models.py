@@ -33,15 +33,35 @@ class TestUser(TestCase):
         soy_admin = self.user.is_administrator()
         self.assertEqual(soy_admin, True)
 
-    def test_creacion_superusuario(self):
+    def test_creacion_superusuario_no_es_staff(self):
         with self.assertRaises(ValueError):
-            super_user = User.objects.create_superuser(
+            User.objects.create_superuser(
                 username='super_user',
                 email='bla@bla.com',
                 password='top_secret',
                 is_staff=False,
+                is_superuser=True
+            )
+
+    def test_creacion_superusuario_no_es_super(self):
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(
+                username='super_user',
+                email='bla@bla.com',
+                password='top_secret',
+                is_staff=True,
                 is_superuser=False
             )
+
+    def test_correcta_creacion_superusuario(self):
+        superuser = User.objects.create_superuser(
+            username='super_user',
+            email='bla@bla.com',
+            password='top_secret',
+            is_staff=True,
+            is_superuser=True
+        )
+        self.assertEqual(superuser.username, 'super_user')
 
 
 class TestFactories(TestCase):

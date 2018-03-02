@@ -5,10 +5,6 @@ from django.test import TestCase
 class UserFormTest(TestCase):
     def test_userform_setting_is_correct(self):
         from django.conf import settings
-        try:
-            settings.ACCOUNT_SIGNUP_FORM_CLASS
-        except AttributeError:
-            self.fail('Django settings doesnt declare ACCOUNT_SIGNUP_FORM_CLASS')
         self.assertEqual(settings.ACCOUNT_SIGNUP_FORM_CLASS, 'construbot.users.forms.UserForm')
 
     def test_userform_post(self):
