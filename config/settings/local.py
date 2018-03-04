@@ -26,9 +26,10 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default='dBBWVE{B5,hH?fq[tzT>k%_q*z!/Tvb$R
 # ------------------------------------------------------------------------------
 
 EMAIL_PORT = 1025
-
-EMAIL_HOST = env('EMAIL_HOST', default='mailhog')
-
+# EMAIL_HOST = env('EMAIL_HOST', default='mailhog')
+EMAIL_HOST = 'localhost'
+EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND',
+                    default='django.core.mail.backends.console.EmailBackend')
 
 # CACHING
 # ------------------------------------------------------------------------------
