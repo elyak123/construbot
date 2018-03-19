@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 @python_2_unicode_compatible
 class Customer(models.Model):
-    customer_name = models.CharField(max_length=120, unique=True)
+    #customer_name = models.CharField(max_length=120, unique=True)
 
     class Meta:
         verbose_name = 'Customer'
@@ -41,7 +41,7 @@ class ExtendUserManager(UserManager):
         try:
             Customer.objects.get(id=1)
         except ObjectDoesNotExist:
-            Customer.objects.create(customer_name='God')
+            Customer.objects.create()
 
         extra_fields.setdefault('customer', Customer.objects.all().first())
 

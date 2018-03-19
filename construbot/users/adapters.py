@@ -6,7 +6,7 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 class AccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=True):
-        new_customer = Customer.objects.create(customer_name='yo')
+        new_customer = Customer.objects.create()
         user.customer = new_customer
         return super(AccountAdapter, self).save_user(request, user, form, commit=True)
 
