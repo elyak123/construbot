@@ -15,5 +15,6 @@ class UserFormTest(TestCase):
             'last_name': 'Last Name',
             'password1': 'Secret 19384',
             'password2': 'Secret 19384',
+            'company': 'Acme'
             })
-        self.assertTrue(form.is_valid(), 'Falta el customer')
+        self.assertTrue(form.is_valid(), form.errors)
