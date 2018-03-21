@@ -1,9 +1,14 @@
 # from django import forms
 from .models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import forms
+from django.utils.translation import ugettext_lazy as _
 
 
-class UserForm(UserCreationForm):
+class UserForm(forms.UserCreationForm):
+    company = forms.CharField(
+        label=_('Empresa Principal'),
+        help_text=_('Para comenzar es necesario crear una empresa en la cual trabajar.')
+    )
 
     def signup(self, request, user):
         pass
