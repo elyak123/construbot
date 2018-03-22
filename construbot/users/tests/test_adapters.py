@@ -17,4 +17,5 @@ class AccountAdapterTest(TestCase):
             'last_name': 'Doe',
             'company': 'My own company',
         })
-        self.assertEqual(User.objects.count(), 1)
+        user = User.objects.get(username='Joe')
+        self.assertEqual(user.email, 'bla@example.com')

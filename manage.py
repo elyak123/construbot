@@ -38,7 +38,21 @@ if __name__ == "__main__":
                 "forget to activate a virtual environment?"
             )
         raise
+    TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+    if TESTING:
+        print('=========================')
+        print('In TEST Mode - Disableling Migrations')
+        print('=========================')
 
+        class DisableMigrations(object):
+
+            def __contains__(self, item):
+                return True
+
+            def __getitem__(self, item):
+                return "notmigrations"
+
+        MIGRATION_MODULES = DisableMigrations()
     # This allows easy placement of apps within the interior
     # construbot directory.
     current_path = os.path.dirname(os.path.abspath(__file__))
