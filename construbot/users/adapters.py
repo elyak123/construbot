@@ -5,6 +5,7 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 
 class AccountAdapter(DefaultAccountAdapter):
+
     def save_user(self, request, user, form, commit=True):
         new_customer = Customer.objects.create()
         empresa = Company.objects.create(company_name=form.cleaned_data['company'], customer=new_customer)
@@ -14,7 +15,7 @@ class AccountAdapter(DefaultAccountAdapter):
         return user
 
     def get_login_redirect_url(self, request):
-        super(AccountAdapter, self).get_login_redirect_url(self, request)
+        super(AccountAdapter, self).get_login_redirect_url(request)
 
     def is_open_for_signup(self, request):
         return getattr(settings, 'ACCOUNT_ALLOW_REGISTRATION', True)
