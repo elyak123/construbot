@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import ugettext_lazy as _
-from .models import User
+from .models import User, Company
 
 
 class UserForm(UserCreationForm):
@@ -12,7 +12,8 @@ class UserForm(UserCreationForm):
     )
 
     def signup(self, request, user):
-        pass
+        empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
+        user.company.add(empresa)
 
     class Meta:
         model = User

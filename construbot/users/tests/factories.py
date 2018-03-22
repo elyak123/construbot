@@ -3,7 +3,7 @@ from construbot.users.models import Customer, Company, User
 
 
 class CustomerFactory(factory.django.DjangoModelFactory):
-    #customer_name = factory.Sequence(lambda n: 'customer-{0}'.format(n))
+    customer_name = factory.Sequence(lambda n: 'customer-{0}'.format(n))
 
     class Meta:
         model = Customer

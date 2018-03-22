@@ -1,18 +1,15 @@
 from django.conf import settings
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from .models import Customer, Company
+from .models import Customer
 
 
 class AccountAdapter(DefaultAccountAdapter):
 
     def save_user(self, request, user, form, commit=True):
         new_customer = Customer.objects.create()
-        empresa = Company.objects.create(company_name=form.cleaned_data['company'], customer=new_customer)
         user.customer = new_customer
-        super(AccountAdapter, self).save_user(request, user, form, commit=True)
-        user.company.add(empresa)
-        return user
+        return super(AccountAdapter, self).save_user(request, user, form, commit=True)
 
     def get_login_redirect_url(self, request):
         super(AccountAdapter, self).get_login_redirect_url(request)

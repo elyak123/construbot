@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from home.contextmgnt import ContextManager
+from core.context import ContextManager
 
 
 class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):

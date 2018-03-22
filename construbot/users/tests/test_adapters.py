@@ -9,7 +9,7 @@ class AccountAdapterTest(TestCase):
 
     def test_singup_correct_requirements(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):
-            request = self.client.post(reverse('account_signup'), data={
+            self.client.post(reverse('account_signup'), data={
                 'email': 'bla@example.com',
                 'username': 'Joe',
                 'password1': 'super_secret',
@@ -19,4 +19,4 @@ class AccountAdapterTest(TestCase):
                 'company': 'My own company',
             })
             user = User.objects.get(username='Joe')
-            self.assertEqual(user.email, 'bla@example.com')
+            self.assertIn('My own company', [x.company_name for x in user.company.all()])
