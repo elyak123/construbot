@@ -1,5 +1,3 @@
-from django.test import RequestFactory
-
 from test_plus.test import TestCase
 from django.urls import reverse
 from construbot.users.models import User
