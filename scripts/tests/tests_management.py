@@ -139,7 +139,7 @@ class MakeVirtualEnv(TestCase):
             run_mock.return_value = mocked
             devinstall.get_windows_script_location('mkvirtualenv')
             run_mock.assert_called_with(
-                ['dir', '\ad', 'C:\\/Scripts'],
+                ['dir', '\ad', 'C:\\Scripts'],
                 shell=True, stdout=subprocess.PIPE
             )
 
