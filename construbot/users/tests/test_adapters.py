@@ -1,7 +1,6 @@
 # from unittest import skip
 from test_plus.test import TestCase
 from django.urls import reverse
-from django.conf import settings
 from construbot.users.models import User, Company
 from django.contrib.auth.models import Group
 from . import factories

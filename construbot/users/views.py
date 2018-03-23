@@ -51,10 +51,16 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
 
 
 class UserListView(AuthenticationTestMixin, ListView):
+    app_label_name = UsersConfig.verbose_name
+    # TODO: quitar estas variables y manejar esto desde
+    # los templates
+    title = ''
+    description = ''
+
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(company=self.current_user.currently_at)
+        return self.model.objects.filter(company=self.current_user.currently_at)
