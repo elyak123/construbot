@@ -1,7 +1,7 @@
 from . import factories
 from django.contrib.auth.models import Group
 from test_plus.test import TestCase
-from construbot.users.models import User
+from construbot.users.models import User, Company
 
 
 class TestUser(TestCase):
@@ -72,6 +72,13 @@ class TestFactories(TestCase):
         user.save()
         # Just checking it was saved to db
         self.assertIn('user', user.username)
+
+    # def test_user_and_its_company_same_customer(self):
+    #     user = factories.UserFactory()
+    #     user.full_clean()
+    #     user.save()
+    #     company = Company.objects.create(company_name='My_company', customer=user.customer)
+    #     self.assertEqual(user.customer, company.customer)
 
     def test_Company_Factory_saved(self):
         company = factories.CompanyFactory()

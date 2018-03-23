@@ -11,9 +11,6 @@ class AccountAdapter(DefaultAccountAdapter):
         user.customer = new_customer
         return super(AccountAdapter, self).save_user(request, user, form, commit=True)
 
-    def get_login_redirect_url(self, request):
-        super(AccountAdapter, self).get_login_redirect_url(request)
-
     def is_open_for_signup(self, request):
         return getattr(settings, 'ACCOUNT_ALLOW_REGISTRATION', True)
 

@@ -23,6 +23,28 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', 'password')
     customer = factory.SubFactory(CustomerFactory)
 
+    @factory.post_generation
+    def company(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for co in extracted:
+                self.company.add(co)
+    
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for group in extracted:
+                self.groups.add(group)
+
     class Meta:
         model = User
         django_get_or_create = ('username', )

@@ -1,19 +1,31 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-
+from .auth import AuthenticationTestMixin
+from .apps import UsersConfig
 from .models import User
 
 
-class UserDetailView(LoginRequiredMixin, DetailView):
+class UserDetailView(AuthenticationTestMixin, DetailView):
+    app_label_name = UsersConfig.verbose_name
+    # TODO: quitar estas variables y manejar esto desde
+    # los templates
+    title = ''
+    description = ''
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
+    def get_object(self, queryset=None):
+        if self.kwargs.get('username'):
+            return User.objects.get(username=self.kwargs['username'])
+        else:
+            return self.request.user
 
-class UserRedirectView(LoginRequiredMixin, RedirectView):
+
+class UserRedirectView(AuthenticationTestMixin, RedirectView):
+    app_label_name = UsersConfig.verbose_name
     permanent = False
 
     def get_redirect_url(self):
@@ -21,7 +33,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
                        kwargs={'username': self.request.user.username})
 
 
-class UserUpdateView(LoginRequiredMixin, UpdateView):
+class UserUpdateView(AuthenticationTestMixin, UpdateView):
 
     fields = ['name', ]
 
@@ -38,8 +50,11 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         return User.objects.get(username=self.request.user.username)
 
 
-class UserListView(LoginRequiredMixin, ListView):
+class UserListView(AuthenticationTestMixin, ListView):
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
+
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(company=self.current_user.currently_at)

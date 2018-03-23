@@ -22,7 +22,6 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
         self.user_pass = self.current_user.is_authenticated
         self.permiso_administracion = self.auth_admin()
         self.debo_ser_admin = self.get_tengo_que_ser_admin()
-
         if self.user_pass:
             if self.debo_ser_admin and not self.permiso_administracion:
                 raise PermissionDenied
