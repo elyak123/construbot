@@ -19,7 +19,7 @@ class AccountAdapterTest(TestCase):
                 'first_name': 'Joe',
                 'last_name': 'Doe',
                 'company': 'My own company',
-            })
+            }, follow=True)
             user = User.objects.get(username='Joe')
             self.assertIn('My own company', [x.company_name for x in user.company.all()])
 
@@ -33,7 +33,7 @@ class AccountAdapterTest(TestCase):
                 'first_name': 'Joe',
                 'last_name': 'Doe',
                 'company': 'My own company',
-            })
+            }, follow=True)
             self.assertRedirects(response, reverse('users:detail', kwargs={'username': 'Joe'}))
 
 
@@ -49,5 +49,5 @@ class LoginAccountTest(TestCase):
     def test_login_successful(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):
             self.client.login(username=self.user.username, password='password')
-            response = self.client.get(reverse('account_login'))
+            response = self.client.get(reverse('account_login'), follow=True)
             self.assertRedirects(response, reverse('users:detail', kwargs={'username': self.user.username}))
