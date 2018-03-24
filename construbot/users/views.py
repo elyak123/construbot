@@ -63,4 +63,4 @@ class UserListView(AuthenticationTestMixin, ListView):
     slug_url_kwarg = 'username'
 
     def get_queryset(self):
-        return self.model.objects.filter(company=self.current_user.currently_at)
+        return self.model.objects.filter(company=self.request.user.currently_at)

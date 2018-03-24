@@ -9,20 +9,17 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
     tengo_que_ser_admin = False
 
     def test_func(self):
-        self.current_user = self.request.user
-
-        if self.current_user.company.exists():
-            if not self.current_user.currently_at:
-                self.current_user.currently_at = self.current_user.company.first()
-                self.current_user.save()
+        if self.request.user.company.exists():
+            if not self.request.user.currently_at:
+                self.request.user.currently_at = self.request.user.company.first()
+                self.request.user.save()
         else:
             raise AttributeError('Current User must have company')
 
-        self.user_groups = [x.name.lower() for x in self.current_user.groups.all()]
-        self.user_pass = self.current_user.is_authenticated
+        self.user_groups = [x.name.lower() for x in self.request.user.groups.all()]
         self.permiso_administracion = self.auth_admin()
         self.debo_ser_admin = self.get_tengo_que_ser_admin()
-        if self.user_pass:
+        if self.request.user.is_authenticated:
             if self.debo_ser_admin and not self.permiso_administracion:
                 raise PermissionDenied
             elif self.app_label_name.lower() in self.user_groups:
@@ -33,12 +30,12 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
             return False
 
     def auth_admin(self):
-        return self.current_user.is_administrator()
+        return self.request.user.is_administrator()
 
     def get_context_data(self, **kwargs):
         context = super(AuthenticationTestMixin, self).get_context_data(**kwargs)
-        context['current_user'] = self.current_user
-        context['user_pass'] = self.user_pass
+        context['current_user'] = self.request.user
+        context['user_pass'] = self.request.user.is_authenticated
         context['is_administrador'] = self.permiso_administracion
         return context
 
