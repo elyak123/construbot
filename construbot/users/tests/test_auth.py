@@ -1,7 +1,8 @@
 from django.test import RequestFactory
-from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Group
 from test_plus.test import TestCase
+from construbot.users.models import Company
 from construbot.users.auth import AuthenticationTestMixin
 from . import factories
 
@@ -18,4 +19,28 @@ class AuthTest(TestCase):
         request.user = self.user
         auth.request = request
         with self.assertRaises(AttributeError):
+            auth.test_func()
+
+    def test_user_with_company_no_curently_gets_assigned(self):
+        company = Company.objects.create(company_name='A company', customer=self.user.customer)
+        self.user.company.add(company)
+        auth = AuthenticationTestMixin()
+        request = self.factory.get('bla/bla')
+        request.user = self.user
+        group = Group.objects.create(name='foo')
+        request.user.groups.add(group)
+        auth.request = request
+        auth.app_label_name = 'foo'
+        auth.test_func()
+        self.assertEqual(company, self.user.currently_at)
+
+    def test_user_accessing_app_not_in_groups(self):
+        company = Company.objects.create(company_name='A company', customer=self.user.customer)
+        self.user.company.add(company)
+        auth = AuthenticationTestMixin()
+        request = self.factory.get('bla/bla')
+        request.user = self.user
+        auth.request = request
+        auth.app_label_name = 'bar'
+        with self.assertRaises(PermissionDenied):
             auth.test_func()
