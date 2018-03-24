@@ -79,7 +79,7 @@ class TestListUserView(BaseUserTestCase):
 
     def additional_users_different_customer(self):
         self.user1_different_customer = self.make_user(username='foreign_user')
-        group = Group.objects.get_or_create(name='Users')
+        group, created = Group.objects.get_or_create(name='Users')
         company = Company.objects.create(company_name='another_company', customer=self.user.customer)
         self.user.company.add(company)
         self.user.groups.add(group)
