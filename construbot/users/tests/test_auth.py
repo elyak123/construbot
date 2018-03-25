@@ -1,6 +1,6 @@
 from django.test import RequestFactory
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, AnonymousUser
 from test_plus.test import TestCase
 from construbot.users.models import Company
 from construbot.users.auth import AuthenticationTestMixin
@@ -34,10 +34,29 @@ class AuthTest(TestCase):
         auth.test_func()
         self.assertEqual(company, self.user.currently_at)
 
+    def test_AnonymousUser_returns_false(self):
+        auth = AuthenticationTestMixin()
+        request = self.factory.get('bla/bla')
+        request.user = AnonymousUser()
+        auth.request = request
+        self.assertFalse(auth.test_func())
+
     def test_user_accessing_app_not_in_groups(self):
         company = Company.objects.create(company_name='A company', customer=self.user.customer)
         self.user.company.add(company)
         auth = AuthenticationTestMixin()
+        request = self.factory.get('bla/bla')
+        request.user = self.user
+        auth.request = request
+        auth.app_label_name = 'bar'
+        with self.assertRaises(PermissionDenied):
+            auth.test_func()
+
+    def test_tengo_que_ser_admin_no_permiso_administracion(self):
+        company = Company.objects.create(company_name='A company', customer=self.user.customer)
+        self.user.company.add(company)
+        auth = AuthenticationTestMixin()
+        auth.tengo_que_ser_admin = True
         request = self.factory.get('bla/bla')
         request.user = self.user
         auth.request = request
