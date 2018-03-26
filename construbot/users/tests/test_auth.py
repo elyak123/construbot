@@ -91,4 +91,4 @@ class AuthTest(utils.BaseTestCase):
         view.request.user.company.add(company)
         view.app_label_name = 'bla'
         with self.assertRaises(PermissionDenied):
-            self.assertTrue(view.test_func())
+            view.test_func()

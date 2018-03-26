@@ -22,8 +22,6 @@ class ContextManager(ContextMixin):
         context_menu = copy.deepcopy(self.menu)
         menu_2 = copy.deepcopy(self.menu_specific)
         menu_2.reverse()
-        if len(self.user_groups) == 0:
-            context_menu = []
         shallow_menu = []
         for count, single_menu in enumerate(context_menu):
             if single_menu['title'].lower() in self.user_groups:
