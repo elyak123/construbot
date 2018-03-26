@@ -76,12 +76,19 @@ class AuthTest(utils.BaseTestCase):
         with self.assertRaises(PermissionDenied):
             view.test_func()
 
-    def test_usuario_con_permiso_administracion_return_true(self):
+    def test_usuario_con_permiso_no_apps_permission_denied(self):
         view = self.get_instance(
             AuthenticationTestMixin,
             request=self.get_request(self.user)
         )
         view.tengo_que_ser_admin = True
+        company = Company.objects.create(
+            company_name='this company',
+            customer=view.request.user.customer
+        )
         admin_group = Group.objects.create(name='Administrators')
         view.request.user.groups.add(admin_group)
-        self.assertTrue(view.test_func())
+        view.request.user.company.add(company)
+        view.app_label_name = 'bla'
+        with self.assertRaises(PermissionDenied):
+            self.assertTrue(view.test_func())
