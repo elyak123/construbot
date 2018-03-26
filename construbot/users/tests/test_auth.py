@@ -1,25 +1,23 @@
 from django.test import RequestFactory
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Group, AnonymousUser
-from test_plus.test import TestCase
+# from test_plus.test import TestCase
 from construbot.users.models import Company
 from construbot.users.auth import AuthenticationTestMixin
 from . import factories
+from . import utils
 
 
-class AuthTest(TestCase):
+class AuthTest(utils.BaseTestCase):
     def setUp(self):
         self.user_factory = factories.UserFactory
         self.user = self.make_user()
         self.factory = RequestFactory()
 
     def test_user_no_company_raises_error(self):
-        auth = AuthenticationTestMixin()
-        request = self.factory.get('bla/bla')
-        request.user = self.user
-        auth.request = request
+        view = self.get_instance(AuthenticationTestMixin, request=self.get_request(self.user))
         with self.assertRaises(AttributeError):
-            auth.test_func()
+            view.test_func()
 
     def test_user_with_company_no_curently_gets_assigned(self):
         company = Company.objects.create(company_name='A company', customer=self.user.customer)
