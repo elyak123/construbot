@@ -12,6 +12,8 @@ class ContextManager(ContextMixin):
     menu_specific = []
 
     def get_title(self):
+        # TODO: Los titulos deben provenir de los
+        #       templates...
         if not self.title:
             return self.__str__()
         return self.title
