@@ -34,3 +34,30 @@ class UserForm(UserCreationForm):
             'last_supervised',
             'currently_at',
         ]
+
+
+class UsuarioInterno(UserForm):
+    def signup(self, request, user):
+        pass
+
+    # def save(self, *args, **kwargs):
+        # user = super(UsuarioInterno, self).get_queryset()
+        # user.customer = s
+        # user.company = self.current_user
+        # super(user, self).save(*args, **kwargs)
+
+    # class Meta:
+    #     model = User
+    #     exclude = [
+    #         'password',
+    #         'customer',
+    #         'company',
+    #         'last_login',
+    #         'is_superuser',
+    #         'user_permissions',
+    #         'is_staff',
+    #         'is_active',
+    #         'date_joined',
+    #         'last_supervised',
+    #         'currently_at',
+    #     ]

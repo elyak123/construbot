@@ -50,6 +50,15 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
         return User.objects.get(username=self.request.user.username)
 
 
+# class UserCreateView(AuthenticationTestMixin, CreateView):
+#     form_class = UsuarioInterno
+#     fields = ['name', ]
+
+#     def get_object(self):
+#         # Only get the User record for the user making the request
+#         return User.objects.get(username=self.request.user.username)
+
+
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name
     # TODO: quitar estas variables y manejar esto desde

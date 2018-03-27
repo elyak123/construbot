@@ -55,4 +55,3 @@ services:
   #     - mailhog
   #   ports: []
   #   command: /start-celerybeat.sh
-

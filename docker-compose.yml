@@ -54,4 +54,3 @@ services:
       - postgres
       - redis
     command: /start-celerybeat.sh
-
