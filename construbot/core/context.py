@@ -1,6 +1,6 @@
 import copy
 from django.views.generic.base import ContextMixin
-from django.urls import reverse
+from django import urls
 from .menu import main_menu
 
 
@@ -40,11 +40,11 @@ class ContextManager(ContextMixin):
     def get_reverse_menu_urls(self, cxt_menu):
         for element in cxt_menu:
             if element.get('url'):
-                element['url'] = reverse(element['url'], kwargs=element.get('urlkwargs'))
+                element['url'] = urls.reverse(element['url'], kwargs=element.get('urlkwargs'))
             if element.get('submenu'):
                 for subelement in element['submenu']:
                     if subelement.get('url'):
-                        subelement['url'] = reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
+                        subelement['url'] = urls.reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
         return cxt_menu
 
     def get_admin_menu(self):
