@@ -40,7 +40,7 @@ class UsuarioInterno(UserForm):
     def signup(self, request, user):
         pass
 
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
         # user = super(UsuarioInterno, self).get_queryset()
         # user.customer = s
         # user.company = self.current_user
