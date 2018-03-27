@@ -1,4 +1,5 @@
-from test_plus.test import TestCase, CBVTestCase
+from test_plus.test import CBVTestCase
+
 
 class BaseTestCase(CBVTestCase):
     def get_request(self, user, url='bla/bla'):

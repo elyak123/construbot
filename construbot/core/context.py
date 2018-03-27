@@ -1,6 +1,6 @@
 import copy
 from django.views.generic.base import ContextMixin
-from django.urls import reverse
+from django import urls
 from .menu import main_menu
 
 
@@ -12,6 +12,8 @@ class ContextManager(ContextMixin):
     menu_specific = []
 
     def get_title(self):
+        # TODO: Los titulos deben provenir de los
+        #       templates...
         if not self.title:
             return self.__str__()
         return self.title
@@ -20,8 +22,6 @@ class ContextManager(ContextMixin):
         context_menu = copy.deepcopy(self.menu)
         menu_2 = copy.deepcopy(self.menu_specific)
         menu_2.reverse()
-        if len(self.user_groups) == 0:
-            context_menu = []
         shallow_menu = []
         for count, single_menu in enumerate(context_menu):
             if single_menu['title'].lower() in self.user_groups:
@@ -40,11 +40,11 @@ class ContextManager(ContextMixin):
     def get_reverse_menu_urls(self, cxt_menu):
         for element in cxt_menu:
             if element.get('url'):
-                element['url'] = reverse(element['url'], kwargs=element.get('urlkwargs'))
+                element['url'] = urls.reverse(element['url'], kwargs=element.get('urlkwargs'))
             if element.get('submenu'):
                 for subelement in element['submenu']:
                     if subelement.get('url'):
-                        subelement['url'] = reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
+                        subelement['url'] = urls.reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
         return cxt_menu
 
     def get_admin_menu(self):
