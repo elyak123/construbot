@@ -1,5 +1,5 @@
 from django.test import RequestFactory
-from construbot.users.test import utils, factories
+from construbot.users.tests import utils, factories
 # Create your tests here.
 
 class ContextTests(utils.BaseTestCase):
