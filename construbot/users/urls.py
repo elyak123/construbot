@@ -16,15 +16,15 @@ urlpatterns = [
         name='redirect'
     ),
     url(
+        regex=r'^new/$',
+        view=views.UserCreateView.as_view(),
+        name='detail'
+    ),
+    url(
         regex=r'^(?P<username>[\w.@+-]+)/$',
         view=views.UserDetailView.as_view(),
         name='detail'
     ),
-    # url(
-    #     regex=r'^new/$',
-    #     view=views.UserCreateView.as_view(),
-    #     name='detail'
-    # ),
     url(
         regex=r'^~update/$',
         view=views.UserUpdateView.as_view(),

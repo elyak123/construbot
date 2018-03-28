@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
-
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
 from .models import User
+from .forms import UsuarioInterno
 
 
 class UserDetailView(AuthenticationTestMixin, DetailView):
@@ -46,14 +46,28 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
         return User.objects.get(username=self.request.user.username)
 
 
-# class UserCreateView(AuthenticationTestMixin, CreateView):
-#     form_class = UsuarioInterno
-#     fields = ['name', ]
+class UserCreateView(AuthenticationTestMixin, CreateView):
+    form_class = UsuarioInterno
+    app_label_name = UsersConfig.verbose_name
+    template_name = 'users/user_form.html'
 
-#     def get_object(self):
-#         # Only get the User record for the user making the request
-#         return User.objects.get(username=self.request.user.username)
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
 
+    def get_initial(self):
+        initial = super(UserCreateView, self).get_initial()
+        initial['customer'] = self.request.user.customer
+        return initial
+
+    def get_context_data(self, **kwargs):
+        """
+        Insert the form into the context dict.
+        """
+        if 'form' not in kwargs:
+            kwargs['form'] = self.get_form()
+        return super(UserCreateView, self).get_context_data(**kwargs)
 
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name

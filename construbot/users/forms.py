@@ -15,8 +15,10 @@ class UserForm(UserCreationForm):
     def signup(self, request, user):
         empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
         user_group, created = Group.objects.get_or_create(name='Users')
+        admin_group, admin_created = Group.objects.get_or_create(name='Administrators')
         user.company.add(empresa)
         user.groups.add(user_group)
+        user.groups.add(admin_group)
 
     class Meta:
         model = User
@@ -33,31 +35,31 @@ class UserForm(UserCreationForm):
             'date_joined',
             'last_supervised',
             'currently_at',
+            'name',
         ]
 
 
-class UsuarioInterno(UserForm):
-    def signup(self, request, user):
-        pass
+class UsuarioInterno(UserCreationForm):
 
-    # def save(self, *args, **kwargs):
-        # user = super(UsuarioInterno, self).get_queryset()
-        # user.customer = s
-        # user.company = self.current_user
-        # super(user, self).save(*args, **kwargs)
+    def __init__(self, user, *args, **kwargs):
+        super(UsuarioInterno, self).__init__(*args, **kwargs)
+        self.fields['company'].queryset = Company.objects.filter(customer=user.customer)
 
-    # class Meta:
-    #     model = User
-    #     exclude = [
-    #         'password',
-    #         'customer',
-    #         'company',
-    #         'last_login',
-    #         'is_superuser',
-    #         'user_permissions',
-    #         'is_staff',
-    #         'is_active',
-    #         'date_joined',
-    #         'last_supervised',
-    #         'currently_at',
-    #     ]
+    class Meta:
+        model = User
+        exclude = [
+            'password',
+            'last_login',
+            'is_superuser',
+            'user_permissions',
+            'is_staff',
+            'is_active',
+            'date_joined',
+            'last_supervised',
+            'currently_at',
+            'name',
+        ]
+
+        widgets = {
+            'customer': forms.HiddenInput(),
+        }
