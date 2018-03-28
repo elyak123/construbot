@@ -24,7 +24,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     customer = factory.SubFactory(CustomerFactory)
 
     @factory.post_generation
-    def company(self, create, extracted, **kwargs):
+    def company(self, create, extracted, **kwargs):  # pragma: no cover
         if not create:
             # Simple build, do nothing.
             return
@@ -33,9 +33,9 @@ class UserFactory(factory.django.DjangoModelFactory):
             # A list of groups were passed in, use them
             for co in extracted:
                 self.company.add(co)
-    
+
     @factory.post_generation
-    def groups(self, create, extracted, **kwargs):
+    def groups(self, create, extracted, **kwargs):  # pragma: no cover
         if not create:
             # Simple build, do nothing.
             return
