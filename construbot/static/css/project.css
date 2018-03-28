@@ -69,7 +69,7 @@ a:hover {
 .anchor_menu_nav, .anchor_brand {
 	color: white;
 	display: inline-block;
-	padding: 1.1em .9em;
+	padding: 1.1em;
 	transition: .2s;
 }
 
@@ -154,3 +154,12 @@ a:hover {
 	margin: 20px 20px 0 20px;
 }
 /*FIN DE ESTILOS PARA MENÚ LATERAL*/
+
+/*QUERYSETS*/
+/*PARA LA BARRA SUPERIOR*/
+@media screen and (max-width: 400px){
+  .anchor_menu_nav, .anchor_brand {
+	padding: 1.1em .5em;
+  }
+
+/*FIN DE QUERYSETS*/
