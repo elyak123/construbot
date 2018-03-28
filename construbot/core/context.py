@@ -11,7 +11,7 @@ class ContextManager(ContextMixin):
 
     menu_specific = []
 
-    def get_menu(self, extra_menu=None):
+    def get_menu(self):
         context_menu = copy.deepcopy(self.menu)
         menu_2 = copy.deepcopy(self.menu_specific)
         menu_2.reverse()
@@ -26,8 +26,6 @@ class ContextManager(ContextMixin):
                 if self.app_label_name.lower() == element['title'].lower():
                     for number, el in enumerate(menu_2, 1):
                         shallow_menu.insert(counter + 1, el)
-        if extra_menu:
-            shallow_menu.append(extra_menu)
         return self.get_reverse_menu_urls(shallow_menu)
 
     def get_reverse_menu_urls(self, cxt_menu):
