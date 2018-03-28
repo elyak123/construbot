@@ -1,5 +1,8 @@
 main_menu = [
     {
+        'title': 'Users',
+    },
+    {
         'title': 'Home',
         'url': 'home:index',
         'urlkwargs': None,
