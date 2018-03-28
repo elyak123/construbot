@@ -8,10 +8,6 @@ from .models import User
 
 class UserDetailView(AuthenticationTestMixin, DetailView):
     app_label_name = UsersConfig.verbose_name
-    # TODO: quitar estas variables y manejar esto desde
-    # los templates
-    title = ''
-    description = ''
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
@@ -61,11 +57,6 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
 
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name
-    # TODO: quitar estas variables y manejar esto desde
-    # los templates
-    title = ''
-    description = ''
-
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'

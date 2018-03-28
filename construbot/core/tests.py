@@ -13,14 +13,14 @@ class ContextTests(utils.BaseTestCase):
         with mock.patch('django.urls.reverse') as reverse_mock:
             reverse_mock.return_value = '/fake/url/'
             reverse_mock.side_effect = 'fake/url/'
-            ContextManager.user_groups = [
+            view = ContextManager()
+            view.user_groups = [
                 'home', 'documentos', 'pendientes', 'proyectos'
             ]
-            view = ContextManager()
             menu = view.get_menu()
             for obj in menu:
                 self.assertTrue(
-                    obj['title'].lower() in ContextManager.user_groups,
+                    obj['title'].lower() in view.user_groups,
                     '%s is not in user_groups' % obj['title']
                 )
 

@@ -11,13 +11,6 @@ class ContextManager(ContextMixin):
 
     menu_specific = []
 
-    def get_title(self):
-        # TODO: Los titulos deben provenir de los
-        #       templates...
-        if not self.title:
-            return self.__str__()
-        return self.title
-
     def get_menu(self, extra_menu=None):
         context_menu = copy.deepcopy(self.menu)
         menu_2 = copy.deepcopy(self.menu_specific)
@@ -52,11 +45,6 @@ class ContextManager(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ContextManager, self).get_context_data(**kwargs)
-        home_dict = {
-            'title': self.get_title(),
-            'description': self.description
-        }
-        context['home'] = home_dict
         context['menu'] = self.get_menu()
         context['app_label_name'] = self.app_label_name.lower()
         return context
