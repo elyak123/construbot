@@ -38,9 +38,6 @@ class ContextManager(ContextMixin):
                         subelement['url'] = urls.reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
         return cxt_menu
 
-    def get_admin_menu(self):
-        pass
-
     def get_context_data(self, **kwargs):
         context = super(ContextManager, self).get_context_data(**kwargs)
         context['menu'] = self.get_menu()
