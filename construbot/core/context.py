@@ -29,6 +29,8 @@ class ContextManager(ContextMixin):
         return self.get_reverse_menu_urls(shallow_menu)
 
     def get_reverse_menu_urls(self, cxt_menu):
+        # TODO: No se puede hacer test de este método hasta que tenga
+        #       las urls definitivas "registradas" para el menú
         for element in cxt_menu:
             if element.get('url'):
                 element['url'] = urls.reverse(element['url'], kwargs=element.get('urlkwargs'))
