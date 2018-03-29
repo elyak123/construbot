@@ -20,25 +20,67 @@
   display: block !important;
 }
 
+/*ESTILOS GENERALES*/
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: none;
+}
+.content_with_sidebar {
+	margin: 10px 10px 0 210px;
+}
+
+.content_without_sidebar {
+	margin: 10px 30px 0 30px;
+}
+/*FIN DE ESTILOS GENERALES*/
+
 /*ESTILOS PARA NAV PERSONALIZADO*/
-.navbar-custom {
-    background-color: #3c3e4a;
+.cont_nav_navegacion {
+	height: 60px;
 }
 
-.nav-link {
+.nav_navegacion {
+	position: fixed;
+	background-color: #3c3e4a;
+	height: 60px;
+	width: 100%;
+	z-index: 1;
+	top: 0;
+}
+
+.cont_list_menu_nav {
+	display: block;
+	float: right;
+}
+
+.list_menu_nav {
+	list-style: none;
+	padding: 0;
+}
+
+.li_menu_nav {
+	display: inline-block;
+	height: 60px;
+}
+
+.anchor_menu_nav, .anchor_brand {
 	color: white;
+	display: inline-block;
+	padding: 1.1em;
+	transition: .2s;
 }
 
-.navbar-toggler-icon {
-	color: #ffffff80;
-}
-
-.navbar-toggler {
-	background-color: #f8f9fa;
+.anchor_menu_nav:hover, .anchor_brand:hover {
+	color: #c4c4c4;
 }
 /*FIN DE ESTILOS PARA NAV PERSONALIZADO*/
+
 /*ESTILOS PARA EL MENÚ LATERAL*/
-.c_m_lateral {
+.cont_menu_lateral {
+	top: 60px;
 	position: fixed;
 	width: 200px;
 	background-color: #e6e7e9;
@@ -46,12 +88,12 @@
 	height: 100%;
 }
 
-.m_lateral {
+.menu_lateral {
 	width: 100%;
 	height: 100%;
 }
 
-.l_menu {
+.list_menu {
 	list-style: none;
 	width: 100%;
 	padding: 0;
@@ -67,52 +109,57 @@
 	box-shadow: inset 0px 0px 7px 0px;
 }
 
-.a_menu_item, .a_menu_subitem {
+.anchor_menu_item, .anchor_menu_subitem {
 	cursor: pointer;
 }
 
-.a_menu_item {
+.anchor_menu_item {
 	display: block;
 	padding: 1em 0 1em 15px;
 }
 
-.a_menu_subitem {
+.anchor_menu_subitem {
 	display: block;
 	padding: .3em 0 .3em 25px;
 }
 
-.l_subsubmenu {
+.list_subsubmenu {
 	display: none;
 	width: 140px;
 	list-style: none;
 	padding: 0;
 }
 
-.l_subsubmenu > li {
+.list_subsubmenu > li {
 	padding: 8px 16px;
 }
 
-.li_menu_subitem:hover > .l_subsubmenu {
+.li_menu_subitem:hover > .list_subsubmenu {
 	display: block;
     background: gray;
     margin-left: 200px;
     margin-top: -2.1em;
 }
 
-.m_subsubmenu > ul {
+.menu_subsubmenu > ul {
 	padding: 0;
 	list-style: none;
 }
 
-.m_subsubmenu > ul > li{
-	padding: 5px 20px;
-}
-
-.ic_menu {
+.icon_menu {
 	padding-right: 10px;
 }
 
 .page_content {
 	margin: 20px 20px 0 20px;
 }
-/*FIN DE ESTILOS PARA MENÚ LATERAL
+/*FIN DE ESTILOS PARA MENÚ LATERAL*/
+
+/*QUERYSETS*/
+/*PARA LA BARRA SUPERIOR*/
+@media screen and (max-width: 400px){
+  .anchor_menu_nav, .anchor_brand {
+	padding: 1.1em .5em;
+  }
+
+/*FIN DE QUERYSETS*/
