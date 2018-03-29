@@ -49,12 +49,15 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
 class UserCreateView(AuthenticationTestMixin, CreateView):
     form_class = UsuarioInterno
     app_label_name = UsersConfig.verbose_name
-    template_name = 'users/user_form.html'
+    template_name = 'users/create_user.html'
 
     def get_form(self, form_class=None):
         if form_class is None:
             form_class = self.get_form_class()
         return form_class(self.request.user, **self.get_form_kwargs())
+
+    def get_success_url(self):
+        return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_initial(self):
         initial = super(UserCreateView, self).get_initial()

@@ -18,10 +18,10 @@ urlpatterns = [
     url(
         regex=r'^new/$',
         view=views.UserCreateView.as_view(),
-        name='detail'
+        name='new'
     ),
     url(
-        regex=r'^(?P<username>[\w.@+-]+)/$',
+        regex=r'^detail/(?P<username>[\w.@+-]+)/$',
         view=views.UserDetailView.as_view(),
         name='detail'
     ),
