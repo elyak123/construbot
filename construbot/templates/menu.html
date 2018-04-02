@@ -6,15 +6,22 @@
       </li>
       {% for i in menu %}
       <li class="li_menu_item"><a class="anchor_menu_item" href="{{ i.url }}"><span class="icon_menu oi oi-{{ i.icon }}"></span>{{ i.title }}</a></li>
-      <li class="li_menu_subitem">
-        <a class="anchor_menu_subitem">Submenu 1</a>
-        <ul class="list_subsubmenu">
-          <li><a>OPCION 1.1.1</a></li>
-          <li><a>OPCION 1.1.2</a></li>
-          <li><a>OPCION 1.1.3</a></li>
-          <li><a>OPCION 1.1.4</a></li>
-        </ul>
-      </li>
+      {% if i.submenu %}
+        {% for j in i.submenu %}
+          <li class="li_menu_subitem">
+            {% if j.list %}
+              <a class="anchor_menu_subitem" href="{{ j.url }}">{{ j.title }}</a>
+              <ul class="list_subsubmenu">
+                {% for h in j.list %}
+                  <li><a class="anchor_subsubmenu_item" href="{{ h.url }}"> {{ h.title }} </a></li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <a class="anchor_menu_subitem" href="{{ j.url }}">{{ j.title }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% endif %}
       {% endfor %}
       <li class="li_menu_item">
         <a class="anchor_menu_item" href="{% url 'about' %}"> Acerca de </a>

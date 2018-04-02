@@ -38,6 +38,10 @@ class ContextManager(ContextMixin):
                 for subelement in element['submenu']:
                     if subelement.get('url'):
                         subelement['url'] = urls.reverse(subelement['url'], kwargs=subelement.get('urlkwargs'))
+                if subelement.get('list'):
+                    for ssubelement in subelement['list']:
+                        if ssubelement.get('url'):
+                            ssubelement['url'] = urls.reverse(ssubelement['url'], kwargs=ssubelement.get('urlkwargs'))
         return cxt_menu
 
     def get_context_data(self, **kwargs):

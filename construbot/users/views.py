@@ -72,6 +72,7 @@ class UserCreateView(AuthenticationTestMixin, CreateView):
             kwargs['form'] = self.get_form()
         return super(UserCreateView, self).get_context_data(**kwargs)
 
+
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name
     model = User
