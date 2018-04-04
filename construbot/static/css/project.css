@@ -197,6 +197,8 @@ a:hover {
 }
 
 .table_sample tr>th {
+	text-align: center;
+	padding: 8px;
 	background-color: #84858b;
 	color: white;
 	border-width: 1px;
@@ -205,15 +207,17 @@ a:hover {
 }
 
 .table_sample tr>td {
+	text-align: center;
+	padding: 8px;
 	border-style: solid;
 	border-width: 0 0 1px 0;
 	border-color: #cacaca;
 }
 
-.th_table_sample, .td_table_sample {
+/*.th_table_sample, .td_table_sample {
 	text-align: center;
 	padding: 8px;
-}
+}*/
 /*FIN DE ESTILOS PARA TABLAS*/
 
 /*ESTILOS PARA LISTADOS DE DOCUMENTOS*/
