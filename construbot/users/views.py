@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
 from .auth import AuthenticationTestMixin
+from django.shortcuts import get_object_or_404
 from .apps import UsersConfig
 from .models import User
 from .forms import UsuarioInterno
@@ -14,10 +15,13 @@ class UserDetailView(AuthenticationTestMixin, DetailView):
     slug_url_kwarg = 'username'
 
     def get_object(self, queryset=None):
-        if self.kwargs.get('username'):
-            return User.objects.get(username=self.kwargs['username'])
+        return get_object_or_404(User, username=self.kwargs['username'])
+
+    def get_tengo_que_ser_admin(self):
+        if self.kwargs['username'] == self.request.user.username:
+            return False
         else:
-            return self.request.user
+            return True
 
 
 class UserRedirectView(AuthenticationTestMixin, RedirectView):
@@ -52,8 +56,7 @@ class UserCreateView(AuthenticationTestMixin, CreateView):
     template_name = 'users/create_user.html'
 
     def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
+        form_class = self.get_form_class()
         return form_class(self.request.user, **self.get_form_kwargs())
 
     def get_success_url(self):
@@ -71,6 +74,7 @@ class UserCreateView(AuthenticationTestMixin, CreateView):
         if 'form' not in kwargs:
             kwargs['form'] = self.get_form()
         return super(UserCreateView, self).get_context_data(**kwargs)
+
 
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name

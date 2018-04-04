@@ -1,12 +1,9 @@
 main_menu = [
     {
         'title': 'Users',
-    },
-    {
-        'title': 'Home',
-        'url': 'home:index',
+        'url': 'users:list',
         'urlkwargs': None,
-        'icon': 'glyphicon glyphicon-home',
+        'icon': 'person',
         'parent': False,
         'child': False,
     },
