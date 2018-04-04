@@ -47,16 +47,16 @@
       </nav>
     </div>
 
-    {% if menu %}
-      <div class="content_with_sidebar">
-    {% else %}
-      <div class="content_without_sidebar">
-    {% endif %}
-
     {% if messages %}
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
+    {% endif %}
+
+    {% if menu %}
+      <div class="content_with_sidebar">
+    {% else %}
+      <div class="content_without_sidebar">
     {% endif %}
 
     {% block content %}

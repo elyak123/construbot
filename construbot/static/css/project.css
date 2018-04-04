@@ -29,6 +29,7 @@ a {
 a:hover {
 	text-decoration: none;
 }
+
 .content_with_sidebar {
 	margin: 10px 10px 0 210px;
 }
@@ -124,6 +125,31 @@ a:hover {
 	padding: .3em 0 .3em 25px;
 }
 
+/* 
+	TODO: hay que homologarlo de acuerdo a la politica de nombres.
+*/
+/*Para respetar casi en su totalidad el nombre sólo se agregaran los prefijos anchor_ a lnk y list_ a submenu*/
+.lnk {
+    border-width: 0px;
+    font-size: 14px;
+    border-style: solid;
+    transition: .2s;
+}
+.lnk:hover{
+    font-size: 15.3px;
+    background: #086898;
+    z-index: 6;
+}
+
+.submenu:hover{
+    font-size: 13.3px;
+}
+
+.submenu {
+    margin-left: 10px;
+    font-size: 12px;
+}
+
 .list_subsubmenu {
 	display: none;
 	width: 140px;
@@ -151,7 +177,7 @@ a:hover {
 	margin: 20px 20px 0 20px;
 }
 
-.anchor_subsubmenu_item {
+.submenu {
 	display: block;
     padding: .3em 0 .3em 15px;
 }
@@ -160,11 +186,13 @@ a:hover {
 /*ESTILOS PATA TABLAS*/
 .cont_table_sample {
 	width: 100%;
-	text-align: center;
+}
+
+.table_about_us {
+	width: 85%;
 }
 
 .table_sample {
-	width: 85%;
 	box-shadow: 0px 0px 3px 0px;
 }
 
@@ -182,9 +210,9 @@ a:hover {
 	border-color: #cacaca;
 }
 
-.table_sample * {
+.th_table_sample, .td_table_sample {
 	text-align: center;
-	padding: 5px;
+	padding: 8px;
 }
 /*FIN DE ESTILOS PARA TABLAS*/
 

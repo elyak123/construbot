@@ -1,40 +1,9 @@
 main_menu = [
     {
         'title': 'Users',
-        'icon': 'person',
-        'submenu': [
-            {
-                'title': 'Mi usuario',
-                'url': 'users:list',
-                # 'urlkwargs': {'username': ''},
-                'list': [
-                    {
-                        'title': 'url1',
-                        'url': '',
-                    },
-                    {
-                        'title': 'url2',
-                        'url': '',
-                    },
-                    {
-                        'title': 'url3',
-                        'url': '',
-                    },
-                ]
-            }, {
-                'title': 'Listado',
-                'url': 'users:list',
-            }, {
-                'title': 'Crear usuario',
-                'url': 'users:new',
-            },
-        ]
-    },
-    {
-        'title': 'Home',
-        'url': 'home:index',
+        'url': 'users:list',
         'urlkwargs': None,
-        'icon': 'glyphicon glyphicon-home',
+        'icon': 'person',
         'parent': False,
         'child': False,
     },
