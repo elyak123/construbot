@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import Group
@@ -97,8 +98,18 @@ class TestListUserView(BaseUserTestCase):
 
 
 class TestDetailUserView(BaseUserTestCase):
-    def test_(self):
+    def test_detail_view_another_user_requires_admin_perms(self):
+        group, created = Group.objects.get_or_create(name='Users')
+        company = Company.objects.create(
+            company_name='another_company',
+            customer=self.user.customer
+        )
+        self.user.company.add(company)
+        self.user.groups.add(group)
         view = self.get_instance(
             UserDetailView,
-            request=self.get_request(self.user)
+            request=self.get_request(self.user),
         )
+        view.kwargs = {'username': 'another_user'}
+        with self.assertRaises(PermissionDenied):
+            view.test_func()
