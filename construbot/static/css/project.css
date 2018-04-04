@@ -124,6 +124,30 @@ a:hover {
 	padding: .3em 0 .3em 25px;
 }
 
+/* 
+	TODO: hay que homologarlo de acuerdo a la politica de nombres.
+*/
+.lnk {
+    border-width: 0px;
+    font-size: 14px;
+    border-style: solid;
+    transition: .2s;
+}
+.lnk:hover{
+    font-size: 15.3px;
+    background: #086898;
+    z-index: 6;
+}
+
+.submenu:hover{
+    font-size: 13.3px;
+}
+
+.submenu {
+    margin-left: 10px;
+    font-size: 12px;
+}
+
 .list_subsubmenu {
 	display: none;
 	width: 140px;
@@ -151,7 +175,7 @@ a:hover {
 	margin: 20px 20px 0 20px;
 }
 
-.anchor_subsubmenu_item {
+.submenu {
 	display: block;
     padding: .3em 0 .3em 15px;
 }
