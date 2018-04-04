@@ -1,17 +1,17 @@
 from django.test import RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from test_plus.test import TestCase
 from construbot.users.models import Company
 from . import factories
+from . import utils
 
 from ..views import (
     UserRedirectView,
-    UserUpdateView
+    UserUpdateView, UserDetailView
 )
 
 
-class BaseUserTestCase(TestCase):
+class BaseUserTestCase(utils.BaseTestCase):
 
     def setUp(self):
         self.user_factory = factories.UserFactory
@@ -94,3 +94,11 @@ class TestListUserView(BaseUserTestCase):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertNotContains(response, 'foreign_user')
+
+
+class TestDetailUserView(BaseUserTestCase):
+    def test_(self):
+        view = self.get_instance(
+            UserDetailView,
+            request=self.get_request(self.user)
+        )
