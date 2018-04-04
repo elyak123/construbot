@@ -19,6 +19,7 @@ class ContextManager(ContextMixin):
         for count, single_menu in enumerate(context_menu):
             if single_menu['title'].lower() in self.user_groups:
                 shallow_menu.insert(count + 1, single_menu)
+
         if len(menu_2) > 0:
             another_copy = copy.deepcopy(self.menu)
             for counter, element in enumerate(another_copy):
