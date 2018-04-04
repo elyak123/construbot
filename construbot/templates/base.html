@@ -48,21 +48,24 @@
     </div>
 
     {% if menu %}
-      {% include "menu.html" %}
       <div class="content_with_sidebar">
     {% else %}
       <div class="content_without_sidebar">
     {% endif %}
 
-      {% if messages %}
-          {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-          {% endfor %}
-      {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 
-        {% block content %}
-          <p>Use this document as a way to quick start any new project.</p>
-        {% endblock content %}
+    {% block content %}
+      <p>Use this document as a way to quick start any new project.</p>
+    {% endblock content %}
+
+    {% if menu %}
+      {% include "menu.html" %}
+    {% endif %}
 
     </div>
 
