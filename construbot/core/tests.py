@@ -30,11 +30,11 @@ class ContextTests(utils.BaseTestCase):
             reverse_mock.side_effect = 'fake/url/'
             view = ContextManager()
             view.user_groups = [
-                'home', 'documentos', 'pendientes', 'proyectos'
+                'users', 'documentos', 'pendientes', 'proyectos'
             ]
             menu_specific_obj = [{'title': 'fake'}, {'title': 'foo'}]
             view.menu_specific = menu_specific_obj
             view.app_label_name = 'Documentos'
             menu = view.get_menu()
             self.assertIn(menu_specific_obj[0], menu)
-            self.assertEqual(menu.index(menu_specific_obj[0]), 3)
+            self.assertEqual(menu.index(menu_specific_obj[0]), 2)
