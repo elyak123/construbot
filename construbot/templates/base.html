@@ -53,19 +53,15 @@
         {% endfor %}
     {% endif %}
 
-    {% if menu %}
-      <div class="content_with_sidebar">
-    {% else %}
-      <div class="content_without_sidebar">
-    {% endif %}
+    <div class="content_with{% if not menu %}out{% endif %}_sidebar">
 
-    {% block content %}
-      <p>Use this document as a way to quick start any new project.</p>
-    {% endblock content %}
+      {% block content %}
+        <p>Use this document as a way to quick start any new project.</p>
+      {% endblock content %}
 
-    {% if menu %}
-      {% include "menu.html" %}
-    {% endif %}
+      {% if menu %}
+        {% include "menu.html" %}
+      {% endif %}
 
     </div>
 
