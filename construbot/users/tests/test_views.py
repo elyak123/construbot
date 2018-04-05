@@ -118,18 +118,29 @@ class TestDetailUserView(BaseUserTestCase):
 
 
 class TestUserCreateView(BaseUserTestCase):
-    def test_user_creation_company_query(self):
+    def test_user_creation_form_query_involves_requests_user_companies(self):
         company = Company.objects.create(
             company_name='some_company',
             customer=self.user.customer
         )
+        company_2 = Company.objects.create(
+            company_name='some_other_company',
+            customer=self.user.customer
+        )
         self.user.company.add(company)
+        self.user.company.add(company_2)
         view = self.get_instance(
             UserCreateView,
             request=self.get_request(self.user)
         )
-        view.test_func = True
+        other_user = self.make_user(username='bla')
+        other_user_company = Company.objects.create(
+            company_name='other_user_company',
+            customer=other_user.customer
+        )
+        other_user.company.add(other_user_company)
         form = view.get_form()
         query = [repr(x) for x in self.user.company.all()]
+        self.assertNotEqual(other_user.customer, self.user.customer)
         self.assertIsInstance(form, UsuarioInterno)
-        self.assertQuerysetEqual(form.fields['company'].queryset, query)
+        self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)
