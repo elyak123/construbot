@@ -8,7 +8,8 @@ from . import utils
 
 from ..views import (
     UserRedirectView,
-    UserUpdateView, UserDetailView
+    UserUpdateView, UserDetailView,
+    UserCreateView
 )
 
 
@@ -113,3 +114,13 @@ class TestDetailUserView(BaseUserTestCase):
         view.kwargs = {'username': 'another_user'}
         with self.assertRaises(PermissionDenied):
             view.test_func()
+
+
+class TestUserCreateView(BaseUserTestCase):
+    def test_(self):
+        view = self.get_instance(
+            UserCreateView,
+            request=self.get_request(self.user)
+        )
+        view.test_func = True
+

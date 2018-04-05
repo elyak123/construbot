@@ -34,7 +34,7 @@ class UserRedirectView(AuthenticationTestMixin, RedirectView):
 
 
 class UserUpdateView(AuthenticationTestMixin, UpdateView):
-
+    app_label_name = UsersConfig.verbose_name
     fields = ['name', ]
 
     # we already imported User in the view code above, remember?
