@@ -67,14 +67,6 @@ class UserCreateView(AuthenticationTestMixin, CreateView):
         initial['customer'] = self.request.user.customer
         return initial
 
-    def get_context_data(self, **kwargs):
-        """
-        Insert the form into the context dict.
-        """
-        if 'form' not in kwargs:
-            kwargs['form'] = self.get_form()
-        return super(UserCreateView, self).get_context_data(**kwargs)
-
 
 class UserListView(AuthenticationTestMixin, ListView):
     app_label_name = UsersConfig.verbose_name

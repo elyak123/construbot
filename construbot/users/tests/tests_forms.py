@@ -1,13 +1,14 @@
-from construbot.users.forms import UserForm
 from django.test import TestCase
+from construbot.users.forms import UserForm
+from construbot.users.models import Company
 
 
 class UserFormTest(TestCase):
-    def test_userform_setting_is_correct(self):
+    def test_signup_userform_setting_is_correct(self):
         from django.conf import settings
         self.assertEqual(settings.ACCOUNT_SIGNUP_FORM_CLASS, 'construbot.users.forms.UserForm')
 
-    def test_userform_post(self):
+    def test_signup_userform_post(self):
         form = UserForm(data={
             'email': 'bla@email.com',
             'username': 'some_name',
@@ -18,3 +19,7 @@ class UserFormTest(TestCase):
             'company': 'Acme'
             })
         self.assertTrue(form.is_valid(), form.errors)
+
+class UserCreationFormTest(TestCase):
+    def test_(self):
+        pass

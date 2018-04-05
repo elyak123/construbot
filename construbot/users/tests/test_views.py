@@ -144,3 +144,24 @@ class TestUserCreateView(BaseUserTestCase):
         self.assertNotEqual(other_user.customer, self.user.customer)
         self.assertIsInstance(form, UsuarioInterno)
         self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)
+
+    def test_user_creation_correct_success_url(self):
+        view = self.get_instance(
+            UserCreateView,
+            request=self.get_request(self.user)
+        )
+        view.object = self.make_user(username='some_user')
+        success_url = view.get_success_url()
+        self.assertEqual('/users/detail/some_user/', success_url)
+
+    def test_user_creation_check_200(self):
+        company = Company.objects.create(
+            company_name='200_company',
+            customer=self.user.customer
+        )
+        group, created = Group.objects.get_or_create(name='Users')
+        self.user.groups.add(group)
+        self.user.company.add(company)
+        with self.login(username=self.user.username, password='password'):
+            response = self.get_check_200('users:new')
+            self.assertEqual(response.status_code, 200)
