@@ -11,6 +11,7 @@ from ..views import (
     UserUpdateView, UserDetailView,
     UserCreateView
 )
+from ..forms import UsuarioInterno
 
 
 class BaseUserTestCase(utils.BaseTestCase):
@@ -117,10 +118,18 @@ class TestDetailUserView(BaseUserTestCase):
 
 
 class TestUserCreateView(BaseUserTestCase):
-    def test_(self):
+    def test_user_creation_company_query(self):
+        company = Company.objects.create(
+            company_name='some_company',
+            customer=self.user.customer
+        )
+        self.user.company.add(company)
         view = self.get_instance(
             UserCreateView,
             request=self.get_request(self.user)
         )
         view.test_func = True
-
+        form = view.get_form()
+        query = [repr(x) for x in self.user.company.all()]
+        self.assertIsInstance(form, UsuarioInterno)
+        self.assertQuerysetEqual(form.fields['company'].queryset, query)
