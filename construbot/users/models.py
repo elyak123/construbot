@@ -15,8 +15,11 @@ class Customer(models.Model):
         verbose_name = 'Customer'
         verbose_name_plural = 'Customers'
 
-    def __str__(self):  # pragma: no cover
-        return self.customer_name
+    def __str__(self):
+        if self.customer_name is not None:
+            return self.customer_name
+        else:
+            return str(self.id)
 
 
 @python_2_unicode_compatible
