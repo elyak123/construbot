@@ -1,10 +1,53 @@
 from django.db import models
-from users.models import User
+from construbot.users.models import User, Company
 from core.utils import Round, get_directory_path
 from django.db.models import Sum, F
 
 
 # Create your models here.
+class Cliente(models.Model):
+    """El modelo que representa la relación entre una
+    empresa (Company) perteneciente al comprador (Customer)
+    y su cliente (modelo actual)"""
+    cliente_name = models.CharField(max_length=80, unique=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
+
+    def __str__(self):
+        return self.cliente_name
+
+
+class Sitio(models.Model):
+    sitio_name = models.CharField(max_length=80)
+    sitio_location = models.CharField(max_length=80, null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Sitio"
+        verbose_name_plural = "Sitios"
+
+    def __str__(self):
+        return self.sitio_name
+
+
+class Destinatario(models.Model):
+    company = models.ForeignKey(Company)
+    tratamiento = models.CharField(max_length=10, null=True, blank=True)
+    destinatario_text = models.CharField(max_length=80)
+    puesto = models.CharField(max_length=50, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Destinatario"
+        verbose_name_plural = "Destinatarios"
+
+    def __str__(self):
+        return self.destinatario_text
+
+
 class Contrato(models.Model):
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
