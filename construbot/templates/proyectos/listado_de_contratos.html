@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} Listado de Contratos {% endblock %}
+
+{% block content %}
+<h1> Listado de Contratos en {{ request.user.currently_at.name }} </h1>
+{% if is_paginated %}
+	<div class="cont_divs_list">
+		{% for i in contratos %}
+			<div class="div_list">
+				<h4 class="h4_div"><a class="anchor_div_list" target="_blank" href="/">{{ i.contrato_name }}</a></h4>
+				<p class="p_div_list"><strong>Fecha: </strong> {{ i.fecha }} </p>
+				<p class="p_div_list"><strong>Monto: </strong> {{ i.monto }} </p>
+			</div>
+		{% endfor %}
+	</div>
+	<nav>
+		<ul class="pagination">
+			{% if contratos.has_previous %}
+				<li>
+					<a href="?page={{ contratos.previous_page_number }}">
+						<span>Anterior</span>
+					</a>
+				</li>
+			{% else %}
+				<li class="disabled">
+					<a href="#">
+						<span>Anterior</span>
+					</a>
+				</li>
+			{% endif %}
+
+			{% for page in paginator.page_range %}
+				<li {% if page == contratos.number %}class="active"{% endif %}>
+					<a href="?page={{ page }}">{{ page }}</a>
+				</li>
+			{% endfor %}
+
+			{% if contratos.has_next %}
+				<li>
+					<a href="?page={{ contratos.next_page_number }}">
+						<span>Siguiente</span>
+					</a>
+				</li>
+			{% else %}
+				<li {% if not contratos.has_next %}class="disabled"{% endif %}>
+					<a href="#">
+						<span>Siguiente</span>
+					</a>
+				</li>
+			{% endif %}
+		</ul>
+	</nav>
+{% endif %}
+{% endblock %}

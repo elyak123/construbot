@@ -63,6 +63,7 @@ LOCAL_APPS = [
     # custom users app
     'construbot.users.apps.UsersConfig',
     # Your stuff: custom apps go here
+    'construbot.proyectos.apps.ProyectosConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -14,6 +14,7 @@ urlpatterns = [
 
     # User management
     url(r'^users/', include('construbot.users.urls', namespace='users')),
+    url(r'^proyectos/', include('construbot.proyectos.urls', namespace='proyectos')),
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
