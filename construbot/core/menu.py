@@ -24,13 +24,13 @@ main_menu = [
         'child': False,
         'group': 'Pendientes'
     },
-    # {
-    #     'title': 'Proyectos',
-    #     'url': 'pmgt:pmgt_dashboard',
-    #     'urlkwargs': '',
-    #     'icon': 'glyphicon glyphicon-road',
-    #     'parent': False,
-    #     'child': False,
-    # },
+    {
+        'title': 'Proyectos',
+        'url': 'proyectos:listado_de_contratos',
+        'urlkwargs': '',
+        'icon': 'glyphicon glyphicon-road',
+        'parent': False,
+        'child': False,
+    },
 
 ]

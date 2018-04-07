@@ -34,7 +34,11 @@ class Sitio(models.Model):
 
 
 class Destinatario(models.Model):
+    # Discutir eliminar company de aqui
+    # para acceder a el podemos hacer
+    # self.model.filter(cliente__company__company_name='bla')
     company = models.ForeignKey(Company)
+    # Discutir quitarlo, se usaba poco en la app anterior.
     tratamiento = models.CharField(max_length=10, null=True, blank=True)
     destinatario_text = models.CharField(max_length=80)
     puesto = models.CharField(max_length=50, null=True, blank=True)

@@ -12,5 +12,7 @@ class ContratoListView(AuthenticationTestMixin, ListView):
     context_object_name = 'contratos'
     paginate_by = 2
 
-    # def get_queryset(self):
-    #     return self.model.objects.filter(company=self.request.user.currently_at)
+    def get_queryset(self):
+        return self.model.objects.filter(
+                cliente__company=self.request.user.currently_at
+            ).order_by('-fecha')
