@@ -30,4 +30,9 @@ urlpatterns = [
         view=views.UserUpdateView.as_view(),
         name='update'
     ),
+    url(
+        regex=r'^company-change/(?P<company>\w+)/$',
+        view=views.CompanyChangeView.as_view(),
+        name='company-change'
+    ),
 ]

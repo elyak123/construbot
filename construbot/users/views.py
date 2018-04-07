@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView
 from .auth import AuthenticationTestMixin
 from django.shortcuts import get_object_or_404
+from django import http
 from .apps import UsersConfig
-from .models import User
+from .models import User, Company
 from .forms import UsuarioInterno
 
 
@@ -77,3 +78,14 @@ class UserListView(AuthenticationTestMixin, ListView):
 
     def get_queryset(self):
         return self.model.objects.filter(company=self.request.user.currently_at)
+
+
+class CompanyChangeView(TemplateView, AuthenticationTestMixin):
+    app_label_name = UsersConfig.verbose_name
+
+    def get(self, request, *args, **kwargs):
+        new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
+        if new_company in self.request.user.company.all():
+            self.request.user.currently_at = new_company
+            self.request.user.save()
+            return http.HttpResponse(self.request.user.currently_at.company_name)

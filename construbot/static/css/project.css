@@ -39,6 +39,18 @@ a:hover {
 }
 /*FIN DE ESTILOS GENERALES*/
 
+/*ESTILOS PARA SELECTOR DE COMPAÑIA*/
+.div_miniform {
+	position: absolute;
+}
+
+.sel_company_select {
+	position: fixed;
+	right: 45px;
+	top: 80px;
+}
+/*FIN DE ESTILOS PARA SELECTOR DE COMPAÑIA*/
+
 /*ESTILOS PARA NAV PERSONALIZADO*/
 .cont_nav_navegacion {
 	height: 60px;
