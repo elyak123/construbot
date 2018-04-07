@@ -1,7 +1,7 @@
 from . import factories
 from django.contrib.auth.models import Group
 from test_plus.test import TestCase
-from construbot.users.models import User, Company
+from construbot.users.models import User, Customer
 
 
 class TestUser(TestCase):
@@ -63,6 +63,24 @@ class TestUser(TestCase):
         )
         self.assertEqual(superuser.username, 'super_user')
 
+    def test_superusuario_contiene_company(self):
+        superuser = User.objects.create_superuser(
+            username='super_user',
+            email='bla@bla.com',
+            password='top_secret',
+            is_staff=True,
+            is_superuser=True
+        )
+        self.assertIsInstance(superuser.customer, Customer)
+
+
+class TestCustomer(TestCase):
+    def test_customer_repr_dont_raises_error(self):
+        customer = Customer.objects.create()
+        customer_2 = factories.CustomerFactory()
+        self.assertEqual(repr(customer), '<Customer: %s>' % customer.id)
+        self.assertEqual(repr(customer_2), '<Customer: %s>' % customer_2.customer_name)
+
 
 class TestFactories(TestCase):
 
@@ -72,13 +90,6 @@ class TestFactories(TestCase):
         user.save()
         # Just checking it was saved to db
         self.assertIn('user', user.username)
-
-    # def test_user_and_its_company_same_customer(self):
-    #     user = factories.UserFactory()
-    #     user.full_clean()
-    #     user.save()
-    #     company = Company.objects.create(company_name='My_company', customer=user.customer)
-    #     self.assertEqual(user.customer, company.customer)
 
     def test_Company_Factory_saved(self):
         company = factories.CompanyFactory()
