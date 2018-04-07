@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
+
+{% block content %}
+<h1> Detalle del contrato {{ contrato.contrato_name }}</h1>
+<div class="cont_table_sample">
+	<table class="table_sample table_detalle_contrato">
+		<tr>
+			<th colspan="2" class="th_table_sample">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Código de contrato</td>
+			<td class="td_table_sample">{{ contrato.code }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Nombre corto</td>
+			<td class="td_table_sample">{{ contrato.contrato_shortName }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Cliente</td>
+			<td class="td_table_sample">{{ contrato.cliente.cliente_name }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Sitio</td>
+			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Monto sin IVA</td>
+			<td class="td_table_sample">$ {{ contrato.monto }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Fecha de Firma</td>
+			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">¿Terminado?</td>
+			<td class="td_table_sample"><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
+		</tr>
+	</table>
+</div>
+<br>
+{% if contrato.estimate_set.all %}
+	<h3> Listado de estimaciones de {{ contrato.contrato_shortName }}</h3>
+	<table class="table_sample table_detalle_contrato">
+		<tr>
+			<th class="th_table_sample"> No. </th>
+			<th class="th_table_sample"> Nombre </th>
+			<th class="th_table_sample"> Monto </th>
+			<th class="th_table_sample"> F. de Pago </th>
+			<th class="th_table_sample"> Editar </th>
+		</tr>
+	{% for estimacion in contrato.estimate_set.all %}
+		<tr>
+			<td class="td_table_sample">{{ estimacion.consecutive }}</td>
+			<td class="td_table_sample">{{ estimacion }}</td>
+			<td class="td_table_sample">{{ estimacion.total }}</td>
+			<td class="td_table_sample">{{ estimacion.payment_date|date:"d/F/Y" }}</td>
+			<td class="td_table_sample">
+				<a href="">Editar</a> /
+				<a href="">Eliminar</a>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+{% else %}
+	<h3> No existen estimaciones para este contrato aún. <a href="">Crea una aquí</a>.</h3>
+{% endif %}
+{% endblock %}
