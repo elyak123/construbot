@@ -15,9 +15,11 @@ class UserForm(UserCreationForm):
     def signup(self, request, user):
         empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
         user_group, created = Group.objects.get_or_create(name='Users')
+        proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
         admin_group, admin_created = Group.objects.get_or_create(name='Administrators')
         user.company.add(empresa)
         user.groups.add(user_group)
+        user.groups.add(proyectos_groups)
         user.groups.add(admin_group)
 
     class Meta:
