@@ -14,7 +14,7 @@ whitenoise==3.3.1
 
 
 # Forms
-django-crispy-forms==1.7.0
+# django-crispy-forms==1.7.0
 
 # Models
 django-model-utils==3.1.1
@@ -53,5 +53,6 @@ django-compressor==2.2
 
 
 # Your custom requirements go here
-
-django-bootstrap3==9.1.0
+django-autocomplete-light==3.2.10
+# django-bootstrap3==9.1.0
+django-bootstrap4==0.0.6

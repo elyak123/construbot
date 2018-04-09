@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% load account socialaccount %}
-{% load crispy_forms_tags %}
+{% load bootstrap4 %}
 
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
@@ -36,7 +36,7 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
 <form class="login" method="POST" action="{% url 'account_login' %}">
   {% csrf_token %}
-  {{ form|crispy }}
+  {% bootstrap_form form %}
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}

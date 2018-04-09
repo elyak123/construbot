@@ -1,7 +1,7 @@
 {% extends "account/base.html" %}
 
 {% load i18n %}
-{% load crispy_forms_tags %}
+{% load bootstrap4 %}
 
 {% block title %} Crear un Usuario {% endblock %}
 
@@ -10,7 +10,7 @@
 
 <form class="signup" id="signup_form" method="post">
   {% csrf_token %}
-  {{ form|crispy }}
+  {% bootstrap_form form %}
   <button class="btn btn-primary" type="submit"> Registrar &raquo;</button>
 </form>
 

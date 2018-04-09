@@ -52,7 +52,8 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
-    'crispy_forms',  # Form layouts
+    #'crispy_forms',  # Form layouts
+    'bootstrap4',
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration

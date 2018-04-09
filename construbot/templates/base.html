@@ -1,5 +1,7 @@
-{% load static i18n compress %}<!DOCTYPE html>
-<html lang="en">
+{% load static i18n compress %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="es">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -8,12 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="{% block author %}{% endblock author %}">
     {# Bootstrap 4 #}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    {% bootstrap_css %}
     <!-- ICONOS Iconic para Bootstrap 4 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
 
     {% compress css %}
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+      <link href="{% static 'css/project.css' %}" rel="stylesheet">
       {% block css %}
       {% endblock %}
     {% endcompress %}
@@ -85,18 +87,8 @@
 
     {% block modal %}{% endblock modal %}
 
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-      {# JQUERY #}
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-      <!-- Required by Bootstrap v4 beta -->
       <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-
-      <!-- Your stuff: Third-party javascript libraries go here -->
-
-      <!-- place project specific Javascript in this file -->
+      {% bootstrap_javascript jquery='full' %}
       {% compress js %}
         {% block javascript %}
         {% endblock javascript %}

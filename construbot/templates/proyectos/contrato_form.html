@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load bootstrap4 %}
 {% block css %}
   <link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
 {% endblock css %}
@@ -18,7 +18,7 @@
   <h1></h1>
   <form style="position:relative" class="form-horizontal" method="post">
     {% csrf_token %}
-    {{ form|crispy }}
+    {% bootstrap_form form %}
     <div class="control-group">
       <div class="controls">
         <button type="submit" class="btn">Enviar</button>
