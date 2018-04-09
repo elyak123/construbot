@@ -42,12 +42,12 @@ a:hover {
 /*ESTILOS PARA SELECTOR DE COMPAÑIA*/
 .div_miniform {
 	position: absolute;
-}
-
-.sel_company_select {
-	position: fixed;
+	z-index: 1;
 	right: 45px;
 	top: 80px;
+}
+.li_companies_list > li {
+	list-style: none;
 }
 /*FIN DE ESTILOS PARA SELECTOR DE COMPAÑIA*/
 

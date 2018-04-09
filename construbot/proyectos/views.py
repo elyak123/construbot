@@ -52,6 +52,7 @@ class ContratoCreationView(AuthenticationTestMixin, CreateView):
         return context
 
     def form_valid(self, form):
+        import pdb; pdb.set_trace()
         if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             self.object = form.save()
             return super(ContratoCreationView, self).form_valid(form)
