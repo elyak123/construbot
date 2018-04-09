@@ -40,14 +40,11 @@ class ExtendUserManager(UserManager):
     def create_superuser(self, username, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
         try:
-            Customer.objects.get(id=1)
+            customer = Customer.objects.get(id=1)
         except ObjectDoesNotExist:
-            Customer.objects.create()
-
-        extra_fields.setdefault('customer', Customer.objects.all().first())
-
+            customer = Customer.objects.create()
+        extra_fields.setdefault('customer', customer)
         if extra_fields.get('is_staff') is not True:
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
