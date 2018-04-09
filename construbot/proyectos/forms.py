@@ -15,8 +15,15 @@ class ContratoForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'fecha': forms.DateInput(
-                attrs={'class': 'datetimepicker-input', 'data-toggle': 'datetimepicker',
-                       'data-target': '#datetimepicker5', 'name': 'fecha'},
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_fecha',
+                    'name': 'fecha'
+                },
                 format=MY_DATE_FORMATS
             ),
+            'folio': forms.TextInput(
+                attrs={'readonly': 'readonly'}
+                ),
         }
