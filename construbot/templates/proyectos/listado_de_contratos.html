@@ -4,7 +4,8 @@
 {% block title %} Listado de Contratos {% endblock %}
 
 {% block content %}
-<h1> Listado de Contratos en {{ request.user.currently_at.company_name }} </h1>
+<h1> Listado de Contratos en {{ request.user.currently_at.name }} </h1>
+<a href="{% url 'proyectos:nuevo_contrato' %}"><span class="oi oi-plus"></span></a>
 {% if is_paginated %}
 	<div class="cont_divs_list">
 		{% for i in contratos %}

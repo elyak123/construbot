@@ -5,6 +5,9 @@ mkenv:
 	@export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
 	@python3 scripts/devinstall.py
 
+shell:
+	@docker-compose -f docker-compose-dev.yml run django python manage.py shell
+
 up:
 	@docker-compose -f docker-compose-dev.yml up -d
 

@@ -15,4 +15,7 @@ urlpatterns = [
         view=views.ContratoDetailView.as_view(),
         name='detalle_de_contrato'
     ),
+    url(regex=r'^contratos/nuevo/$',
+        view=views.ContratoCreationView.as_view(),
+        name='nuevo_contrato'),
 ]
