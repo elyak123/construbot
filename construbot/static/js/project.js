@@ -19,9 +19,7 @@ Issues with the above approach:
 4. Undocumented: No mention in the documentation, or it's too hard for me to find
 */
 $(document).ready(function(){
-	$('.form-group').removeClass('row');
-	$('.datepicker').datetimepicker({'format':"YYYY-MM-DD"});
-
+	// $('.form-group').removeClass('row');
     function OnchangeEventHandler(event) {
         if(event.target.value){
             $.ajax({

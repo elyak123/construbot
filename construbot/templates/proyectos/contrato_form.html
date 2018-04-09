@@ -1,17 +1,23 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block css %}
-  <link rel='stylesheet' href='https://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/a549aa8780dbda16f6cff545aeabc3d71073911e/build/css/bootstrap-datetimepicker.css'>
+  <link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
 {% endblock css %}
 {% block javascript %}
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js'></script>
-  <script src='https://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/a549aa8780dbda16f6cff545aeabc3d71073911e/src/js/bootstrap-datetimepicker.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
+  <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#datetimepicker5').datetimepicker({'format':"YYYY-MM-DD"});
+    });
+  </script>
 {% endblock javascript %}
 {% block title %}{% endblock %}
 
 {% block content %}
   <h1></h1>
-  <form class="form-horizontal" method="post">
+  <form style="position:relative" class="form-horizontal" method="post">
     {% csrf_token %}
     {{ form|crispy }}
     <div class="control-group">
