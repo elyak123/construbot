@@ -13,11 +13,13 @@ class ContratoListView(AuthenticationTestMixin, ListView):
     template_name = 'proyectos/listado_de_contratos.html'
     context_object_name = 'contratos'
     paginate_by = 2
+    ordering = '-fecha'
 
     def get_queryset(self):
-        return self.model.objects.filter(
-                cliente__company=self.request.user.currently_at
-            ).order_by('-fecha')
+        self.queryset = self.model.objects.filter(
+                            cliente__company=self.request.user.currently_at
+                        )
+        return super(ContratoListView, self).get_queryset()
 
 
 class ContratoCreationView(AuthenticationTestMixin, CreateView):
@@ -35,8 +37,13 @@ class ContratoCreationView(AuthenticationTestMixin, CreateView):
         initial_obj['folio'] = max_id
         return initial_obj
 
+    def get_context_data(self, **kwargs):
+        context = super(ContratoCreationView, self).get_context_data(**kwargs)
+        context['company'] = self.request.user.currently_at
+        return context
+
     def form_valid(self, form):
-        if form.cleaned_data['currently_at'] == self.current_user.currently_at.company_name:
+        if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             self.object = form.save()
             return super(ContratoCreationView, self).form_valid(form)
         else:
