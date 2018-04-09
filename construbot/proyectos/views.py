@@ -26,7 +26,7 @@ class ContratoCreationView(AuthenticationTestMixin, CreateView):
     app_label_name = ProyectosConfig.verbose_name
     form_class = ContratoForm
     # provisional.... obviamente....
-    template_name = 'users/user_form.html'
+    template_name = 'proyectos/contrato_form.html'
 
     def get_initial(self):
         initial_obj = super(ContratoCreationView, self).get_initial()

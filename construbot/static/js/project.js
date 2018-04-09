@@ -18,4 +18,8 @@ Issues with the above approach:
 3. Really Unforgiving: No way to override this behavior
 4. Undocumented: No mention in the documentation, or it's too hard for me to find
 */
-$('.form-group').removeClass('row');
+$(document).ready(function(){
+	$('.form-group').removeClass('row');
+	$('.datepicker').datetimepicker({'format':"YYYY-MM-DD"});	
+});
+
