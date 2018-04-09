@@ -20,6 +20,18 @@ Issues with the above approach:
 */
 $(document).ready(function(){
 	$('.form-group').removeClass('row');
-	$('.datepicker').datetimepicker({'format':"YYYY-MM-DD"});	
-});
+	$('.datepicker').datetimepicker({'format':"YYYY-MM-DD"});
 
+    function OnchangeEventHandler(event) {
+        if(event.target.value){
+            $.ajax({
+                url:'/users/company-change/' + event.target.value + '/',
+                type: 'GET',
+                success: function(response){
+                    window.location.reload();
+                },
+            });
+        } 
+    }
+    document.querySelector('#company_select').onchange=OnchangeEventHandler
+});

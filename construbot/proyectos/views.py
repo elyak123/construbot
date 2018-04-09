@@ -1,4 +1,5 @@
-from django.views.generic import ListView, CreateView
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, CreateView, DetailView
 from django.db.models import Max
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
@@ -16,10 +17,18 @@ class ContratoListView(AuthenticationTestMixin, ListView):
     ordering = '-fecha'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-                            cliente__company=self.request.user.currently_at
-                        )
+        self.queryset = self.model.objects.filter(cliente__company=self.request.user.currently_at)
         return super(ContratoListView, self).get_queryset()
+
+
+class ContratoDetailView(AuthenticationTestMixin, DetailView):
+    app_label_name = ProyectosConfig.verbose_name
+    model = Contrato
+    context_object_name = 'contrato'
+    template_name = 'proyectos/detalle_de_contrato.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Contrato, id=self.kwargs['pk'])
 
 
 class ContratoCreationView(AuthenticationTestMixin, CreateView):
