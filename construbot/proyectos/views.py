@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from django.db.models import Max
 from users.auth import AuthenticationTestMixin
@@ -43,6 +44,7 @@ class ContratoCreationView(AuthenticationTestMixin, CreateView):
             cliente__company=self.request.user.currently_at
         ).aggregate(Max('folio'))['folio__max'] or 0
         max_id += 1
+        initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
         return initial_obj
 
@@ -52,9 +54,11 @@ class ContratoCreationView(AuthenticationTestMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        import pdb; pdb.set_trace()
         if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             self.object = form.save()
             return super(ContratoCreationView, self).form_valid(form)
         else:
             return super(ContratoCreationView, self).form_invalid(form)
+
+    def get_success_url(self):
+        return reverse('construbot.proyectos:listado_de_contratos')
