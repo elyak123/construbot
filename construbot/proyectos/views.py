@@ -69,7 +69,7 @@ class ContratoDetailView(ProyectosMenuMixin, DetailView):
     template_name = 'proyectos/detalle_de_contrato.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Contrato, id=self.kwargs['pk'])
+        return get_object_or_404(Contrato, pk=self.kwargs['pk'])
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
@@ -108,7 +108,7 @@ class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySet
 class ClienteAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
-            qs = Cliente.objects.filter(cliente_name=self.q, company=self.request.user.currently_at)
+            qs = Cliente.objects.filter(cliente_name__icontains=self.q, company=self.request.user.currently_at)
             return qs
         else:
             qs = Cliente.objects.none()
@@ -117,7 +117,7 @@ class ClienteAutocomplete(BaseAutocompleteView):
 class SitioAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
-            qs = Sitio.objects.filter(sitio_name=self.q, company=self.request.user.currently_at)
+            qs = Sitio.objects.filter(sitio_name__icontains=self.q, company=self.request.user.currently_at)
             return qs
         else:
             qs = Sitio.objects.none()
