@@ -48,6 +48,12 @@ DJANGO_APPS = [
     # Useful template tags:
     # 'django.contrib.humanize',
 
+
+    # we needed to put them before django.contrib.admin
+    # http://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration
+    'dal',
+    'dal_select2',
+
     # Admin
     'django.contrib.admin',
 ]

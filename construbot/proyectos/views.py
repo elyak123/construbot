@@ -2,13 +2,15 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from django.db.models import Max
+from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato
+from .models import Contrato, Cliente, Sitio
 from .forms import ContratoForm
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
+    app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
         {
             'title': 'Catalogos',
@@ -48,7 +50,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 # Create your views here.
 class ContratoListView(ProyectosMenuMixin, ListView):
-    app_label_name = ProyectosConfig.verbose_name
     model = Contrato
     template_name = 'proyectos/listado_de_contratos.html'
     context_object_name = 'contratos'
@@ -63,7 +64,6 @@ class ContratoListView(ProyectosMenuMixin, ListView):
 
 
 class ContratoDetailView(ProyectosMenuMixin, DetailView):
-    app_label_name = ProyectosConfig.verbose_name
     model = Contrato
     context_object_name = 'contrato'
     template_name = 'proyectos/detalle_de_contrato.html'
@@ -73,7 +73,6 @@ class ContratoDetailView(ProyectosMenuMixin, DetailView):
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
-    app_label_name = ProyectosConfig.verbose_name
     form_class = ContratoForm
     template_name = 'proyectos/contrato_form.html'
 
@@ -101,3 +100,24 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 
     def get_success_url(self):
         return reverse('construbot.proyectos:listado_de_contratos')
+
+
+class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):
+    app_label_name = ProyectosConfig.verbose_name
+
+class ClienteAutocomplete(BaseAutocompleteView):
+    def get_queryset(self):
+        if self.q:
+            qs = Cliente.objects.filter(cliente_name=self.q, company=self.request.user.currently_at)
+            return qs
+        else:
+            qs = Cliente.objects.none()
+
+
+class SitioAutocomplete(BaseAutocompleteView):
+    def get_queryset(self):
+        if self.q:
+            qs = Sitio.objects.filter(sitio_name=self.q, company=self.request.user.currently_at)
+            return qs
+        else:
+            qs = Sitio.objects.none()
