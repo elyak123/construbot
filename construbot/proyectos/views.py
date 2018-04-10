@@ -8,8 +8,46 @@ from .models import Contrato
 from .forms import ContratoForm
 
 
+class ProyectosMenuMixin(AuthenticationTestMixin):
+    menu_specific = [
+        {
+            'title': 'Catalogos',
+            'url': '',
+            'icon': '',
+            'parent': True,
+            'type': 'submenu',
+            'submenu': [
+                {
+                    'title': 'Contratos',
+                    'url': 'construbot.proyectos:listado_de_contratos',
+                    'urlkwargs': '',
+                    'icon': '',
+                },
+                {
+                    'title': 'Clientes',
+                    'url': '',
+                    'urlkwargs': '',
+                    'icon': '',
+                },
+                {
+                    'title': 'Ubicaciones',
+                    'url': '',
+                    'urlkwargs': '',
+                    'icon': '',
+                },
+                {
+                    'title': 'Contactos',
+                    'url': '',
+                    'urlkwargs': '',
+                    'icon': '',
+                },
+            ],
+        }
+    ]
+
+
 # Create your views here.
-class ContratoListView(AuthenticationTestMixin, ListView):
+class ContratoListView(ProyectosMenuMixin, ListView):
     app_label_name = ProyectosConfig.verbose_name
     model = Contrato
     template_name = 'proyectos/listado_de_contratos.html'
@@ -18,11 +56,13 @@ class ContratoListView(AuthenticationTestMixin, ListView):
     ordering = '-fecha'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(cliente__company=self.request.user.currently_at)
+        self.queryset = self.model.objects.filter(
+                            cliente__company=self.request.user.currently_at
+                        )
         return super(ContratoListView, self).get_queryset()
 
 
-class ContratoDetailView(AuthenticationTestMixin, DetailView):
+class ContratoDetailView(ProyectosMenuMixin, DetailView):
     app_label_name = ProyectosConfig.verbose_name
     model = Contrato
     context_object_name = 'contrato'
@@ -32,10 +72,9 @@ class ContratoDetailView(AuthenticationTestMixin, DetailView):
         return get_object_or_404(Contrato, id=self.kwargs['pk'])
 
 
-class ContratoCreationView(AuthenticationTestMixin, CreateView):
+class ContratoCreationView(ProyectosMenuMixin, CreateView):
     app_label_name = ProyectosConfig.verbose_name
     form_class = ContratoForm
-    # provisional.... obviamente....
     template_name = 'proyectos/contrato_form.html'
 
     def get_initial(self):
