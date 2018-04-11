@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} Detalle de {{ cliente.cliente_name }} {% endblock %}
+
+{% block content %}
+<h1> Detalle del cliente {{ cliente.cliente_name }}</h1>
+<div class="cont_table_sample">
+	<table class="table_sample table_detalle_contrato">
+		<tr>
+			<th colspan="2" class="th_table_sample">Detalle</th>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Nombre del cliente</td>
+			<td class="td_table_sample">{{ cliente.cliente_name }}</td>
+		</tr>
+		<tr>
+			<td class="td_table_sample">Compañía</td>
+			<td class="td_table_sample">{{ cliente.company.company_name }}</td>
+		</tr>
+	</table>
+</div>
+<br>
+{% if cliente.contrato_set.all %}
+	<h3> Listado de contratos con el cliente: </h3>
+	<table class="table_sample table_detalle_contrato">
+		<tr>
+			<th class="th_table_sample"> Código </th>
+			<th class="th_table_sample"> Nombre </th>
+			<th class="th_table_sample"> Monto </th>
+			<th class="th_table_sample"> Sitio </th>
+		</tr>
+	{% for contrato in cliente.contrato_set.all %}
+		<tr>
+			<td class="td_table_sample">{{ contrato.code }}</td>
+			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>
+			<td class="td_table_sample">$ {{ contrato.monto }}</td>
+			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
+		</tr>
+	{% endfor %}
+{% endif %}
+{% endblock %}
