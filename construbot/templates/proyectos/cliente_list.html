@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %}{% endblock title %}
+
+{% block content %}
+<h1> Listado de Clientes en {{ request.user.currently_at.company_name }} </h1>
+<a type="button" class="btn" href="{% url 'proyectos:nuevo_cliente' %}"><span class="oi oi-plus"></span></a>
+<br>
+<br>
+{% endblock content %}

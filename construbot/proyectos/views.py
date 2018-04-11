@@ -5,8 +5,8 @@ from django.db.models import Max
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio
-from .forms import ContratoForm
+from .models import Contrato, Cliente, Sitio, SitioForm
+from .forms import ContratoForm, ClienteForm
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -51,9 +51,8 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 # Create your views here.
 class ContratoListView(ProyectosMenuMixin, ListView):
     model = Contrato
-    template_name = 'proyectos/listado_de_contratos.html'
-    context_object_name = 'contratos'
-    paginate_by = 2
+    template_name = 'proyectos/contrato_list.html'
+    paginate_by = 10
     ordering = '-fecha'
 
     def get_queryset(self):
@@ -61,6 +60,19 @@ class ContratoListView(ProyectosMenuMixin, ListView):
                             cliente__company=self.request.user.currently_at
                         )
         return super(ContratoListView, self).get_queryset()
+
+
+class ClienteListView(ProyectosMenuMixin, ListView):
+    model = Cliente
+    template_name = 'proyectos/listado_de_contratos.html'
+    paginate_by = 10
+    ordering = 'cliente_name'
+
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(
+                            company=self.request.user.currently_at
+                        )
+        return super(ClienteListView, self).get_queryset()
 
 
 class ContratoDetailView(ProyectosMenuMixin, DetailView):
@@ -98,17 +110,43 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         else:
             return super(ContratoCreationView, self).form_invalid(form)
 
-    def get_success_url(self):
-        return reverse('construbot.proyectos:listado_de_contratos')
+
+class ClienteCreationView(ProyectosMenuMixin, CreateView):
+    form_class = ClienteForm
+    template_name = 'proyectos/contrato_form.html'
+
+    def get_initial(self):
+        initial_obj = super(ClienteCreationView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at.company_name
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at.company_name:
+            self.object = form.save()
+            return super(ClienteCreationView, self).form_valid(form)
+        else:
+            return super(ClienteCreationView, self).form_invalid(form)
+
+
+class SitioCreationView(ProyectosMenuMixin, CreateView):
+    form_class = SitioForm
+    template_name = 'proyectos/contrato_form.html'
+
+    def get_initial(self):
+        initial_obj = super(SitioCreationView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at.company_name
 
 
 class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):
     app_label_name = ProyectosConfig.verbose_name
 
+
 class ClienteAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
-            qs = Cliente.objects.filter(cliente_name__icontains=self.q, company=self.request.user.currently_at)
+            qs = Cliente.objects.filter(
+                    cliente_name__icontains=self.q,
+                    company=self.request.user.currently_at
+                )
             return qs
         else:
             qs = Cliente.objects.none()
@@ -117,7 +155,10 @@ class ClienteAutocomplete(BaseAutocompleteView):
 class SitioAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
-            qs = Sitio.objects.filter(sitio_name__icontains=self.q, company=self.request.user.currently_at)
+            qs = Sitio.objects.filter(
+                    sitio_name__icontains=self.q,
+                    company=self.request.user.currently_at
+                )
             return qs
         else:
             qs = Sitio.objects.none()
