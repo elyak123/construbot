@@ -153,13 +153,14 @@ a:hover {
     z-index: 6;
 }
 
-.submenu:hover{
-    font-size: 13.3px;
+.submenu:hover > .list_subsubmenu{
+    display: block;
 }
 
 .submenu {
     margin-left: 10px;
     font-size: 12px;
+    transition: .3s;
 }
 
 .list_subsubmenu {

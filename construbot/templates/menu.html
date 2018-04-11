@@ -2,16 +2,18 @@
   <div class="menu_lateral">
     <ul class="list_menu">
       {% for item in menu %}
-        <li class="li_menu_item {{ item.type }}"><a class="anchor_menu_item" href="{{ item.url }}"><span class="icon_menu oi oi-{{ item.icon }}"></span>{{ item.title }}</a></li>
-        {% if item.parent %}
-          <ul class="list_subsubmenu">
-            {% for subitem in item.submenu %}
-              <li class="li_menu_subitem">
-                <a class="anchor_subsubmenu_item" href="{{ subitem.url }}">{{ subitem.title }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+        <li class="li_menu_item {{ item.type }}">
+          <a class="anchor_menu_item" href="{{ item.url }}"><span class="icon_menu oi oi-{{ item.icon }}"></span>{{ item.title }}</a>
+          {% if item.parent %}
+            <ul class="list_subsubmenu">
+              {% for subitem in item.submenu %}
+                <li class="li_menu_subitem">
+                  <a class="anchor_subsubmenu_item" href="{{ subitem.url }}">{{ subitem.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
       {% endfor %}
 
       <li class="li_menu_item">
