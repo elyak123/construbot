@@ -16,8 +16,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             'url': '',
             'icon': '',
             'parent': True,
-            'li_type': 'li_submenu',
-            'a_type': 'anchor_menu_subitem',
+            'type': 'submenu',
             'submenu': [
                 {
                     'title': 'Contratos',
