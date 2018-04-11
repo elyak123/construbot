@@ -14,7 +14,7 @@ class Cliente(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
-        return reverse('proyectos:cliente_detail', kwargs={'cliente': self.id})
+        return reverse('proyectos:cliente_detail', kwargs={'pk': self.id})
 
     class Meta:
         verbose_name = "Cliente"
@@ -27,11 +27,11 @@ class Cliente(models.Model):
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
-    #cambiar esto a cliente en lugar de company
+# cambiar esto a cliente en lugar de company
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
-        return reverse('proyectos:sitio_detail', kwargs={'sitio': self.id})
+        return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})
 
     class Meta:
         verbose_name = "Sitio"
