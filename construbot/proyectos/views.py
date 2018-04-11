@@ -180,7 +180,7 @@ class ClienteAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
             qs = Cliente.objects.filter(
-                cliente_name__icontains=self.q,
+                cliente_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
             )
             return qs
@@ -192,7 +192,7 @@ class SitioAutocomplete(BaseAutocompleteView):
     def get_queryset(self):
         if self.q:
             qs = Sitio.objects.filter(
-                sitio_name__icontains=self.q,
+                sitio_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
             )
             return qs
