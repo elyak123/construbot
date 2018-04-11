@@ -1,6 +1,7 @@
 from django.db import models
 from construbot.users.models import User, Company
 from core.utils import Round, get_directory_path
+from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
 
 
@@ -11,6 +12,9 @@ class Cliente(models.Model):
     y su cliente (modelo actual)"""
     cliente_name = models.CharField(max_length=80, unique=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('proyectos:cliente_detail', kwargs={'cliente': self.id})
 
     class Meta:
         verbose_name = "Cliente"
@@ -25,6 +29,9 @@ class Sitio(models.Model):
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
     #cambiar esto a cliente en lugar de company
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('proyectos:sitio_detail', kwargs={'sitio': self.id})
 
     class Meta:
         verbose_name = "Sitio"
@@ -68,6 +75,9 @@ class Contrato(models.Model):
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     # fecha_esperada_terminacion = models.DateField('Fecha esperada de terminacion',
     #                                               blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
 
     class Meta:
         verbose_name = "Contrato"

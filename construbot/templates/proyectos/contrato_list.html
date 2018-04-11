@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} Listado de Contratos {% endblock %}
+
+{% block content %}
+<h1> Listado de Contratos en {{ request.user.currently_at.company_name }} </h1>
+<a type="button" class="btn" href="{% url 'proyectos:nuevo_contrato' %}"><span class="oi oi-plus"></span></a>
+<br>
+<br>
+{% if is_paginated %}
+	<div class="cont_divs_list">
+		{% for i in object_list %}
+			<div class="div_list">
+				<h4 class="h4_div"><a class="anchor_div_list" target="_blank" href="{% url 'proyectos:detalle_de_contrato' i.id %}">{{ i.contrato_name }}</a></h4>
+				<p class="p_div_list"><strong>Fecha: </strong> {{ i.fecha }} </p>
+				<p class="p_div_list"><strong>Monto: </strong> {{ i.monto }} </p>
+			</div>
+		{% endfor %}
+	</div>
+	
+	{% include 'core/templates/paginado.html' %}
+
+{% endif %}
+{% endblock %}

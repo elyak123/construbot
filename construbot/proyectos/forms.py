@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato
+from .models import Contrato, Cliente, Sitio
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
 
@@ -35,4 +35,23 @@ class ContratoForm(forms.ModelForm):
                 url='proyectos:sitio-autocomplete',
                 attrs={'data-minimum-input-length': 3}
             ),
+        }
+
+
+class ClienteForm(forms.ModelForm):
+
+    class Meta:
+        model = Cliente
+        fields = '__all__'
+        widgets = {
+            'company': forms.HiddenInput()
+        }
+
+
+class SitioForm(forms.ModelForm):
+    class Meta:
+        model = Sitio
+        fields = '__all__'
+        widgets = {
+            'company': forms.HiddenInput()
         }
