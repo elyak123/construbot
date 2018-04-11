@@ -21,7 +21,7 @@ urlpatterns = [
         name='listado_de_sitios'
     ),
     url(
-        regex=r'^detalle/(?P<pk>\d+)/$',
+        regex=r'^contrato/detalle/(?P<pk>\d+)/$',
         view=views.ContratoDetailView.as_view(),
         name='contrato_detail'
     ),

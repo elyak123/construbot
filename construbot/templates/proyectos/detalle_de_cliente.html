@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 {% load i18n %}
+{# {% language 'es' %} #}
 {% block title %} Detalle de {{ cliente.cliente_name }} {% endblock %}
 
 {% block content %}
@@ -34,7 +35,7 @@
 		<tr>
 			<td class="td_table_sample">{{ contrato.code }}</td>
 			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>
-			<td class="td_table_sample">$ {{ contrato.monto }}</td>
+			<td class="td_table_sample">$ {{ contrato.monto|intcomma }}</td>
 			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
 		</tr>
 	{% endfor %}

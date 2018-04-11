@@ -44,11 +44,10 @@ DJANGO_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.postgres',
 
     # Useful template tags:
-    # 'django.contrib.humanize',
-
+    'django.contrib.humanize',
+    'django.contrib.postgres',
 
     # we needed to put them before django.contrib.admin
     # http://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration
