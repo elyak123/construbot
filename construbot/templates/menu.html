@@ -2,20 +2,22 @@
   <div class="menu_lateral">
     <ul class="list_menu">
       {% for item in menu %}
-        <li class="li_menu_item {{ item.type }}"><a class="anchor_menu_item" href="{{ item.url }}"><span class="icon_menu oi oi-{{ item.icon }}"></span>{{ item.title }}</a></li>
-        {% if item.parent %}
-          <ul class="list_subsubmenu">
-            {% for subitem in item.submenu %}
-              <li class="li_menu_subitem">
-                <a class="anchor_subsubmenu_item" href="{{ subitem.url }}">{{ subitem.title }}</a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+        <li class="{% if item.type == 'submenu' %}li_submenu{% else %}li_menu_item{% endif %}">
+          <a class="{% if item.type == 'submenu' %}anchor_menu_subitem{% else %}anchor_menu_item{% endif %}" href="{{ item.url }}"><span class="icon_menu oi oi-{{ item.icon }}"></span>{{ item.title }}</a>
+          {% if item.parent %}
+            <ul class="list_subsubmenu">
+              {% for subitem in item.submenu %}
+                <li class="li_menu_subitem">
+                  <a class="anchor_subsubmenu_item" href="{{ subitem.url }}">{{ subitem.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
       {% endfor %}
 
       <li class="li_menu_item">
-        <a class="anchor_menu_item" href="{% url 'about' %}"> Acerca de </a>
+        <a class="anchor_menu_item" href="{% url 'about' %}"><span class="icon_menu oi oi-star"></span> Acerca de </a>
       </li>
     </ul>
   </div>

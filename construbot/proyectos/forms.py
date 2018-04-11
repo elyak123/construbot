@@ -26,7 +26,7 @@ class ContratoForm(forms.ModelForm):
             ),
             'folio': forms.TextInput(
                 attrs={'readonly': 'readonly'}
-                ),
+            ),
             'cliente': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}

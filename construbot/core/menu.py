@@ -28,7 +28,7 @@ main_menu = [
         'title': 'Proyectos',
         'url': 'proyectos:listado_de_contratos',
         'urlkwargs': '',
-        'icon': 'glyphicon glyphicon-road',
+        'icon': 'briefcase',
         'parent': False,
         'child': False,
     },

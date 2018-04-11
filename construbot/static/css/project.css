@@ -113,16 +113,6 @@ a:hover {
 	padding: 0;
 }
 
-.li_menu_subitem {
-	height: 2em;
-	background-color: #a7a6a6;
-    transition: .3s;
-}
-
-.li_menu_subitem:hover {
-	box-shadow: inset 0px 0px 7px 0px;
-}
-
 .anchor_menu_item, .anchor_menu_subitem {
 	cursor: pointer;
 }
@@ -137,43 +127,34 @@ a:hover {
 	padding: .3em 0 .3em 25px;
 }
 
-/* 
-	TODO: hay que homologarlo de acuerdo a la politica de nombres.
-*/
-/*Para respetar casi en su totalidad el nombre sólo se agregaran los prefijos anchor_ a lnk y list_ a submenu*/
-.lnk {
-    border-width: 0px;
-    font-size: 14px;
-    border-style: solid;
-    transition: .2s;
-}
-.lnk:hover{
-    font-size: 15.3px;
-    background: #086898;
-    z-index: 6;
+.anchor_subsubmenu_item {
+	display: block;
+	font-size: 14px;
+	padding: 8px;
 }
 
-.submenu:hover{
-    font-size: 13.3px;
+.li_submenu {
+	height: 2em;
+	background-color: #a7a6a6;
+    transition: .3s;
 }
 
-.submenu {
-    margin-left: 10px;
-    font-size: 12px;
+.li_submenu:hover {
+	box-shadow: inset 0px 0px 7px 0px;
 }
 
 .list_subsubmenu {
 	display: none;
+	background-color: gray;
 	width: 140px;
 	list-style: none;
 	padding: 0;
+	margin-left: 200px;
+    margin-top: -2.1em;
 }
 
-.li_menu_subitem:hover > .list_subsubmenu {
+.li_submenu:hover > .list_subsubmenu {
 	display: block;
-    background: gray;
-    margin-left: 200px;
-    margin-top: -2.1em;
 }
 
 .menu_subsubmenu > ul {
@@ -189,10 +170,6 @@ a:hover {
 	margin: 20px 20px 0 20px;
 }
 
-.submenu {
-	display: block;
-    padding: .3em 0 .3em 15px;
-}
 /*FIN DE ESTILOS PARA MENÚ LATERAL*/
 
 /*ESTILOS PATA TABLAS*/
