@@ -4,14 +4,14 @@
 {% block title %}Ubicaciones en {{ request.user.currently_at.company_name }}{% endblock title %}
 
 {% block content %}
-<h1> Listado de Ubicaciones en {{ request.user.currently_at.company_name }} </h1>
-<a type="button" class="btn" href="{% url 'construbot.proyectos:nuevo_sitio' %}"><span class="oi oi-plus"></span></a>
+<h2 class="title"> Listado de Ubicaciones en {{ request.user.currently_at.company_name }} </h2>
+<a class="boton" href="{% url 'construbot.proyectos:nuevo_sitio' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
 <br>
 <br>
 <div class="cont_divs_list">
 	{% for i in object_list %}
 		<div class="div_list">
-			<h4 class="h4_div"><a class="anchor_div_list" target="_blank" href="{% url 'construbot.proyectos:sitio_detail' i.id %}">{{ i.sitio_name }}</a></h4>
+			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'construbot.proyectos:sitio_detail' i.id %}">{{ i.sitio_name }}</a></h4>
 			<p class="p_div_list"><strong>Locación: </strong> {{ i.sitio_location }} </p>
 		</div>
 	{% endfor %}

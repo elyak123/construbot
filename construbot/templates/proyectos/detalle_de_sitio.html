@@ -5,7 +5,7 @@
 
 {% block content %}
 {% language 'es' %}
-<h1> Detalle del sitio {{ sitio.sitio_name }}</h1>
+<h2 class="title"> Detalle del sitio {{ sitio.sitio_name }}</h2>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle_contrato">
 		<tr>
@@ -27,7 +27,7 @@
 </div>
 <br>
 {% if sitio.contrato_set.exists %}
-	<h3> Listado de contratos con el sitio: </h3>
+	<h2 class="title">Listado de contratos con el sitio: </h2>
 	<table class="table_sample table_detalle_contrato">
 		<tr>
 			<th class="th_table_sample"> Fecha </th>
