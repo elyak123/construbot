@@ -5,7 +5,7 @@
 
 {% block content %}
 {% language 'es' %}
-<h1> Detalle del contrato {{ contrato.contrato_name }}</h1>
+<h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2 >
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle_contrato">
 		<tr>
@@ -43,7 +43,7 @@
 </div>
 <br>
 {% if contrato.estimate_set.all %}
-	<h3> Listado de estimaciones de {{ contrato.contrato_shortName }}</h3>
+	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
 	<table class="table_sample table_detalle_contrato">
 		<tr>
 			<th class="th_table_sample"> No. </th>
