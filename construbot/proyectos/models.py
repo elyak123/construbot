@@ -16,6 +16,9 @@ class Cliente(models.Model):
     def get_absolute_url(self):
         return reverse('proyectos:cliente_detail', kwargs={'pk': self.id})
 
+    def get_contratos_ordenados(self):
+        return self.contrato_set.all().order_by('-fecha')
+
     class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
@@ -32,6 +35,9 @@ class Sitio(models.Model):
 
     def get_absolute_url(self):
         return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})
+
+    def get_contratos_ordenados(self):
+        return self.contrato_set.all().order_by('-fecha')
 
     class Meta:
         verbose_name = "Sitio"

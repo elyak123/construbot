@@ -47,7 +47,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
     ]
 
 
-# Create your views here.
 class ContratoListView(ProyectosMenuMixin, ListView):
     model = Contrato
     paginate_by = 10

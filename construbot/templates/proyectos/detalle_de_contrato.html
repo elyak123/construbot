@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-
 {% load i18n %}
+{% load humanize %}
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 
 {% block content %}
+{% language 'es' %}
 <h1> Detalle del contrato {{ contrato.contrato_name }}</h1>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle_contrato">
@@ -28,7 +29,7 @@
 		</tr>
 		<tr>
 			<td class="td_table_sample">Monto sin IVA</td>
-			<td class="td_table_sample">$ {{ contrato.monto }}</td>
+			<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
 		</tr>
 		<tr>
 			<td class="td_table_sample">Fecha de Firma</td>
@@ -67,4 +68,5 @@
 {% else %}
 	<h3> No existen estimaciones para este contrato aún. <a href="">Crea una aquí</a>.</h3>
 {% endif %}
+{% endlanguage %}
 {% endblock %}

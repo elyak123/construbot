@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load i18n %}
-{# {% language 'es' %} #}
+
 {% block title %} Detalle de {{ cliente.cliente_name }} {% endblock %}
 
 {% block content %}
+{% language 'es' %}
 <h1> Detalle del cliente {{ cliente.cliente_name }}</h1>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle_contrato">
@@ -22,22 +23,23 @@
 	</table>
 </div>
 <br>
-{% if cliente.contrato_set.all %}
+{% if cliente.contrato_set.exists %}
 	<h3> Listado de contratos con el cliente: </h3>
 	<table class="table_sample table_detalle_contrato">
 		<tr>
-			<th class="th_table_sample"> Código </th>
+			<th class="th_table_sample"> Fecha </th>
 			<th class="th_table_sample"> Nombre </th>
 			<th class="th_table_sample"> Monto </th>
 			<th class="th_table_sample"> Sitio </th>
 		</tr>
-	{% for contrato in cliente.contrato_set.all %}
+	{% for contrato in cliente.get_contratos_ordenados %}
 		<tr>
-			<td class="td_table_sample">{{ contrato.code }}</td>
+			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
 			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>
-			<td class="td_table_sample">$ {{ contrato.monto|intcomma }}</td>
+			<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
 			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
 		</tr>
 	{% endfor %}
 {% endif %}
+{% endlanguage %}
 {% endblock %}
