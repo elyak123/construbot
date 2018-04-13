@@ -29,7 +29,8 @@
   <h1></h1>
   <form style="position:relative" class="form-horizontal" method="post">
     {% csrf_token %}
-    {% bootstrap_form form %}
+{#     {% bootstrap_form form %} #}
+        {% bootstrap_formset form %}
     <div class="control-group">
       <div class="controls">
         <button type="submit" class="btn">Enviar</button>

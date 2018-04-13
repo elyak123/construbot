@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.db.models import Max
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio
-from .forms import ContratoForm, ClienteForm, SitioForm
+from .forms import ContratoForm, ClienteForm, SitioForm, ContractConceptInlineForm
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -169,6 +169,20 @@ class SitioCreationView(ProyectosMenuMixin, CreateView):
             return super(SitioCreationView, self).form_valid(form)
         else:
             return super(SitioCreationView, self).form_invalid(form)
+
+
+class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
+    form_class = ContractConceptInlineForm
+    template_name = 'proyectos/contrato_form.html'
+
+    def get_object(self):
+        self.model = self.form_class.fk.related_model._meta.model
+        obj = get_object_or_404(
+            self.model,
+            cliente__company=self.request.user.currently_at,
+            pk=self.kwargs['pk']
+        )
+        return obj
 
 
 class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):

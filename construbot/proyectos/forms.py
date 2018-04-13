@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio
+from .models import Contrato, Cliente, Sitio, Concept
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
 
@@ -55,3 +55,13 @@ class SitioForm(forms.ModelForm):
         widgets = {
             'company': forms.HiddenInput()
         }
+
+ContractConceptInlineForm = forms.inlineformset_factory(Contrato, Concept, fields=(
+                                    'code',
+                                    'concept_text',
+                                    'unit',
+                                    'unit_price',
+                                    'total_cuantity'
+                                ),
+                                extra=1,
+                            )
