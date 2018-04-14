@@ -173,7 +173,7 @@ class SitioCreationView(ProyectosMenuMixin, CreateView):
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
     form_class = ContractConceptInlineForm
-    template_name = 'proyectos/contrato_form.html'
+    template_name = 'proyectos/catalogo-conceptos-inline.html'
 
     def get_object(self):
         self.model = self.form_class.fk.related_model._meta.model

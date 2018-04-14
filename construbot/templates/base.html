@@ -87,13 +87,13 @@
 
     {% block modal %}{% endblock modal %}
 
-      <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
-      {% bootstrap_javascript jquery='full' %}
-      {% compress js %}
-        {% block javascript %}
-        {% endblock javascript %}
-        <script src="{% static 'js/project.js' %}"></script>
-      {% endcompress %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+    {% bootstrap_javascript jquery='full' %}
+    {% compress js %}
+      {% block javascript %}
+      {% endblock javascript %}
+      <script src="{% static 'js/project.js' %}"></script>
+    {% endcompress %}
 
   </body>
 </html>
