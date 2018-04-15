@@ -21,6 +21,11 @@ urlpatterns = [
         name='listado_de_sitios'
     ),
     url(
+        regex=r'^contrato/catalogo/(?P<pk>\d+)/$',
+        view=views.CatalogoConceptosInlineFormView.as_view(),
+        name='catalogo_conceptos'
+    ),
+    url(
         regex=r'^contrato/detalle/(?P<pk>\d+)/$',
         view=views.ContratoDetailView.as_view(),
         name='contrato_detail'

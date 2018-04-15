@@ -2,7 +2,6 @@
 {% load static %}
 {% load bootstrap4 %}
 {% block css %}
-  <link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
   <link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
   <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
@@ -11,14 +10,11 @@
   <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-  <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
   <script type="text/javascript">
-    $(document).ready(function(){
-      $('#id_fecha').datetimepicker({'format':"YYYY-MM-DD"});
-    });
+    var setPrefix = '{{ form.prefix }}';
   </script>
+  <script src="{% static 'js/inlineform.js' %}"></script>
 {% endblock javascript %}
 {% block title %}{% endblock %}
 
@@ -26,15 +22,12 @@
 {% bootstrap_messages %}
 
 {% block content %}
-  <h1></h1>
-  <form style="position:relative" class="form-horizontal" method="post">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    <div class="control-group">
-      <div class="controls">
-        <button type="submit" class="btn">Enviar</button>
-      </div>
-    </div>
-  </form>
-  {{ form.media }}
+    <h3>Contrato {% if object.folio < 10 %}0{% endif %}{{ object.folio }} {{ object.contrato_shortName }}</h3>
+    <button type="button" class="btn btn-default add-form-row">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+    </button>
+        {% bootstrap_formset form %}
+    <button type="button" class="btn btn-default add-form-row">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+    </button>
 {% endblock %}
