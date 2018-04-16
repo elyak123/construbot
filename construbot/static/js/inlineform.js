@@ -1,4 +1,4 @@
-$(document).ready(function(){
+// $(document).ready(function(){
 
     var Formset = (function() {
         var callbacks = {},
@@ -199,6 +199,6 @@ $(document).ready(function(){
     }
 
 
-});
+// });
 
 

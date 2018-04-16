@@ -6,15 +6,15 @@
   <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block javascript %}
+  <script type="text/javascript">
+    var setPrefix = '{{ form.prefix }}';
+  </script>
+  <script src="{% static 'js/inlineform.js' %}"></script>
   <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-  <script type="text/javascript">
-    var setPrefix = '{{ form.prefix }}';
-  </script>
-  <script src="{% static 'js/inlineform.js' %}"></script>
 {% endblock javascript %}
 {% block title %}{% endblock %}
 
