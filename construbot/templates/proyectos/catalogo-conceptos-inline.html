@@ -22,12 +22,56 @@
 {% bootstrap_messages %}
 
 {% block content %}
-    <h3>Contrato {% if object.folio < 10 %}0{% endif %}{{ object.folio }} {{ object.contrato_shortName }}</h3>
-    <button type="button" class="btn btn-default add-form-row">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
-    </button>
-        {% bootstrap_formset form %}
-    <button type="button" class="btn btn-default add-form-row">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
-    </button>
+  <h3>Contrato {% if object.folio < 10 %}0{% endif %}{{ object.folio }} {{ object.contrato_shortName }}</h3>
+  <button type="button" class="btn btn-default add-form-row">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+  </button>
+  {% comment %}
+
+  {% bootstrap_formset form %}
+  {% endcomment %}
+  <form role="form" method="POST" class="form">
+  {% csrf_token  %}
+  {{ form.non_form_errors.as_ul }}
+  <table id="formset" class="form conceptable tablein table">
+    {{ form.management_form }}
+    {% for frm in form.forms %}
+      {% if forloop.first %}
+        <thead><tr>
+              <th> Código </th>
+              <th> Concepto </th>
+              <th> Unidad </th>
+              <th> Cantidad </th>
+              <th> Precio unitario </th>
+              <th> ¿Eliminar? </th>
+        </tr></thead>
+      {% endif %}
+      <tr class="{% cycle 'row1' 'row2' %} dynamic-form">
+      {% for field in frm.visible_fields %}
+          <td class="inlineRow">
+          {# Include the hidden fields in the form #}
+            {% if forloop.first %}
+              {% for hidden in frm.hidden_fields %}
+                {{ hidden }}
+              {% endfor %}
+            {% endif %}
+            {{ field.errors.as_ul }}
+            {{ field }}
+          </td>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+  <button id="addButton" type="button" class="btn btn-default add-form-row">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+  </button>
+  <div style="float:right;">
+    <a href="#" id="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+  </div>
+  </form>
+
+  <button type="button" class="btn btn-default add-form-row">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+  </button>
 {% endblock %}

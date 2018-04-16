@@ -60,8 +60,22 @@ ContractConceptInlineForm = forms.inlineformset_factory(Contrato, Concept, field
                                     'code',
                                     'concept_text',
                                     'unit',
+                                    'total_cuantity',
                                     'unit_price',
-                                    'total_cuantity'
                                 ),
                                 extra=1,
+                                widgets={
+                                    'concept_text': forms.Textarea(attrs={
+                                        'cols': '35',
+                                        'rows': '3'
+                                        }),
+                                    'unit': autocomplete.ModelSelect2(
+                                        url='proyectos:unit-autocomplete',
+                                        attrs={'data-minimum-input-length': 3}
+                                    ),
+                                    'code': forms.TextInput(attrs={
+                                            'class': 'inlineCode'
+                                        }
+                                    ),
+                                },
                             )

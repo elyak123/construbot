@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.core.urlresolvers import reverse
 from django.db.models import Max
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio
+from .models import Contrato, Cliente, Sitio, Units
 from .forms import ContratoForm, ClienteForm, SitioForm, ContractConceptInlineForm
 
 
@@ -184,6 +185,12 @@ class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
         )
         return obj
 
+    def get_success_url(self):
+        return reverse(
+            'construbot.proyectos:contrato_detail',
+            kwargs={'pk': self.kwargs['pk']}
+        )
+
 
 class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):
     app_label_name = ProyectosConfig.verbose_name
@@ -211,3 +218,23 @@ class SitioAutocomplete(BaseAutocompleteView):
             return qs
         else:
             qs = Sitio.objects.none()
+
+
+class UnitAutocomplete(BaseAutocompleteView):
+    model = Units
+
+    def get_key_words(self):
+        self.key_words = {
+            'unit__unaccent__icontains': self.q
+        }
+        return self.key_words
+
+    def has_add_permission(self, request):
+        return True
+
+    def get_queryset(self):
+        if self.q:
+            qs = self.model.objects.filter(**self.get_key_words())
+            return qs
+        elif self.request.POST:
+            return self.model.objects

@@ -6,8 +6,7 @@ $(document).ready(function(){
             form_count = 0,
             form_manager = {},
             form_placeholder = $('#formset-placeholder')[0],
-            // form_selector = '.dynamic-form',
-            form_selector = '.form-group',
+            form_selector = '.dynamic-form',
             prefix = 'form';    //cambiar a formset    
 
         function setup(context) {
@@ -190,7 +189,7 @@ $(document).ready(function(){
                 $(form).removeClass('light');
         }
     };
-    if($('.form-group').length > 0){
+    if($('.dynamic-form').length > 0){
         var formset = new Formset();
 
         formset.setup({
