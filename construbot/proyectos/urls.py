@@ -59,4 +59,7 @@ urlpatterns = [
     url(regex=r'sitio-autocomplete/$',
         view=views.SitioAutocomplete.as_view(),
         name='sitio-autocomplete'),
+    url(regex=r'^unit-autocomplete/$',
+        view=views.UnitAutocomplete.as_view(create_field='unit'),
+        name='unit-autocomplete'),
 ]
