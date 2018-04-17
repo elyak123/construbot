@@ -92,6 +92,5 @@ $(document).ready(function(){
         hideMenu();
     }
     $(window).on("load", function(){
-        debugger;
     });
 });

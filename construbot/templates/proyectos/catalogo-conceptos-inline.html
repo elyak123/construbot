@@ -24,8 +24,10 @@
 {% block content %}
   <h3>Contrato {% if object.folio < 10 %}0{% endif %}{{ object.folio }} {{ object.contrato_shortName }}</h3>
   <button type="button" class="btn btn-default add-form-row">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+      <span class="oi oi-plus" aria-hidden="true"></span>
   </button>
+  <br>
+  <br>
   {% comment %}
 
   {% bootstrap_formset form %}
@@ -33,7 +35,7 @@
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
   {{ form.non_form_errors.as_ul }}
-  <table id="formset" class="form conceptable tablein table">
+  <table id="formset" class="form table_sample table_inline">
     {{ form.management_form }}
     {% for frm in form.forms %}
       {% if forloop.first %}
@@ -62,16 +64,14 @@
       </tr>
     {% endfor %}
   </table>
-  <button id="addButton" type="button" class="btn btn-default add-form-row">
-    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-  </button>
-  <div style="float:right;">
-    <a href="#" id="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</a>
+  <br>
+  <div class="cont_buttons">
+      <a href="#" id="cancelar" data-dismiss="modal"><button class="btn">Cancelar</button></a>
       <button type="submit" class="btn btn-primary">Guardar</button>
   </div>
   </form>
-
+  <br>
   <button type="button" class="btn btn-default add-form-row">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true">MÁS</span>
+      <span class="oi oi-plus" aria-hidden="true"></span>
   </button>
 {% endblock %}
