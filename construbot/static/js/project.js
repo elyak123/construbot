@@ -91,6 +91,4 @@ $(document).ready(function(){
     if(window.innerWidth < 375){
         hideMenu();
     }
-    $(window).on("load", function(){
-    });
 });
