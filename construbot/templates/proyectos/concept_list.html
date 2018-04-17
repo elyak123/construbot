@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load humanize %}
+{% block title %} Listado de Conceptos en el Contrato {{ contrato.contrato_shortName }} {% endblock %}
+
+{% block content %}
+<h2 class="title"> Listado de Conceptos en {{ contrato.contrato_name }} </h2>
+<a class="boton" href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar catálogo</a>
+<br>
+<br>
+<div class="cont_divs_list">
+	<table class="table_sample table_normal">
+		<tr>
+			<th> Código </th>
+			<th> Concepto </th>
+			<th> Unidad </th>
+			<th> Cantidad </th>
+			<th> Precio unitario </th>
+		</tr>
+		{% for i in object_list %}
+		<tr>
+			<td> {{ i.code }} </td>
+			<td> {{ i.concept_text }} </td>
+			<td> {{ i.unit.unit }} </td>
+			<td> {{ i.total_cuantity }} </td>
+			<td> $ {% language 'en' %}{{ i.unit_price|intcomma }}{% endlanguage %} </td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% if is_paginated %}	
+	{% include 'core/templates/paginado.html' %}
+{% endif %}
+{% endblock %}
