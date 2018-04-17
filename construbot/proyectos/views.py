@@ -5,7 +5,7 @@ from django.db.models import Max
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units
+from .models import Contrato, Cliente, Sitio, Units, Concept
 from .forms import ContratoForm, ClienteForm, SitioForm, ContractConceptInlineForm
 
 
@@ -82,6 +82,24 @@ class SitioListView(ProyectosMenuMixin, ListView):
             company=self.request.user.currently_at
         )
         return super(SitioListView, self).get_queryset()
+
+
+class CatalogoConceptos(ProyectosMenuMixin, ListView):
+    model = Concept
+    paginate_by = 10
+    ordering = 'code'
+
+    def get_context_data(self, **kwargs):
+        context = super(CatalogoConceptos, self).get_context_data(**kwargs)
+        context['contrato'] = Contrato.objects.get(id=self.kwargs['pk'])
+        return context
+
+    def get_queryset(self):
+        contrato = Contrato.objects.get(id=self.kwargs['pk'])
+        self.queryset = self.model.objects.filter(
+            project=contrato
+        )
+        return super(CatalogoConceptos, self).get_queryset()
 
 
 class ContratoDetailView(ProyectosMenuMixin, DetailView):

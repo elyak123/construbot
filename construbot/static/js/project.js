@@ -39,11 +39,20 @@ $(document).ready(function(){
     }
     document.querySelector('#company_select').onchange=OnchangeEventHandler
 
-    function hideMenu(){
-        menu[0].style.display = "none";
-        cont_contenedor.removeClass("content_with_little_sidebar");
-        cont_contenedor.removeClass("content_with_sidebar");
-        cont_contenedor.addClass("content_without_sidebar");
+    function ajustarContenido(arg){
+        if(arg==1){
+            cont_contenedor.removeClass("content_with_little_sidebar");
+            cont_contenedor.removeClass("content_with_sidebar");
+            cont_contenedor.addClass("content_without_sidebar");
+        } else if (arg==2 && little){
+            cont_contenedor.addClass("content_with_little_sidebar");
+            cont_contenedor.removeClass("content_with_sidebar");
+            cont_contenedor.removeClass("content_without_sidebar");
+        } else if (arg==2 && !little){
+            cont_contenedor.removeClass("content_with_little_sidebar");
+            cont_contenedor.addClass("content_with_sidebar");
+            cont_contenedor.removeClass("content_without_sidebar");
+        }
     }
 
     menu_in.on("click", function(){
@@ -82,15 +91,17 @@ $(document).ready(function(){
             menu_in.click();
         }
         if(window.innerWidth < 375){
-            hideMenu();
+            ajustarContenido(1);
+        } else if (window.innerWidth >= 375) {
+            ajustarContenido(2);
         }
     });
     if(window.innerWidth < 600 && !little){
         menu_in.click();
     }
     if(window.innerWidth < 375){
-        hideMenu();
+        ajustarContenido(1);
+    } else if (window.innerWidth >= 375) {
+        ajustarContenido(2);
     }
-    $(window).on("load", function(){
-    });
 });

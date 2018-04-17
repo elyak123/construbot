@@ -35,18 +35,20 @@
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
   {{ form.non_form_errors.as_ul }}
-  <table id="formset" class="form table_sample table_inline">
+  <table id="formset" class="form table_sample table_inline table_normal">
     {{ form.management_form }}
     {% for frm in form.forms %}
       {% if forloop.first %}
-        <thead><tr>
-              <th> Código </th>
-              <th> Concepto </th>
-              <th> Unidad </th>
-              <th> Cantidad </th>
-              <th> Precio unitario </th>
-              <th> ¿Eliminar? </th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th> Código </th>
+            <th> Concepto </th>
+            <th> Unidad </th>
+            <th> Cantidad </th>
+            <th> Precio unitario </th>
+            <th> ¿Eliminar? </th>
+          </tr>
+        </thead>
       {% endif %}
       <tr class="{% cycle 'row1' 'row2' %} dynamic-form">
       {% for field in frm.visible_fields %}

@@ -7,7 +7,7 @@
 {% language 'es' %}
 <h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2 >
 <div class="cont_table_sample">
-	<table class="table_sample table_detalle_contrato">
+	<table class="table_sample table_detalle">
 		<tr>
 			<th colspan="2" class="th_table_sample">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
 		</tr>
@@ -70,3 +70,5 @@
 {% endif %}
 {% endlanguage %}
 {% endblock %}
+
+{# CÓDIGO, DESCRIPCIÓN, CONCEPTO, UNIDAD, CANTIDAD, PRECIO UNITARIO #}
