@@ -38,8 +38,12 @@ a:hover {
 	margin: 45px 20px 0 220px;
 }
 
+.content_with_little_sidebar {
+	margin: 45px 30px 0 65px;
+}
+
 .content_without_sidebar {
-	margin: 10px 30px 0 30px;
+	margin: 45px 10px 0 10px;
 }
 
 .title {
@@ -54,6 +58,10 @@ a:hover {
 	height: 35px;
     width: 50px;
 }
+
+#event_menu_out {
+	display: none;
+}
 /*FIN DE ESTILOS GENERALES*/
 
 /*ESTILOS PARA SELECTOR DE COMPAÑIA*/
@@ -62,6 +70,12 @@ a:hover {
 	right: 45px;
 	top: 80px;
 }
+
+.li_companies_list {
+	padding: 0;
+	margin: 0;
+}
+
 .li_companies_list > li {
 	display: inline-block;
 	list-style: none;
