@@ -14,7 +14,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         {
             'title': 'Catalogos',
             'url': '',
-            'icon': '',
+            'icon': 'book',
             'parent': True,
             'type': 'submenu',
             'submenu': [
@@ -22,25 +22,25 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                     'title': 'Contratos',
                     'url': 'construbot.proyectos:listado_de_contratos',
                     'urlkwargs': '',
-                    'icon': '',
+                    'icon': 'bookmark',
                 },
                 {
                     'title': 'Clientes',
                     'url': 'construbot.proyectos:listado_de_clientes',
                     'urlkwargs': '',
-                    'icon': '',
+                    'icon': 'person',
                 },
                 {
                     'title': 'Ubicaciones',
                     'url': 'construbot.proyectos:listado_de_sitios',
                     'urlkwargs': '',
-                    'icon': '',
+                    'icon': 'map-marker',
                 },
                 {
                     'title': 'Contactos',
                     'url': '',
                     'urlkwargs': '',
-                    'icon': '',
+                    'icon': 'people',
                 },
             ],
         }
