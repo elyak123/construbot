@@ -138,6 +138,21 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
             return super(ContratoCreationView, self).form_invalid(form)
 
 
+# class BasicCreationView(ProyectosMenuMixin, CreateView):
+#     def get_initial(self):
+#         initial_obj = super(ClienteCreationView, self).get_initial()
+#         initial_obj['company'] = self.request.user.currently_at
+#         return initial_obj
+
+#     def form_valid(self, form):
+#         if form.cleaned_data['company'] == self.request.user.currently_at:
+#             self.object = form.save()
+#             return super(ClienteCreationView, self).form_valid(form)
+#         else:
+#             return super(ClienteCreationView, self).form_invalid(form)
+
+
+# class ClienteCreationView(BasicCreationView):
 class ClienteCreationView(ProyectosMenuMixin, CreateView):
     form_class = ClienteForm
     template_name = 'proyectos/contrato_form.html'
@@ -155,6 +170,7 @@ class ClienteCreationView(ProyectosMenuMixin, CreateView):
             return super(ClienteCreationView, self).form_invalid(form)
 
 
+# class SitioCreationView(BasicCreationView):
 class SitioCreationView(ProyectosMenuMixin, CreateView):
     form_class = SitioForm
     template_name = 'proyectos/contrato_form.html'
