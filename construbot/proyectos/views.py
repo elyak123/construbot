@@ -90,19 +90,23 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
     paginate_by = 10
     ordering = 'code'
 
-    def get(self, request, pk):
-        contrato = Contrato.objects.get(id=pk)
-        queryset = Concept.objects.filter(project=contrato)
-        json = []
-        for i in queryset:
+    def get(self, request, *args, **kwargs):
+        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        queryset = self.model.objects.filter(
+            project=contrato,
+            project__cliente__company=self.request.user.currently_at
+        )
+        json = {}
+        json['estimaciones'] = []
+        for concepto in queryset:
             aux = {}
-            aux["code"] = i.code
-            aux["concept_text"] = i.concept_text
-            aux["unit"] = i.unit.unit
-            aux["cuantity"] = i.total_cuantity
-            aux["unit_price"] = i.unit_price
-            json.append(aux)
-        return JsonResponse(json, safe=False)
+            aux["code"] = concepto.code
+            aux["concept_text"] = concepto.concept_text
+            aux["unit"] = concepto.unit.unit
+            aux["cuantity"] = concepto.total_cuantity
+            aux["unit_price"] = concepto.unit_price
+            json['estimaciones'].append(aux)
+        return JsonResponse(json)
 
 
 class ContratoDetailView(ProyectosMenuMixin, DetailView):

@@ -34,6 +34,7 @@ $(document).ready(function(){
                 url: "/proyectos/contrato/catalogo-list/" + document.URL.slice(-2)[0] + "/",
                 success: function(result){
                     $(".cont_result")[0].style.display = "block";
+                    result = result.estimaciones;
                     if(result.length>0){
                         $(".table_results")[0].style.display = "inline-table";
                         for(i=1; i<=result.length; i++){
