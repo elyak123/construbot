@@ -45,6 +45,11 @@ urlpatterns = [
         view=views.SitioDetailView.as_view(),
         name='sitio_detail'
     ),
+    url(
+        regex=r'^destinatario/detalle/(?P<pk>\d+)/$',
+        view=views.DestinatarioDetailView.as_view(),
+        name='destinatario_detail'
+    ),
     url(regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
         name='nuevo_contrato'),
@@ -59,7 +64,7 @@ urlpatterns = [
 
     url(regex=r'^destinatario/nuevo/$',
         view=views.DestinatarioCreationView.as_view(),
-        name='nuevo_sitio'),
+        name='nuevo_destinatario'),
 
     url(regex=r'^editar/contrato/(?P<pk>\d+)/$',
         view=views.ContratoEditView.as_view(),

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept
+from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario
 from .forms import ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm
 
 
@@ -131,6 +131,15 @@ class SitioDetailView(ProyectosMenuMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Sitio, pk=self.kwargs['pk'])
+
+
+class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
+    model = Destinatario
+    context_object_name = 'destinatario'
+    template_name = 'proyectos/detalle_de_destinatario.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Destinatario, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
