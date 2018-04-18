@@ -92,10 +92,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'])
-        queryset = self.model.objects.filter(
-            project=contrato,
-            project__cliente__company=self.request.user.currently_at
-        )
+        queryset = self.model.objects.filter(project=contrato)
         json = {}
         json['estimaciones'] = []
         for concepto in queryset:
@@ -162,20 +159,20 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         else:
             return super(ContratoCreationView, self).form_invalid(form)
 
+"""
+    class BasicCreationView(ProyectosMenuMixin, CreateView):
+        def get_initial(self):
+            initial_obj = super(ClienteCreationView, self).get_initial()
+            initial_obj['company'] = self.request.user.currently_at
+            return initial_obj
 
-# class BasicCreationView(ProyectosMenuMixin, CreateView):
-#     def get_initial(self):
-#         initial_obj = super(ClienteCreationView, self).get_initial()
-#         initial_obj['company'] = self.request.user.currently_at
-#         return initial_obj
-
-#     def form_valid(self, form):
-#         if form.cleaned_data['company'] == self.request.user.currently_at:
-#             self.object = form.save()
-#             return super(ClienteCreationView, self).form_valid(form)
-#         else:
-#             return super(ClienteCreationView, self).form_invalid(form)
-
+        def form_valid(self, form):
+            if form.cleaned_data['company'] == self.request.user.currently_at:
+                self.object = form.save()
+                return super(ClienteCreationView, self).form_valid(form)
+            else:
+                return super(ClienteCreationView, self).form_invalid(form)
+"""
 
 # class ClienteCreationView(BasicCreationView):
 class ClienteCreationView(ProyectosMenuMixin, CreateView):

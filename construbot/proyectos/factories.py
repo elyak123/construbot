@@ -3,7 +3,7 @@ import datetime
 import factory
 import factory.fuzzy
 from construbot.users.tests.factories import CompanyFactory
-from .models import Cliente, Sitio, Contrato
+from .models import Cliente, Sitio, Contrato, Units, Concept
 
 
 class ClienteFactory(factory.django.DjangoModelFactory):
@@ -43,3 +43,21 @@ class ContratoFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Contrato
+
+
+class UnitFactory(factory.django.DjangoModelFactory):
+    unit = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='unit_')
+
+    class Meta:
+        model = Units
+
+class ConceptoFactory(factory.django.DjangoModelFactory):
+    code = factory.Sequence(lambda n: n)
+    concept_text = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='text_')
+    project = factory.SubFactory(ContratoFactory)
+    unit = factory.SubFactory(UnitFactory)
+    total_cuantity = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
+    unit_price = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
+
+    class Meta:
+        model = Concept
