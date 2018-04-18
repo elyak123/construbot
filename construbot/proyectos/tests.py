@@ -84,7 +84,7 @@ class CatalogoConceptosTest(BaseViewTest):
                 pk=contrato.pk
         )
         JSON_test = {
-            'estimaciones': [
+            'conceptos': [
                 {
                     'code': '0',
                     'concept_text': 'text_0',
