@@ -51,7 +51,7 @@ a:hover {
 }
 
 .boton {
-	margin: 0 5%;
+	margin: 0 2.5%;
 }
 
 .boton > .btn {
@@ -62,7 +62,43 @@ a:hover {
 #event_menu_out {
 	display: none;
 }
+
+.form-horizontal .select2-container {
+	min-width: 100% !important;
+	width: 100% !important;
+}
 /*FIN DE ESTILOS GENERALES*/
+
+/*ESTILOS PARA LISTADOS AJAX*/
+.icon_right, .icon_right-up {
+	float: right;
+	cursor: pointer;
+	margin-right: 15px;
+}
+
+.icon_right-up {
+	display: none;
+}
+
+.cont_listado {
+	color: white;
+	padding: 8px;
+	width: 90%;
+	margin-left: 5%;
+	background-color: #086898;
+}
+
+.cont_result {
+	display: none;
+	margin: 0 0 0 5%;
+	width: 90%;
+	box-shadow: 0px 2px 5px 0px;
+}
+
+.cont_message_no_result {
+	display: none;
+}
+/*FIN DE ESTILOS PARA LISTADOS AJAX*/
 
 /*ESTILOS PARA SELECTOR DE COMPAÑIA*/
 .div_miniform {
@@ -122,13 +158,26 @@ a:hover {
 	color: #c4c4c4;
 }
 
-.li_menu_item, .li_menu_subitem {
-	transition: .2s;
+.li_menu_item, .li_menu_subitem, .li_submenu, .li_menu_item span, .li_menu_subitem span, .li_submenu span  {
+	transition: .15s;
 }
 
 .li_menu_item:hover, .li_submenu:hover, .li_menu_subitem:hover {
 	background-color: #086898;
 }
+
+.li_menu_item:hover .menuSign {
+	font-size: 15.3px;
+}
+
+.li_submenu .menuSign, .li_menu_subitem .submenuSign{
+	font-size: 12px;
+}
+
+.li_submenu:hover .menuSign, .li_menu_subitem:hover .submenuSign {
+	font-size: 13px;
+}
+
 /*FIN DE ESTILOS PARA NAV PERSONALIZADO*/
 
 /*ESTILOS PARA EL MENÚ LATERAL*/
@@ -170,7 +219,7 @@ a:hover {
 
 .anchor_menu_subitem {
 	display: block;
-	padding: .3em 0 .3em 25px;
+	padding: .7em 0 .7em 2.2em;
 }
 
 .anchor_subsubmenu_item {
@@ -180,8 +229,7 @@ a:hover {
 }
 
 .li_submenu {
-	height: 2em;
-    transition: .3s;
+	height: 3em;
 }
 
 .list_subsubmenu {
@@ -218,30 +266,37 @@ a:hover {
 	width: 100%;
 }
 
-.table_detalle_contrato {
-	width: 90%;
-	margin-left: 5%;
-}
-
-.table_inline {
-	width: 100%;
+.table_detalle tr>td {
+	text-align: left;
+    padding: .6em .6em .6em 11%;
 }
 
 .table_sample {
+	width: 90%;
+	margin-left: 5%;
 	box-shadow: 0px 0px 6px 0px;
+}
+
+.table_results {
+	display: none;
+	text-align: center;
+	width: 100%;
+}
+
+.table_normal tr>td {
+	text-align: center;
+	padding: 8px;
 }
 
 .table_sample tr>th {
 	text-align: center;
-	padding: 8px;
+	padding: 8px;	
 	background-color: #086898;
 	color: white;
 	border-color: white;
 }
 
 .table_sample tr>td {
-	text-align: center;
-	padding: 8px;
 	border-style: solid;
 	border-width: 0 0 1px 0;
 	border-color: #cacaca;
@@ -258,7 +313,7 @@ a:hover {
 .div_list {
 	padding: 15px;
 	margin-bottom: 10px;
-	margin: 5px 5%;
+	margin: 10px 2.5%;
 	border-style: solid;
 	border-color: #c9c9c9;
 	border-width: 1px 1px 1px 8px;
@@ -275,24 +330,35 @@ a:hover {
 }
 /*FIN DE ESTILOS PARA LISTADOS DE DOCUMENTOS*/
 /*ESTILOS PARA INLINE FORMSET*/
-.table_sample input, .table_sample textarea {
+.table_inline input, .table_inline textarea, .table_inline .select2-container {
 	padding: 3px;
+	width: 90%;
     border-radius: 5px;
     border-color: rgb(169, 169, 169);
     border-width: 1px;
 }
 
+.table_inline .select2-container {
+	min-width: 10em;
+}
+
 .cont_buttons {
+	margin-right: 5%;
 	float: right;
 }
-/*FIN DE ESTILOS*/
+/*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*FIN DE ESTILOS*/
 
 /*QUERYSETS*/
 /*PARA LA BARRA SUPERIOR*/
 @media screen and (max-width: 400px){
   .anchor_menu_nav, .anchor_brand {
-	padding: 1.1em .5em;
-  }
+	padding: 1.1em .4em;
+}
 
+@media screen and (max-width: 375px){
+	.cont_menu_lateral {
+		display: none;
+	}
+}
 /*FIN DE QUERYSETS*/

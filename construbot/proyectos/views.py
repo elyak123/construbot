@@ -2,10 +2,11 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.core.urlresolvers import reverse
 from django.db.models import Max
+from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units
+from .models import Contrato, Cliente, Sitio, Units, Concept
 from .forms import ContratoForm, ClienteForm, SitioForm, ContractConceptInlineForm
 
 
@@ -82,6 +83,30 @@ class SitioListView(ProyectosMenuMixin, ListView):
             company=self.request.user.currently_at
         )
         return super(SitioListView, self).get_queryset()
+
+
+class CatalogoConceptos(ProyectosMenuMixin, ListView):
+    model = Concept
+    paginate_by = 10
+    ordering = 'code'
+
+    def get(self, request, *args, **kwargs):
+        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        queryset = self.model.objects.filter(
+            project=contrato,
+            project__cliente__company=self.request.user.currently_at
+        )
+        json = {}
+        json['estimaciones'] = []
+        for concepto in queryset:
+            aux = {}
+            aux["code"] = concepto.code
+            aux["concept_text"] = concepto.concept_text
+            aux["unit"] = concepto.unit.unit
+            aux["cuantity"] = concepto.total_cuantity
+            aux["unit_price"] = concepto.unit_price
+            json['estimaciones'].append(aux)
+        return JsonResponse(json)
 
 
 class ContratoDetailView(ProyectosMenuMixin, DetailView):
