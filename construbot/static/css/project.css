@@ -59,6 +59,14 @@ a:hover {
     width: 50px;
 }
 
+.boton_edicion > .btn {
+	margin-top: .8em;
+	height: 35px;
+    width: 50px;
+    background-color: #086898;
+    color: white;
+}
+
 #event_menu_out {
 	display: none;
 }
