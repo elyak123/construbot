@@ -69,6 +69,37 @@ a:hover {
 }
 /*FIN DE ESTILOS GENERALES*/
 
+/*ESTILOS PARA LISTADOS AJAX*/
+.icon_right, .icon_right-up {
+	float: right;
+	cursor: pointer;
+	margin-right: 15px;
+}
+
+.icon_right-up {
+	display: none;
+}
+
+.cont_listado {
+	color: white;
+	padding: 8px;
+	width: 90%;
+	margin-left: 5%;
+	background-color: #086898;
+}
+
+.cont_result {
+	display: none;
+	margin: 0 0 0 5%;
+	width: 90%;
+	box-shadow: 0px 2px 5px 0px;
+}
+
+.cont_message_no_result {
+	display: none;
+}
+/*FIN DE ESTILOS PARA LISTADOS AJAX*/
+
 /*ESTILOS PARA SELECTOR DE COMPAÑIA*/
 .div_miniform {
 	position: absolute;
@@ -244,6 +275,12 @@ a:hover {
 	width: 90%;
 	margin-left: 5%;
 	box-shadow: 0px 0px 6px 0px;
+}
+
+.table_results {
+	display: none;
+	text-align: center;
+	width: 100%;
 }
 
 .table_normal tr>td {

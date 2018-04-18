@@ -42,6 +42,19 @@
 	</table>
 </div>
 <br>
+<div class="cont_listado"><strong>Catálogo de conceptos</strong><span class="oi oi-chevron-bottom icon_right"></span><span class="oi oi-chevron-top icon_right-up"></span></div>
+<div class="cont_result" id="cont_result_concept">
+	<table class="table_results">
+		<tr>
+			<th> Código </th>
+			<th> Concepto </th>
+			<th> Unidad </th>
+			<th> Cantidad </th>
+			<th> Precio unitario </th>
+		</tr>
+	</table>
+	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
+</div>
 {% if contrato.estimate_set.all %}
 	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
 	<table class="table_sample table_detalle_contrato">

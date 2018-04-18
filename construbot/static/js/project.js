@@ -26,6 +26,28 @@ $(document).ready(function(){
     var cont_contenedor = $("#cont_content");
     var little = false;
 
+    if($(".icon_right")){
+        $(".icon_right").on("click", function(){
+            $(".icon_right-up")[0].style.display = "initial";
+            $(".icon_right")[0].style.display = "none";
+            $.ajax({
+                url: "/proyectos/contrato/catalogo-list/" + document.URL.slice(-2)[0] + "/",
+                success: function(result){
+                    $(".cont_result")[0].style.display = "block";
+                    if(result.length>0){
+                        $(".table_results")[0].style.display = "inline-table";
+                        for(i=1; i<=result.length; i++){
+                            var row = $(".table_results")[0].insertRow(i);
+                            var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+result[i-1]["unit_price"]+"</td>";
+                            row.innerHTML = row_content;
+                        }
+                    } else {
+                        $(".cont_message_no_result")[0].style.display = "block";
+                    }
+                }});
+            });
+    }
+
     function OnchangeEventHandler(event) {
         if(event.target.value){
             $.ajax({
@@ -104,4 +126,5 @@ $(document).ready(function(){
     } else if (window.innerWidth >= 375) {
         ajustarContenido(2);
     }
+
 });
