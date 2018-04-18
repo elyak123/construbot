@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept
+from .models import Contrato, Cliente, Sitio, Concept, Destinatario
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
 
@@ -56,26 +56,40 @@ class SitioForm(forms.ModelForm):
             'company': forms.HiddenInput()
         }
 
-ContractConceptInlineForm = forms.inlineformset_factory(Contrato, Concept, fields=(
-                                    'code',
-                                    'concept_text',
-                                    'unit',
-                                    'total_cuantity',
-                                    'unit_price',
-                                ),
-                                extra=1,
-                                widgets={
-                                    'concept_text': forms.Textarea(attrs={
-                                        'cols': '35',
-                                        'rows': '3'
-                                        }),
-                                    'unit': autocomplete.ModelSelect2(
-                                        url='proyectos:unit-autocomplete',
-                                        attrs={'data-minimum-input-length': 3}
-                                    ),
-                                    'code': forms.TextInput(attrs={
-                                            'class': 'inlineCode'
-                                        }
-                                    ),
-                                },
-                            )
+
+class DestinatarioForm(forms.ModelForm):
+    class Meta:
+        model = Destinatario
+        fields = '__all__'
+        widgets = {
+            'company': forms.HiddenInput(),
+            'cliente': autocomplete.ModelSelect2(
+                url='proyectos:cliente-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
+        }
+
+ContractConceptInlineForm = forms.inlineformset_factory(
+    Contrato, Concept,
+    fields=(
+        'code',
+        'concept_text',
+        'unit',
+        'total_cuantity',
+        'unit_price',
+    ),
+    extra=1,
+    widgets={
+        'concept_text': forms.Textarea(attrs={
+            'cols': '35',
+            'rows': '3'
+        }),
+        'unit': autocomplete.ModelSelect2(
+            url='proyectos:unit-autocomplete',
+            attrs={'data-minimum-input-length': 3}
+        ),
+        'code': forms.TextInput(attrs={
+            'class': 'inlineCode'
+        }),
+    },
+)
