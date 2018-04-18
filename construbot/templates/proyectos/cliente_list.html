@@ -13,6 +13,7 @@
 		<div class="div_list">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:cliente_detail' i.id %}">{{ i.cliente_name }}</a></h4>
 			<p class="p_div_list"><strong>Compañía: </strong> {{ i.company.company_name }} </p>
+			<a class="boton_edicion" href="{% url 'proyectos:editar_cliente' i.id %}">Editar</a>
 		</div>
 	{% endfor %}
 </div>

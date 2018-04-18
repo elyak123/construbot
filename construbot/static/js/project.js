@@ -25,6 +25,46 @@ $(document).ready(function(){
     var menu_out = $("#event_menu_out");
     var cont_contenedor = $("#cont_content");
     var little = false;
+    var len = 0;
+
+    if($(".icon_right")){
+        $(".icon_right").on("click", function(){
+            $(".icon_right-up")[0].style.display = "initial";
+            $(".icon_right")[0].style.display = "none";
+            $.ajax({
+                url: "/proyectos/contrato/catalogo-list/" + document.URL.slice(-2)[0] + "/",
+                success: function(result){
+                    $(".cont_result")[0].style.display = "block";
+                    result = result.estimaciones;
+                    len = result.length;
+                    if(len>0){
+                        $(".table_results")[0].style.display = "inline-table";
+                        for(i=1; i<=len; i++){
+                            var row = $(".table_results")[0].insertRow(i);
+                            var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+result[i-1]["unit_price"]+"</td>";
+                            row.innerHTML = row_content;
+                        }
+                    } else {
+                        $(".cont_message_no_result")[0].style.display = "block";
+                    }
+                }
+            });
+        });
+
+        $(".icon_right-up").on("click", function(){
+            $(".icon_right-up")[0].style.display = "none";
+            $(".icon_right")[0].style.display = "initial";
+            if(len>0){
+                $(".cont_result")[0].style.display = "none";
+                $(".table_results")[0].style.display = "none";
+                for(i=0; i<len; i++){
+                    $(".table_results")[0].deleteRow(1);
+                }
+            } else {
+                $(".cont_message_no_result")[0].style.display = "none";
+            }
+        });
+    }
 
     function OnchangeEventHandler(event) {
         if(event.target.value){
@@ -39,11 +79,20 @@ $(document).ready(function(){
     }
     document.querySelector('#company_select').onchange=OnchangeEventHandler
 
-    function hideMenu(){
-        menu[0].style.display = "none";
-        cont_contenedor.removeClass("content_with_little_sidebar");
-        cont_contenedor.removeClass("content_with_sidebar");
-        cont_contenedor.addClass("content_without_sidebar");
+    function ajustarContenido(arg){
+        if(arg==1){
+            cont_contenedor.removeClass("content_with_little_sidebar");
+            cont_contenedor.removeClass("content_with_sidebar");
+            cont_contenedor.addClass("content_without_sidebar");
+        } else if (arg==2 && little){
+            cont_contenedor.addClass("content_with_little_sidebar");
+            cont_contenedor.removeClass("content_with_sidebar");
+            cont_contenedor.removeClass("content_without_sidebar");
+        } else if (arg==2 && !little){
+            cont_contenedor.removeClass("content_with_little_sidebar");
+            cont_contenedor.addClass("content_with_sidebar");
+            cont_contenedor.removeClass("content_without_sidebar");
+        }
     }
 
     menu_in.on("click", function(){
@@ -82,16 +131,18 @@ $(document).ready(function(){
             menu_in.click();
         }
         if(window.innerWidth < 375){
-            hideMenu();
+            ajustarContenido(1);
+        } else if (window.innerWidth >= 375) {
+            ajustarContenido(2);
         }
     });
     if(window.innerWidth < 600 && !little){
         menu_in.click();
     }
     if(window.innerWidth < 375){
-        hideMenu();
+        ajustarContenido(1);
+    } else if (window.innerWidth >= 375) {
+        ajustarContenido(2);
     }
-    $(window).on("load", function(){
-        debugger;
-    });
+
 });

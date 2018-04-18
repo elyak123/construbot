@@ -13,6 +13,7 @@
 		<div class="div_list">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'construbot.proyectos:sitio_detail' i.id %}">{{ i.sitio_name }}</a></h4>
 			<p class="p_div_list"><strong>Locación: </strong> {{ i.sitio_location }} </p>
+			<a class="boton_edicion" href="{% url 'proyectos:editar_sitio' i.id %}">Editar</a>
 		</div>
 	{% endfor %}
 </div>

@@ -2,11 +2,12 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.core.urlresolvers import reverse
 from django.db.models import Max
+from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units
-from .forms import ContratoForm, ClienteForm, SitioForm, ContractConceptInlineForm
+from .models import Contrato, Cliente, Sitio, Units, Concept
+from .forms import ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -84,13 +85,37 @@ class SitioListView(ProyectosMenuMixin, ListView):
         return super(SitioListView, self).get_queryset()
 
 
+class CatalogoConceptos(ProyectosMenuMixin, ListView):
+    model = Concept
+    paginate_by = 10
+    ordering = 'code'
+
+    def get(self, request, *args, **kwargs):
+        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        queryset = self.model.objects.filter(
+            project=contrato,
+            project__cliente__company=self.request.user.currently_at
+        )
+        json = {}
+        json['conceptos'] = []
+        for concepto in queryset:
+            aux = {}
+            aux["code"] = concepto.code
+            aux["concept_text"] = concepto.concept_text
+            aux["unit"] = concepto.unit.unit
+            aux["cuantity"] = concepto.total_cuantity
+            aux["unit_price"] = concepto.unit_price
+            json['conceptos'].append(aux)
+        return JsonResponse(json)
+
+
 class ContratoDetailView(ProyectosMenuMixin, DetailView):
     model = Contrato
     context_object_name = 'contrato'
     template_name = 'proyectos/detalle_de_contrato.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        return get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
 
 
 class ClienteDetailView(ProyectosMenuMixin, DetailView):
@@ -113,7 +138,7 @@ class SitioDetailView(ProyectosMenuMixin, DetailView):
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     form_class = ContratoForm
-    template_name = 'proyectos/contrato_form.html'
+    template_name = 'proyectos/creation_form.html'
 
     def get_initial(self):
         initial_obj = super(ContratoCreationView, self).get_initial()
@@ -138,9 +163,24 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
             return super(ContratoCreationView, self).form_invalid(form)
 
 
+# class BasicCreationView(ProyectosMenuMixin, CreateView):
+#     def get_initial(self):
+#         initial_obj = super(ClienteCreationView, self).get_initial()
+#         initial_obj['company'] = self.request.user.currently_at
+#         return initial_obj
+
+#     def form_valid(self, form):
+#         if form.cleaned_data['company'] == self.request.user.currently_at:
+#             self.object = form.save()
+#             return super(ClienteCreationView, self).form_valid(form)
+#         else:
+#             return super(ClienteCreationView, self).form_invalid(form)
+
+
+# class ClienteCreationView(BasicCreationView):
 class ClienteCreationView(ProyectosMenuMixin, CreateView):
     form_class = ClienteForm
-    template_name = 'proyectos/contrato_form.html'
+    template_name = 'proyectos/creation_form.html'
 
     def get_initial(self):
         initial_obj = super(ClienteCreationView, self).get_initial()
@@ -155,9 +195,10 @@ class ClienteCreationView(ProyectosMenuMixin, CreateView):
             return super(ClienteCreationView, self).form_invalid(form)
 
 
+# class SitioCreationView(BasicCreationView):
 class SitioCreationView(ProyectosMenuMixin, CreateView):
     form_class = SitioForm
-    template_name = 'proyectos/contrato_form.html'
+    template_name = 'proyectos/creation_form.html'
 
     def get_initial(self):
         initial_obj = super(SitioCreationView, self).get_initial()
@@ -170,6 +211,97 @@ class SitioCreationView(ProyectosMenuMixin, CreateView):
             return super(SitioCreationView, self).form_valid(form)
         else:
             return super(SitioCreationView, self).form_invalid(form)
+
+
+class DestinatarioCreationView(ProyectosMenuMixin, CreateView):
+    form_class = DestinatarioForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_initial(self):
+        initial_obj = super(DestinatarioCreationView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            self.object = form.save()
+            return super(DestinatarioCreationView, self).form_valid(form)
+        else:
+            return super(DestinatarioCreationView, self).form_invalid(form)
+
+
+class ContratoEditView(ProyectosMenuMixin, UpdateView):
+    form_class = ContratoForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_object(self):
+        obj = get_object_or_404(
+            Contrato,
+            pk=self.kwargs['pk'],
+        )
+        return obj
+
+    def get_initial(self):
+        initial_obj = super(ContratoEditView, self).get_initial()
+        initial_obj['currently_at'] = self.request.user.currently_at.company_name
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
+            self.object = form.save()
+            return super(ContratoEditView, self).form_valid(form)
+        else:
+            return super(ContratoEditView, self).form_invalid(form)
+
+
+class ClienteEditView(ProyectosMenuMixin, UpdateView):
+    form_class = ClienteForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_object(self):
+        obj = get_object_or_404(
+            Cliente,
+            pk=self.kwargs['pk'],
+            company=self.request.user.currently_at,
+        )
+        return obj
+
+    def get_initial(self):
+        initial_obj = super(ClienteEditView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            self.object = form.save()
+            return super(ClienteEditView, self).form_valid(form)
+        else:
+            return super(ClienteEditView, self).form_invalid(form)
+
+
+class SitioEditView(ProyectosMenuMixin, UpdateView):
+    form_class = SitioForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_object(self):
+        obj = get_object_or_404(
+            Sitio,
+            pk=self.kwargs['pk'],
+            company=self.request.user.currently_at,
+        )
+        return obj
+
+    def get_initial(self):
+        initial_obj = super(SitioEditView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            self.object = form.save()
+            return super(SitioEditView, self).form_valid(form)
+        else:
+            return super(SitioEditView, self).form_invalid(form)
 
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
