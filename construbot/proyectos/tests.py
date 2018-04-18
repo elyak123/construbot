@@ -43,7 +43,7 @@ class ClienteListTest(BaseViewTest):
             request=self.request
         )
         qs = view.get_queryset()
-        qs_test = [repr(y) for y in sorted([cliente, cliente_2], key=lambda x: x.cliente_name)]
+        qs_test = [repr(a) for a in sorted([cliente, cliente_2], key=lambda x: x.cliente_name.lower(), reverse=False)]
         self.assertQuerysetEqual(qs, qs_test)
 
 
@@ -59,7 +59,7 @@ class SitioListTest(BaseViewTest):
             request=self.request
         )
         qs = view.get_queryset()
-        qs_test = [repr(y) for y in sorted([sitio, sitio_2], key=lambda x: x.sitio_name)]
+        qs_test = [repr(q) for q in sorted([sitio, sitio_2], key=lambda x: x.sitio_name.lower(), reverse=False)]
         self.assertQuerysetEqual(qs, qs_test)
 
 
