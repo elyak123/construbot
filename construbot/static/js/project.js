@@ -25,6 +25,7 @@ $(document).ready(function(){
     var menu_out = $("#event_menu_out");
     var cont_contenedor = $("#cont_content");
     var little = false;
+    var len = 0;
 
     if($(".icon_right")){
         $(".icon_right").on("click", function(){
@@ -35,9 +36,10 @@ $(document).ready(function(){
                 success: function(result){
                     $(".cont_result")[0].style.display = "block";
                     result = result.estimaciones;
-                    if(result.length>0){
+                    len = result.length;
+                    if(len>0){
                         $(".table_results")[0].style.display = "inline-table";
-                        for(i=1; i<=result.length; i++){
+                        for(i=1; i<=len; i++){
                             var row = $(".table_results")[0].insertRow(i);
                             var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+result[i-1]["unit_price"]+"</td>";
                             row.innerHTML = row_content;
@@ -45,8 +47,23 @@ $(document).ready(function(){
                     } else {
                         $(".cont_message_no_result")[0].style.display = "block";
                     }
-                }});
+                }
             });
+        });
+
+        $(".icon_right-up").on("click", function(){
+            $(".icon_right-up")[0].style.display = "none";
+            $(".icon_right")[0].style.display = "initial";
+            if(len>0){
+                $(".cont_result")[0].style.display = "none";
+                $(".table_results")[0].style.display = "none";
+                for(i=0; i<len; i++){
+                    $(".table_results")[0].deleteRow(1);
+                }
+            } else {
+                $(".cont_message_no_result")[0].style.display = "none";
+            }
+        });
     }
 
     function OnchangeEventHandler(event) {
