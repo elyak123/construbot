@@ -115,7 +115,7 @@ class ContratoDetailView(ProyectosMenuMixin, DetailView):
     template_name = 'proyectos/detalle_de_contrato.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        return get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
 
 
 class ClienteDetailView(ProyectosMenuMixin, DetailView):
