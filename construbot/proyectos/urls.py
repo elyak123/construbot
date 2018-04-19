@@ -21,6 +21,11 @@ urlpatterns = [
         name='listado_de_sitios'
     ),
     url(
+        regex=r'^listado/destinatarios/$',
+        view=views.DestinatarioListView.as_view(),
+        name='listado_de_destinatarios'
+    ),
+    url(
         regex=r'^contrato/catalogo-edit/(?P<pk>\d+)/$',
         view=views.CatalogoConceptosInlineFormView.as_view(),
         name='catalogo_conceptos'
@@ -77,6 +82,10 @@ urlpatterns = [
     url(regex=r'^editar/sitio/(?P<pk>\d+)/$',
         view=views.SitioEditView.as_view(),
         name='editar_sitio'),
+
+    url(regex=r'^editar/destinatario/(?P<pk>\d+)/$',
+        view=views.DestinatarioEditView.as_view(),
+        name='editar_destinatario'),
 
     url(regex=r'cliente-autocomplete/$',
         view=views.ClienteAutocomplete.as_view(),

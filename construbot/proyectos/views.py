@@ -40,7 +40,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 },
                 {
                     'title': 'Contactos',
-                    'url': '',
+                    'url': 'construbot.proyectos:listado_de_destinatarios',
                     'urlkwargs': '',
                     'icon': 'people',
                 },
@@ -85,13 +85,25 @@ class SitioListView(ProyectosMenuMixin, ListView):
         return super(SitioListView, self).get_queryset()
 
 
+class DestinatarioListView(ProyectosMenuMixin, ListView):
+    model = Destinatario
+    paginate_by = 10
+    ordering = 'destinatario_text'
+
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(
+            cliente__company=self.request.user.currently_at
+        )
+        return super(DestinatarioListView, self).get_queryset()
+
+
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
     model = Concept
     paginate_by = 10
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
-        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'])
+        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
         queryset = self.model.objects.filter(project=contrato)
         json = {}
         json['conceptos'] = []
@@ -182,6 +194,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
             else:
                 return super(ClienteCreationView, self).form_invalid(form)
 """
+
 
 # class ClienteCreationView(BasicCreationView):
 class ClienteCreationView(ProyectosMenuMixin, CreateView):
@@ -308,6 +321,31 @@ class SitioEditView(ProyectosMenuMixin, UpdateView):
             return super(SitioEditView, self).form_valid(form)
         else:
             return super(SitioEditView, self).form_invalid(form)
+
+
+class DestinatarioEditView(ProyectosMenuMixin, UpdateView):
+    form_class = DestinatarioForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_object(self):
+        obj = get_object_or_404(
+            Destinatario,
+            pk=self.kwargs['pk'],
+            company=self.request.user.currently_at,
+        )
+        return obj
+
+    def get_initial(self):
+        initial_obj = super(DestinatarioEditView, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            self.object = form.save()
+            return super(DestinatarioEditView, self).form_valid(form)
+        else:
+            return super(DestinatarioEditView, self).form_invalid(form)
 
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):

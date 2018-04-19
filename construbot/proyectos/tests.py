@@ -66,7 +66,7 @@ class SitioListTest(BaseViewTest):
 class CatalogoConceptosTest(BaseViewTest):
     def test_json_formed_correctly(self):
         company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = company
+        self.request.user.currently_at = company
         unit = factories.UnitFactory(unit='meter')
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
@@ -81,7 +81,8 @@ class CatalogoConceptosTest(BaseViewTest):
             )
         response = self.get(
                 CatalogoConceptos,
-                pk=contrato.pk
+                pk=contrato.pk,
+                request=self.request,
         )
         JSON_test = {
             'conceptos': [

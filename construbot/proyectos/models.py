@@ -58,6 +58,9 @@ class Destinatario(models.Model):
     puesto = models.CharField(max_length=50, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
+
     class Meta:
         verbose_name = "Destinatario"
         verbose_name_plural = "Destinatarios"
