@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %} Destinatarios en {{ request.user.currently_at.company_name }}{% endblock title %}
+
+{% block content %}
+<h2 class="title"> Listado de Destinatarios en {{ request.user.currently_at.company_name }} </h2>
+<a class="boton" href="{% url 'construbot.proyectos:nuevo_destinatario' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
+<br>
+<br>
+<div class="cont_divs_list">
+	{% for i in object_list %}
+		<div class="div_list">
+			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'construbot.proyectos:destinatario_detail' i.id %}">{{ i.destinatario_text }}</a></h4>
+			<p class="p_div_list"><strong>Puesto: </strong> {{ i.puesto }} </p>
+			<p class="p_div_list"><strong>Cliente: </strong> {{ i.cliente.cliente_name }} </p>
+			<a class="boton_edicion" href="{% url 'proyectos:editar_destinatario' i.id %}">Editar</a>
+		</div>
+	{% endfor %}
+</div>
+{% if is_paginated %}
+	{% include 'core/templates/paginado.html' %}
+{% endif %}
+{% endblock content %}
