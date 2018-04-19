@@ -4,7 +4,8 @@ from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
-                    DestinatarioDetailView)
+                    DestinatarioDetailView, ContratoCreationView)
+from .forms import (ContratoForm)
 from . import factories
 import json
 
@@ -188,6 +189,63 @@ class DestinatarioDetailTest(BaseViewTest):
         )
         with self.assertRaises(Http404):
             view.get_object()
+
+
+class ContratoCreationTest(BaseViewTest):
+    def test_get_initial_returns_1_when_no_contratos(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = contrato_company
+        dicc = {"currently_at": contrato_company.company_name, "folio": 1}
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    def test_get_initial_returns_the_next_id_when_contratos_exist(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        self.request.user.currently_at = contrato_company
+        dicc = {"currently_at": contrato_company.company_name, "folio": contrato.folio + 1}
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    # def test_get_context_data_has_same_company_that_currently_at(self):
+    #     contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+    #     self.request.user.currently_at = contrato_company
+    #     string = contrato_company.company_name
+    #     view = self.get_instance(
+    #         ContratoCreationView,
+    #         request=self.request
+    #     )
+    #     dicc_test = view.get_context_data()
+    #     self.assertEqual(dicc_test['company'], string)
+    def test_contrato_form_creation_is_valid(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        form_data = {"folio": 1, "code": "TEST-1", "fecha": "1999-12-1", "contrato_name": "TEST CONTRATO 1",
+                     "contrato_shortName": "TC1", "cliente": contrato_cliente.id, "sitio": contrato_sitio.id,
+                     "monto": 1222.12
+                     }
+        form = ContratoForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_contrato_form_creation_is_not_valid_when_no_cliente(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        form_data = {"folio": 1, "code": "TEST-1", "fecha": "1999-12-1", "contrato_name": "TEST CONTRATO 1",
+                     "contrato_shortName": "TC1", "sitio": contrato_sitio.id,
+                     "monto": 1222.12
+                     }
+        form = ContratoForm(data=form_data)
+        self.assertFalse(form.is_valid())
 
 
 class CatalogoConceptosTest(BaseViewTest):
