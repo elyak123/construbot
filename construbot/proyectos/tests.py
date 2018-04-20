@@ -39,8 +39,8 @@ class ClienteListTest(BaseViewTest):
     def test_cliente_query_only_same_client(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
-        cliente = factories.ClienteFactory(company=cliente_company)
-        cliente_2 = factories.ClienteFactory(company=cliente_company)
+        cliente = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_bLdYMUBC')
+        cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
         cliente_3 = factories.ClienteFactory()
         view = self.get_instance(
             ClienteListView,
@@ -237,20 +237,34 @@ class ContratoCreationTest(BaseViewTest):
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
-                     'currently_at': contrato_company.id,
+                     'currently_at': contrato_company.company_name,
                      }
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
         form = ContratoForm(data=form_data)
         self.assertTrue(form.is_valid())
+        self.assertTrue(view.form_valid(form))
 
-    def test_contrato_form_creation_is_not_valid_when_no_cliente(self):
+    def test_contrato_form_creation_is_not_valid_with_another_company(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(company=contrato_company)
-        form_data = {"folio": 1, "code": "TEST-1", "fecha": "1999-12-1", "contrato_name": "TEST CONTRATO 1",
-                     "contrato_shortName": "TC1", "sitio": contrato_sitio.id,
-                     "monto": 1222.12
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     'currently_at': contrato_company_2.company_name,
                      }
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
         form = ContratoForm(data=form_data)
-        self.assertFalse(form.is_valid())
+        # self.assertTrue(form.is_valid())
+        self.assertFalse(view.form_valid(form))
 
 
 class CatalogoConceptosTest(BaseViewTest):
