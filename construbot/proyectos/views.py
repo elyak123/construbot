@@ -133,7 +133,7 @@ class ClienteDetailView(ProyectosMenuMixin, DetailView):
     template_name = 'proyectos/detalle_de_cliente.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Cliente, pk=self.kwargs['pk'])
+        return get_object_or_404(Cliente, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
 class SitioDetailView(ProyectosMenuMixin, DetailView):
@@ -142,7 +142,7 @@ class SitioDetailView(ProyectosMenuMixin, DetailView):
     template_name = 'proyectos/detalle_de_sitio.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Sitio, pk=self.kwargs['pk'])
+        return get_object_or_404(Sitio, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
 class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
