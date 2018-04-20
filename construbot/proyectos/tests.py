@@ -1,7 +1,11 @@
 from django.test import RequestFactory
+from django.http import Http404
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
-from .views import ContratoListView, ClienteListView, SitioListView, CatalogoConceptos
+from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
+                    ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
+                    DestinatarioDetailView, ContratoCreationView)
+from .forms import (ContratoForm)
 from . import factories
 import json
 
@@ -61,6 +65,192 @@ class SitioListTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(q) for q in sorted([sitio, sitio_2], key=lambda x: repr(x).lower(), reverse=False)]
         self.assertQuerysetEqual(qs, qs_test)
+
+
+class DestinatarioListTest(BaseViewTest):
+    def test_destinatario_query_same_client_company(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory()
+        view = self.get_instance(
+            DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+
+class ContratoDetailTest(BaseViewTest):
+    def test_assert_request_returns_correct_contrato_object(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        view = self.get_instance(
+            ContratoDetailView,
+            pk=contrato.pk,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, contrato)
+
+    def test_assert_contrato_request_returns_404_with_no_currently_at(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        view = self.get_instance(
+            ContratoDetailView,
+            pk=contrato.pk,
+            request=self.request
+        )
+        with self.assertRaises(Http404):
+            obj = view.get_object()
+
+
+class ClienteDetailTest(BaseViewTest):
+    def test_assert_request_returns_correct_cliente_object(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = cliente_company
+        cliente = factories.ClienteFactory(company=cliente_company)
+        view = self.get_instance(
+            ClienteDetailView,
+            pk=cliente.pk,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, cliente)
+
+    def test_assert_cliente_request_returns_404_with_no_currently_at(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente = factories.ClienteFactory(company=cliente_company)
+        view = self.get_instance(
+            ClienteDetailView,
+            pk=cliente.pk,
+            request=self.request
+        )
+        with self.assertRaises(Http404):
+            obj = view.get_object()
+
+
+class SitioDetailTest(BaseViewTest):
+    def test_assert_request_returns_correct_sitio_object(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = sitio_company
+        sitio = factories.SitioFactory(company=sitio_company)
+        view = self.get_instance(
+            SitioDetailView,
+            pk=sitio.pk,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, sitio)
+
+    def test_assert_sitio_request_returns_404_with_no_currently_at(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio = factories.SitioFactory(company=sitio_company)
+        view = self.get_instance(
+            SitioDetailView,
+            pk=sitio.pk,
+            request=self.request
+        )
+        with self.assertRaises(Http404):
+            obj = view.get_object()
+
+
+class DestinatarioDetailTest(BaseViewTest):
+    def test_assert_request_returns_correct_destinatario_object(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(
+            cliente=destinatario_cliente,
+            company=destinatario_company
+        )
+        view = self.get_instance(
+            DestinatarioDetailView,
+            pk=destinatario.pk,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, destinatario)
+
+    def test_assert_request_returns_404_with_no_currently_at(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        view = self.get_instance(
+            DestinatarioDetailView,
+            pk=destinatario.pk,
+            request=self.request
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+
+class ContratoCreationTest(BaseViewTest):
+    def test_get_initial_returns_1_when_no_contratos(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = contrato_company
+        dicc = {"currently_at": contrato_company.company_name, "folio": 1}
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    def test_get_initial_returns_the_next_id_when_contratos_exist(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        self.request.user.currently_at = contrato_company
+        dicc = {"currently_at": contrato_company.company_name, "folio": contrato.folio + 1}
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    # def test_get_context_data_has_same_company_that_currently_at(self):
+    #     contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+    #     self.request.user.currently_at = contrato_company
+    #     string = contrato_company.company_name
+    #     view = self.get_instance(
+    #         ContratoCreationView,
+    #         request=self.request
+    #     )
+    #     dicc_test = view.get_context_data()
+    #     self.assertEqual(dicc_test['company'], string)
+    def test_contrato_form_creation_is_valid(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     'currently_at': contrato_company.id,
+                     }
+        form = ContratoForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_contrato_form_creation_is_not_valid_when_no_cliente(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        form_data = {"folio": 1, "code": "TEST-1", "fecha": "1999-12-1", "contrato_name": "TEST CONTRATO 1",
+                     "contrato_shortName": "TC1", "sitio": contrato_sitio.id,
+                     "monto": 1222.12
+                     }
+        form = ContratoForm(data=form_data)
+        self.assertFalse(form.is_valid())
 
 
 class CatalogoConceptosTest(BaseViewTest):
