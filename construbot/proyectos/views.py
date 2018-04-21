@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from django.core.urlresolvers import reverse
 from django.db.models import Max
+from django.db.models.functions import Lower
 from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
@@ -64,36 +65,36 @@ class ContratoListView(ProyectosMenuMixin, ListView):
 class ClienteListView(ProyectosMenuMixin, ListView):
     model = Cliente
     paginate_by = 10
-    ordering = 'cliente_name'
+    # ordering = 'cliente_name'
 
     def get_queryset(self):
         self.queryset = self.model.objects.filter(
             company=self.request.user.currently_at
-        )
+        ).order_by(Lower('cliente_name'))
         return super(ClienteListView, self).get_queryset()
 
 
 class SitioListView(ProyectosMenuMixin, ListView):
     model = Sitio
     paginate_by = 10
-    ordering = 'sitio_name'
+    # ordering = 'sitio_name'
 
     def get_queryset(self):
         self.queryset = self.model.objects.filter(
             company=self.request.user.currently_at
-        )
+        ).order_by(Lower('sitio_name'))
         return super(SitioListView, self).get_queryset()
 
 
 class DestinatarioListView(ProyectosMenuMixin, ListView):
     model = Destinatario
     paginate_by = 10
-    ordering = 'destinatario_text'
+    # ordering = 'destinatario_text'
 
     def get_queryset(self):
         self.queryset = self.model.objects.filter(
             cliente__company=self.request.user.currently_at
-        )
+        ).order_by(Lower('destinatario_text'))
         return super(DestinatarioListView, self).get_queryset()
 
 
