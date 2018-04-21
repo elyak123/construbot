@@ -424,6 +424,19 @@ class ContratoEditViewTest(BaseViewTest):
         with self.assertRaises(Http404):
             view.get_object()
 
+    def test_get_initial_has_currently_at(self):
+        contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
+        self.user.currently_at = contrato.cliente.company
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato.pk
+        )
+        init_obj = view.get_initial()
+        self.assertTrue('currently_at' in init_obj)
+        self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
+
+
 class CatalogoConceptosInlineFormTest(BaseViewTest):
     def test_get_correct_contract_object(self):
         company_inline = user_factories.CompanyFactory(customer=self.user.customer)
