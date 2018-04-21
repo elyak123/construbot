@@ -532,6 +532,19 @@ class ClienteAutocompleteTest(BaseViewTest):
         qs_test = [repr(a) for a in [cliente, cliente_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
+    def test_if_cliente_autocomplete_returns_none(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
+        cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
+        view = self.get_instance(
+            ClienteAutocomplete,
+            request=self.request,
+        )
+        view.q = ""
+        qs = view.get_queryset()
+        self.assertFalse(qs.exists())
+
 
 class SitioAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_sitio_object(self):
@@ -547,6 +560,19 @@ class SitioAutocompleteTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(a) for a in [sitio, sitio_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+    def test_if_sitio_autocomplete_returns_none(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
+        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        view = self.get_instance(
+            SitioAutocomplete,
+            request=self.request,
+        )
+        view.q = ""
+        qs = view.get_queryset()
+        self.assertFalse(qs.exists())
 
 
 class UnitAutocompleteTest(BaseViewTest):
