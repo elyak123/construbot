@@ -5,8 +5,9 @@ from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                    SitioCreationView, DestinatarioCreationView, ContratoEditView, CatalogoConceptosInlineFormView,
-                    SitioAutocomplete, ClienteAutocomplete, UnitAutocomplete)
+                    SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
+                    CatalogoConceptosInlineFormView, SitioAutocomplete, ClienteAutocomplete,
+                    UnitAutocomplete)
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from . import factories
 import json
@@ -435,6 +436,41 @@ class ContratoEditViewTest(BaseViewTest):
         init_obj = view.get_initial()
         self.assertTrue('currently_at' in init_obj)
         self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
+
+
+class ClienteEditTest(BaseViewTest):
+    def test_obtiene_objeto_cliente_correctamente(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, cliente)
+
+    def test_get_cliente_object_raises_404_not_currently_at(self):
+        cliente = factories.ClienteFactory()
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_get_cliente_initial_has_company(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        init_obj = view.get_initial()
+        self.assertTrue('company' in init_obj)
+        self.assertEqual(init_obj['company'], self.user.currently_at)
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
