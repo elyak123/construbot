@@ -5,8 +5,9 @@ from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                    SitioCreationView, DestinatarioCreationView, ContratoEditView, CatalogoConceptosInlineFormView,
-                    SitioAutocomplete, ClienteAutocomplete, UnitAutocomplete)
+                    SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
+                    CatalogoConceptosInlineFormView, SitioAutocomplete, ClienteAutocomplete,
+                    UnitAutocomplete)
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from .models import Destinatario
 from . import factories
@@ -457,6 +458,41 @@ class ContratoEditViewTest(BaseViewTest):
         pass
 
 
+class ClienteEditTest(BaseViewTest):
+    def test_obtiene_objeto_cliente_correctamente(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, cliente)
+
+    def test_get_cliente_object_raises_404_not_currently_at(self):
+        cliente = factories.ClienteFactory()
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_get_cliente_initial_has_company(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        init_obj = view.get_initial()
+        self.assertTrue('company' in init_obj)
+        self.assertEqual(init_obj['company'], self.user.currently_at)
+
+
 class CatalogoConceptosInlineFormTest(BaseViewTest):
     def test_get_correct_contract_object(self):
         company_inline = user_factories.CompanyFactory(customer=self.user.customer)
@@ -552,6 +588,19 @@ class ClienteAutocompleteTest(BaseViewTest):
         qs_test = [repr(a) for a in [cliente, cliente_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
+    def test_if_cliente_autocomplete_returns_none(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
+        cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
+        view = self.get_instance(
+            ClienteAutocomplete,
+            request=self.request,
+        )
+        view.q = ""
+        qs = view.get_queryset()
+        self.assertFalse(qs.exists())
+
 
 class SitioAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_sitio_object(self):
@@ -567,6 +616,19 @@ class SitioAutocompleteTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(a) for a in [sitio, sitio_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+    def test_if_sitio_autocomplete_returns_none(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
+        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        view = self.get_instance(
+            SitioAutocomplete,
+            request=self.request,
+        )
+        view.q = ""
+        qs = view.get_queryset()
+        self.assertFalse(qs.exists())
 
 
 class UnitAutocompleteTest(BaseViewTest):
