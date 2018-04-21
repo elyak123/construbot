@@ -380,9 +380,9 @@ class ClienteAutocomplete(BaseAutocompleteView):
                 cliente_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
             )
-            return qs
         else:
             qs = Cliente.objects.none()
+        return qs
 
 
 class SitioAutocomplete(BaseAutocompleteView):
@@ -392,9 +392,9 @@ class SitioAutocomplete(BaseAutocompleteView):
                 sitio_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
             )
-            return qs
         else:
             qs = Sitio.objects.none()
+        return qs
 
 
 class UnitAutocomplete(BaseAutocompleteView):
