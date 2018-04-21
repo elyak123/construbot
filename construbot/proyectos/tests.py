@@ -47,8 +47,7 @@ class ClienteListTest(BaseViewTest):
             request=self.request
         )
         qs = view.get_queryset()
-        # import pdb; pdb.set_trace()
-        qs_test = [repr(a) for a in sorted([cliente_2, cliente], key=lambda x: repr(x).lower())]
+        qs_test = [repr(a) for a in sorted([cliente, cliente_2], key=lambda x: repr(x).lower(), reverse=False)]
         self.assertQuerysetEqual(qs, qs_test)
 
 
@@ -56,8 +55,8 @@ class SitioListTest(BaseViewTest):
     def test_sitio_query_only_same_company(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = sitio_company
-        sitio = factories.SitioFactory(company=sitio_company, sitio_name='sitio_ZoLrBJZS')
-        sitio_2 = factories.SitioFactory(company=sitio_company, sitio_name='sitio_sCtvkktJ')
+        sitio = factories.SitioFactory(company=sitio_company)
+        sitio_2 = factories.SitioFactory(company=sitio_company)
         sitio_3 = factories.SitioFactory()
         view = self.get_instance(
             SitioListView,
@@ -74,15 +73,17 @@ class DestinatarioListTest(BaseViewTest):
         self.request.user.currently_at = destinatario_company
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente, destinatario_text='sitio_HdHwJAQR')
-        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2, destinatario_text='sitio_fVBALhbk')
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
         destinatario_3 = factories.DestinatarioFactory()
         view = self.get_instance(
             DestinatarioListView,
             request=self.request
         )
         qs = view.get_queryset()
-        qs_test = [repr(q) for q in sorted([destinatario, destinatario_2], key=lambda x: repr(x).lower())]
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
         self.assertQuerysetEqual(qs, qs_test)
 
 
@@ -265,9 +266,12 @@ class ContratoCreationTest(BaseViewTest):
             ContratoCreationView,
             request=self.request
         )
+        view.get_context_data = lambda form: {}
         form = ContratoForm(data=form_data)
-        # self.assertTrue(form.is_valid())
-        self.assertFalse(view.form_valid(form))
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertFalse(hasattr(ContratoCreationView, 'object'))
+        self.assertEqual(view.form_valid(form).status_code, 200)
 
 
 class CatalogoConceptosTest(BaseViewTest):
