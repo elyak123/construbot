@@ -5,9 +5,9 @@ from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                    SitioCreationView, DestinatarioCreationView, CatalogoConceptosInlineFormView,
-                    ContratoEditView)
-from .forms import ContratoForm, ClienteForm, SitioForm, DestinatarioForm
+                    SitioCreationView, DestinatarioCreationView, ContratoEditView, CatalogoConceptosInlineFormView,
+                    SitioAutocomplete, ClienteAutocomplete, UnitAutocomplete)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from . import factories
 import json
 
@@ -515,3 +515,63 @@ class CatalogoConceptosTest(BaseViewTest):
         JSON_test = json.dumps(JSON_test)
         JSON_view = str(response.content, encoding='utf-8')
         self.assertJSONEqual(JSON_view, JSON_test)
+
+
+class ClienteAutocompleteTest(BaseViewTest):
+    def test_if_autocomplete_returns_the_correct_cliente_object(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
+        cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
+        view = self.get_instance(
+            ClienteAutocomplete,
+            request=self.request,
+        )
+        view.q = "aar"
+        qs = view.get_queryset()
+        qs_test = [repr(a) for a in [cliente, cliente_2]]
+        self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+
+class SitioAutocompleteTest(BaseViewTest):
+    def test_if_autocomplete_returns_the_correct_sitio_object(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
+        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        view = self.get_instance(
+            SitioAutocomplete,
+            request=self.request,
+        )
+        view.q = "Pábé"
+        qs = view.get_queryset()
+        qs_test = [repr(a) for a in [sitio, sitio_2]]
+        self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+
+class UnitAutocompleteTest(BaseViewTest):
+    def test_if_autocomplete_returns_the_correct_unit_object(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        unit = factories.UnitFactory(unit="Kilo")
+        unit_2 = factories.UnitFactory(unit="Kilogramo")
+        view = self.get_instance(
+            UnitAutocomplete,
+            request=self.request,
+        )
+        view.q = "kil"
+        qs = view.get_queryset()
+        qs_test = [repr(a) for a in [unit, unit_2]]
+        self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+    def test_if_autocomplete_returns_the_correct_key_words(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        view = self.get_instance(
+            UnitAutocomplete,
+            request=self.request,
+        )
+        view.q = "some search"
+        dicc = {'unit__unaccent__icontains': view.q}
+        dicc_test = view.get_key_words()
+        self.assertDictEqual(dicc, dicc_test)
