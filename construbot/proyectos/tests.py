@@ -6,7 +6,7 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
                     SitioCreationView, DestinatarioCreationView, CatalogoConceptosInlineFormView)
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from . import factories
 import json
 
