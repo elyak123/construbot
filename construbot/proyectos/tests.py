@@ -219,16 +219,19 @@ class ContratoCreationTest(BaseViewTest):
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
 
-    # def test_get_context_data_has_same_company_that_currently_at(self):
-    #     contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
-    #     self.request.user.currently_at = contrato_company
-    #     string = contrato_company.company_name
-    #     view = self.get_instance(
-    #         ContratoCreationView,
-    #         request=self.request
-    #     )
-    #     dicc_test = view.get_context_data()
-    #     self.assertEqual(dicc_test['company'], string)
+    """
+    def test_get_context_data_has_same_company_that_currently_at(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = contrato_company
+        string = contrato_company.company_name
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_context_data()
+        self.assertEqual(dicc_test['company'], string)
+    """
+
     def test_contrato_form_creation_is_valid(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
@@ -244,7 +247,8 @@ class ContratoCreationTest(BaseViewTest):
             request=self.request
         )
         form = ContratoForm(data=form_data)
-        self.assertTrue(form.is_valid())
+        validez = form.is_valid()
+        self.assertTrue(validez)
         self.assertTrue(view.form_valid(form))
 
     def test_contrato_form_creation_is_not_valid_with_another_company(self):
