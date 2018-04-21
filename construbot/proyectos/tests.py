@@ -6,7 +6,7 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
                     SitioCreationView, DestinatarioCreationView, CatalogoConceptosInlineFormView)
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from . import factories
 import json
 
@@ -414,6 +414,19 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         )
         test_obj = view.get_object()
         self.assertEqual(test_obj, contrato_inline)
+
+    def test_correct_success_url(self):
+        company_inline = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_inline
+        cliente_inline = factories.ClienteFactory(company=company_inline)
+        contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
+        view = self.get_instance(
+            CatalogoConceptosInlineFormView,
+            request=self.request,
+            pk=contrato_inline.pk
+        )
+        test_url = '/proyectos/contrato/detalle/%i/' % contrato_inline.pk
+        self.assertEqual(view.get_success_url(), test_url)
 
 
 class CatalogoConceptosTest(BaseViewTest):
