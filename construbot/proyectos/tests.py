@@ -728,6 +728,41 @@ class DestinatarioEditTest(BaseViewTest):
         self.assertEqual(sitio_obj.pk, destinatario.pk)
 
 
+class ClienteEditTest(BaseViewTest):
+    def test_obtiene_objeto_cliente_correctamente(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, cliente)
+
+    def test_get_cliente_object_raises_404_not_currently_at(self):
+        cliente = factories.ClienteFactory()
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_get_cliente_initial_has_company(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        init_obj = view.get_initial()
+        self.assertTrue('company' in init_obj)
+        self.assertEqual(init_obj['company'], self.user.currently_at)
+
+
 class CatalogoConceptosInlineFormTest(BaseViewTest):
     def test_get_correct_contract_object(self):
         company_inline = user_factories.CompanyFactory(customer=self.user.customer)
