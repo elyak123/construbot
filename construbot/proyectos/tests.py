@@ -8,6 +8,7 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     SitioCreationView, DestinatarioCreationView, ContratoEditView, CatalogoConceptosInlineFormView,
                     SitioAutocomplete, ClienteAutocomplete, UnitAutocomplete)
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
+from .models import Destinatario
 from . import factories
 import json
 
@@ -383,7 +384,23 @@ class DestinatarioCreationTest(BaseViewTest):
         form = DestinatarioForm(data=form_data)
         validez = form.is_valid()
         self.assertTrue(validez)
-        self.assertTrue(view.form_valid(form))
+        self.assertEqual(view.form_valid(form).status_code, 302)
+        self.assertEqual(view.form_valid(form).url, '/proyectos/destinatario/detalle/%s/' % view.object.id)
+
+    def test_destinatario_form_saves_obj_in_database(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey'}
+        view = self.get_instance(
+            DestinatarioCreationView,
+            request=self.request
+        )
+        form = DestinatarioForm(data=form_data)
+        form.is_valid()
+        view.form_valid(form)
+        destinatario = Destinatario.objects.get(destinatario_text='Un wey')
+        self.assertIsInstance(view.object, Destinatario)
+        self.assertEqual(view.object.id, destinatario.id)
 
     def test_destinatario_form_creation_is_not_valid_with_another_company(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -435,6 +452,9 @@ class ContratoEditViewTest(BaseViewTest):
         init_obj = view.get_initial()
         self.assertTrue('currently_at' in init_obj)
         self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
+
+    def test_form_actually_changes_contrato(self):
+        pass
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
