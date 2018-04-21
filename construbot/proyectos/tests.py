@@ -4,8 +4,9 @@ from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
-                    DestinatarioDetailView, ContratoCreationView)
-from .forms import (ContratoForm)
+                    DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
+                    SitioCreationView, DestinatarioCreationView, CatalogoConceptosInlineFormView)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm)
 from . import factories
 import json
 
@@ -272,6 +273,147 @@ class ContratoCreationTest(BaseViewTest):
         self.assertTrue(validez)
         self.assertFalse(hasattr(ContratoCreationView, 'object'))
         self.assertEqual(view.form_valid(form).status_code, 200)
+
+
+class ClienteCreationTest(BaseViewTest):
+    def test_get_initial_returns_the_correct_company(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = cliente_company
+        dicc = {"company": cliente_company}
+        view = self.get_instance(
+            ClienteCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    def test_cliente_form_creation_is_valid(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        form_data = {'cliente_name': "Juanito", 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteCreationView,
+            request=self.request
+        )
+        form = ClienteForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertTrue(view.form_valid(form))
+
+    def test_cliente_form_creation_is_not_valid_with_another_company(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        form_data = {'cliente_name': "Juanito", 'company': cliente_company_2.id}
+        view = self.get_instance(
+            ClienteCreationView,
+            request=self.request
+        )
+        view.get_context_data = lambda form: {}
+        form = ClienteForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertFalse(hasattr(ClienteCreationView, 'object'))
+        self.assertEqual(view.form_valid(form).status_code, 200)
+
+
+class SitioCreationTest(BaseViewTest):
+    def test_get_initial_returns_the_correct_company(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = sitio_company
+        dicc = {"company": sitio_company}
+        view = self.get_instance(
+            SitioCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    def test_sitio_form_creation_is_valid(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        view = self.get_instance(
+            SitioCreationView,
+            request=self.request
+        )
+        form = SitioForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertTrue(view.form_valid(form))
+
+    def test_sitio_form_creation_is_not_valid_with_another_company(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company_2.id}
+        view = self.get_instance(
+            SitioCreationView,
+            request=self.request
+        )
+        view.get_context_data = lambda form: {}
+        form = SitioForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertFalse(hasattr(SitioCreationView, 'object'))
+        self.assertEqual(view.form_valid(form).status_code, 200)
+
+
+class DestinatarioCreationTest(BaseViewTest):
+    def test_get_initial_returns_the_correct_company(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        dicc = {"company": destinatario_company}
+        view = self.get_instance(
+            DestinatarioCreationView,
+            request=self.request
+        )
+        dicc_test = view.get_initial()
+        self.assertDictEqual(dicc_test, dicc)
+
+    def test_destinatario_form_creation_is_valid(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
+        view = self.get_instance(
+            DestinatarioCreationView,
+            request=self.request
+        )
+        form = DestinatarioForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertTrue(view.form_valid(form))
+
+    def test_destinatario_form_creation_is_not_valid_with_another_company(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company_2.id, 'destinatario_text': "Un wey"}
+        view = self.get_instance(
+            DestinatarioCreationView,
+            request=self.request
+        )
+        view.get_context_data = lambda form: {}
+        form = DestinatarioForm(data=form_data)
+        validez = form.is_valid()
+        self.assertTrue(validez)
+        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
+        self.assertEqual(view.form_valid(form).status_code, 200)
+
+
+class CatalogoConceptosInlineFormTest(BaseViewTest):
+    def test_get_correct_contract_object(self):
+        company_inline = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_inline
+        cliente_inline = factories.ClienteFactory(company=company_inline)
+        contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
+        view = self.get_instance(
+            CatalogoConceptosInlineFormView,
+            request=self.request,
+            pk=contrato_inline.pk
+        )
+        test_obj = view.get_object()
+        self.assertEqual(test_obj, contrato_inline)
 
 
 class CatalogoConceptosTest(BaseViewTest):
