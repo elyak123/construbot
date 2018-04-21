@@ -266,6 +266,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         obj = get_object_or_404(
             Contrato,
             pk=self.kwargs['pk'],
+            cliente__company=self.request.user.currently_at
         )
         return obj
 
