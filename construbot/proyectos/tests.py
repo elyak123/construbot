@@ -5,7 +5,7 @@ from construbot.users.tests import factories as user_factories
 from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
                     ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
                     DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                    SitioCreationView, DestinatarioCreationView, CatalogoConceptosInlineFormView,
+                    SitioCreationView, DestinatarioCreationView, ContratoEditView, CatalogoConceptosInlineFormView,
                     SitioAutocomplete, ClienteAutocomplete, UnitAutocomplete)
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from . import factories
@@ -401,6 +401,28 @@ class DestinatarioCreationTest(BaseViewTest):
         self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
         self.assertEqual(view.form_valid(form).status_code, 200)
 
+
+class ContratoEditViewTest(BaseViewTest):
+    def test_obtiene_objeto_correctamente(self):
+        contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
+        self.user.currently_at = contrato.cliente.company
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, contrato)
+
+    def test_get_object_raises_404_not_currently_at(self):
+        contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato.pk
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
     def test_get_correct_contract_object(self):

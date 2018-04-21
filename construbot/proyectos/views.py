@@ -155,15 +155,6 @@ class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
         return get_object_or_404(Destinatario, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
-class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
-    model = Destinatario
-    context_object_name = 'destinatario'
-    template_name = 'proyectos/detalle_de_destinatario.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Destinatario, pk=self.kwargs['pk'], company=self.request.user.currently_at)
-
-
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     form_class = ContratoForm
     template_name = 'proyectos/creation_form.html'
@@ -266,6 +257,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         obj = get_object_or_404(
             Contrato,
             pk=self.kwargs['pk'],
+            cliente__company=self.request.user.currently_at
         )
         return obj
 
