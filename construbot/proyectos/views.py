@@ -48,54 +48,67 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             ],
         }
     ]
+    model_options = {
+        'Contrato': {
+            'model': Contrato,
+            'ordering': '-fecha',
+        },
+        'Cliente': {
+            'model': Cliente,
+            'ordering': 'cliente_name',
+        },
+        'Sitio': {
+            'model': Sitio,
+            'ordering': 'sitio_name',
+        },
+        'Destinatario': {
+            'model': Destinatario,
+            'ordering': 'destinatario_text',
+        },
+    }
+
+    def get_company_query(self, opcion):
+        company_query = {
+            'Contrato': {
+                'cliente__company': self.request.user.currently_at
+            },
+            'Cliente': {
+                'company': self.request.user.currently_at
+            },
+            'Sitio': {
+                'company': self.request.user.currently_at
+            },
+            'Destinatario': {
+                'cliente__company': self.request.user.currently_at
+            },
+        }
+        return company_query[opcion]
 
 
-class ContratoListView(ProyectosMenuMixin, ListView):
+class DynamicList(ProyectosMenuMixin, ListView):
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(**self.get_company_query(self.model.__name__))
+        return super(DynamicList, self).get_queryset()
+
+    def get_ordering(self):
+        self.ordering = self.model_options[self.model.__name__]['ordering']
+        return self.ordering
+
+
+class ContratoListView(DynamicList):
     model = Contrato
-    paginate_by = 10
-    ordering = '-fecha'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            cliente__company=self.request.user.currently_at
-        )
-        return super(ContratoListView, self).get_queryset()
 
 
-class ClienteListView(ProyectosMenuMixin, ListView):
+class ClienteListView(DynamicList):
     model = Cliente
-    paginate_by = 10
-    # ordering = 'cliente_name'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            company=self.request.user.currently_at
-        ).order_by(Lower('cliente_name'))
-        return super(ClienteListView, self).get_queryset()
 
 
-class SitioListView(ProyectosMenuMixin, ListView):
+class SitioListView(DynamicList):
     model = Sitio
-    paginate_by = 10
-    # ordering = 'sitio_name'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            company=self.request.user.currently_at
-        ).order_by(Lower('sitio_name'))
-        return super(SitioListView, self).get_queryset()
 
 
-class DestinatarioListView(ProyectosMenuMixin, ListView):
+class DestinatarioListView(DynamicList):
     model = Destinatario
-    paginate_by = 10
-    # ordering = 'destinatario_text'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            cliente__company=self.request.user.currently_at
-        ).order_by(Lower('destinatario_text'))
-        return super(DestinatarioListView, self).get_queryset()
 
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
