@@ -9,8 +9,10 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     CatalogoConceptosInlineFormView, SitioAutocomplete, ClienteAutocomplete,
                     UnitAutocomplete)
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
+from .models import Destinatario, Sitio, Cliente, Contrato
 from . import factories
 import json
+import decimal
 
 
 class BaseViewTest(utils.BaseTestCase):
@@ -254,6 +256,27 @@ class ContratoCreationTest(BaseViewTest):
         self.assertTrue(validez)
         self.assertTrue(view.form_valid(form))
 
+    def test_contrato_form_saves_on_db(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     'currently_at': contrato_company.company_name,
+                     }
+        view = self.get_instance(
+            ContratoCreationView,
+            request=self.request
+        )
+        form = ContratoForm(data=form_data)
+        form.is_valid()
+        view.form_valid(form)
+        contrato = Contrato.objects.get(contrato_name='TEST CONTRATO 1')
+        self.assertIsInstance(view.object, Contrato)
+        self.assertEqual(view.object.id, contrato.id)
+
     def test_contrato_form_creation_is_not_valid_with_another_company(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
@@ -292,7 +315,7 @@ class ClienteCreationTest(BaseViewTest):
     def test_cliente_form_creation_is_valid(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
-        form_data = {'cliente_name': "Juanito", 'company': cliente_company.id}
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
         view = self.get_instance(
             ClienteCreationView,
             request=self.request
@@ -301,6 +324,22 @@ class ClienteCreationTest(BaseViewTest):
         validez = form.is_valid()
         self.assertTrue(validez)
         self.assertTrue(view.form_valid(form))
+
+    def test_cliente_form_saves_on_db(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteCreationView,
+            request=self.request
+        )
+        form = ClienteForm(data=form_data)
+        form.is_valid()
+        view.form_valid(form)
+        cliente = Cliente.objects.get(cliente_name='Juanito')
+        self.assertIsInstance(view.object, Cliente)
+        self.assertEqual(view.object.id, cliente.id)
+
 
     def test_cliente_form_creation_is_not_valid_with_another_company(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -344,6 +383,21 @@ class SitioCreationTest(BaseViewTest):
         self.assertTrue(validez)
         self.assertTrue(view.form_valid(form))
 
+    def test_sitio_form_saves_obj_in_db(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        view = self.get_instance(
+            SitioCreationView,
+            request=self.request
+        )
+        form = SitioForm(data=form_data)
+        form.is_valid()
+        view.form_valid(form)
+        sitio = Sitio.objects.get(sitio_name='Tamaulipas')
+        self.assertIsInstance(view.object, Sitio)
+        self.assertEqual(view.object.id, sitio.id)
+
     def test_sitio_form_creation_is_not_valid_with_another_company(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
         sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
@@ -384,7 +438,23 @@ class DestinatarioCreationTest(BaseViewTest):
         form = DestinatarioForm(data=form_data)
         validez = form.is_valid()
         self.assertTrue(validez)
-        self.assertTrue(view.form_valid(form))
+        self.assertEqual(view.form_valid(form).status_code, 302)
+        self.assertEqual(view.form_valid(form).url, '/proyectos/destinatario/detalle/%s/' % view.object.id)
+
+    def test_destinatario_form_saves_obj_in_database(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey'}
+        view = self.get_instance(
+            DestinatarioCreationView,
+            request=self.request
+        )
+        form = DestinatarioForm(data=form_data)
+        form.is_valid()
+        view.form_valid(form)
+        destinatario = Destinatario.objects.get(destinatario_text='Un wey')
+        self.assertIsInstance(view.object, Destinatario)
+        self.assertEqual(view.object.id, destinatario.id)
 
     def test_destinatario_form_creation_is_not_valid_with_another_company(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -399,8 +469,8 @@ class DestinatarioCreationTest(BaseViewTest):
         form = DestinatarioForm(data=form_data)
         validez = form.is_valid()
         self.assertTrue(validez)
-        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
         self.assertEqual(view.form_valid(form).status_code, 200)
+        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -436,6 +506,87 @@ class ContratoEditViewTest(BaseViewTest):
         init_obj = view.get_initial()
         self.assertTrue('currently_at' in init_obj)
         self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
+
+    def test_form_actually_changes_contrato(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     'currently_at': contrato_company.company_name,
+                     }
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato_factory.pk
+        )
+        form = ContratoForm(data=form_data, instance=contrato_factory)
+        form.is_valid()
+        view.form_valid(form)
+        contrato = Contrato.objects.get(pk=contrato_factory.pk)
+        self.assertEqual(contrato.monto, decimal.Decimal('1222.12'))
+        self.assertEqual(contrato.pk, contrato_factory.pk)
+
+    def test_contrato_edit_not_currently_returns_invalid(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     }
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato_factory.pk
+        )
+        view.get_context_data = lambda form: {}
+        form = ContratoForm(data=form_data, instance=contrato_factory)
+        form.is_valid()
+        response = view.form_valid(form)
+        contrato = Contrato.objects.get(pk=contrato_factory.pk)
+        self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
+        self.assertEqual(response.status_code, 200)
+
+
+class ClienteEditTest(BaseViewTest):
+    def test_obtiene_objeto_cliente_correctamente(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, cliente)
+
+    def test_get_cliente_object_raises_404_not_currently_at(self):
+        cliente = factories.ClienteFactory()
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_get_cliente_initial_has_company(self):
+        cliente = factories.ClienteFactory()
+        self.user.currently_at = cliente.company
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente.pk,
+        )
+        init_obj = view.get_initial()
+        self.assertTrue('company' in init_obj)
+        self.assertEqual(init_obj['company'], self.user.currently_at)
 
 
 class ClienteEditTest(BaseViewTest):
