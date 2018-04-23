@@ -49,9 +49,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         }
     ]
     model_options = {
-        'Contrato': {
-            'ordering': '-fecha',
-        },
         'Cliente': {
             'ordering': 'cliente_name',
         },
@@ -83,39 +80,22 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 class DynamicList(ProyectosMenuMixin, ListView):
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(**self.get_company_query(self.model.__name__))
+        if not self.queryset:
+            self.queryset = self.model.objects.filter(
+                **self.get_company_query(self.model.__name__)).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering'])
+            )
         return super(DynamicList, self).get_queryset()
-
-    def get_ordering(self):
-        self.ordering = self.model_options[self.model.__name__]['ordering']
-        return self.ordering
-
-
-class DynamicDetail(ProyectosMenuMixin, DetailView):
-    def get_context_object_name(self, obj):
-        return obj.__class__.__name__.lower()
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
-
-
-class DynamicCreation(ProyectosMenuMixin, CreateView):
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(DynamicCreation, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            return super(DynamicCreation, self).form_valid(form)
-        else:
-            return super(DynamicCreation, self).form_invalid(form)
 
 
 class ContratoListView(DynamicList):
     model = Contrato
+    ordering = '-fecha'
+
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(
+            **self.get_company_query(self.model.__name__))
+        return super(ContratoListView, self).get_queryset()
 
 
 class ClienteListView(DynamicList):
@@ -150,6 +130,14 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
         return JsonResponse(json)
 
 
+class DynamicDetail(ProyectosMenuMixin, DetailView):
+    def get_context_object_name(self, obj):
+        return obj.__class__.__name__.lower()
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+
+
 class ContratoDetailView(DynamicDetail):
     model = Contrato
 
@@ -180,6 +168,11 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         initial_obj['folio'] = max_id
         return initial_obj
 
+    def get_context_data(self, **kwargs):
+        context = super(ContratoCreationView, self).get_context_data(**kwargs)
+        context['company'] = self.request.user.currently_at
+        return context
+
     def form_valid(self, form):
         if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             return super(ContratoCreationView, self).form_valid(form)
@@ -200,6 +193,21 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
             else:
                 return super(ClienteCreationView, self).form_invalid(form)
 """
+
+
+class DynamicCreation(ProyectosMenuMixin, CreateView):
+    template_name = 'proyectos/creation_form.html'
+
+    def get_initial(self):
+        initial_obj = super(DynamicCreation, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            return super(DynamicCreation, self).form_valid(form)
+        else:
+            return super(DynamicCreation, self).form_invalid(form)
 
 
 # class ClienteCreationView(BasicCreationView):
