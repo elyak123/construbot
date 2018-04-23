@@ -48,59 +48,70 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             ],
         }
     ]
+    model_options = {
+        'Cliente': {
+            'ordering': 'cliente_name',
+        },
+        'Sitio': {
+            'ordering': 'sitio_name',
+        },
+        'Destinatario': {
+            'ordering': 'destinatario_text',
+        },
+    }
+
+    def get_company_query(self, opcion):
+        company_query = {
+            'Contrato': {
+                'cliente__company': self.request.user.currently_at
+            },
+            'Cliente': {
+                'company': self.request.user.currently_at
+            },
+            'Sitio': {
+                'company': self.request.user.currently_at
+            },
+            'Destinatario': {
+                'cliente__company': self.request.user.currently_at
+            },
+        }
+        return company_query[opcion]
 
 
-class ContratoListView(ProyectosMenuMixin, ListView):
+class DynamicList(ProyectosMenuMixin, ListView):
+    def get_queryset(self):
+        if not self.queryset:
+            self.queryset = self.model.objects.filter(
+                **self.get_company_query(self.model.__name__)).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering'])
+            )
+        return super(DynamicList, self).get_queryset()
+
+
+class ContratoListView(DynamicList):
     model = Contrato
-    paginate_by = 10
     ordering = '-fecha'
 
     def get_queryset(self):
         self.queryset = self.model.objects.filter(
-            cliente__company=self.request.user.currently_at
-        )
+            **self.get_company_query(self.model.__name__))
         return super(ContratoListView, self).get_queryset()
 
 
-class ClienteListView(ProyectosMenuMixin, ListView):
+class ClienteListView(DynamicList):
     model = Cliente
-    paginate_by = 10
-    # ordering = 'cliente_name'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            company=self.request.user.currently_at
-        ).order_by(Lower('cliente_name'))
-        return super(ClienteListView, self).get_queryset()
 
 
-class SitioListView(ProyectosMenuMixin, ListView):
+class SitioListView(DynamicList):
     model = Sitio
-    paginate_by = 10
-    # ordering = 'sitio_name'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            company=self.request.user.currently_at
-        ).order_by(Lower('sitio_name'))
-        return super(SitioListView, self).get_queryset()
 
 
-class DestinatarioListView(ProyectosMenuMixin, ListView):
+class DestinatarioListView(DynamicList):
     model = Destinatario
-    paginate_by = 10
-    # ordering = 'destinatario_text'
-
-    def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            cliente__company=self.request.user.currently_at
-        ).order_by(Lower('destinatario_text'))
-        return super(DestinatarioListView, self).get_queryset()
 
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
     model = Concept
-    paginate_by = 10
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
@@ -119,40 +130,28 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
         return JsonResponse(json)
 
 
-class ContratoDetailView(ProyectosMenuMixin, DetailView):
+class DynamicDetail(ProyectosMenuMixin, DetailView):
+    def get_context_object_name(self, obj):
+        return obj.__class__.__name__.lower()
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+
+
+class ContratoDetailView(DynamicDetail):
     model = Contrato
-    context_object_name = 'contrato'
-    template_name = 'proyectos/detalle_de_contrato.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
 
 
-class ClienteDetailView(ProyectosMenuMixin, DetailView):
+class ClienteDetailView(DynamicDetail):
     model = Cliente
-    context_object_name = 'cliente'
-    template_name = 'proyectos/detalle_de_cliente.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Cliente, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
-class SitioDetailView(ProyectosMenuMixin, DetailView):
+class SitioDetailView(DynamicDetail):
     model = Sitio
-    context_object_name = 'sitio'
-    template_name = 'proyectos/detalle_de_sitio.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Sitio, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
-class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
+class DestinatarioDetailView(DynamicDetail):
     model = Destinatario
-    context_object_name = 'destinatario'
-    template_name = 'proyectos/detalle_de_destinatario.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Destinatario, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
@@ -196,57 +195,33 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 """
 
 
-# class ClienteCreationView(BasicCreationView):
-class ClienteCreationView(ProyectosMenuMixin, CreateView):
-    form_class = ClienteForm
+class DynamicCreation(ProyectosMenuMixin, CreateView):
     template_name = 'proyectos/creation_form.html'
 
     def get_initial(self):
-        initial_obj = super(ClienteCreationView, self).get_initial()
+        initial_obj = super(DynamicCreation, self).get_initial()
         initial_obj['company'] = self.request.user.currently_at
         return initial_obj
 
     def form_valid(self, form):
         if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(ClienteCreationView, self).form_valid(form)
+            return super(DynamicCreation, self).form_valid(form)
         else:
-            return super(ClienteCreationView, self).form_invalid(form)
+            return super(DynamicCreation, self).form_invalid(form)
+
+
+# class ClienteCreationView(BasicCreationView):
+class ClienteCreationView(DynamicCreation):
+    form_class = ClienteForm
 
 
 # class SitioCreationView(BasicCreationView):
-class SitioCreationView(ProyectosMenuMixin, CreateView):
+class SitioCreationView(DynamicCreation):
     form_class = SitioForm
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(SitioCreationView, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(SitioCreationView, self).form_valid(form)
-        else:
-            return super(SitioCreationView, self).form_invalid(form)
 
 
-class DestinatarioCreationView(ProyectosMenuMixin, CreateView):
+class DestinatarioCreationView(DynamicCreation):
     form_class = DestinatarioForm
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(DestinatarioCreationView, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(DestinatarioCreationView, self).form_valid(form)
-        else:
-            return super(DestinatarioCreationView, self).form_invalid(form)
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
