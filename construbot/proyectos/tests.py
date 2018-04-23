@@ -469,8 +469,8 @@ class DestinatarioCreationTest(BaseViewTest):
         form = DestinatarioForm(data=form_data)
         validez = form.is_valid()
         self.assertTrue(validez)
-        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
         self.assertEqual(view.form_valid(form).status_code, 200)
+        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -519,7 +519,7 @@ class ContratoEditViewTest(BaseViewTest):
                      'currently_at': contrato_company.company_name,
                      }
         view = self.get_instance(
-            ContratoCreationView,
+            ContratoEditView,
             request=self.request,
             pk=contrato_factory.pk
         )
@@ -529,6 +529,29 @@ class ContratoEditViewTest(BaseViewTest):
         contrato = Contrato.objects.get(pk=contrato_factory.pk)
         self.assertEqual(contrato.monto, decimal.Decimal('1222.12'))
         self.assertEqual(contrato.pk, contrato_factory.pk)
+
+    def test_contrato_edit_not_currently_returns_invalid(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
+                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'monto': 1222.12,
+                     }
+        view = self.get_instance(
+            ContratoEditView,
+            request=self.request,
+            pk=contrato_factory.pk
+        )
+        view.get_context_data = lambda form: {}
+        form = ContratoForm(data=form_data, instance=contrato_factory)
+        form.is_valid()
+        response = view.form_valid(form)
+        contrato = Contrato.objects.get(pk=contrato_factory.pk)
+        self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
+        self.assertEqual(response.status_code, 200)
 
 
 class ClienteEditTest(BaseViewTest):

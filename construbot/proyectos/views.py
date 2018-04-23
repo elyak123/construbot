@@ -267,7 +267,8 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         return initial_obj
 
     def form_valid(self, form):
-        if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
+        currently = form.cleaned_data.get('currently_at')
+        if currently and currently == self.request.user.currently_at.company_name:
             self.object = form.save()
             return super(ContratoEditView, self).form_valid(form)
         else:
