@@ -182,11 +182,6 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         initial_obj['folio'] = max_id
         return initial_obj
 
-    def get_context_data(self, **kwargs):
-        context = super(ContratoCreationView, self).get_context_data(**kwargs)
-        context['company'] = self.request.user.currently_at
-        return context
-
     def form_valid(self, form):
         if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             return super(ContratoCreationView, self).form_valid(form)
