@@ -50,19 +50,15 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
     ]
     model_options = {
         'Contrato': {
-            'model': Contrato,
             'ordering': '-fecha',
         },
         'Cliente': {
-            'model': Cliente,
             'ordering': 'cliente_name',
         },
         'Sitio': {
-            'model': Sitio,
             'ordering': 'sitio_name',
         },
         'Destinatario': {
-            'model': Destinatario,
             'ordering': 'destinatario_text',
         },
     }
@@ -95,6 +91,14 @@ class DynamicList(ProyectosMenuMixin, ListView):
         return self.ordering
 
 
+class DynamicDetail(ProyectosMenuMixin, DetailView):
+    def get_context_object_name(self):
+        return Lower(self.model.__name__)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+
+
 class ContratoListView(DynamicList):
     model = Contrato
 
@@ -113,7 +117,6 @@ class DestinatarioListView(DynamicList):
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
     model = Concept
-    paginate_by = 10
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
@@ -132,40 +135,20 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
         return JsonResponse(json)
 
 
-class ContratoDetailView(ProyectosMenuMixin, DetailView):
+class ContratoDetailView(DynamicDetail):
     model = Contrato
-    context_object_name = 'contrato'
-    template_name = 'proyectos/detalle_de_contrato.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
 
 
-class ClienteDetailView(ProyectosMenuMixin, DetailView):
+class ClienteDetailView(DynamicDetail):
     model = Cliente
-    context_object_name = 'cliente'
-    template_name = 'proyectos/detalle_de_cliente.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Cliente, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
-class SitioDetailView(ProyectosMenuMixin, DetailView):
+class SitioDetailView(DynamicDetail):
     model = Sitio
-    context_object_name = 'sitio'
-    template_name = 'proyectos/detalle_de_sitio.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Sitio, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
-class DestinatarioDetailView(ProyectosMenuMixin, DetailView):
+class DestinatarioDetailView(DynamicDetail):
     model = Destinatario
-    context_object_name = 'destinatario'
-    template_name = 'proyectos/detalle_de_destinatario.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Destinatario, pk=self.kwargs['pk'], company=self.request.user.currently_at)
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
