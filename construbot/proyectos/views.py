@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, T
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.db.models.functions import Lower
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
@@ -53,16 +53,16 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             'model': Contrato,
         },
         'Cliente': {
-            'ordering': 'cliente_name',
             'model': Cliente,
+            'ordering': 'cliente_name',
         },
         'Sitio': {
-            'ordering': 'sitio_name',
             'model': Sitio,
+            'ordering': 'sitio_name',
         },
         'Destinatario': {
-            'ordering': 'destinatario_text',
             'model': Destinatario,
+            'ordering': 'destinatario_text',
         },
     }
 
