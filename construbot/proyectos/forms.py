@@ -6,7 +6,7 @@ MY_DATE_FORMATS = ['%Y-%m-%d']
 
 
 class ContratoForm(forms.ModelForm):
-    currently_at = forms.CharField(
+    company = forms.CharField(
         widget=forms.HiddenInput(
         )
     )

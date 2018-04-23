@@ -92,11 +92,26 @@ class DynamicList(ProyectosMenuMixin, ListView):
 
 
 class DynamicDetail(ProyectosMenuMixin, DetailView):
-    def get_context_object_name(self):
-        return Lower(self.model.__name__)
+    def get_context_object_name(self, obj):
+        return obj.__class__.__name__.lower()
 
     def get_object(self, queryset=None):
         return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+
+
+class DynamicCreation(ProyectosMenuMixin, CreateView):
+    template_name = 'proyectos/creation_form.html'
+
+    def get_initial(self):
+        initial_obj = super(DynamicCreation, self).get_initial()
+        initial_obj['company'] = self.request.user.currently_at
+        return initial_obj
+
+    def form_valid(self, form):
+        if form.cleaned_data['company'] == self.request.user.currently_at:
+            return super(DynamicCreation, self).form_valid(form)
+        else:
+            return super(DynamicCreation, self).form_invalid(form)
 
 
 class ContratoListView(DynamicList):
@@ -165,11 +180,6 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         initial_obj['folio'] = max_id
         return initial_obj
 
-    def get_context_data(self, **kwargs):
-        context = super(ContratoCreationView, self).get_context_data(**kwargs)
-        context['company'] = self.request.user.currently_at
-        return context
-
     def form_valid(self, form):
         if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
             return super(ContratoCreationView, self).form_valid(form)
@@ -193,56 +203,17 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 
 
 # class ClienteCreationView(BasicCreationView):
-class ClienteCreationView(ProyectosMenuMixin, CreateView):
+class ClienteCreationView(DynamicCreation):
     form_class = ClienteForm
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(ClienteCreationView, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(ClienteCreationView, self).form_valid(form)
-        else:
-            return super(ClienteCreationView, self).form_invalid(form)
 
 
 # class SitioCreationView(BasicCreationView):
-class SitioCreationView(ProyectosMenuMixin, CreateView):
+class SitioCreationView(DynamicCreation):
     form_class = SitioForm
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(SitioCreationView, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(SitioCreationView, self).form_valid(form)
-        else:
-            return super(SitioCreationView, self).form_invalid(form)
 
 
-class DestinatarioCreationView(ProyectosMenuMixin, CreateView):
+class DestinatarioCreationView(DynamicCreation):
     form_class = DestinatarioForm
-    template_name = 'proyectos/creation_form.html'
-
-    def get_initial(self):
-        initial_obj = super(DestinatarioCreationView, self).get_initial()
-        initial_obj['company'] = self.request.user.currently_at
-        return initial_obj
-
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            self.object = form.save()
-            return super(DestinatarioCreationView, self).form_valid(form)
-        else:
-            return super(DestinatarioCreationView, self).form_invalid(form)
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
