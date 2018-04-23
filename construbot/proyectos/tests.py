@@ -340,7 +340,6 @@ class ClienteCreationTest(BaseViewTest):
         self.assertIsInstance(view.object, Cliente)
         self.assertEqual(view.object.id, cliente.id)
 
-
     def test_cliente_form_creation_is_not_valid_with_another_company(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         cliente_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
@@ -526,9 +525,8 @@ class ContratoEditViewTest(BaseViewTest):
         form = ContratoForm(data=form_data, instance=contrato_factory)
         form.is_valid()
         view.form_valid(form)
-        contrato = Contrato.objects.get(pk=contrato_factory.pk)
-        self.assertEqual(contrato.monto, decimal.Decimal('1222.12'))
-        self.assertEqual(contrato.pk, contrato_factory.pk)
+        self.assertEqual(view.object.monto, decimal.Decimal('1222.12'))
+        self.assertEqual(view.object.pk, contrato_factory.pk)
 
     def test_contrato_edit_not_currently_returns_invalid(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -587,6 +585,40 @@ class ClienteEditTest(BaseViewTest):
         init_obj = view.get_initial()
         self.assertTrue('company' in init_obj)
         self.assertEqual(init_obj['company'], self.user.currently_at)
+
+    def test_cliente_edit_form_changes_instance(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente_factory.pk
+        )
+        form = ClienteForm(data=form_data, instance=cliente_factory)
+        form.is_valid()
+        response = view.form_valid(form)
+        self.assertEqual(view.object.cliente_name, 'Juanito')
+        self.assertEqual(view.object.pk, cliente_factory.pk)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cliente_edit_no_currently_returns_invalid(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente_factory.pk
+        )
+        view.get_context_data = lambda form: {}
+        form = ClienteForm(data=form_data, instance=cliente_factory)
+        form.is_valid()
+        cliente = Cliente.objects.get(pk=cliente_factory.pk)
+        response = view.form_valid(form)
+        self.assertEqual(cliente.cliente_name, 'Pepe')
+        self.assertEqual(response.status_code, 200)
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
