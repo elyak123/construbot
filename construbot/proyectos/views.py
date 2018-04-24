@@ -54,12 +54,15 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         },
         'Cliente': {
             'ordering': 'cliente_name',
+            'model': Cliente,
         },
         'Sitio': {
             'ordering': 'sitio_name',
+            'model': Sitio,
         },
         'Destinatario': {
             'ordering': 'destinatario_text',
+            'model': Destinatario,
         },
     }
 
