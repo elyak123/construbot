@@ -86,7 +86,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 class DynamicList(ProyectosMenuMixin, ListView):
     def get_queryset(self):
-        if not self.queryset and self.model.__name__ != "Contrato":
+        if not self.queryset:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
@@ -101,6 +101,7 @@ class DynamicList(ProyectosMenuMixin, ListView):
 
 class EstimacionSample(ProyectosMenuMixin, TemplateView):
     template_name = 'proyectos/sample.html'
+
 
 
 class ContratoListView(DynamicList):
@@ -210,12 +211,11 @@ class DynamicCreation(ProyectosMenuMixin, CreateView):
             return super(DynamicCreation, self).form_invalid(form)
 
 
-# class ClienteCreationView(BasicCreationView):
+
 class ClienteCreationView(DynamicCreation):
     form_class = ClienteForm
 
 
-# class SitioCreationView(BasicCreationView):
 class SitioCreationView(DynamicCreation):
     form_class = SitioForm
 

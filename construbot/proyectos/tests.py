@@ -525,9 +525,8 @@ class ContratoEditViewTest(BaseViewTest):
         form = ContratoForm(data=form_data, instance=contrato_factory)
         form.is_valid()
         view.form_valid(form)
-        contrato = Contrato.objects.get(pk=contrato_factory.pk)
-        self.assertEqual(contrato.monto, decimal.Decimal('1222.12'))
-        self.assertEqual(contrato.pk, contrato_factory.pk)
+        self.assertEqual(view.object.monto, decimal.Decimal('1222.12'))
+        self.assertEqual(view.object.pk, contrato_factory.pk)
 
     def test_contrato_edit_not_currently_returns_invalid(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -586,6 +585,248 @@ class ClienteEditTest(BaseViewTest):
         init_obj = view.get_initial()
         self.assertTrue('company' in init_obj)
         self.assertEqual(init_obj['company'], self.user.currently_at)
+
+    def test_cliente_edit_form_changes_instance(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente_factory.pk
+        )
+        form = ClienteForm(data=form_data, instance=cliente_factory)
+        form.is_valid()
+        response = view.form_valid(form)
+        self.assertEqual(view.object.cliente_name, 'Juanito')
+        self.assertEqual(view.object.pk, cliente_factory.pk)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cliente_edit_no_currently_returns_invalid(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        view = self.get_instance(
+            ClienteEditView,
+            request=self.request,
+            pk=cliente_factory.pk
+        )
+        view.get_context_data = lambda form: {}
+        form = ClienteForm(data=form_data, instance=cliente_factory)
+        form.is_valid()
+        cliente = Cliente.objects.get(pk=cliente_factory.pk)
+        response = view.form_valid(form)
+        self.assertEqual(cliente.cliente_name, 'Pepe')
+        self.assertEqual(response.status_code, 200)
+
+
+class SitioEditTest(BaseViewTest):
+    def test_obtiene_objeto_sitio_correctamente(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, sitio)
+
+    def test_get_sitio_object_raises_404_not_currently_at(self):
+        sitio = factories.SitioFactory()
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_sitio_get_initial_has_company(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        init = view.get_initial()
+        self.assertTrue('company' in init)
+        self.assertEqual(init['company'], self.user.currently_at)
+
+    def test_form_actually_changes_sitio(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
+                     'company': sitio.company.id}
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk
+        )
+        form = SitioForm(data=form_data, instance=sitio)
+        form.is_valid()
+        view.form_valid(form)
+        sitio_obj = Sitio.objects.get(pk=sitio.pk)
+        self.assertEqual(sitio.sitio_location, 'Aguascalientes, Ags.')
+        self.assertEqual(sitio_obj.pk, sitio.pk)
+
+
+class DestinatarioEditTest(BaseViewTest):
+    def test_obtiene_objeto_destinatario_correctamente(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.company
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, destinatario)
+
+    def test_get_destinatario_object_raises_404_not_currently_at(self):
+        destinatario = factories.DestinatarioFactory()
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_destinatario_get_initial_has_company(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.cliente.company
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        init = view.get_initial()
+        self.assertTrue('company' in init)
+        self.assertEqual(init['company'], self.user.currently_at)
+
+    def test_form_actually_changes_destinatario(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.company
+        form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
+                     'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk
+        )
+        form = DestinatarioForm(data=form_data, instance=destinatario)
+        form.is_valid()
+        view.form_valid(form)
+        sitio_obj = Destinatario.objects.get(pk=destinatario.pk)
+        self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
+        self.assertEqual(sitio_obj.pk, destinatario.pk)
+
+
+class SitioEditTest(BaseViewTest):
+    def test_obtiene_objeto_sitio_correctamente(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, sitio)
+
+    def test_get_sitio_object_raises_404_not_currently_at(self):
+        sitio = factories.SitioFactory()
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_sitio_get_initial_has_company(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk,
+        )
+        init = view.get_initial()
+        self.assertTrue('company' in init)
+        self.assertEqual(init['company'], self.user.currently_at)
+
+    def test_form_actually_changes_sitio(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
+                     'company': sitio.company.id}
+        view = self.get_instance(
+            SitioEditView,
+            request=self.request,
+            pk=sitio.pk
+        )
+        form = SitioForm(data=form_data, instance=sitio)
+        form.is_valid()
+        view.form_valid(form)
+        sitio_obj = Sitio.objects.get(pk=sitio.pk)
+        self.assertEqual(sitio.sitio_location, 'Aguascalientes, Ags.')
+        self.assertEqual(sitio_obj.pk, sitio.pk)
+
+
+class DestinatarioEditTest(BaseViewTest):
+    def test_obtiene_objeto_destinatario_correctamente(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.company
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, destinatario)
+
+    def test_get_destinatario_object_raises_404_not_currently_at(self):
+        destinatario = factories.DestinatarioFactory()
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        with self.assertRaises(Http404):
+            view.get_object()
+
+    def test_destinatario_get_initial_has_company(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.cliente.company
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk,
+        )
+        init = view.get_initial()
+        self.assertTrue('company' in init)
+        self.assertEqual(init['company'], self.user.currently_at)
+
+    def test_form_actually_changes_destinatario(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.company
+        form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
+                     'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
+        view = self.get_instance(
+            DestinatarioEditView,
+            request=self.request,
+            pk=destinatario.pk
+        )
+        form = DestinatarioForm(data=form_data, instance=destinatario)
+        form.is_valid()
+        view.form_valid(form)
+        sitio_obj = Destinatario.objects.get(pk=destinatario.pk)
+        self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
+        self.assertEqual(sitio_obj.pk, destinatario.pk)
 
 
 class SitioEditTest(BaseViewTest):
