@@ -643,7 +643,7 @@ class SitioEditTest(BaseViewTest):
 class DestinatarioEditTest(BaseViewTest):
     def test_obtiene_objeto_destinatario_correctamente(self):
         destinatario = factories.DestinatarioFactory()
-        self.user.currently_at = destinatario.company
+        self.user.currently_at = destinatario.cliente.company
         view = self.get_instance(
             DestinatarioEditView,
             request=self.request,

@@ -1,4 +1,4 @@
- These styles are generated from project.scss. */
+ /*These styles are generated from project.scss. */
 
 .alert-debug {
   color: black;
@@ -267,6 +267,13 @@ a:hover {
 	margin: 20px 20px 0 20px;
 }
 
+table.estimate {
+	width: 100%;
+}
+
+table.estimate * {
+	padding: 5px;
+}
 /*FIN DE ESTILOS PARA MENÚ LATERAL*/
 
 /*ESTILOS PATA TABLAS*/

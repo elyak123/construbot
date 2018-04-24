@@ -6,6 +6,11 @@ app_name = 'construbot.proyectos'
 
 urlpatterns = [
     url(
+        regex=r'^sample/estimacion/$',
+        view=views.EstimacionSample.as_view(),
+        name='sample_de_estimacion'
+    ),
+    url(
         regex=r'^listado/contratos/$',
         view=views.ContratoListView.as_view(),
         name='listado_de_contratos'
@@ -83,14 +88,19 @@ urlpatterns = [
         view=views.SitioEditView.as_view(),
         name='editar_sitio'),
 
-    url(regex=r'^editar/destinatario/(?P<pk>\d+)/$',
+    url(regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
+        view=views.DynamicDelete.as_view(),
+        name='eliminar'),
+
+    url(
+        regex=r'^delete/?P<model>\w+/(?P<pk>\d+)/$',
         view=views.DestinatarioEditView.as_view(),
-        name='editar_destinatario'),
+        name='editar_destinatario'
+    ),
 
     url(regex=r'cliente-autocomplete/$',
         view=views.ClienteAutocomplete.as_view(),
         name='cliente-autocomplete'),
-
     url(regex=r'sitio-autocomplete/$',
         view=views.SitioAutocomplete.as_view(),
         name='sitio-autocomplete'),
