@@ -210,12 +210,10 @@ class DynamicCreation(ProyectosMenuMixin, CreateView):
             return super(DynamicCreation, self).form_invalid(form)
 
 
-# class ClienteCreationView(BasicCreationView):
 class ClienteCreationView(DynamicCreation):
     form_class = ClienteForm
 
 
-# class SitioCreationView(BasicCreationView):
 class SitioCreationView(DynamicCreation):
     form_class = SitioForm
 
