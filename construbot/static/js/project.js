@@ -171,20 +171,33 @@ $(document).ready(function(){
                 mensaje.style.top = pos.y+"px";
                 mensaje.style.left = pos.x+"px";
             });
-            $("#button_cancel").on("click", function(){
-                element.parentElement.classList.add("border_normal");
-                element.parentElement.classList.remove("border_danger");
-                mensaje.style.display = "none";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response){
+                    mensaje.innerHTML = response;
+                    habilitarBotones();
+                },
             });
-            $("#button_confirm").on("click", function(){
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    success: function(response){
-                        window.location.reload();
-                    },
+            function habilitarBotones(){
+                $("#button_cancel").on("click", function(target){
+                    target.preventDefault();
+                    element.parentElement.classList.add("border_normal");
+                    element.parentElement.classList.remove("border_danger");
+                    mensaje.style.display = "none";
                 });
-            });
+                $("#delete_form").submit(function(event){
+                    event.preventDefault()
+                    $.ajax({
+                        type:"POST",
+                        url: url,
+                        success: function(){
+                            debugger;
+                            $(window).location.reload() 
+                        }
+                    });
+                });
+            }
         });
     }
 });

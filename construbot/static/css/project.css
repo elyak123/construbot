@@ -340,7 +340,7 @@ table.estimate * {
 	font-size: 10px;
 }
 
-#cont_danger > p {
+#cont_danger {
 	padding: 10px;
 	font-weight: bold;
 }
