@@ -8,13 +8,18 @@
 <a class="boton" href="{% url 'proyectos:nuevo_cliente' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
 <br>
 <br>
+<div id="cont_danger">
+	<p>¿Está seguro de que quiere eliminar este elemento?</p>
+	<button id="button_cancel" class="btn btn-light"> Cancelar </button>
+	<button id="button_confirm" class="btn btn-danger"> Confirmar </button>
+</div>
 <div class="cont_divs_list">
 	{% for i in object_list %}
-		<div class="div_list">
+		<div class="div_list border_normal" id="div_list_{{ forloop.counter0 }}">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:cliente_detail' i.id %}">{{ i.cliente_name }}</a></h4>
 			<p class="p_div_list"><strong>Compañía: </strong> {{ i.company.company_name }} </p>
 			<a class="boton_edicion" href="{% url 'proyectos:editar_cliente' i.id %}">Editar</a> /
-			<a id="delete_{{ model }}" data-model="{{ model }}" data-id="{{ i.id }}" href="#">Eliminar</a>
+			<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="{{ model }}" data-id="{{ i.id }}" href="#">Eliminar</a>
 		</div>
 	{% endfor %}
 </div>

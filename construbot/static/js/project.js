@@ -145,4 +145,46 @@ $(document).ready(function(){
         ajustarContenido(2);
     }
 
+    if($(".div_list")){
+        div_list = $(".div_list");
+        delete_link = $(".anchor_delete");
+        mensaje = $("#cont_danger")[0];
+
+        delete_link.on("click", function(target){
+            element = target.target;
+            url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            console.log(url);
+            pos = element.parentElement.getBoundingClientRect()
+            for(i=0; i<div_list.length; i++){
+                if(element.parentElement != div_list[i]){
+                    div_list[i].classList.remove("border_danger");
+                    div_list[i].classList.add("border_normal");
+                }
+            }
+            mensaje.style.top = pos.y+"px";
+            mensaje.style.left = pos.x+"px";
+            mensaje.style.display = "block";
+            element.parentElement.classList.remove("border_normal");
+            element.parentElement.classList.add("border_danger");
+            $(window).on("resize", function(){
+                pos = this.element.parentElement.getBoundingClientRect()
+                mensaje.style.top = pos.y+"px";
+                mensaje.style.left = pos.x+"px";
+            });
+            $("#button_cancel").on("click", function(){
+                element.parentElement.classList.add("border_normal");
+                element.parentElement.classList.remove("border_danger");
+                mensaje.style.display = "none";
+            });
+            $("#button_confirm").on("click", function(){
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    success: function(response){
+                        window.location.reload();
+                    },
+                });
+            });
+        });
+    }
 });

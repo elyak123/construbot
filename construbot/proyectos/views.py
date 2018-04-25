@@ -86,7 +86,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 class DynamicList(ProyectosMenuMixin, ListView):
     def get_queryset(self):
-        if not self.queryset and self.model.__name__ != "Contrato":
+        if not self.queryset:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
