@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% block title %}Some title{% endblock title %}
+
+{% block content %}
+<h2 class="title"> Sample para estimacion </h2>
+<br>
+<div class="cont_estimacion">
+	<table class="estimate">
+		<thead class='conceptos'>
+				<tr>
+					<th colspan="6">
+						<h4> NOMBRE DEL CLIENTE</h4>
+						<p> NOMBRE DEL CONTRATO </p>
+						<p> Estimación de obra </p>
+					</th>
+					<th colspan="6">
+						<table>
+							<thead>
+								<tr>
+									<th>Contratista:</th>
+									<td> Nombre del contratista </td>
+								</tr>
+								<tr>
+									<th>Contrato:</th>
+									<td> Nombre del contrato </td>
+								</tr>
+								<tr>
+									<th>Estimación N°:</th>
+									<td> Numero de estimación </td>
+								</tr>
+								<tr>
+									<th>Fecha:</th>
+									<td> 19/09/1999 </td>
+								</tr>
+								<tr>
+									<th>Período:</th>
+									<td> Del 19/09/1999 al 19/09/1999 </td>
+								</tr>
+							</thead>
+						</table>
+					</th>
+				</tr>		
+				<tr>
+					<th rowspan="2">N°</th>
+					<th rowspan="2">CONCEPTOS DE OBRA</th>
+					<th colspan="4">CONTRATADO</th>
+					<th colspan="2">ESTIMADO ANTERIOR</th>
+					<th colspan="2">ESTIMADO A LA FECHA</th>
+					<th colspan="2">ESTA ESTIMACIÓN</th>
+				</tr>
+				<tr>
+					<th>UNIDAD</th>
+					<th>CANTIDAD</th>
+					<th>P.U.</th>
+					<th>IMPORTE</th>
+					<th>CANTIDAD</th>
+					<th>IMPORTE</th>
+					<th>CANTIDAD</th>
+					<th>IMPORTE</th>
+					<th>CANTIDAD</th>
+					<th>IMPORTE</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>1</td>
+					<td>1</td>
+					<td>Metro2</td>
+					<td>100</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td>2</td>
+					<td>Metro2</td>
+					<td>100</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+				</tr>
+				<tr>
+					<td>3</td>
+					<td>3</td>
+					<td>Metro2</td>
+					<td>100</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td>4</td>
+					<td>Metro2</td>
+					<td>100</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+					<td>$1,000,000.00</td>
+				</tr>
+			</tbody>
+	</table>
+</div>
+{% endblock content %}

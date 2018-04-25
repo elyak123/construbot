@@ -1,0 +1,6 @@
+<form id="delete_form" action="" method="post">
+	{% csrf_token %}
+	<p>¿Está seguro de que quiere eliminar este elemento?</p>
+	<button id="button_confirm" class="btn btn-danger" type="submit" value="Confirm"> Confirmar </button>
+	<button id="button_cancel" class="btn btn-light" href="#"> Cancelar </button>
+</form>

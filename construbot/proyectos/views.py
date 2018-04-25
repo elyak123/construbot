@@ -103,7 +103,6 @@ class EstimacionSample(ProyectosMenuMixin, TemplateView):
     template_name = 'proyectos/sample.html'
 
 
-
 class ContratoListView(DynamicList):
     model = Contrato
     ordering = '-fecha'
@@ -209,7 +208,6 @@ class DynamicCreation(ProyectosMenuMixin, CreateView):
             return super(DynamicCreation, self).form_valid(form)
         else:
             return super(DynamicCreation, self).form_invalid(form)
-
 
 
 class ClienteCreationView(DynamicCreation):
