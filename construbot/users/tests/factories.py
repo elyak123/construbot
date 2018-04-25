@@ -1,5 +1,6 @@
 import factory
 from construbot.users.models import Customer, Company, User
+from django.contrib.auth.models import Group
 
 
 class CustomerFactory(factory.django.DjangoModelFactory):
@@ -7,6 +8,13 @@ class CustomerFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Customer
+
+
+class GroupFactory(factory.django.DjangoModelFactory):
+    name = factory.Sequence(lambda n: 'group-{0}'.format(n))
+
+    class Meta:
+        model = Group
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
