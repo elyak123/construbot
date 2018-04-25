@@ -154,7 +154,6 @@ $(document).ready(function(){
             var element = target.target;
             var url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
             var pos = element.parentElement.getBoundingClientRect()
-            
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){
                     div_list[i].classList.remove("border_danger");
