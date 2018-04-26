@@ -8,13 +8,16 @@
 <a class="boton" href="{% url 'proyectos:nuevo_contrato' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
 <br>
 <br>
+<div id="cont_danger">
+</div>
 <div class="cont_divs_list">
 	{% for i in object_list %}
-		<div class="div_list">
+		<div class="div_list border_normal">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:contrato_detail' i.id %}">{{ i.folio }}. {{ i.contrato_name }}</h4></a>
 			<p class="p_div_list"><strong>Fecha: </strong> {{ i.fecha }} </p>
 			<p class="p_div_list"><strong>Monto: </strong> {{ i.monto }} </p>
-			<a class="boton_edicion" href="{% url 'proyectos:editar_contrato' i.id %}">Editar</a>
+			<a class="boton_edicion" href="{% url 'proyectos:editar_contrato' i.id %}">Editar</a> / 
+			<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="{{ model }}" data-id="{{ i.id }}" href="#">Eliminar</a>
 		</div>
 	{% endfor %}
 </div>

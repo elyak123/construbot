@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, T
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.db.models.functions import Lower
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
@@ -86,7 +86,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 class DynamicList(ProyectosMenuMixin, ListView):
     def get_queryset(self):
-        if not self.queryset:
+        if self.queryset is None:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
@@ -328,7 +328,7 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
                     i.folio -= 1
                     i.save()
         self.object.delete()
-        return HttpResponseRedirect("")
+        return JsonResponse({"exito": True})
 
 
 class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):

@@ -146,15 +146,15 @@ $(document).ready(function(){
     }
 
     if($(".div_list")){
-        div_list = $(".div_list");
-        delete_link = $(".anchor_delete");
-        mensaje = $("#cont_danger")[0];
+        var div_list = $(".div_list");
+        var delete_link = $(".anchor_delete");
+        var mensaje = $("#cont_danger")[0];
 
         delete_link.on("click", function(target){
-            element = target.target;
-            url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
-            console.log(url);
-            pos = element.parentElement.getBoundingClientRect()
+            var element = target.target;
+            var url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var pos = element.parentElement.getBoundingClientRect()
+            
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){
                     div_list[i].classList.remove("border_danger");
@@ -180,6 +180,7 @@ $(document).ready(function(){
                 },
             });
             function habilitarBotones(){
+                var f_data = $('#delete_form').serialize();
                 $("#button_cancel").on("click", function(target){
                     target.preventDefault();
                     element.parentElement.classList.add("border_normal");
@@ -191,9 +192,9 @@ $(document).ready(function(){
                     $.ajax({
                         type:"POST",
                         url: url,
+                        data: f_data,
                         success: function(){
-                            debugger;
-                            $(window).location.reload() 
+                            window.location.reload() 
                         }
                     });
                 });
