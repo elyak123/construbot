@@ -29,10 +29,11 @@ $(document).ready(function(){
 
     if($(".icon_right")){
         $(".icon_right").on("click", function(){
+            var data_id = $("#dato")[0].getAttribute("data-id")
             $(".icon_right-up")[0].style.display = "initial";
             $(".icon_right")[0].style.display = "none";
             $.ajax({
-                url: "/proyectos/contrato/catalogo-list/" + document.URL.slice(-2)[0] + "/",
+                url: "/proyectos/contrato/catalogo-list/" + data_id + "/",
                 success: function(result){
                     $(".cont_result")[0].style.display = "block";
                     result = result.conceptos;
@@ -151,6 +152,7 @@ $(document).ready(function(){
         var mensaje = $("#cont_danger")[0];
 
         delete_link.on("click", function(target){
+            target.preventDefault();
             var element = target.target;
             var url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
             var pos = element.parentElement.getBoundingClientRect()
@@ -160,14 +162,19 @@ $(document).ready(function(){
                     div_list[i].classList.add("border_normal");
                 }
             }
-            mensaje.style.top = pos.y+"px";
+            mensaje.style.top = window.scrollY+pos.y+"px";
             mensaje.style.left = pos.x+"px";
             mensaje.style.display = "block";
             element.parentElement.classList.remove("border_normal");
             element.parentElement.classList.add("border_danger");
             $(window).on("resize", function(){
-                pos = this.element.parentElement.getBoundingClientRect()
-                mensaje.style.top = pos.y+"px";
+                pos = element.parentElement.getBoundingClientRect()
+                mensaje.style.top = window.scrollY+pos.y+"px";
+                mensaje.style.left = pos.x+"px";
+            });
+            $(window).on("scroll", function(){
+                pos = element.parentElement.getBoundingClientRect()
+                mensaje.style.top = window.scrollY+pos.y+"px";
                 mensaje.style.left = pos.x+"px";
             });
             $.ajax({

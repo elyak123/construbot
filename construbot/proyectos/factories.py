@@ -66,7 +66,7 @@ class ConceptoFactory(factory.django.DjangoModelFactory):
     concept_text = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='text_')
     project = factory.SubFactory(ContratoFactory)
     unit = factory.SubFactory(UnitFactory)
-    total_cuantity = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
+    total_cuantity = factory.fuzzy.FuzzyDecimal(1, 35, precision=2)
     unit_price = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
 
     class Meta:

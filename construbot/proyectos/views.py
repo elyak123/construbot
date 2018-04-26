@@ -85,6 +85,8 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 
 class DynamicList(ProyectosMenuMixin, ListView):
+    paginate_by = 10
+
     def get_queryset(self):
         if self.queryset is None:
             self.queryset = self.model.objects.filter(

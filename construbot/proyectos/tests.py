@@ -8,8 +8,11 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                     SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
                     ClienteAutocomplete, UnitAutocomplete)
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from .models import Destinatario, Sitio, Cliente, Contrato
+from construbot.users.models import User, Company, Customer
+from django.core.management import call_command
+from django.utils.six import StringIO
 from . import factories
 import json
 import decimal
@@ -889,3 +892,39 @@ class UnitAutocompleteTest(BaseViewTest):
         dicc = {'unit__unaccent__icontains': view.q}
         dicc_test = view.get_key_words()
         self.assertDictEqual(dicc, dicc_test)
+
+
+class CommandDatabasePoblation(BaseViewTest):
+    def test_if_command_runs_correctly(self):
+        out = StringIO()
+        call_command('poblar', stdout=out)
+        self.assertIn("La base de datos ha sido eliminada y poblada exitosamente con:\n" +
+                      "- 2 Customer\n- 2 Clientes\n- 10 Compañías\n- 30 Clientes\n- 30 Sitios\n- 500 Contratos\n" +
+                      "- 200 Unidades\n- 2000 Conceptos.", out.getvalue()
+                      )
+
+    def test_if_new_database_are_created(self):
+        call_command('poblar')
+        qs_number = Customer.objects.all().count()
+        self.assertEqual(qs_number, 2)
+
+        qs_number = User.objects.all().count()
+        self.assertEqual(qs_number, 2)
+
+        qs_number = Company.objects.all().count()
+        self.assertEqual(qs_number, 10)
+
+        qs_number = Cliente.objects.all().count()
+        self.assertEqual(qs_number, 30)
+
+        qs_number = Sitio.objects.all().count()
+        self.assertEqual(qs_number, 30)
+
+        qs_number = Contrato.objects.all().count()
+        self.assertEqual(qs_number, 500)
+
+        qs_number = Units.objects.all().count()
+        self.assertEqual(qs_number, 200)
+
+        qs_number = Concept.objects.all().count()
+        self.assertEqual(qs_number, 2000)
