@@ -5,7 +5,8 @@
 
 {% block content %}
 {% language 'es' %}
-<h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2 >
+<h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2>
+<div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle">
 		<tr>
