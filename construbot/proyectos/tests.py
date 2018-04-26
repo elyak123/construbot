@@ -8,7 +8,7 @@ from .views import (ContratoListView, ClienteListView, SitioListView, Destinatar
                     SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                     SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
                     ClienteAutocomplete, UnitAutocomplete)
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm)
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
 from .models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
