@@ -76,6 +76,10 @@ urlpatterns = [
         view=views.DestinatarioCreationView.as_view(),
         name='nuevo_destinatario'),
 
+    url(regex=r'^estimacion/nuevo/(?P<pk>\d+)$',
+        view=views.EstimateCreationView.as_view(),
+        name='nueva_estimacion'),
+
     url(regex=r'^editar/contrato/(?P<pk>\d+)/$',
         view=views.ContratoEditView.as_view(),
         name='editar_contrato'),
@@ -104,6 +108,9 @@ urlpatterns = [
     url(regex=r'sitio-autocomplete/$',
         view=views.SitioAutocomplete.as_view(),
         name='sitio-autocomplete'),
+    url(regex=r'destinatario-autocomplete/$',
+        view=views.DestinatarioAutocomplete.as_view(),
+        name='destinatario-autocomplete'),
     url(regex=r'^unit-autocomplete/$',
         view=views.UnitAutocomplete.as_view(create_field='unit'),
         name='unit-autocomplete'),

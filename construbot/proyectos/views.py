@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, TemplateView, DeleteView
-from django.core.urlresolvers import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import Max
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario
-from .forms import ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm
+from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm, EstimateForm,
+                    estimateConceptInlineForm)
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -224,6 +225,125 @@ class DestinatarioCreationView(DynamicCreation):
     form_class = DestinatarioForm
 
 
+class EstimateCreationView(DynamicCreation):
+    """
+        a través del contrato
+        url:
+        pmgt:pmgt_new_estimate
+    """
+    form_class = EstimateForm
+    model = Contrato
+    template_name = 'proyectos/estimate_form.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        fill_data = self.fill_concept_formset()
+        inlineform = estimateConceptInlineForm(count=self.concept_count)
+        generator_inline_concept = inlineform(initial=fill_data)
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  generator_inline_concept=generator_inline_concept,
+                                  )
+        )
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance and its inline
+        formsets with the passed POST variables and then checking them for
+        validity.
+        """
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def fill_concept_formset(self):
+        """
+        Aqui me quedé
+        """
+        project_instance = get_object_or_404(
+            Contrato,
+            pk=self.kwargs.get('pk'),
+            cliente__company=self.request.user.currently_at
+        )
+        concepts = Concept.objects.filter(project=project_instance).order_by('id')
+        data = [{'concept': x, 'cuantity_estimated': 0, 'concept_text_input': x.concept_text} for x in concepts]
+        self.concept_count = concepts.count()
+        return data
+
+    def get_initial(self):
+        initial_dict = super(EstimateCreationView, self).get_initial()
+
+        max_consecutive = Estimate._meta.model._default_manager.filter(
+            project=self.kwargs['pk']
+        ).aggregate(Max('consecutive'))['consecutive__max'] or 0
+        max_consecutive += 1
+
+        initial_dict['consecutive'] = max_consecutive
+        initial_dict['project'] = self.kwargs['pk']
+        initial_dict['draft_by'] = self.request.user
+        return initial_dict
+
+    def form_valid(self, form):
+        """
+        Called if all forms are valid. Creates EstimateForm instance along with the
+        associated Generator instances then redirects to success url
+        Args:
+            form: EstimateForm Form
+            generator_inline_concept
+
+        Returns: an HttpResponse to success url
+
+        """
+        form.save()
+        fill_data = self.fill_concept_formset()
+        inlineform = estimateConceptInlineForm(count=self.concept_count)
+        generator_inline_concept = inlineform(self.request.POST, instance=form.instance)
+        if generator_inline_concept.is_valid():
+            generator_inline_concept.save()
+        else:
+            return self.form_invalid(form, generator_inline_concept)
+        return super(EstimateCreationView, self).form_valid(form)
+
+    def form_invalid(self, form, generator_inline_concept):
+        """
+        Called if a form is invalid. Re-renders the context data with the
+        data-filled forms and errors.
+
+        Args:
+            form: EstimateForm Form
+            generator_inline_concept:
+        """
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  generator_inline_concept=generator_inline_concept
+                                  )
+        )
+        """
+        Pequeño Cambio en éste método cuando se presiona el botón "cancelar".
+        A little change in this method when the button "cancelar" is pressed.
+        """
+    def get_success_url(self):
+        url = reverse_lazy('pmgt:ContractDetail', kwargs={
+            'pk': self.kwargs['pk']
+        })
+        return url
+
+    def get_context_data(self, **kwargs):
+        context = super(EstimateCreationView, self).get_context_data(**kwargs)
+        context['project_instance'] = Contrato.objects.get(pk=self.kwargs['pk'])
+        return context
+
+
 class DynamicEdition(ProyectosMenuMixin, UpdateView):
     template_name = 'proyectos/creation_form.html'
 
@@ -358,6 +478,18 @@ class SitioAutocomplete(BaseAutocompleteView):
             )
         else:
             qs = Sitio.objects.none()
+        return qs
+
+
+class DestinatarioAutocomplete(BaseAutocompleteView):
+    def get_queryset(self):
+        if self.q:
+            qs = Destinatario.objects.filter(
+                destinatario_text__unaccent__icontains=self.q,
+                cliente__company=self.request.user.currently_at
+            )
+        else:
+            qs = Destinatario.objects.none()
         return qs
 
 

@@ -266,14 +266,6 @@ a:hover {
 .page_content {
 	margin: 20px 20px 0 20px;
 }
-
-table.estimate {
-	width: 100%;
-}
-
-table.estimate * {
-	padding: 5px;
-}
 /*FIN DE ESTILOS PARA MENÚ LATERAL*/
 
 /*ESTILOS PATA TABLAS*/
@@ -391,6 +383,66 @@ table.estimate * {
 	float: right;
 }
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
+/*ESTILOS PARA ESTIMACION*/
+table.estimate {
+	font-size: 12px;
+	width: 100%;
+	border-color: black;
+	border-style: double;
+	margin-bottom: 80px;
+}
+
+table.estimate * {
+	padding: 3px;
+}
+
+.cont_est_title {
+	text-align: center;
+	font-size: 12px;
+    font-family: "Playfair Display", serif;
+}
+
+.cont_est_data {
+	width: 90%;
+}
+
+.subrayado {
+	font-weight: normal;
+    border-style: solid;
+    border-width: 0 0 3px 0;
+}
+
+.subrayado_f {
+    border-style: solid;
+    border-width: 0 0 1px 0;
+}
+
+.center {
+	text-align: center;
+}
+
+.estimate > tbody > tr > td, .estimate > thead > tr > th {
+	border-style: solid;
+	border-width: 1px;
+}
+
+.cont_firma {
+	text-align: center;
+	display: inline-block;
+	width: 33%;
+}
+
+.cont_firma > p {
+	padding: 0;
+	margin: 0;
+}
+
+.cont_firma > div {
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+/*FIN DE ESTILOS PARA ESTIMACION*/
 /*FIN DE ESTILOS*/
 
 /*QUERYSETS*/
