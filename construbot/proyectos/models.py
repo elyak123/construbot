@@ -111,7 +111,6 @@ class Estimate(models.Model):
     """
         Model that represents the estimate
     """
-    # nombre = models.CharField(max_length=100)
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
     draft_by = models.ForeignKey(User, related_name='draft_by', on_delete=models.CASCADE)

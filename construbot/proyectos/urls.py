@@ -6,11 +6,6 @@ app_name = 'construbot.proyectos'
 
 urlpatterns = [
     url(
-        regex=r'^sample/estimacion/$',
-        view=views.EstimacionSample.as_view(),
-        name='sample_de_estimacion'
-    ),
-    url(
         regex=r'^listado/contratos/$',
         view=views.ContratoListView.as_view(),
         name='listado_de_contratos'
@@ -60,6 +55,11 @@ urlpatterns = [
         view=views.DestinatarioDetailView.as_view(),
         name='destinatario_detail'
     ),
+    url(
+        regex=r'^estimacion/detalle/(?P<pk>\d+)/$',
+        view=views.EstimateDetailView.as_view(),
+        name='estimate_detail'
+    ),
     url(regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
         name='nuevo_contrato'),
@@ -91,6 +91,10 @@ urlpatterns = [
     url(regex=r'^editar/sitio/(?P<pk>\d+)/$',
         view=views.SitioEditView.as_view(),
         name='editar_sitio'),
+
+    url(regex=r'^editar/estimacion/(?P<pk>\d+)$',
+        view=views.EstimateEditView.as_view(),
+        name='editar_estimacion'),
 
     url(regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
         view=views.DynamicDelete.as_view(),
