@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, TemplateView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max
 from django.db.models.functions import Lower
@@ -81,6 +81,9 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             'Destinatario': {
                 'cliente__company': self.request.user.currently_at
             },
+            'Estimate': {
+                'project__cliente__company': self.request.user.currently_at
+            },
         }
         return company_query[opcion]
 
@@ -100,10 +103,6 @@ class DynamicList(ProyectosMenuMixin, ListView):
         context = super(DynamicList, self).get_context_data(**kwargs)
         context['model'] = self.model.__name__
         return context
-
-
-class EstimacionSample(ProyectosMenuMixin, TemplateView):
-    template_name = 'proyectos/sample.html'
 
 
 class ContratoListView(DynamicList):
@@ -172,6 +171,10 @@ class DestinatarioDetailView(DynamicDetail):
     model = Destinatario
 
 
+class EstimateDetailView(DynamicDetail):
+    model = Estimate
+
+
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     form_class = ContratoForm
     template_name = 'proyectos/creation_form.html'
@@ -225,7 +228,7 @@ class DestinatarioCreationView(DynamicCreation):
     form_class = DestinatarioForm
 
 
-class EstimateCreationView(DynamicCreation):
+class EstimateCreationView(ProyectosMenuMixin, UpdateView):
     """
         a través del contrato
         url:
@@ -264,7 +267,10 @@ class EstimateCreationView(DynamicCreation):
         if form.is_valid():
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
+            fill_data = self.fill_concept_formset()
+            inlineform = estimateConceptInlineForm(count=self.concept_count)
+            generator_inline_concept = inlineform(initial=fill_data)
+            return self.form_invalid(form, generator_inline_concept)
 
     def fill_concept_formset(self):
         """
@@ -333,7 +339,7 @@ class EstimateCreationView(DynamicCreation):
         A little change in this method when the button "cancelar" is pressed.
         """
     def get_success_url(self):
-        url = reverse_lazy('pmgt:ContractDetail', kwargs={
+        url = reverse_lazy('proyectos:contrato_detail', kwargs={
             'pk': self.kwargs['pk']
         })
         return url
@@ -403,6 +409,53 @@ class SitioEditView(DynamicEdition):
 
 class DestinatarioEditView(DynamicEdition):
     form_class = DestinatarioForm
+
+
+class EstimateEditView(ProyectosMenuMixin, UpdateView):
+    template_name = 'proyectos/estimate_form.html'
+    model = Estimate
+
+    def get_object(self, queryset=None):
+        self.object = get_object_or_404(
+            self.model,
+            pk=self.kwargs['pk'],
+            project__cliente__company=self.request.user.currently_at
+        )
+        return self.object
+
+    def get_form_class(self):
+        return EstimateForm
+
+    def get_initial(self):
+        init_dict = {}
+        init_dict['draft_by'] = self.request.user
+        init_dict['project'] = self.kwargs['pk']
+        return super(EstimateEditView, self).get_initial()
+
+    def form_valid(self, form):
+        conceptformclass = estimateConceptInlineForm()
+        self.conceptForm = conceptformclass(self.request.POST, instance=self.object)
+        if self.conceptForm.is_valid():
+            self.conceptForm.save()
+            return super(EstimateEditView, self).form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(EstimateEditView, self).get_context_data(**kwargs)
+        project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
+        concept_set_count = project_instance.concept_set.all().count()
+        formset = estimateConceptInlineForm()
+        context['generator_inline_concept'] = formset(instance=self.object)
+        context['project_instance'] = project_instance
+        return context
+
+    def get_success_url(self):
+        project_id = Estimate.objects.get(pk=self.kwargs.get('pk')).project.id
+        url = reverse_lazy('proyectos:contrato_detail', kwargs={
+            'pk': project_id
+        })
+        return url
 
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):

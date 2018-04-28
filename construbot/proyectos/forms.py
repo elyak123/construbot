@@ -78,10 +78,10 @@ class EstimateForm(forms.ModelForm):
         cleaned_data = super(EstimateForm, self).clean()
         destinatarios_contratos_error_message = 'Destinatarios y contratos no pueden ser de empresas diferentes'
         for auth_by in cleaned_data['auth_by']:
-            if auth_by.company != cleaned_data['project'].cliente.company:
+            if auth_by.cliente.company != cleaned_data['project'].cliente.company:
                 raise forms.ValidationError(destinatarios_contratos_error_message)
         for auth_by_gen in cleaned_data['auth_by_gen']:
-            if auth_by.company != cleaned_data['project'].cliente.company:
+            if auth_by_gen.cliente.company != cleaned_data['project'].cliente.company:
                 raise forms.ValidationError(destinatarios_contratos_error_message)
         pago_sin_fecha_validation_error_message = 'Si la estimación fué pagada, es necesaria fecha de pago.'
         if self.cleaned_data['paid'] and not self.cleaned_data['payment_date']:

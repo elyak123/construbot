@@ -1,8 +1,38 @@
 {% extends 'base.html' %}
-{% load staticfiles %}
+{% load static %}
 {% load i18n %}
 {% load bootstrap4 %}
 {% load humanize %}
+{% block javascript %}
+	<script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
+	<script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
+	<script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
+	<script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
+	{#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
+	<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
+	<script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
+		for(var i=0; i<fecha.length; i++){
+			if(fecha[i].length>0){
+				var fecha_limpia = fecha[i][0].value.replace(/\[|\'|\]/g,'');
+				fecha[i].datetimepicker({'format':"YYYY-MM-DD"});
+				if (fecha_limpia){
+					fecha[i][0].value = fecha_limpia;
+				}
+			}
+		}
+	});
+	</script>
+{% endblock javascript %}
+
+{% block css %}
+	<link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
+	<link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
+	<link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
+{% endblock css %}
+
 {% block content %}
 {% language 'es' %}
 	<form role="form" method="post" class="form">
@@ -58,47 +88,4 @@
 		<button id="submitModal" type="submit" class="btn btn-primary">Guardar</button>
 	</form>
 {% endlanguage %}
-{% endblock %}
-{% block css %}
-	<link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
-	<link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
-	<link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
-{% endblock css %}
-{% block javascript %}
-	<script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
-	<script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-	<script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-	<script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-	{#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
-	<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-	<script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
-	<script type="text/javascript">
-	$(document).ready(function(){
-		var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
-		for(var i=0; i<fecha.length; i++){
-			if(fecha[i].length>0){
-				var fecha_limpia = fecha[i][0].value.replace(/\[|\'|\]/g,'');
-				fecha[i].datetimepicker({'format':"YYYY-MM-DD"});
-				if (fecha_limpia){
-					fecha[i][0].value = fecha_limpia;
-				}
-			}
-		}
-	});
-	</script>
-{% endblock javascript %}
-{% block scripts %}
-{% if form.management_form %}
-	<script type="text/javascript">
-	    <!--
-		var setPrefix = '{{ form.prefix }}';
-	    //-->
-	</script>
-{% elif generator_inline_concept.management_form %}
-	<script type="text/javascript">
-	    <!--
-		var setPrefix = '{{ generator_inline_concept.prefix }}';
-	    //-->
-	</script>
-{% endif %}
 {% endblock %}

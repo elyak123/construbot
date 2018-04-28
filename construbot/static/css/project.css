@@ -426,10 +426,13 @@ table.estimate * {
 	border-width: 1px;
 }
 
-.cont_firma {
+.cont_firmas {
 	text-align: center;
+}
+
+.cont_firma {
 	display: inline-block;
-	width: 33%;
+	width: 20%;
 }
 
 .cont_firma > p {

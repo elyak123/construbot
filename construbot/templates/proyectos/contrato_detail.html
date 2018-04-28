@@ -43,7 +43,7 @@
 	</table>
 </div>
 <br>
-<div class="cont_listado"><strong>Catálogo de conceptos </strong> <span class="oi oi-pencil"></span><span class="oi oi-chevron-bottom icon_right"></span><span class="oi oi-chevron-top icon_right-up"></span></div>
+<div class="cont_listado"><strong>Catálogo de conceptos </strong><a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><span class="oi oi-pencil"></span></a><span class="oi oi-chevron-bottom icon_right"></span><span class="oi oi-chevron-top icon_right-up"></span></div>
 <div class="cont_result" id="cont_result_concept">
 	<table class="table_results">
 		<tr>
@@ -58,7 +58,7 @@
 </div>
 {% if contrato.estimate_set.all %}
 	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
-	<table class="table_sample table_detalle_contrato">
+	<table class="table_sample table_normal">
 		<tr>
 			<th class="th_table_sample"> No. </th>
 			<th class="th_table_sample"> Nombre </th>
@@ -69,11 +69,11 @@
 	{% for estimacion in contrato.estimate_set.all %}
 		<tr>
 			<td class="td_table_sample">{{ estimacion.consecutive }}</td>
-			<td class="td_table_sample">{{ estimacion }}</td>
-			<td class="td_table_sample">{{ estimacion.total }}</td>
+			<td class="td_table_sample">Estimación {{ estimacion.consecutive }}</td>
+			<td class="td_table_sample">{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
 			<td class="td_table_sample">{{ estimacion.payment_date|date:"d/F/Y" }}</td>
 			<td class="td_table_sample">
-				<a href="">Editar</a> /
+				<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
 				<a href="">Eliminar</a>
 			</td>
 		</tr>

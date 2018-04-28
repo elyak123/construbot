@@ -42,7 +42,7 @@ $(document).ready(function(){
                         $(".table_results")[0].style.display = "inline-table";
                         for(i=1; i<=len; i++){
                             var row = $(".table_results")[0].insertRow(i);
-                            var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+result[i-1]["unit_price"]+"</td>";
+                            var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+"$ "+intcomma(result[i-1]["unit_price"])+"</td>";
                             row.innerHTML = row_content;
                         }
                     } else {
@@ -66,6 +66,17 @@ $(document).ready(function(){
             }
         });
     }
+
+    var intcomma = function(value) {
+        // inspired by django.contrib.humanize.intcomma, thanks to @banterabilitybanterability
+        var origValue = String(value);
+        var newValue = origValue.replace(/^(-?\d+)(\d{3})/, '$1,$2');
+        if (origValue == newValue){
+            return newValue;
+        } else {
+            return intcomma(newValue);
+        }
+    };
 
     function OnchangeEventHandler(event) {
         if(event.target.value){
