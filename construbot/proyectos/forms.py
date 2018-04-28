@@ -1,6 +1,8 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept, Destinatario
+from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept
+from django.forms import inlineformset_factory
+from django.core.exceptions import ObjectDoesNotExist
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
 
@@ -68,6 +70,146 @@ class DestinatarioForm(forms.ModelForm):
                 attrs={'data-minimum-input-length': 3}
             ),
         }
+
+
+class EstimateForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super(EstimateForm, self).clean()
+        destinatarios_contratos_error_message = 'Destinatarios y contratos no pueden ser de empresas diferentes'
+        for auth_by in cleaned_data['auth_by']:
+            if auth_by.company != cleaned_data['project'].cliente.company:
+                raise forms.ValidationError(destinatarios_contratos_error_message)
+        for auth_by_gen in cleaned_data['auth_by_gen']:
+            if auth_by.company != cleaned_data['project'].cliente.company:
+                raise forms.ValidationError(destinatarios_contratos_error_message)
+        pago_sin_fecha_validation_error_message = 'Si la estimación fué pagada, es necesaria fecha de pago.'
+        if self.cleaned_data['paid'] and not self.cleaned_data['payment_date']:
+            self.add_error('payment_date', pago_sin_fecha_validation_error_message)
+        return cleaned_data
+
+    class Meta:
+        model = Estimate
+        fields = '__all__'
+        exclude = ['estimate_concept']
+        labels = {
+            'consecutive': 'Consecutivo',
+            'descripcion': 'Descripción',
+            'supervised_by': 'Supervisado por:',
+            'start_date': 'Fecha de inicio',
+            'finish_date': 'Fecha de finalización',
+            'auth_by': 'Autorizado por [Estimación]:',
+            'auth_by_gen': 'Autorizado por [Generador]:',
+            'auth_date': 'Fecha de autorización',
+            'paid': '¿Pagada?',
+            'invoiced': '¿Facturada?',
+            'payment_date': 'Fecha de pago',
+        }
+        widgets = {
+            'consecutive': forms.TextInput(
+                attrs={'readonly': 'readonly'}
+            ),
+            'project': forms.HiddenInput(),
+            'draft_by': forms.HiddenInput(),
+            'start_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_start_date',
+                    'name': 'start_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'finish_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_finish_date',
+                    'name': 'finish_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'auth_by': autocomplete.ModelSelect2Multiple(
+                url='proyectos:destinatario-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                }
+            ),
+            'auth_by_gen': autocomplete.ModelSelect2Multiple(
+                url='proyectos:destinatario-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                }
+            ),
+            'auth_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_auth_date',
+                    'name': 'auth_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'payment_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_payment_date',
+                    'name': 'payment_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+        }
+
+
+class ConceptDummyWidget(forms.Textarea):
+    def render(self, name, value, attrs=None):
+        """
+            esto se queda asi.... todavia no se porque, espero que se sepa con
+            las pruebas de las vistas.
+        """
+        try:
+            value_instance = Concept.objects.get(pk=value)
+            self.value = value_instance
+        except:
+            self.value = str(Concept.objects.get(concept_text=value).id)
+            widget = forms.Select(choices=(self.value,))
+            return widget.render(name, self.value, attrs)
+        return super(ConceptDummyWidget, self).render(name, self.value, attrs)
+
+    def value_from_datadict(self, data, files, name):
+        """
+            Funcion que usa la vista, todavia para pasar los datos al render
+            en algunos casos es un numero, otros es texto, se maneja deacuerdo
+            a como venga.
+        """
+        data_name = data.get(name)
+        try:
+            value = str(Concept.objects.get(concept_text=data_name).id)
+            return value
+        except ObjectDoesNotExist:
+            if isinstance(data_name, int):
+                return data_name
+            else:
+                raise
+
+
+def estimateConceptInlineForm(count=0):
+    inlineform = inlineformset_factory(Estimate, EstimateConcept, fields=(
+        'concept',
+        'cuantity_estimated',
+        'observations'
+    ), max_num=count, extra=count, can_delete=False, widgets={
+        'concept': ConceptDummyWidget(attrs={'readonly': True}),
+        'cuantity_estimated': forms.TextInput(),
+        'observations': forms.Textarea(attrs={'rows': 3})
+    }, labels={
+        'concept': 'Concepto',
+        'cuantity_estimated': 'Cantidad estimada',
+        'observations': 'Observaciones'
+    })
+    return inlineform
+
 
 ContractConceptInlineForm = forms.inlineformset_factory(
     Contrato, Concept,
