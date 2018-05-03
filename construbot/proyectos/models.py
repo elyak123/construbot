@@ -130,6 +130,50 @@ class Estimate(models.Model):
             total=Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
         return total
 
+    def get_concept_total(self):
+        total_concept = self.concept_set.annotate(
+            total_concept_amount=Round(
+                F('total_cuantity') * F('unit_price')
+            ),).order_by('id')
+
+        lista = []
+        current_total_amount = 0
+        for concept in total_concept:
+            dicc = {}
+            current_total = concept.estimateconcept_set.filter(
+                estimate=self,
+            ).annotate(
+                current_amount=Round(
+                    F('cuantity_estimated') * F('concept__unit_price')
+                )
+            )
+            current_total_amount += current_total.first().current_amount
+            if self.consecutive > 1:
+                prev_est = concept.estimateconcept_set.filter(
+                    estimate__consecutive=self.consecutive - 1,
+                ).annotate(
+                    prev_amount=Round(
+                        F('cuantity_estimated') * F('concept__unit_price')
+                    )
+                )
+                dicc['prev_est'] = prev_est.first()
+
+            all_prev_est = concept.estimateconcept_set.filter(
+                estimate__consecutive__lte=self.consecutive,
+            ).aggregate(
+                all_prev_amount=Round(
+                    Sum(F('cuantity_estimated') * F('concept__unit_price'))
+                ),
+                all_prev_estimated=Round(
+                    Sum(F('cuantity_estimated'))
+                )
+            )
+            dicc['concept'] = concept
+            dicc['estimate_concept'] = current_total.first()
+            dicc['all_previous_est'] = all_prev_est
+            lista.append(dicc)
+        return lista
+
     class Meta:
         verbose_name = 'Estimacion'
         verbose_name_plural = 'Estimaciones'
