@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load humanize %}
 {% block title %}Some title{% endblock title %}
 {% block content %}
 {% language 'es' %}
@@ -11,14 +12,14 @@
 	<table class="estimate">
 		<thead>
 				<tr>
-					<th colspan="6">
+					<th colspan="7" style="border-style:none;">
 						<div class="cont_est_title">
-							<h3> {{ estimate.project.cliente.cliente_name }}</h3>
-							<h4> {{ estimate.project.contrato_name }} </h4>
+							<h4> {{ estimate.project.cliente.cliente_name }}</h4>
+							<p> El nombre largo de un contrato, llamado {{ estimate.project.contrato_name }} </p>
 							<p> Estimación de obra </p>
 						</div>
 					</th>
-					<th colspan="8">
+					<th colspan="5" style="border-style:none;">
 						<table class="cont_est_data">
 							<thead>
 								<tr>
@@ -47,7 +48,7 @@
 				</tr>		
 				<tr class="center">
 					<th rowspan="2">N°</th>
-					<th rowspan="2">CONCEPTOS DE OBRA</th>
+					<th rowspan="2" style="width: 400px;">CONCEPTOS DE OBRA</th>
 					<th colspan="4">CONTRATADO</th>
 					<th colspan="2">ESTIMADO ANTERIOR</th>
 					<th colspan="2">ESTIMADO A LA FECHA</th>
@@ -67,84 +68,41 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td>1</td>
-					<td>Recolección de muestras de agua: 1 en el Cárcamo I y 1 en el Cárcamo II  y 4 verticales sobre la pared de  la "La Noria" ubicada al sur de las escorias,  incluye la determinación en el laboratorio de Geoquímica de la UNAM de Pb, As y Cd por ICP-OES previa digestión acida de acuerdo al anexo normativo B de la NOM-147 en muestras filtradas y no-filtradas.</td>
-					<td>Metro2</td>
-					<td>100</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td>Recuperación de 3 muestras de escorias finas, incluye la determinación de Pb, As, y Cd por fluorescencia de Rayos X y la evaluación de la huella geoquímica de  las escorias por Microscopia Electrónica de Barrido.  Se incluyen 3 muestras de filtros de aire proporcionadas por el Dr. Ortega.</td>
-					<td>Metro2</td>
-					<td>100</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td>Análisis e integración de resultados, las incidencias y las problemáticas presentadas durante la ejecución de las obras de conservación y mantenimiento, así como las estrategias de solución implementadas.</td>
-					<td>Metro2</td>
-					<td>100</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td>Análisis e integración de resultados, las incidencias y las problemáticas presentadas durante la ejecución de las obras de conservación y mantenimiento, así como las estrategias de solución implementadas.</td>
-					<td>Metro2</td>
-					<td>100</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-					<td>$1,000,000.00</td>
-				</tr>
+				{% language 'en' %}
+				{% for concepto in estimate.get_concept_total %}
+					<tr>
+						<td> {{ concepto.concept.code }} </td>
+						<td> {{ concepto.concept.concept_text }} </td>
+						<td> {{ concepto.concept.unit.unit }} </td>
+						<td class="right"> {{ concepto.concept.total_cuantity }} </td>
+						<td class="right"> ${{ concepto.concept.unit_price }} </td>
+						<td class="right"> ${{ concepto.concept.total_concept_amount|floatformat:"2"|intcomma }}</td>
+						{% if concepto.prev_est %}
+							<td class="right"> {{ concepto.prev_est.cuantity_estimated }} </td>
+							<td class="right">${{ concepto.prev_est.prev_amount|floatformat:"2"|intcomma }}</td>
+						{% else %}
+							<td style="text-align: center;"> - </td>
+							<td style="text-align: center;"> - </td>
+						{% endif %}
+						<td class="right"> {{ concepto.all_previous_est.all_prev_estimated }} </td>
+						<td class="right"> ${{ concepto.all_previous_est.all_prev_amount|floatformat:"2"|intcomma }} </td>
+						<td class="right"> {{ concepto.estimate_concept.cuantity_estimated }} </td>
+						<td class="right"> ${{ concepto.estimate_concept.current_amount|floatformat:"2"|intcomma }} </td>
+					</tr>
+				{% endfor %}
+				{% endlanguage %}
 			</tbody>
 			<tfoot>
 				<tr>
-					<td class="cont_firmas" colspan="14">
-						<div class="cont_firma">
-							<p>Nombre 1</p>
-							<p>Puesto de trabajo de nombre 1</p>
-							<p>Empresa de nombre 1</p>
-							<div class="subrayado_f"></div>
-						</div>
-						<div class="cont_firma">
-							<p>Nombre 2</p>
-							<p>Puesto de trabajo de nombre 2</p>
-							<p>Empresa de nombre 2</p>
-							<div class="subrayado_f"></div>
-						</div>
-						<div class="cont_firma">
-							<p>Nombre 3</p>
-							<p>Puesto de trabajo de nombre 3</p>
-							<p>Empresa de nombre 3</p>
-							<div class="subrayado_f"></div>
-						</div>
+					<td class="cont_firmas" colspan="12">
+						{% for firma in estimate.auth_by.all %}
+							<div class="cont_firma">
+								<div class="subrayado_f"></div>
+								<p> {{ firma.destinatario_text }} </p>
+								<p> {% if firma.puesto %}{{ firma.puesto }}{% endif %} </p>
+								<p> {{ firma.cliente.company.company_name }} </p>
+							</div>
+						{% endfor %}
 					</td>
 				</tr>
 			</tfoot>

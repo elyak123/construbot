@@ -76,7 +76,7 @@ urlpatterns = [
         view=views.DestinatarioCreationView.as_view(),
         name='nuevo_destinatario'),
 
-    url(regex=r'^estimacion/nuevo/(?P<pk>\d+)$',
+    url(regex=r'^estimacion/nuevo/(?P<pk>\d+)/$',
         view=views.EstimateCreationView.as_view(),
         name='nueva_estimacion'),
 
@@ -92,7 +92,7 @@ urlpatterns = [
         view=views.SitioEditView.as_view(),
         name='editar_sitio'),
 
-    url(regex=r'^editar/estimacion/(?P<pk>\d+)$',
+    url(regex=r'^editar/estimacion/(?P<pk>\d+)/$',
         view=views.EstimateEditView.as_view(),
         name='editar_estimacion'),
 

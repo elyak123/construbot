@@ -16,10 +16,12 @@
 			<td class="td_table_sample">Nombre del destinatario</td>
 			<td class="td_table_sample">{{ destinatario.destinatario_text }}</td>
 		</tr>
+		{% if destinatario.puesto %}
 		<tr>
 			<td class="td_table_sample">Puesto</td>
 			<td class="td_table_sample">{{ destinatario.puesto }}</td>
 		</tr>
+		{% endif %}
 		<tr>
 			<td class="td_table_sample">Cliente</td>
 			<td class="td_table_sample">{{ destinatario.cliente.cliente_name }}</td>
