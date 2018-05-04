@@ -137,7 +137,15 @@ class Estimate(models.Model):
             ),).order_by('id')
 
         lista = []
+        dicc_totales = {}
+        resultado = {}
+        total_project_amount = total_concept.aggregate(total=Round(
+            Sum(
+                F('total_cuantity') * F('unit_price')
+            )))["total"]
         current_total_amount = 0
+        previous_total_amount = 0
+        historical_amount = 0
         for concept in total_concept:
             dicc = {}
             current_total = concept.estimateconcept_set.filter(
@@ -157,6 +165,7 @@ class Estimate(models.Model):
                     )
                 )
                 dicc['prev_est'] = prev_est.first()
+                previous_total_amount += prev_est.first().prev_amount
 
             all_prev_est = concept.estimateconcept_set.filter(
                 estimate__consecutive__lte=self.consecutive,
@@ -168,11 +177,18 @@ class Estimate(models.Model):
                     Sum(F('cuantity_estimated'))
                 )
             )
+            historical_amount += all_prev_est["all_prev_amount"]
             dicc['concept'] = concept
             dicc['estimate_concept'] = current_total.first()
             dicc['all_previous_est'] = all_prev_est
             lista.append(dicc)
-        return lista
+        dicc_totales['total_project_amount'] = total_project_amount
+        dicc_totales['current_total_amount'] = current_total_amount
+        dicc_totales['previous_total_amount'] = previous_total_amount
+        dicc_totales['historical_amount'] = historical_amount
+        resultado["conceptos"] = lista
+        resultado["totales"] = dicc_totales
+        return resultado
 
     class Meta:
         verbose_name = 'Estimacion'

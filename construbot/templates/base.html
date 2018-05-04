@@ -24,7 +24,7 @@
 
   <body>
 
-    <div class="cont_nav_navegacion">
+    <div class="cont_nav_navegacion d-print-none">
       <nav class="nav_navegacion">
         <a class="anchor_brand" href="{% url 'home' %}"> Construbot </a>
         <div class="cont_list_menu_nav">
@@ -49,7 +49,7 @@
       </nav>
     </div>
     {% if current_user.company.exists %}
-      <div class='div_miniform'>
+      <div class='div_miniform d-print-none'>
         <ul class="li_companies_list">
           <li>
             <p>Actualmente en:</p>
