@@ -471,4 +471,14 @@ table.estimate * {
 		display: none;
 	}
 }
+/*IMPRESIÓN DE ESTIMACIÓN*/
+@media print {
+    #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
+        display: none;
+    }
+
+    #cont_content {
+        margin: 0 !important;
+    }
+}
 /*FIN DE QUERYSETS*/
