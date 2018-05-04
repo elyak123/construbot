@@ -194,7 +194,7 @@ class ConceptDummyWidget(forms.Textarea):
                 raise
 
 
-imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept, extra=1, exclude=())
+imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept, extra=1, fields=('image',))
 
 
 class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
@@ -209,7 +209,6 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
                 form.prefix,
                 imageformset.get_default_prefix()
             ),
-            extra=1
         )
 
 
