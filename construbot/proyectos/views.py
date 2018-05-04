@@ -174,6 +174,13 @@ class DestinatarioDetailView(DynamicDetail):
 class EstimateDetailView(DynamicDetail):
     model = Estimate
 
+    def get_context_data(self, **kwargs):
+        context = super(EstimateDetailView, self).get_context_data(**kwargs)
+        conceptos = self.model.get_concept_total(self.object)
+        context["conceptos"] = conceptos["conceptos"]
+        context["totales"] = conceptos["totales"]
+        return context
+
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     form_class = ContratoForm

@@ -2,11 +2,11 @@
 
 {% load i18n %}
 {% load humanize %}
-{% block title %}Some title{% endblock title %}
+{% block title %} Estimación {{ estimate.consecutive|stringformat:"02d" }} {% endblock title %}
 {% block content %}
 {% language 'es' %}
 <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
-<h2 class="title"> Sample para estimacion </h2>
+<h2 class="title d-print-none"> Detalle de Estimación </h2>
 <br>
 <div class="cont_estimacion">
 	<table class="estimate">
@@ -32,7 +32,7 @@
 								</tr>
 								<tr>
 									<th>Estimación N°:</th>
-									<td class="subrayado"> {{ estimate.consecutive }} </td>
+									<td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
 								</tr>
 								<tr>
 									<th>Fecha:</th>
@@ -69,7 +69,7 @@
 			</thead>
 			<tbody>
 				{% language 'en' %}
-				{% for concepto in estimate.get_concept_total %}
+				{% for concepto in conceptos %}
 					<tr>
 						<td> {{ concepto.concept.code }} </td>
 						<td> {{ concepto.concept.concept_text }} </td>
@@ -90,6 +90,13 @@
 						<td class="right"> ${{ concepto.estimate_concept.current_amount|floatformat:"2"|intcomma }} </td>
 					</tr>
 				{% endfor %}
+				<tr>
+					<td class="right" colspan="2"><strong>Totales: </strong></td>
+					<td class="right" colspan="4"> ${{ totales.total_project_amount|floatformat:"2"|intcomma }} </td>
+					<td class="right" colspan="2"> ${{ totales.previous_total_amount|floatformat:"2"|intcomma }} </td>
+					<td class="right" colspan="2"> ${{ totales.historical_amount|floatformat:"2"|intcomma }} </td>
+					<td class="right" colspan="2"> ${{ totales.current_total_amount|floatformat:"2"|intcomma }} </td>
+				</tr>
 				{% endlanguage %}
 			</tbody>
 			<tfoot>
