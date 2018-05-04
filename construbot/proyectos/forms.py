@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept
+from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept
 from django.forms import inlineformset_factory
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -194,8 +194,27 @@ class ConceptDummyWidget(forms.Textarea):
                 raise
 
 
+imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept, extra=1, exclude=())
+
+
+class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super(BaseEstimateConceptInlineFormset, self).add_fields(form, index)
+
+        form.nested = imageformset(
+            instance=form.instance,
+            data=form.data if form.is_bound else None,
+            files=form.files if form.is_bound else None,
+            prefix='image-%s-%s' % (
+                form.prefix,
+                imageformset.get_default_prefix()
+            ),
+            extra=1
+        )
+
+
 def estimateConceptInlineForm(count=0):
-    inlineform = inlineformset_factory(Estimate, EstimateConcept, fields=(
+    inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
         'concept',
         'cuantity_estimated',
         'observations'
@@ -207,7 +226,7 @@ def estimateConceptInlineForm(count=0):
         'concept': 'Concepto',
         'cuantity_estimated': 'Cantidad estimada',
         'observations': 'Observaciones'
-    })
+    }, formset=BaseEstimateConceptInlineFormset)
     return inlineform
 
 

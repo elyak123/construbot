@@ -217,3 +217,8 @@ class EstimateConcept(models.Model):
 
     def __str__(self):
         return self.concept.concept_text + str(self.cuantity_estimated)
+
+
+class ImageEstimateConcept(models.Model):
+    image = models.ImageField(upload_to='hola/bla/')
+    estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
