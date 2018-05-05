@@ -178,6 +178,7 @@ class EstimateDetailView(DynamicDetail):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
         conceptos = self.model.get_concept_total(self.object)
         context["conceptos"] = conceptos["conceptos"]
+        context["conceptos_generador"] = conceptos["estimate_concept"]
         context["totales"] = conceptos["totales"]
         return context
 

@@ -187,6 +187,7 @@ class Estimate(models.Model):
         dicc_totales['previous_total_amount'] = previous_total_amount
         dicc_totales['historical_amount'] = historical_amount
         resultado["conceptos"] = lista
+        resultado["estimate_concept"] = self.estimateconcept_set.all()
         resultado["totales"] = dicc_totales
         return resultado
 

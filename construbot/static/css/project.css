@@ -71,7 +71,7 @@ a:hover {
 	display: none;
 }
 
-.form-horizontal .select2-container {
+.form-horizontal .select2-container, .form .select2-container {
 	min-width: 100% !important;
 	width: 100% !important;
 }
@@ -384,16 +384,20 @@ a:hover {
 }
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
-table.estimate {
+table.estimate, table.generator {
 	font-size: 11px;
 	width: 100%;
 	border-color: black;
 	border-style: double;
-	margin-bottom: 80px;
+	margin-bottom: 10px;
 }
 
-table.estimate * {
+table.estimate * , table.generator * {
 	padding: 4px;
+}
+
+.cont_est_gen {
+	text-align: center;
 }
 
 .cont_est_title {
@@ -429,9 +433,13 @@ table.estimate * {
 	text-align: center;
 }
 
-.estimate > tbody > tr > td, .estimate > thead > tr > th {
+.estimate > tbody > tr > td, .estimate > thead > tr > th, .generator > tbody > tr > td, .generator > thead > tr > th {
 	border-style: solid;
 	border-width: 1px;
+}
+
+.sin_borde {
+	border-style: none !important;
 }
 
 .cont_firmas {
@@ -461,6 +469,22 @@ table.estimate * {
 
 /*QUERYSETS*/
 /*PARA LA BARRA SUPERIOR*/
+
+@media print {
+    #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
+        display: none;
+    }
+
+    #cont_content {
+        margin: 2% 1% !important;
+    }
+
+    @page {
+	    size: auto;
+
+	 }
+}
+
 @media screen and (max-width: 400px){
   .anchor_menu_nav, .anchor_brand {
 	padding: 1.1em .4em;
@@ -472,13 +496,5 @@ table.estimate * {
 	}
 }
 /*IMPRESIÓN DE ESTIMACIÓN*/
-@media print {
-    #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
-        display: none;
-    }
 
-    #cont_content {
-        margin: 0 !important;
-    }
-}
 /*FIN DE QUERYSETS*/
