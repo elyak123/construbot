@@ -27,6 +27,32 @@ $(document).ready(function(){
     var little = false;
     var len = 0;
 
+    if("#estimate_appear"){
+        var boton_es = $("#estimate_appear");
+        var boton_gen = $("#generator_appear");
+        var estimacion = $(".cont_estimacion")[0]
+        var generador = $(".cont_generator")[0]
+        var print = $("#print_es");
+
+        boton_es.on("click", function(){
+            estimacion.style.display = "block";
+            generador.style.display = "none";
+            boton_es[0].classList.add("active");
+            boton_gen[0].classList.remove("active");
+        });
+
+        boton_gen.on("click", function(){
+            estimacion.style.display = "none";
+            generador.style.display = "block";
+            boton_es[0].classList.remove("active");
+            boton_gen[0].classList.add("active");
+        });
+
+        print.on("click", function(){
+            window.print();
+        });
+    }
+
     if($(".icon_right")){
         $(".icon_right").on("click", function(){
             var data_id = $("#dato")[0].getAttribute("data-id")

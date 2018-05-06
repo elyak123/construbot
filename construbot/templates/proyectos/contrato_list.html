@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load humanize %}
 {% block title %} Listado de Contratos en {{ request.user.currently_at.company_name }} {% endblock %}
 
 {% block content %}
@@ -15,7 +16,7 @@
 		<div class="div_list border_normal">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:contrato_detail' i.id %}">{{ i.folio }}. {{ i.contrato_name }}</h4></a>
 			<p class="p_div_list"><strong>Fecha: </strong> {{ i.fecha }} </p>
-			<p class="p_div_list"><strong>Monto: </strong> {{ i.monto }} </p>
+			<p class="p_div_list"><strong>Monto: </strong> ${% language 'en' %}{{ i.monto|intcomma }}{% endlanguage %} </p>
 			<a class="boton_edicion" href="{% url 'proyectos:editar_contrato' i.id %}">Editar</a> / 
 			<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="{{ model }}" data-id="{{ i.id }}" href="#">Eliminar</a>
 		</div>

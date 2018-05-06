@@ -8,6 +8,18 @@
 <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
 <h2 class="title d-print-none"> Detalle de Estimación </h2>
 <br>
+<ul class="nav nav-tabs nav-pills d-print-none">
+  <li class="nav-item">
+    <a id="estimate_appear" class="nav-link active" href="#">Estimación</a>
+  </li>
+  <li class="nav-item">
+    <a id="generator_appear" class="nav-link" href="#">Generador</a>
+  </li>
+  <li class="nav-item">
+    <a id="print_es" class="nav-link" href="#">Imprimir</a>
+  </li>
+</ul>
+<br>
 <div class="cont_estimacion">
 	<table class="estimate">
 		<thead>
@@ -72,7 +84,7 @@
 				{% for concepto in conceptos %}
 					<tr>
 						<td> {{ concepto.concept.code }} </td>
-						<td> {{ concepto.concept.concept_text }} </td>
+						<td> {{ concepto.concept.concept_text }} {% lorem 1 p %} </td>
 						<td> {{ concepto.concept.unit.unit }} </td>
 						<td class="right"> {{ concepto.concept.total_cuantity }} </td>
 						<td class="right"> ${{ concepto.concept.unit_price }} </td>
@@ -113,6 +125,117 @@
 					</td>
 				</tr>
 			</tfoot>
+	</table>
+</div>
+<div style="display:none;" class="cont_generator">
+	<table class="generator">
+		<thead>
+			<tr>
+				<th class="sin_borde" colspan="9">
+					<div class="cont_est_gen">
+						<h5> {{ estimate.project.cliente.cliente_name }} </h5>
+						<h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
+						<h4> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
+					</div>
+				</th>
+			</tr>
+			<tr>
+				<th class="sin_borde" colspan="3">
+					<table class="">
+						<tr>
+							<td>PROYECTO:</td>
+							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
+						</tr>
+						<tr>
+							<td>CONTRATO:</td>
+							<td class="subrayado"> {{ estimate.project.code }} </td>
+						</tr>
+						<tr>
+							<td>ÁREA</td>
+							<td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
+						</tr>
+					</table>
+				</th>
+				<th class="sin_borde" colspan="3"></th>
+				<th class="sin_borde" colspan="3">
+					<table class="">
+						<tr>
+							<td>PROYECTO:</td>
+							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
+						</tr>
+						<tr>
+							<td>CONTRATO:</td>
+							<td class="subrayado"> {{ estimate.project.code }} </td>
+						</tr>
+						<tr>
+							<td>ÁREA</td>
+							<td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
+						</tr>
+					</table>
+				</th>			
+			</tr>
+			<tr class="center">
+				<th rowspan="2">CÓDIGO</th>
+				<th rowspan="2" style="width: 400px;">DESCRIPCIÓN</th>
+				<th rowspan="2">LARGO</th>
+				<th rowspan="2">ANCHO</th>
+				<th rowspan="2">PIEZAS</th>
+				<th rowspan="2">KG/ML</th>
+				<th colspan="2">VOLUMEN EJECUTADO</th>
+				<th rowspan="2" style="width: 400px;">OBSERVACIONES</th>
+			</tr>
+			<tr class="center">
+				<th>CANTIDAD</th>
+				<th>UNIDAD</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% language 'en' %}
+			{% for concepto in conceptos_generador %}
+				<tr>
+					<td rowspan="2"> {{ concepto.concept.code }} </td>
+					<td>
+						<p>{{ concepto.concept.concept_text }}</p>
+						{% lorem 2 p %}
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td class="right"> {{ concepto.cuantity_estimated|intcomma }} </td>
+					<td style="text-align:center;"> {{ concepto.concept.unit.unit }} </td>
+					{% if concepto.observations %}
+						<td rowspan="2"> {{ concepto.observations }} </td>
+					{% else %}
+						<td rowspan="2">
+							<p> {% lorem 2 p %} </p>
+						</td>
+					{% endif %}
+				</tr>
+				<tr>
+					<td colspan="7">
+						<img style="width:45%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+						<img style="width:45%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+					</td>
+				</tr>
+			{% endfor %}
+			{% endlanguage %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td class="cont_firmas" colspan="9">
+					{% for firma in estimate.auth_by_gen.all %}
+						<div class="cont_firma">
+							<div class="subrayado_f"></div>
+							<p> {{ firma.destinatario_text }} </p>
+							<p> {% if firma.puesto %}{{ firma.puesto }}{% endif %} </p>
+							<p> {{ firma.cliente.company.company_name }} </p>
+						</div>
+					{% endfor %}
+				</td>
+			</tr>
+		</tfoot>
+		<tbody></tbody>
 	</table>
 </div>
 {% endlanguage %}

@@ -10,35 +10,35 @@
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle">
 		<tr>
-			<th colspan="2" class="th_table_sample">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
+			<th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Código de contrato</td>
-			<td class="td_table_sample">{{ contrato.code }}</td>
+			<td>Código de contrato</td>
+			<td>{{ contrato.code }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Nombre corto</td>
-			<td class="td_table_sample">{{ contrato.contrato_shortName }}</td>
+			<td>Nombre corto</td>
+			<td>{{ contrato.contrato_shortName }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Cliente</td>
-			<td class="td_table_sample">{{ contrato.cliente.cliente_name }}</td>
+			<td>Cliente</td>
+			<td>{{ contrato.cliente.cliente_name }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Sitio</td>
-			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
+			<td>Sitio</td>
+			<td>{{ contrato.sitio.sitio_name }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Monto sin IVA</td>
-			<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
+			<td>Monto sin IVA</td>
+			<td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Fecha de Firma</td>
-			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
+			<td>Fecha de Firma</td>
+			<td>{{ contrato.fecha|date:"d/F/Y" }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">¿Terminado?</td>
-			<td class="td_table_sample"><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
+			<td>¿Terminado?</td>
+			<td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
 		</tr>
 	</table>
 </div>
@@ -56,31 +56,38 @@
 	</table>
 	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
 </div>
-{% if contrato.estimate_set.all %}
+{% if contrato.estimate_set.exists %}
 	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
 	<table class="table_sample table_normal">
-		<tr>
-			<th class="th_table_sample"> No. </th>
-			<th class="th_table_sample"> Nombre </th>
-			<th class="th_table_sample"> Monto </th>
-			<th class="th_table_sample"> F. de Pago </th>
-			<th class="th_table_sample"> Editar </th>
-		</tr>
-	{% for estimacion in contrato.estimate_set.all %}
-		<tr>
-			<td class="td_table_sample">{{ estimacion.consecutive }}</td>
-			<td class="td_table_sample">Estimación {{ estimacion.consecutive }}</td>
-			<td class="td_table_sample">{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
-			<td class="td_table_sample">{{ estimacion.payment_date|date:"d/F/Y" }}</td>
-			<td class="td_table_sample">
-				<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
-				<a href="">Eliminar</a>
-			</td>
-		</tr>
-	{% endfor %}
+		<tbody>
+			<tr>
+				<th> No. </th>
+				<th> Nombre </th>
+				<th> Monto </th>
+				<th> F. de Pago </th>
+				<th> Editar </th>
+			</tr>
+		{% for estimacion in contrato.estimate_set.all %}
+			<tr>
+				<td>{{ estimacion.consecutive }}</td>
+				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
+				<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
+				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
+				<td>
+					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
+					<a href="">Eliminar</a>
+				</td>
+			</tr>
+		{% endfor %}
+			<tr>
+				<td colspan="5">
+					<a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crear estimación</a>
+				</td>
+			</tr>
+		</tbody>
 	</table>
 {% else %}
-	<h3> No existen estimaciones para este contrato aún. <a href="">Crea una aquí</a>.</h3>
+	<h3> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</h3>
 {% endif %}
 {% endlanguage %}
 {% endblock %}
