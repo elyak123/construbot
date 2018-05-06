@@ -22,7 +22,8 @@
             formset.setup({
                 prefix: setPrefix[i],
                 callbacks: callbacks,
-                form_selector: '.dynamic-form input[name="' + setPrefix[i] + ']"',
+                form_selector: '.set-' + i,
+                nested: true
             });
         }
     </script>
@@ -99,12 +100,12 @@
 
                         {% if frm.nested %}
                             {{ frm.nested.management_form }}
-                            <div class="dynamic-form">
+                            <div class="dynamic-form set-{{ forloop.counter0 }}">
                                 {{ frm.nested.non_form_errors }}
                                 {% for nested_form in frm.nested.forms %}
                                     {% bootstrap_form nested_form %}
-                                    <button class="add-form-row">agregar archivo</button>
-                            </div>        
+                            </div>
+                            <button class="add-form-row">agregar archivo</button>
                                 {% endfor %}
                         {% endif %}
                     </div>

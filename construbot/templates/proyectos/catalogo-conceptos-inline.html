@@ -76,7 +76,7 @@
   </table>
   <br>
   <div class="cont_buttons">
-      <a href="#" id="cancelar" data-dismiss="modal"><button class="btn">Cancelar</button></a>
+      <button class="btn"><a href="{% url 'proyectos:contrato_detail' pk=object.pk %}" id="cancelar" data-dismiss="modal">Cancelar</a></button>
       <button type="submit" class="btn btn-primary">Guardar</button>
   </div>
   </form>
