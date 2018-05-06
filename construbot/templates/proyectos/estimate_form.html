@@ -55,66 +55,38 @@
 {% language 'es' %}
     <form role="form" method="post" class="form">
         {% csrf_token  %}
-        {% if form.management_form %}
-            {{ form.management_form }}
-                {% for frm in form %}
-                    <div class="dynamic-form">
-                        <span class="glyphicon glyphicon-plus add-form-row" aria-hidden="true"></span>
-                        {{ frm }}
-                    </div>
-                {% endfor %}
-        {% else %}
             <h3>Projecto: {{ project_instance.contrato_shortName }}</h3>
             <div class='fila_par'>
                 <h4 style="margin: 0 0 10px 0;">Datos Generales de la Estimación.</h4>
                 {% bootstrap_form form %}
             </div>
-        {% endif%}
-        {% if generator_inline_concept.management_form %}
-            {{ generator_inline_concept.management_form }}
-                {% for frm in generator_inline_concept %}
-                    <div class="{% cycle 'fila_impar' 'fila_par' %}">
-                        <div style="text-align: center;">
-                            <h4>Concepto: 
-                            {% comment %}
-                                Analizar este codigo... operation es una variable que existía en
-                                oficios, por eso no aparece el codigo del concepto en el formulario.
-                            {% endcomment %}
-                                {% if operation == 'Create' %}
-                                    {% for obj in generator_inline_concept.initial_extra %}
-                                        {% if obj.concept.id == frm.concept.value %}
-                                            {{ obj.concept.code }}
-                                        {% endif %}
-                                    {% empty %}
-                                        S/N
-                                    {% endfor %}
-                                {% else %}
-                                    {{ frm.instance.concept.code }}
-                                {% endif %}
-                            </h4>
-                        </div>
-                        {{ frm.id }}
-                        {% bootstrap_field frm.concept %}
-                        {% bootstrap_field frm.cuantity_estimated %}
-                        {% bootstrap_field frm.observations %}
+        {{ generator_inline_concept.management_form }}
+        {% for frm in generator_inline_concept %}
+            <div class="{% cycle 'fila_impar' 'fila_par' %}">
+                <div style="text-align: center;">
+                    <h4>Concepto: {{ frm.concept.value }}</h4>
+                </div>
+                {{ frm.id }}
+                {% bootstrap_field frm.concept %}
+                {% bootstrap_field frm.cuantity_estimated %}
+                {% bootstrap_field frm.observations %}
 
-                        {% if frm.nested %}
-                            {{ frm.nested.management_form }}
-                            <div class="dynamic-form set-{{ forloop.counter0 }}">
-                                {{ frm.nested.non_form_errors }}
-                                {% for nested_form in frm.nested.forms %}
-                                    {% bootstrap_form nested_form %}
-                            </div>
-                            <button class="add-form-row">agregar archivo</button>
-                                {% endfor %}
-                        {% endif %}
+                {% if frm.nested %}
+                    {{ frm.nested.management_form }}
+                    <div class="dynamic-form set-{{ forloop.counter0 }}">
+                        {{ frm.nested.non_form_errors }}
+                        {% for nested_form in frm.nested.forms %}
+                            {% bootstrap_form nested_form %}
                     </div>
-                {% endfor %}
-        {% endif %}
-        {% if pk %}
-        <a href="{% url 'pmgt:ContractDetail' pk=project_instance.id %}" id="cancelar" class="btn btn-default" data-dismiss="modal">Cancelar</a>
-        {% endif %}
-        <button id="submitModal" type="submit" class="btn btn-primary">Guardar</button>
+                    <button class="add-form-row">agregar archivo</button>
+                        {% endfor %}
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="cont_buttons">
+            <button class="btn"><a href="{% url 'proyectos:contrato_detail' pk=object.pk %}" id="cancelar" data-dismiss="modal">Cancelar</a></button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
     </form>
 {% endlanguage %}
 {% endblock %}

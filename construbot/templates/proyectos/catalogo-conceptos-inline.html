@@ -36,10 +36,6 @@
   </button>
   <br>
   <br>
-  {% comment %}
-
-  {% bootstrap_formset form %}
-  {% endcomment %}
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
   {{ form.non_form_errors.as_ul }}
