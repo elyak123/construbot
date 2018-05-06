@@ -10,6 +10,22 @@
     <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block javascript %}
+    <script type="text/javascript">
+        var setPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+    </script>
+    <script src="{% static 'js/inlineform.js' %}"></script>
+    <script type="text/javascript">
+        var fileSets = document.getElementsByClassName('dynamic-form');
+        var formset = undefined;
+        for(var i = 0; i<fileSets.length; i++){
+            formset = new Formset();
+            formset.setup({
+                prefix: setPrefix[i],
+                callbacks: callbacks,
+                //form_selector: '.dynamic-form input[name="' + setPrefix[i]l + '"',
+            });
+        }
+    </script>
     <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
@@ -18,20 +34,20 @@
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
     <script type="text/javascript">
-    $(document).ready(function(){
-        var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
-        for(var i=0; i<fecha.length; i++){
-            if(fecha[i].length>0){
-                var fecha_limpia = fecha[i][0].value.replace(/\[|\'|\]/g,'');
-                var padre = fecha[i].parent();
-                padre[0].style.position = 'relative';
-                if (fecha_limpia){
-                    fecha[i][0].value = fecha_limpia;
+        $(document).ready(function(){
+            var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
+            for(var i=0; i<fecha.length; i++){
+                if(fecha[i].length>0){
+                    var fecha_limpia = fecha[i][0].value.replace(/\[|\'|\]/g,'');
+                    var padre = fecha[i].parent();
+                    padre[0].style.position = 'relative';
+                    if (fecha_limpia){
+                        fecha[i][0].value = fecha_limpia;
+                    }
+                    fecha[i].datetimepicker({'format':"YYYY-MM-DD"});
                 }
-                fecha[i].datetimepicker({'format':"YYYY-MM-DD"});
             }
-        }
-    });
+        });
     </script>
 {% endblock javascript %}
 {% block content %}
@@ -56,7 +72,7 @@
         {% if generator_inline_concept.management_form %}
             {{ generator_inline_concept.management_form }}
                 {% for frm in generator_inline_concept %}
-                    <div class="dynamic-form {% cycle 'fila_impar' 'fila_par' %}">
+                    <div class="{% cycle 'fila_impar' 'fila_par' %}">
                         <div style="text-align: center;">
                             <h4>Concepto: 
                             {% comment %}
@@ -78,24 +94,19 @@
                         </div>
                         {{ frm.id }}
                         {% bootstrap_field frm.concept %}
-                        {#{% bootstrap_field frm.concept_text_input layout='horizontal' %} #}
                         {% bootstrap_field frm.cuantity_estimated %}
                         {% bootstrap_field frm.observations %}
 
-
                         {% if frm.nested %}
                             {{ frm.nested.management_form }}
-                            {{ frm.nested.non_form_errors }}
-                            {% for nested_form in frm.nested.forms %}
-                                {% bootstrap_form nested_form %}
-                                
-                            {% endfor %}
+                            <div class="dynamic-form">
+                                {{ frm.nested.non_form_errors }}
+                                {% for nested_form in frm.nested.forms %}
+                                    {% bootstrap_form nested_form %}
+                                    <button class="add-form-row">agregar archivo</button>
+                            </div>        
+                                {% endfor %}
                         {% endif %}
-
-
-                        {# {{ frm.concept }} #}
-                        {# {{ frm.concept_text_input }} #}
-                        {# {{ frm.cuantity_estimated }} #}
                     </div>
                 {% endfor %}
         {% endif %}

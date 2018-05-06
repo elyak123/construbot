@@ -189,14 +189,14 @@
                 $(form).removeClass('light');
         }
     };
-    if($('.dynamic-form').length > 0){
-        var formset = new Formset();
+    // if($('.dynamic-form').length > 0){
+    //     var formset = new Formset();
 
-        formset.setup({
-            prefix: setPrefix,
-            callbacks: callbacks
-        });
-    }
+    //     formset.setup({
+    //         prefix: setPrefix,
+    //         callbacks: callbacks
+    //     });
+    // }
 
 
 // });

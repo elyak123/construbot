@@ -205,7 +205,7 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
             instance=form.instance,
             data=form.data if form.is_bound else None,
             files=form.files if form.is_bound else None,
-            prefix='image-%s-%s' % (
+            prefix='%s-%s' % (
                 form.prefix,
                 imageformset.get_default_prefix()
             ),

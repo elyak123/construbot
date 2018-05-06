@@ -10,6 +10,14 @@
     var setPrefix = '{{ form.prefix }}';
   </script>
   <script src="{% static 'js/inlineform.js' %}"></script>
+  <script type="text/javascript">
+    var formset = new Formset();
+
+    formset.setup({
+        prefix: setPrefix,
+        callbacks: callbacks
+    });
+  </script>
   <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
   <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>

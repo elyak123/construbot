@@ -256,9 +256,11 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
         fill_data = self.fill_concept_formset()
         inlineform = estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(initial=fill_data)
+        image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
             self.get_context_data(form=form,
                                   generator_inline_concept=generator_inline_concept,
+                                  image_formset_prefix=image_formset_prefix,
                                   )
         )
 
@@ -451,9 +453,11 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
-        concept_set_count = project_instance.concept_set.all().count()
-        formset = estimateConceptInlineForm()
-        context['generator_inline_concept'] = formset(instance=self.object)
+        # concept_set_count = project_instance.concept_set.all().count()
+        formset = estimateConceptInlineForm()(instance=self.object)
+        image_formset_prefix = [x.nested.prefix for x in formset.forms]
+        context['generator_inline_concept'] = formset
+        context['image_formset_prefix'] = image_formset_prefix
         context['project_instance'] = project_instance
         return context
 
