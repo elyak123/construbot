@@ -237,19 +237,14 @@ class DestinatarioCreationView(DynamicCreation):
 
 
 class EstimateCreationView(ProyectosMenuMixin, UpdateView):
-    """
-        a través del contrato
-        url:
-        pmgt:pmgt_new_estimate
-    """
     form_class = EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
 
     def get(self, request, *args, **kwargs):
         """
-        Handles GET requests and instantiates blank versions of the form
-        and its inline formsets.
+            Handles GET requests and instantiates blank versions of the form
+            and its inline formsets.
         """
         self.object = None
         form_class = self.get_form_class()
@@ -266,26 +261,18 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
         )
 
     def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating a form instance and its inline
-        formsets with the passed POST variables and then checking them for
-        validity.
-        """
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
+        fill_data = self.fill_concept_formset()
         if form.is_valid():
             return self.form_valid(form)
         else:
-            fill_data = self.fill_concept_formset()
             inlineform = estimateConceptInlineForm(count=self.concept_count)
             generator_inline_concept = inlineform(initial=fill_data)
             return self.form_invalid(form, generator_inline_concept)
 
     def fill_concept_formset(self):
-        """
-        Aqui me quedé
-        """
         project_instance = get_object_or_404(
             Contrato,
             pk=self.kwargs.get('pk'),
@@ -310,44 +297,26 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
         return initial_dict
 
     def form_valid(self, form):
-        """
-        Called if all forms are valid. Creates EstimateForm instance along with the
-        associated Generator instances then redirects to success url
-        Args:
-            form: EstimateForm Form
-            generator_inline_concept
-
-        Returns: an HttpResponse to success url
-
-        """
-        form.save()
-        fill_data = self.fill_concept_formset()
         inlineform = estimateConceptInlineForm(count=self.concept_count)
-        generator_inline_concept = inlineform(self.request.POST, instance=form.instance)
+        generator_inline_concept = inlineform(
+            self.request.POST,
+            self.request.FILES,
+            instance=form.instance
+        )
         if generator_inline_concept.is_valid():
+            import pdb; pdb.set_trace()
             generator_inline_concept.save()
+            return super(EstimateCreationView, self).form_valid(form)
         else:
             return self.form_invalid(form, generator_inline_concept)
-        return super(EstimateCreationView, self).form_valid(form)
 
     def form_invalid(self, form, generator_inline_concept):
-        """
-        Called if a form is invalid. Re-renders the context data with the
-        data-filled forms and errors.
-
-        Args:
-            form: EstimateForm Form
-            generator_inline_concept:
-        """
         return self.render_to_response(
             self.get_context_data(form=form,
                                   generator_inline_concept=generator_inline_concept
                                   )
         )
-        """
-        Pequeño Cambio en éste método cuando se presiona el botón "cancelar".
-        A little change in this method when the button "cancelar" is pressed.
-        """
+
     def get_success_url(self):
         url = reverse_lazy('proyectos:contrato_detail', kwargs={
             'pk': self.kwargs['pk']
@@ -443,8 +412,13 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         return super(EstimateEditView, self).get_initial()
 
     def form_valid(self, form):
+        form.save()
         conceptformclass = estimateConceptInlineForm()
-        self.conceptForm = conceptformclass(self.request.POST, instance=self.object)
+        self.conceptForm = conceptformclass(
+            self.request.POST,
+            self.request.FILES,
+            instance=self.object
+        )
         if self.conceptForm.is_valid():
             self.conceptForm.save()
             return super(EstimateEditView, self).form_valid(form)
@@ -454,7 +428,6 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
-        # concept_set_count = project_instance.concept_set.all().count()
         formset = estimateConceptInlineForm()(instance=self.object)
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
         context['generator_inline_concept'] = formset
