@@ -31,7 +31,6 @@
     <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-    {#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
     <script type="text/javascript">
@@ -65,9 +64,7 @@
         {{ generator_inline_concept.management_form }}
         {% for frm in generator_inline_concept %}
             <div class="{% cycle 'fila_impar' 'fila_par' %}">
-                <div style="text-align: center;">
-                    <h4>Concepto: {{ frm.concept.value }}</h4>
-                </div>
+                <div style="text-align: center;"><h4>Concepto: {{ frm.concept.value }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.cuantity_estimated %}
@@ -75,14 +72,16 @@
 
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
-                    <div class="dynamic-form set-{{ forloop.counter0 }}">
+                    <div class="dynamic-form">
                         {{ frm.nested.non_form_errors }}
                         {% for nested_form in frm.nested.forms %}
-                            {% bootstrap_form_errors nested_form %}
-                            {% bootstrap_form nested_form %}
-                    </div>
-                    <button class="add-form-row">agregar archivo</button>
+                            <div class="set-{{ forloop.parentloop.counter0 }}">
+                                {% bootstrap_form_errors nested_form %}
+                                {% bootstrap_form nested_form %}
+                            </div>
                         {% endfor %}
+                        <button type="button" class="add-form-row">agregar archivo</button>
+                    </div>
                 {% endif %}
             </div>
         {% endfor %}
