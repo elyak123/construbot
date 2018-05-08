@@ -476,7 +476,7 @@ table.estimate * , table.generator * {
     }
 
     #cont_content {
-        margin: 2% 1% !important;
+        margin: 0 !important;
     }
 
     @page {
