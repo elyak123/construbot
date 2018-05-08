@@ -214,9 +214,9 @@
 				</tr>
 				<tr>
 					<td colspan="7">
-						{% if concepto.imageestimateconcept.all.exists %}
-							{% for image in concepto.imageestimateconcept.all %}
-								<img style="width:32%" src="{{ image.image }}">
+						{% if concepto.imageestimateconcept_set.all.exists %}
+							{% for image in concepto.imageestimateconcept_set.all %}
+								<img style="width:32%" src="{{ image.image.url }}">
 							{% endfor %}
 						{% else %}
 								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
