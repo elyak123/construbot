@@ -167,7 +167,11 @@
                 e.preventDefault();
                 formset.delete_form(this);
             });
-            $('.add-form-row').click( function(e) {
+            var addEventTarget = $('.add-form-row');
+            if(formset.nested){
+                addEventTarget = $(formset.form_selector).siblings('.add-form-row');
+            }
+            addEventTarget.click( function(e) {
                 e.preventDefault();
                 formset.add_form();
             });
@@ -189,14 +193,14 @@
                 $(form).removeClass('light');
         }
     };
-    if($('.dynamic-form').length > 0){
-        var formset = new Formset();
+    // if($('.dynamic-form').length > 0){
+    //     var formset = new Formset();
 
-        formset.setup({
-            prefix: setPrefix,
-            callbacks: callbacks
-        });
-    }
+    //     formset.setup({
+    //         prefix: setPrefix,
+    //         callbacks: callbacks
+    //     });
+    // }
 
 
 // });

@@ -31,7 +31,6 @@
     <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-    {#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
     <script type="text/javascript">
@@ -65,9 +64,7 @@
         {{ generator_inline_concept.management_form }}
         {% for frm in generator_inline_concept %}
             <div class="{% cycle 'fila_impar' 'fila_par' %}">
-                <div style="text-align: center;">
-                    <h4>Concepto: {{ frm.concept.value }}</h4>
-                </div>
+                <div style="text-align: center;"><h4>Concepto: {{ frm.concept.value }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.cuantity_estimated %}
@@ -75,28 +72,16 @@
 
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
-                    <div class="dynamic-form set-{{ forloop.counter0 }}">
+                    <div class="dynamic-form">
                         {{ frm.nested.non_form_errors }}
                         {% for nested_form in frm.nested.forms %}
-                            <div class="form-group">
-                                <div class="mb-3 input-group">
-                                    <div class="custom-file">
-                                        <input type="file" name="estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-image" class="custom-file-input" title="" id="id_estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-image">
-                                        <label class="custom-file-label" for="id_estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-image">Image</label>
-                                    </div>
-                                </div>
+                            <div class="set-{{ forloop.parentloop.counter0 }}">
+                                {% bootstrap_form_errors nested_form %}
+                                {% bootstrap_form nested_form %}
                             </div>
-                            <input type="hidden" name="estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-id" id="id_estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-id">
-                            <div class="form-group">
-                                <div class="checkbox">
-                                    <label for="id_estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-DELETE">
-                                    <input type="checkbox" name="estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-DELETE" class="" id="id_estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-DELETE"> Eliminar</label>
-                                </div>
-                            </div>
-                            <input type="hidden" name="estimateconcept_set-{{ forloop.counter0 }}-imageestimateconcept_set-0-estimateconcept" value="{{ forloop.counter }}" id="id_estimateconcept_set-3-imageestimateconcept_set-0-estimateconcept">
-                    </div>
-                    <button class="add-form-row">agregar archivo</button>
                         {% endfor %}
+                        <button type="button" class="add-form-row">agregar archivo</button>
+                    </div>
                 {% endif %}
             </div>
         {% endfor %}
