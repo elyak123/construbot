@@ -213,10 +213,16 @@
 					{% endif %}
 				</tr>
 				<tr>
-					<td colspan="7">
+					<td colspan="7" style="text-align: center;">
 						{% if concepto.imageestimateconcept_set.all.exists %}
 							{% for image in concepto.imageestimateconcept_set.all %}
-								<img style="max-height: 500px;max-width: 32%;" src="{{ image.image.url }}">
+								{% if concepto.imageestimateconcept_set.all.count == 1 %}
+									<img style="height: 500px;max-width: 100%;" src="{{ image.image.url }}">
+								{% elif concepto.imageestimateconcept_set.all.count == 2 %}
+									<img style="max-width: 49%;" src="{{ image.image.url }}">
+								{% else %}
+									<img style="max-width: 32%;" src="{{ image.image.url }}">
+								{% endif %}
 							{% endfor %}
 						{% else %}
 								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
