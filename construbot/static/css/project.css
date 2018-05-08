@@ -437,7 +437,9 @@ table.estimate * , table.generator * {
 	border-style: solid;
 	border-width: 1px;
 }
-
+.generatorDescription{
+	height: 180px;
+}
 .sin_borde {
 	border-style: none !important;
 }

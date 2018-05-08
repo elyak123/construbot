@@ -133,22 +133,22 @@
 			<tr>
 				<th class="sin_borde" colspan="9">
 					<div class="cont_est_gen">
-						<h5> {{ estimate.project.cliente.cliente_name }} </h5>
+						<h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
 						<h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
 						<h4> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
 					</div>
 				</th>
 			</tr>
 			<tr>
-				<th class="sin_borde" colspan="3">
-					<table class="">
+				<th class="sin_borde" colspan="5">
+					<table class="" style="width: 100%;">
 						<tr>
 							<td>PROYECTO:</td>
 							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
 						</tr>
 						<tr>
 							<td>CONTRATO:</td>
-							<td class="subrayado"> {{ estimate.project.code }} </td>
+							<td class="subrayado" style="width: 200%;"> {{ estimate.project.code }} </td>
 						</tr>
 						<tr>
 							<td>ÁREA:</td>
@@ -156,7 +156,7 @@
 						</tr>
 					</table>
 				</th>
-				<th class="sin_borde" colspan="3"></th>
+				<th class="sin_borde" colspan="1"></th>
 				<th class="sin_borde" colspan="3">
 					<table class="">
 						<tr>
@@ -194,7 +194,7 @@
 			{% for concepto in conceptos_generador %}
 				<tr>
 					<td rowspan="2"> {{ concepto.concept.code }} </td>
-					<td>
+					<td class="generatorDescription">
 						<p>{{ concepto.concept.concept_text }}</p>
 						{% lorem 1 p %}
 					</td>
@@ -216,7 +216,7 @@
 					<td colspan="7">
 						{% if concepto.imageestimateconcept_set.all.exists %}
 							{% for image in concepto.imageestimateconcept_set.all %}
-								<img style="width:32%" src="{{ image.image.url }}">
+								<img style="max-height: 500px;max-width: 32%;" src="{{ image.image.url }}">
 							{% endfor %}
 						{% else %}
 								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
