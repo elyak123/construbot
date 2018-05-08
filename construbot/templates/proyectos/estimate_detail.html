@@ -7,7 +7,7 @@
 {% language 'es' %}
 <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
 <h2 class="title d-print-none"> Detalle de Estimación </h2>
-<br>
+<br class="d-print-none">
 <ul class="nav nav-tabs nav-pills d-print-none">
   <li class="nav-item">
     <a id="estimate_appear" class="nav-link active" href="#">Estimación</a>
@@ -19,7 +19,7 @@
     <a id="print_es" class="nav-link" href="#">Imprimir</a>
   </li>
 </ul>
-<br>
+<br class="d-print-none">
 <div class="cont_estimacion">
 	<table class="estimate">
 		<thead>
@@ -60,7 +60,7 @@
 				</tr>		
 				<tr class="center">
 					<th rowspan="2">N°</th>
-					<th rowspan="2" style="width: 400px;">CONCEPTOS DE OBRA</th>
+					<th rowspan="2" style="width: 500px;">CONCEPTOS DE OBRA</th>
 					<th colspan="4">CONTRATADO</th>
 					<th colspan="2">ESTIMADO ANTERIOR</th>
 					<th colspan="2">ESTIMADO A LA FECHA</th>
@@ -151,7 +151,7 @@
 							<td class="subrayado"> {{ estimate.project.code }} </td>
 						</tr>
 						<tr>
-							<td>ÁREA</td>
+							<td>ÁREA:</td>
 							<td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
 						</tr>
 					</table>
@@ -160,29 +160,29 @@
 				<th class="sin_borde" colspan="3">
 					<table class="">
 						<tr>
-							<td>PROYECTO:</td>
-							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
+							<td>CONTRATISTA:</td>
+							<td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
 						</tr>
 						<tr>
-							<td>CONTRATO:</td>
-							<td class="subrayado"> {{ estimate.project.code }} </td>
+							<td>PERIODO:</td>
+							<td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
 						</tr>
 						<tr>
-							<td>ÁREA</td>
-							<td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
+							<td>PLANOS:</td>
+							<td class="subrayado"> - </td>
 						</tr>
 					</table>
 				</th>			
 			</tr>
 			<tr class="center">
 				<th rowspan="2">CÓDIGO</th>
-				<th rowspan="2" style="width: 400px;">DESCRIPCIÓN</th>
+				<th rowspan="2" style="width: 600px;">DESCRIPCIÓN</th>
 				<th rowspan="2">LARGO</th>
 				<th rowspan="2">ANCHO</th>
 				<th rowspan="2">PIEZAS</th>
 				<th rowspan="2">KG/ML</th>
 				<th colspan="2">VOLUMEN EJECUTADO</th>
-				<th rowspan="2" style="width: 400px;">OBSERVACIONES</th>
+				<th rowspan="2" style="width: 600px;">OBSERVACIONES</th>
 			</tr>
 			<tr class="center">
 				<th>CANTIDAD</th>
@@ -208,15 +208,21 @@
 						<td rowspan="2"> {{ concepto.observations }} </td>
 					{% else %}
 						<td rowspan="2">
-							<p> {% lorem 2 p %} </p>
+							<p> {% lorem 1 p %} </p>
 						</td>
 					{% endif %}
 				</tr>
 				<tr>
 					<td colspan="7">
-						<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
-						<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
-						<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+						{% if concepto.imageestimateconcept.all.exists %}
+							{% for image in concepto.imageestimateconcept.all %}
+								<img style="width:32%" src="{{ image.image }}">
+							{% endfor %}
+						{% else %}
+								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
+						{% endif %}
 					</td>
 				</tr>
 			{% endfor %}

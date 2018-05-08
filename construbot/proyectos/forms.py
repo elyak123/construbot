@@ -198,6 +198,7 @@ imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept
 
 
 class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
+
     def add_fields(self, form, index):
         super(BaseEstimateConceptInlineFormset, self).add_fields(form, index)
 
@@ -210,6 +211,22 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
                 imageformset.get_default_prefix()
             ),
         )
+
+    def is_valid(self):
+        result = super(BaseEstimateConceptInlineFormset, self).is_valid()
+        if self.is_bound:
+            for form in self.forms:
+                if hasattr(form, 'nested'):
+                    nested_validity = form.nested.is_valid()
+                    result = result and nested_validity
+        return result
+
+    def save(self, commit=True):
+        result = super(BaseEstimateConceptInlineFormset, self).save(commit=commit)
+        for form in self.forms:
+            if hasattr(form, 'nested'):
+                form.nested.save(commit=commit)
+        return result
 
 
 def estimateConceptInlineForm(count=0):

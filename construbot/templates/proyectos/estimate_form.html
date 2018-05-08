@@ -53,11 +53,13 @@
 {% endblock javascript %}
 {% block content %}
 {% language 'es' %}
-    <form role="form" method="post" class="form">
+    <form role="form" method="post" class="form" enctype="multipart/form-data">
         {% csrf_token  %}
             <h3>Projecto: {{ project_instance.contrato_shortName }}</h3>
             <div class='fila_par'>
                 <h4 style="margin: 0 0 10px 0;">Datos Generales de la Estimación.</h4>
+                {{ form.non_form_errors }}
+                {% bootstrap_form_errors form %}
                 {% bootstrap_form form %}
             </div>
         {{ generator_inline_concept.management_form }}
@@ -76,7 +78,6 @@
                     <div class="dynamic-form set-{{ forloop.counter0 }}">
                         {{ frm.nested.non_form_errors }}
                         {% for nested_form in frm.nested.forms %}
-                            {# {% bootstrap_form nested_form %} #}
                             <div class="form-group">
                                 <div class="mb-3 input-group">
                                     <div class="custom-file">
@@ -100,7 +101,7 @@
             </div>
         {% endfor %}
         <div class="cont_buttons">
-            <button class="btn"><a href="{% url 'proyectos:contrato_detail' pk=object.pk %}" id="cancelar" data-dismiss="modal">Cancelar</a></button>
+            <button class="btn"><a href="{% url 'proyectos:contrato_detail' pk=project_instance.pk %}" id="cancelar" data-dismiss="modal">Cancelar</a></button>
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
