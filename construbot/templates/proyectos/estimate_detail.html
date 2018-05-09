@@ -217,11 +217,20 @@
 						{% if concepto.imageestimateconcept_set.all.exists %}
 							{% for image in concepto.imageestimateconcept_set.all %}
 								{% if concepto.imageestimateconcept_set.all.count == 1 %}
-									<img style="height: 500px;max-width: 100%;" src="{{ image.image.url }}">
+									<img style="height: 500px; max-width: 100%;" src="{{ image.image.url }}">
 								{% elif concepto.imageestimateconcept_set.all.count == 2 %}
-									<img style="max-width: 49%;" src="{{ image.image.url }}">
+									<img style="max-height: 500px; max-width: 49%;" src="{{ image.image.url }}">
 								{% else %}
-									<img style="max-width: 32%;" src="{{ image.image.url }}">
+								
+									<img style="max-height: 250px; max-width: 49%;" src="{{ image.image.url }}">
+								
+								{% comment %}
+									{% if forloop.first %}
+										<img style="max-height: 500px; max-width: 49%;" src="{{ image.image.url }}">
+									{% else %}
+										<img style="max-height: 500px; max-width: 32%;" src="{{ image.image.url }}">
+									{% endif %}
+								{% endcomment %}
 								{% endif %}
 							{% endfor %}
 						{% else %}
