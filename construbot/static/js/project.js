@@ -27,6 +27,14 @@ $(document).ready(function(){
     var little = false;
     var len = 0;
 
+    $(document).on('click', '.browse', function(){
+        var file = $(this).parent().parent().parent().find('.file');
+        file.trigger('click');
+    });
+    $(document).on('change', '.file', function(){
+        $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+    });
+
     if("#estimate_appear"){
         var boton_es = $("#estimate_appear");
         var boton_gen = $("#generator_appear");
