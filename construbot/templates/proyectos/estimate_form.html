@@ -77,7 +77,28 @@
                         {% for nested_form in frm.nested.forms %}
                             <div class="set-{{ forloop.parentloop.counter0 }}">
                                 {% bootstrap_form_errors nested_form %}
-                                {% bootstrap_form nested_form %}
+                                {% if nested_form.initial %}
+                                    {% bootstrap_form nested_form %}
+                                {% else %}
+                                    <div class="form-group">
+                                        <input type="file" name="{{ nested_form.prefix }}-image" id="id_{{ nested_form.prefix }}-image" class="file">
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" disabled placeholder="Subir imagen">
+                                            <span class="input-group-btn">
+                                                <button class="browse btn btn-primary input-lg" type="button"><i class=""></i> Browse</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="{{ nested_form.prefix }}-id" value="{{ forloop.parentloop.counter }}" id="id_{{ nested_form.prefix }}-id">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label for="id_{{ nested_form.prefix }}-DELETE">
+                                                <input type="checkbox" name="{{ nested_form.prefix }}-DELETE" class="" id="id_{{ nested_form.prefix }}-DELETE"> Eliminar
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="{{ nested_form.prefix }}-estimateconcept" value="{{ forloop.parentloop.counter }}" id="id_{{ nested_form.prefix }}-estimateconcept">
+                                {% endif %}
                             </div>
                         {% endfor %}
                         <button type="button" class="add-form-row">agregar archivo</button>
