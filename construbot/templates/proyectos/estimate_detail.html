@@ -86,12 +86,12 @@
 						<td> {{ concepto.concept.code }} </td>
 						<td> {{ concepto.concept.concept_text }} {% lorem 1 p %} </td>
 						<td> {{ concepto.concept.unit.unit }} </td>
-						<td class="right"> {{ concepto.concept.total_cuantity }} </td>
-						<td class="right"> ${{ concepto.concept.unit_price }} </td>
-						<td class="right"> ${{ concepto.concept.total_concept_amount|floatformat:"2"|intcomma }}</td>
+						<td class="right"> {{ concepto.concept.total_cuantity|floatformat:"2"|intcomma }} </td>
+						<td class="right"> $ {{ concepto.concept.unit_price|floatformat:"2"|intcomma }} </td>
+						<td class="right"> $ {{ concepto.concept.total_concept_amount|floatformat:"2"|intcomma }}</td>
 						{% if concepto.prev_est %}
-							<td class="right"> {{ concepto.prev_est.cuantity_estimated }} </td>
-							<td class="right">${{ concepto.prev_est.prev_amount|floatformat:"2"|intcomma }}</td>
+							<td class="right"> {{ concepto.prev_est.cuantity_estimated|floatformat:"2"|intcomma }} </td>
+							<td class="right">$ {{ concepto.prev_est.prev_amount|floatformat:"2"|intcomma }}</td>
 						{% else %}
 							<td style="text-align: center;"> - </td>
 							<td style="text-align: center;"> - </td>
