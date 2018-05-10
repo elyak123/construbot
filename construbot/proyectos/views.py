@@ -243,8 +243,8 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         """
-            Handles GET requests and instantiates blank versions of the form
-            and its inline formsets.
+        Handles GET requests and instantiates blank versions of the form
+        and its inline formsets.
         """
         self.object = None
         form_class = self.get_form_class()
@@ -252,11 +252,9 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
         fill_data = self.fill_concept_formset()
         inlineform = estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(initial=fill_data)
-        image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
             self.get_context_data(form=form,
                                   generator_inline_concept=generator_inline_concept,
-                                  image_formset_prefix=image_formset_prefix,
                                   )
         )
 
@@ -265,6 +263,8 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         fill_data = self.fill_concept_formset()
+        files = request.FILES.getlist('image')
+        import pdb; pdb.set_trace()
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -298,16 +298,12 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
 
     def form_valid(self, form):
         inlineform = estimateConceptInlineForm(count=self.concept_count)
-        generator_inline_concept = inlineform(
-            self.request.POST,
-            self.request.FILES,
-            instance=form.instance
-        )
+        generator_inline_concept = inlineform(self.request.POST, instance=form.instance)
         if generator_inline_concept.is_valid():
             generator_inline_concept.save()
-            return super(EstimateCreationView, self).form_valid(form)
         else:
             return self.form_invalid(form, generator_inline_concept)
+        return super(EstimateCreationView, self).form_valid(form)
 
     def form_invalid(self, form, generator_inline_concept):
         return self.render_to_response(
@@ -411,13 +407,8 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         return super(EstimateEditView, self).get_initial()
 
     def form_valid(self, form):
-        form.save()
         conceptformclass = estimateConceptInlineForm()
-        self.conceptForm = conceptformclass(
-            self.request.POST,
-            self.request.FILES,
-            instance=self.object
-        )
+        self.conceptForm = conceptformclass(self.request.POST, instance=self.object)
         if self.conceptForm.is_valid():
             self.conceptForm.save()
             return super(EstimateEditView, self).form_valid(form)
@@ -427,10 +418,9 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
-        formset = estimateConceptInlineForm()(instance=self.object)
-        image_formset_prefix = [x.nested.prefix for x in formset.forms]
-        context['generator_inline_concept'] = formset
-        context['image_formset_prefix'] = image_formset_prefix
+        concept_set_count = project_instance.concept_set.all().count()
+        formset = estimateConceptInlineForm()
+        context['generator_inline_concept'] = formset(instance=self.object)
         context['project_instance'] = project_instance
         return context
 
@@ -440,6 +430,18 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
             'pk': project_id
         })
         return url
+
+    def post(self, request, *args, **kwargs):
+        conceptformclass = estimateConceptInlineForm()
+        self.conceptForm = conceptformclass(self.request.POST, instance=self.object)
+        import pdb; pdb.set_trace()
+        files = request.FILES.getlist('image')
+        if form.is_valid():
+            for f in files:
+                ...  # Do something with each file.
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):

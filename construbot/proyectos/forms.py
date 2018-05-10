@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept
+from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept
 from django.forms import inlineformset_factory
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -193,56 +193,26 @@ class ConceptDummyWidget(forms.Textarea):
             else:
                 raise
 
-
-imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept, extra=1, fields=('image',))
-
-
-class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
+class MultipleFileField(forms.BaseInlineFormSet):
 
     def add_fields(self, form, index):
-        super(BaseEstimateConceptInlineFormset, self).add_fields(form, index)
-
-        form.nested = imageformset(
-            instance=form.instance,
-            data=form.data if form.is_bound else None,
-            files=form.files if form.is_bound else None,
-            prefix='%s-%s' % (
-                form.prefix,
-                imageformset.get_default_prefix()
-            ),
-        )
-
-    def is_valid(self):
-        result = super(BaseEstimateConceptInlineFormset, self).is_valid()
-        if self.is_bound:
-            for form in self.forms:
-                if hasattr(form, 'nested'):
-                    nested_validity = form.nested.is_valid()
-                    result = result and nested_validity
-        return result
-
-    def save(self, commit=True):
-        result = super(BaseEstimateConceptInlineFormset, self).save(commit=commit)
-        for form in self.forms:
-            if hasattr(form, 'nested'):
-                form.nested.save(commit=commit)
-        return result
-
+        super(MultipleFileField, self).add_fields(form, index)
+        form.fields['image'] = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
 def estimateConceptInlineForm(count=0):
-    inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
+    inlineform = inlineformset_factory(Estimate, EstimateConcept, fields=(
         'concept',
         'cuantity_estimated',
-        'observations'
+        'observations',
     ), max_num=count, extra=count, can_delete=False, widgets={
         'concept': ConceptDummyWidget(attrs={'readonly': True}),
         'cuantity_estimated': forms.TextInput(),
-        'observations': forms.Textarea(attrs={'rows': 3})
+        'observations': forms.Textarea(attrs={'rows': 3}),
     }, labels={
         'concept': 'Concepto',
         'cuantity_estimated': 'Cantidad estimada',
-        'observations': 'Observaciones'
-    }, formset=BaseEstimateConceptInlineFormset)
+        'observations': 'Observaciones',
+    }, formset=MultipleFileField)
     return inlineform
 
 
