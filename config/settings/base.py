@@ -38,6 +38,7 @@ ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['construbot.com', ])
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
     # Default Django apps:
+    'django.forms',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -189,6 +190,7 @@ TEMPLATES = [
         },
     },
 ]
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 # See: http://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

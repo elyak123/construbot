@@ -1,7 +1,6 @@
 from django import forms
 from dal import autocomplete
 from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept
-from django.forms import inlineformset_factory
 from django.core.exceptions import ObjectDoesNotExist
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
@@ -194,7 +193,18 @@ class ConceptDummyWidget(forms.Textarea):
                 raise
 
 
-imageformset = forms.inlineformset_factory(EstimateConcept, ImageEstimateConcept, extra=1, fields=('image',))
+class FileNestedWidget(forms.ClearableFileInput):
+    template_name = 'proyectos/file_input.html'
+
+
+
+imageformset = forms.inlineformset_factory(
+    EstimateConcept,
+    ImageEstimateConcept,
+    extra=1,
+    fields=('image',),
+    widgets={'image': FileNestedWidget()}
+)
 
 
 class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
@@ -218,7 +228,7 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
             for form in self.forms:
                 if hasattr(form, 'nested'):
                     nested_validity = form.nested.is_valid()
-                    result = result and nested_validity
+                    result &= nested_validity
         return result
 
     def save(self, commit=True):
