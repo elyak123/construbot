@@ -300,8 +300,9 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
             instance=form.instance
         )
         if generator_inline_concept.is_valid():
+            response = super(EstimateCreationView, self).form_valid(form)
             generator_inline_concept.save()
-            return super(EstimateCreationView, self).form_valid(form)
+            return response
         else:
             return self.form_invalid(form, generator_inline_concept)
 
