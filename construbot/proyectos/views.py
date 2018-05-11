@@ -242,10 +242,6 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
     template_name = 'proyectos/estimate_form.html'
 
     def get(self, request, *args, **kwargs):
-        """
-            Handles GET requests and instantiates blank versions of the form
-            and its inline formsets.
-        """
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -427,7 +423,10 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
-        formset = estimateConceptInlineForm()(instance=self.object)
+        if not hasattr(self, 'conceptForm'):
+            formset = estimateConceptInlineForm()(instance=self.object)
+        else:
+            formset = self.conceptForm
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
         context['generator_inline_concept'] = formset
         context['image_formset_prefix'] = image_formset_prefix
