@@ -193,7 +193,7 @@
 			{% language 'en' %}
 			{% for concepto in conceptos_generador %}
 				<tr>
-					<td rowspan="2"> {{ concepto.concept.code }} </td>
+					<td> {{ concepto.concept.code }} </td>
 					<td class="generatorDescription">
 						<p>{{ concepto.concept.concept_text }}</p>
 						{% lorem 1 p %}
@@ -205,40 +205,22 @@
 					<td class="right"> {{ concepto.cuantity_estimated|intcomma }} </td>
 					<td style="text-align:center;"> {{ concepto.concept.unit.unit }} </td>
 					{% if concepto.observations %}
-						<td rowspan="2"> {{ concepto.observations }} </td>
+						<td> {{ concepto.observations }} </td>
 					{% else %}
-						<td rowspan="2">
+						<td>
 							<p> {% lorem 1 p %} </p>
 						</td>
 					{% endif %}
 				</tr>
 				<tr>
-					<td colspan="7" style="text-align: center;">
-						{% if concepto.imageestimateconcept_set.all.exists %}
+					{% if concepto.imageestimateconcept_set.all.exists %}
+						<td colspan="9" style="text-align: center; height:550px;">
 							{% for image in concepto.imageestimateconcept_set.all %}
-								{% if concepto.imageestimateconcept_set.all.count == 1 %}
-									<img style="height: 500px; max-width: 100%;" src="{{ image.image.url }}">
-								{% elif concepto.imageestimateconcept_set.all.count == 2 %}
-									<img style="max-height: 500px; max-width: 49%;" src="{{ image.image.url }}">
-								{% else %}
-								
-									<img style="max-height: 250px; max-width: 49%;" src="{{ image.image.url }}">
-								
-								{% comment %}
-									{% if forloop.first %}
-										<img style="max-height: 500px; max-width: 49%;" src="{{ image.image.url }}">
-									{% else %}
-										<img style="max-height: 500px; max-width: 32%;" src="{{ image.image.url }}">
-									{% endif %}
-								{% endcomment %}
-								{% endif %}
+								<img style="max-width:49%; max-height:500px;" src="{{ image.image.url }}">
 							{% endfor %}
-						{% else %}
-								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
-								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
-								<img style="width:32%" src="http://www.fullhdwpp.com/wp-content/uploads/cherry-blossoms-by-the-bench-16_www.FullHDWpp.com_.jpg?x69613">
-						{% endif %}
-					</td>
+						</td>
+					{% else %}
+					{% endif %}
 				</tr>
 			{% endfor %}
 			{% endlanguage %}

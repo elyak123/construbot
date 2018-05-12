@@ -75,6 +75,31 @@ a:hover {
 	min-width: 100% !important;
 	width: 100% !important;
 }
+
+.dynamic-form .checkbox{
+	display: none;
+}
+
+.remove_span {
+	cursor: pointer;
+}
+
+.alert_text {
+	width: 100%;
+    margin-top: 0;
+    font-size: 80%;
+    color: #dc3545;
+    display: none;
+}
+
+.span_eliminar{
+	color: white;
+	background: red;
+}
+
+.appear {
+	display: block;
+}
 /*FIN DE ESTILOS GENERALES*/
 
 /*ESTILOS PARA LISTADOS AJAX*/

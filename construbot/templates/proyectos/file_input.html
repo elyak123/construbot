@@ -11,18 +11,22 @@
 <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} />
 {% endcomment %}
 
-<div class="input-group mb-3">
+<div class="input-group mb-3 img_input">
+	<div class="alert_text">¡Se eliminará al momento de guardar!</div>
 	<div class="input-group-prepend">
-		<span class="input-group-text">Remover</span>
+		<span class="remove_span input-group-text">Remover</span>
 	</div>
  	<div class="custom-file">
 		<input type="{{ widget.type }}" class="custom-file-input" id="inputGroupFile01" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
     	<label class="custom-file-label" for="inputGroupFile01">
     		{% if widget.is_initial %}
-    			{{ widget.initial_text }}: <a href="{{ widget.value.url }}">{{ widget.value }}</a>
+    			{{ widget.initial_text }}: <a href="">{{ widget.value }}</a>
     		{% else %}
 	    		Examinar
     		{% endif %}
    		</label>
 	</div>
 </div>
+{% if widget.is_initial %}
+	<a href="{{ widget.value.url }}" target="_blank"> Vista previa </a>
+{% endif %}
