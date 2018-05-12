@@ -236,7 +236,7 @@ class DestinatarioCreationView(DynamicCreation):
     form_class = DestinatarioForm
 
 
-class EstimateCreationView(ProyectosMenuMixin, UpdateView):
+class EstimateCreationView(ProyectosMenuMixin, CreateView):
     form_class = EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
@@ -269,12 +269,12 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
             return self.form_invalid(form, generator_inline_concept)
 
     def fill_concept_formset(self):
-        project_instance = get_object_or_404(
+        self.project_instance = get_object_or_404(
             Contrato,
             pk=self.kwargs.get('pk'),
             cliente__company=self.request.user.currently_at
         )
-        concepts = Concept.objects.filter(project=project_instance).order_by('id')
+        concepts = Concept.objects.filter(project=self.project_instance).order_by('id')
         data = [{'concept': x, 'cuantity_estimated': 0, 'concept_text_input': x.concept_text} for x in concepts]
         self.concept_count = concepts.count()
         return data
@@ -321,7 +321,7 @@ class EstimateCreationView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(EstimateCreationView, self).get_context_data(**kwargs)
-        context['project_instance'] = Contrato.objects.get(pk=self.kwargs['pk'])
+        context['project_instance'] = self.project_instance
         return context
 
 
@@ -387,6 +387,7 @@ class DestinatarioEditView(DynamicEdition):
 
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
+    form_class = EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate
 
@@ -397,9 +398,6 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
             project__cliente__company=self.request.user.currently_at
         )
         return self.object
-
-    def get_form_class(self):
-        return EstimateForm
 
     def get_initial(self):
         init_dict = {}
