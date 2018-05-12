@@ -213,13 +213,17 @@
 					{% endif %}
 				</tr>
 				<tr>
-					{% if concepto.imageestimateconcept_set.all.exists %}
-						<td colspan="9" style="text-align: center; height:550px;">
-							{% for image in concepto.imageestimateconcept_set.all %}
-								<img style="max-width:49%; max-height:500px;" src="{{ image.image.url }}">
-							{% endfor %}
-						</td>
-					{% else %}
+					{% if estimate_images_count %}
+						{% if concepto.image_count %}
+							{# Aqui se ve mal con 3 imagenes #}
+							<td colspan="9" style="text-align: center; height:550px;">
+								{% for image in concepto.imageestimateconcept_set.all %}
+									<img style="max-width:49%; max-height:500px;" src="{{ image.image.url }}">
+								{% endfor %}
+							</td>
+						{% else %}
+							{# poner aqui cuadro en X #}
+						{% endif %}
 					{% endif %}
 				</tr>
 			{% endfor %}

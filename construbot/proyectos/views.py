@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
-from django.db.models import Max
+from django.db.models import Max, Count
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate, ImageEstimateConcept
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm, EstimateForm,
                     estimateConceptInlineForm)
 
@@ -177,6 +177,7 @@ class EstimateDetailView(DynamicDetail):
     def get_context_data(self, **kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
         conceptos = self.model.get_concept_total(self.object)
+        context['estimate_images_count'] = self.object.estimateconcept_set.all().aggregate(Count('imageestimateconcept'))
         context["conceptos"] = conceptos["conceptos"]
         context["conceptos_generador"] = conceptos["estimate_concept"]
         context["totales"] = conceptos["totales"]
