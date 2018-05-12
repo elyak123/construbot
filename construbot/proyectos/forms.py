@@ -197,13 +197,12 @@ class FileNestedWidget(forms.ClearableFileInput):
     template_name = 'proyectos/file_input.html'
 
 
-
 imageformset = forms.inlineformset_factory(
     EstimateConcept,
     ImageEstimateConcept,
     extra=1,
     fields=('image',),
-    widgets={'image': FileNestedWidget()}
+    widgets={'image': FileNestedWidget()},
 )
 
 

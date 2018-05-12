@@ -57,8 +57,6 @@
             <h3>Projecto: {{ project_instance.contrato_shortName }}</h3>
             <div class='fila_par'>
                 <h4 style="margin: 0 0 10px 0;">Datos Generales de la Estimación.</h4>
-                {{ form.non_form_errors }}
-                {% bootstrap_form_errors form %}
                 {% bootstrap_form form %}
             </div>
         {{ generator_inline_concept.management_form }}
