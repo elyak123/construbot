@@ -202,7 +202,7 @@ imageformset = forms.inlineformset_factory(
     ImageEstimateConcept,
     extra=1,
     fields=('image',),
-    widgets={'image': FileNestedWidget()}
+    widgets={'image': FileNestedWidget()},
 )
 
 
