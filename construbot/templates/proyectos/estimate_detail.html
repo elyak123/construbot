@@ -213,18 +213,23 @@
 					{% endif %}
 				</tr>
 				<tr>
-					{% if estimate_images_count %}
-						{% if concepto.image_count %}
-							{# Aqui se ve mal con 3 imagenes #}
-							<td colspan="9" style="text-align: center; height:550px;">
-								{% for image in concepto.imageestimateconcept_set.all %}
-									<img style="max-width:49%; max-height:500px;" src="{{ image.image.url }}">
-								{% endfor %}
-							</td>
-						{% else %}
-							{# poner aqui cuadro en X #}
+					<td colspan="9" style="height:600px; text-align: center;">
+						{% if estimate_images_count %}
+								{% if concepto.image_count %}
+									{% for image in concepto.imageestimateconcept_set.all %}
+										{% if concepto.image_count == 1 %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
+										{% elif concepto.image_count == 2 %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 49%;" src="{{ image.image.url }}">
+										{% else %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 49%; max-width: 49%;" src="{{ image.image.url }}">
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									{# poner aqui cuadro en X #}
+								{% endif %}
 						{% endif %}
-					{% endif %}
+					</td>
 				</tr>
 			{% endfor %}
 			{% endlanguage %}
