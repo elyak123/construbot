@@ -6,6 +6,11 @@ app_name = 'construbot.proyectos'
 
 urlpatterns = [
     url(
+        regex=r'^$',
+        view=views.ProyectDashboardView.as_view(),
+        name='proyect_dashboard'
+    ),
+    url(
         regex=r'^listado/contratos/$',
         view=views.ContratoListView.as_view(),
         name='listado_de_contratos'

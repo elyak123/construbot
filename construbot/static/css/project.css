@@ -294,6 +294,15 @@ a:hover {
 /*FIN DE ESTILOS PARA MENÚ LATERAL*/
 
 /*ESTILOS PATA TABLAS*/
+.table_left td {
+	text-align: left;
+	padding: 5px;
+}
+
+.table_left {
+	margin-bottom: 30px;
+}
+
 .cont_table_sample {
 	width: 100%;
 }

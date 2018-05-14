@@ -26,7 +26,7 @@ main_menu = [
     },
     {
         'title': 'Proyectos',
-        'url': 'proyectos:listado_de_contratos',
+        'url': 'proyectos:proyect_dashboard',
         'urlkwargs': '',
         'icon': 'briefcase',
         'parent': False,
