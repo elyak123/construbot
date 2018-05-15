@@ -89,3 +89,16 @@ class ClienteFormTest(utils.BaseTestCase):
         cliente = models.Cliente.objects.get(cliente_name='Juanito')
         self.assertIsInstance(form.instance, models.Cliente)
         self.assertEqual(form.instance.id, cliente.id)
+
+    @tag('current')
+    def test_cliente_edit_form_changes_instance(self):
+        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = cliente_company
+        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        form = forms.ClienteForm(data=form_data, instance=cliente_factory)
+        form.request = self.request
+        form.is_valid()
+        form.save()
+        self.assertEqual(form.instance.cliente_name, 'Juanito')
+        self.assertEqual(form.instance.pk, cliente_factory.pk)
