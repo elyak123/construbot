@@ -12,6 +12,19 @@ class ContratoForm(forms.ModelForm):
         )
     )
 
+    def clean(self):
+        result = super(ContratoForm, self).clean()
+        if self.cleaned_data.get('currently_at') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data.get('currently_at') == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
+
     class Meta:
         model = Contrato
         fields = '__all__'
@@ -40,6 +53,19 @@ class ContratoForm(forms.ModelForm):
 
 
 class ClienteForm(forms.ModelForm):
+
+    def clean(self):
+        result = super(ClienteForm, self).clean()
+        if self.cleaned_data.get('company') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data['company'].company_name == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
 
     class Meta:
         model = Cliente

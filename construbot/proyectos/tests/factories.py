@@ -3,7 +3,7 @@ import datetime
 import factory
 import factory.fuzzy
 from construbot.users.tests.factories import CompanyFactory
-from .models import Cliente, Sitio, Contrato, Destinatario, Units, Concept
+from construbot.proyectos.models import Cliente, Sitio, Contrato, Destinatario, Units, Concept
 
 
 class ClienteFactory(factory.django.DjangoModelFactory):

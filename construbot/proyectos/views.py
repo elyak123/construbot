@@ -227,6 +227,11 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     form_class = ContratoForm
     template_name = 'proyectos/creation_form.html'
 
+    def get_form(self, *args, **kwargs):
+        form = super(ContratoCreationView, self).get_form(form_class=None)
+        form.request = self.request
+        return form
+
     def get_initial(self):
         initial_obj = super(ContratoCreationView, self).get_initial()
         max_id = self.form_class.Meta.model.objects.filter(
@@ -241,12 +246,6 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
         return context
-
-    def form_valid(self, form):
-        if form.cleaned_data['currently_at'] == self.request.user.currently_at.company_name:
-            return super(ContratoCreationView, self).form_valid(form)
-        else:
-            return super(ContratoCreationView, self).form_invalid(form)
 
 
 class DynamicCreation(ProyectosMenuMixin, CreateView):
@@ -381,16 +380,20 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
         initial_obj['company'] = self.request.user.currently_at
         return initial_obj
 
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            return super(DynamicEdition, self).form_valid(form)
-        else:
-            return super(DynamicEdition, self).form_invalid(form)
+    def get_form(self, *args, **kwargs):
+        form = super(DynamicEdition, self).get_form(form_class=None)
+        form.request = self.request
+        return form
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
     form_class = ContratoForm
     template_name = 'proyectos/creation_form.html'
+
+    def get_form(self, *args, **kwargs):
+        form = super(ContratoEditView, self).get_form(form_class=None)
+        form.request = self.request
+        return form
 
     def get_object(self):
         obj = get_object_or_404(
@@ -404,14 +407,6 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         initial_obj = super(ContratoEditView, self).get_initial()
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         return initial_obj
-
-    def form_valid(self, form):
-        currently = form.cleaned_data.get('currently_at')
-        if currently and currently == self.request.user.currently_at.company_name:
-            self.object = form.save()
-            return super(ContratoEditView, self).form_valid(form)
-        else:
-            return super(ContratoEditView, self).form_invalid(form)
 
 
 class ClienteEditView(DynamicEdition):

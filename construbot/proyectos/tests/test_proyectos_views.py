@@ -1,21 +1,22 @@
-from django.test import RequestFactory
+from django.test import RequestFactory, tag
 from django.http import Http404
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
-from .views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
-                    ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
-                    DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                    SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
-                    SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
-                    ClienteAutocomplete, UnitAutocomplete)
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
-from .models import Destinatario, Sitio, Cliente, Contrato
+from construbot.proyectos.views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
+                                        ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
+                                        DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
+                                        SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
+                                        SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
+                                        ClienteAutocomplete, UnitAutocomplete)
+from construbot.proyectos.forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
+from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
 from django.utils.six import StringIO
 from . import factories
 import json
 import decimal
+from unittest import mock
 
 
 class BaseViewTest(utils.BaseTestCase):
@@ -240,46 +241,6 @@ class ContratoCreationTest(BaseViewTest):
         dicc_test = view.get_context_data()
         self.assertEqual(dicc_test['company'], contrato_company)
 
-    def test_contrato_form_creation_is_valid(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = contrato_company
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
-        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
-                     'monto': 1222.12,
-                     'currently_at': contrato_company.company_name,
-                     }
-        view = self.get_instance(
-            ContratoCreationView,
-            request=self.request
-        )
-        form = ContratoForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertTrue(view.form_valid(form))
-
-    def test_contrato_form_saves_on_db(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = contrato_company
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
-        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
-                     'monto': 1222.12,
-                     'currently_at': contrato_company.company_name,
-                     }
-        view = self.get_instance(
-            ContratoCreationView,
-            request=self.request
-        )
-        form = ContratoForm(data=form_data)
-        form.is_valid()
-        view.form_valid(form)
-        contrato = Contrato.objects.get(contrato_name='TEST CONTRATO 1')
-        self.assertIsInstance(view.object, Contrato)
-        self.assertEqual(view.object.id, contrato.id)
-
     def test_contrato_form_creation_is_not_valid_with_another_company(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
@@ -291,16 +252,21 @@ class ContratoCreationTest(BaseViewTest):
                      'monto': 1222.12,
                      'currently_at': contrato_company_2.company_name,
                      }
-        view = self.get_instance(
-            ContratoCreationView,
-            request=self.request
-        )
-        view.get_context_data = lambda form: {}
-        form = ContratoForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertFalse(hasattr(ContratoCreationView, 'object'))
-        self.assertEqual(view.form_valid(form).status_code, 200)
+        with mock.patch('construbot.proyectos.views.ContratoCreationView.get_form_kwargs') as get_form_mock:
+            view = self.get_instance(
+                ContratoCreationView,
+                request=self.request
+            )
+            get_form_mock.return_value = {'data': form_data}
+            form = view.get_form()
+            view.get_context_data = lambda form: {'form': form}
+            view.context = view.get_context_data(form)
+            self.assertFalse(hasattr(view, 'object'))
+            self.assertEqual(view.post(request=self.request).status_code, 200)
+            self.assertFormError(view, 'form', None,
+                                 'Actualmente te encuentras en otra compañia, '
+                                 'es necesario recargar y repetir el proceso.'
+                                 )
 
 
 class ClienteCreationTest(BaseViewTest):
@@ -315,49 +281,26 @@ class ClienteCreationTest(BaseViewTest):
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
 
-    def test_cliente_form_creation_is_valid(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = cliente_company
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
-        view = self.get_instance(
-            ClienteCreationView,
-            request=self.request
-        )
-        form = ClienteForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertTrue(view.form_valid(form))
-
-    def test_cliente_form_saves_on_db(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = cliente_company
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
-        view = self.get_instance(
-            ClienteCreationView,
-            request=self.request
-        )
-        form = ClienteForm(data=form_data)
-        form.is_valid()
-        view.form_valid(form)
-        cliente = Cliente.objects.get(cliente_name='Juanito')
-        self.assertIsInstance(view.object, Cliente)
-        self.assertEqual(view.object.id, cliente.id)
-
     def test_cliente_form_creation_is_not_valid_with_another_company(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         cliente_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         form_data = {'cliente_name': "Juanito", 'company': cliente_company_2.id}
-        view = self.get_instance(
-            ClienteCreationView,
-            request=self.request
-        )
-        view.get_context_data = lambda form: {}
-        form = ClienteForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertFalse(hasattr(ClienteCreationView, 'object'))
-        self.assertEqual(view.form_valid(form).status_code, 200)
+        with mock.patch('construbot.proyectos.views.ClienteCreationView.get_form_kwargs') as get_form_mock:
+            view = self.get_instance(
+                ClienteCreationView,
+                request=self.request
+            )
+            get_form_mock.return_value = {'data': form_data}
+            form = view.get_form()
+            view.get_context_data = lambda form: {'form': form}
+            view.context = view.get_context_data(form)
+            self.assertFalse(hasattr(view, 'object'))
+            self.assertEqual(view.post(request=self.request).status_code, 200)
+            self.assertFormError(view, 'form', None,
+                                 'Actualmente te encuentras en otra compañia, '
+                                 'es necesario recargar y repetir el proceso.'
+                                 )
 
 
 class SitioCreationTest(BaseViewTest):
@@ -509,28 +452,6 @@ class ContratoEditViewTest(BaseViewTest):
         self.assertTrue('currently_at' in init_obj)
         self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
 
-    def test_form_actually_changes_contrato(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = contrato_company
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
-        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
-        form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
-                     'monto': 1222.12,
-                     'currently_at': contrato_company.company_name,
-                     }
-        view = self.get_instance(
-            ContratoEditView,
-            request=self.request,
-            pk=contrato_factory.pk
-        )
-        form = ContratoForm(data=form_data, instance=contrato_factory)
-        form.is_valid()
-        view.form_valid(form)
-        self.assertEqual(view.object.monto, decimal.Decimal('1222.12'))
-        self.assertEqual(view.object.pk, contrato_factory.pk)
-
     def test_contrato_edit_not_currently_returns_invalid(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
@@ -541,18 +462,20 @@ class ContratoEditViewTest(BaseViewTest):
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
                      }
-        view = self.get_instance(
-            ContratoEditView,
-            request=self.request,
-            pk=contrato_factory.pk
-        )
-        view.get_context_data = lambda form: {}
-        form = ContratoForm(data=form_data, instance=contrato_factory)
-        form.is_valid()
-        response = view.form_valid(form)
-        contrato = Contrato.objects.get(pk=contrato_factory.pk)
-        self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
-        self.assertEqual(response.status_code, 200)
+        with mock.patch('construbot.proyectos.views.ContratoEditView.get_form_kwargs') as get_form_mock:
+            view = self.get_instance(
+                ContratoEditView,
+                request=self.request,
+                pk=contrato_factory.pk
+            )
+            get_form_mock.return_value = {'data': form_data}
+            form = view.get_form()
+            view.get_context_data = lambda form: {'form': form}
+            view.context = view.get_context_data(form)
+            contrato = Contrato.objects.get(pk=contrato_factory.pk)
+            self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
+            self.assertEqual(view.post(request=self.request).status_code, 200)
+            self.assertFormError(view, 'form', 'currently_at', 'This field is required.')
 
 
 class ClienteEditTest(BaseViewTest):
@@ -605,23 +528,6 @@ class ClienteEditTest(BaseViewTest):
         self.assertEqual(view.object.cliente_name, 'Juanito')
         self.assertEqual(view.object.pk, cliente_factory.pk)
         self.assertEqual(response.status_code, 302)
-
-    def test_cliente_edit_no_currently_returns_invalid(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
-        cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
-        view = self.get_instance(
-            ClienteEditView,
-            request=self.request,
-            pk=cliente_factory.pk
-        )
-        view.get_context_data = lambda form: {}
-        form = ClienteForm(data=form_data, instance=cliente_factory)
-        form.is_valid()
-        cliente = Cliente.objects.get(pk=cliente_factory.pk)
-        response = view.form_valid(form)
-        self.assertEqual(cliente.cliente_name, 'Pepe')
-        self.assertEqual(response.status_code, 200)
 
 
 class SitioEditTest(BaseViewTest):
