@@ -199,7 +199,7 @@ $(document).ready(function(){
         delete_link.on("click", function(target){
             target.preventDefault();
             var element = target.target;
-            var url = "/proyectos/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var url = "/"+window.location.pathname.split('/')[1]+"/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
             var pos = element.parentElement.getBoundingClientRect()
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){

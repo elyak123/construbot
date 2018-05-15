@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from .auth import AuthenticationTestMixin
 from django.shortcuts import get_object_or_404
 from django import http
@@ -8,15 +8,46 @@ from .models import User, Company
 from .forms import UsuarioInterno
 
 
-class UserDetailView(AuthenticationTestMixin, DetailView):
+class UsersMenuMixin(AuthenticationTestMixin):
     app_label_name = UsersConfig.verbose_name
+    menu_specific = [
+        {
+            'title': 'Listado',
+            'url': 'users:list',
+            'icon': 'list',
+            'parent': True,
+            'type': 'submenu',
+            'submenu': '',
+        }, {
+            'title': 'Crear',
+            'url': 'users:new',
+            'icon': 'star',
+            'parent': True,
+            'type': 'submenu',
+            'submenu': '',
+        }, {
+            'title': 'Mi usuario',
+            'url': 'users:detail',
+            'urlkwargs': {'username': 'yo'},
+            'icon': 'cog',
+            'parent': True,
+            'type': 'submenu',
+            'submenu': '',
+        }
+    ]
+
+
+class UserDetailView(UsersMenuMixin, DetailView):
     model = User
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.kwargs['username'])
+        if self.kwargs['username'] == 'yo':
+            return get_object_or_404(User, username=self.request.user.username)
+        else:
+            return get_object_or_404(User, username=self.kwargs['username'])
 
     def get_tengo_que_ser_admin(self):
         if self.kwargs['username'] == self.request.user.username:
@@ -25,8 +56,7 @@ class UserDetailView(AuthenticationTestMixin, DetailView):
             return True
 
 
-class UserRedirectView(AuthenticationTestMixin, RedirectView):
-    app_label_name = UsersConfig.verbose_name
+class UserRedirectView(UsersMenuMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self):
@@ -34,8 +64,7 @@ class UserRedirectView(AuthenticationTestMixin, RedirectView):
                        kwargs={'username': self.request.user.username})
 
 
-class UserUpdateView(AuthenticationTestMixin, UpdateView):
-    app_label_name = UsersConfig.verbose_name
+class UserUpdateView(UsersMenuMixin, UpdateView):
     fields = ['name', ]
 
     # we already imported User in the view code above, remember?
@@ -51,7 +80,7 @@ class UserUpdateView(AuthenticationTestMixin, UpdateView):
         return User.objects.get(username=self.request.user.username)
 
 
-class UserCreateView(AuthenticationTestMixin, CreateView):
+class UserCreateView(UsersMenuMixin, CreateView):
     form_class = UsuarioInterno
     app_label_name = UsersConfig.verbose_name
     template_name = 'users/create_user.html'
@@ -69,7 +98,24 @@ class UserCreateView(AuthenticationTestMixin, CreateView):
         return initial
 
 
-class UserListView(AuthenticationTestMixin, ListView):
+class UserDeleteView(UsersMenuMixin, DeleteView):
+    template_name = 'core/delete.html'
+
+    def get_object(self):
+        obj = get_object_or_404(
+            User,
+            company=self.request.user.currently_at,
+            pk=self.kwargs['pk']
+        )
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return http.HttpResponse()
+
+
+class UserListView(UsersMenuMixin, ListView):
     app_label_name = UsersConfig.verbose_name
     model = User
     # These next two lines tell the view to index lookups by username
