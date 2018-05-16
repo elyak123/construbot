@@ -315,50 +315,6 @@ class SitioCreationTest(BaseViewTest):
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
 
-    def test_sitio_form_creation_is_valid(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
-        view = self.get_instance(
-            SitioCreationView,
-            request=self.request
-        )
-        form = SitioForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertTrue(view.form_valid(form))
-
-    def test_sitio_form_saves_obj_in_db(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
-        view = self.get_instance(
-            SitioCreationView,
-            request=self.request
-        )
-        form = SitioForm(data=form_data)
-        form.is_valid()
-        view.form_valid(form)
-        sitio = Sitio.objects.get(sitio_name='Tamaulipas')
-        self.assertIsInstance(view.object, Sitio)
-        self.assertEqual(view.object.id, sitio.id)
-
-    def test_sitio_form_creation_is_not_valid_with_another_company(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company_2.id}
-        view = self.get_instance(
-            SitioCreationView,
-            request=self.request
-        )
-        view.get_context_data = lambda form: {}
-        form = SitioForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertFalse(hasattr(SitioCreationView, 'object'))
-        self.assertEqual(view.form_valid(form).status_code, 200)
-
 
 class DestinatarioCreationTest(BaseViewTest):
     def test_get_initial_returns_the_correct_company(self):
@@ -400,22 +356,6 @@ class DestinatarioCreationTest(BaseViewTest):
         destinatario = Destinatario.objects.get(destinatario_text='Un wey')
         self.assertIsInstance(view.object, Destinatario)
         self.assertEqual(view.object.id, destinatario.id)
-
-    def test_destinatario_form_creation_is_not_valid_with_another_company(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
-        destinatario_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = destinatario_company
-        form_data = {'company': destinatario_company_2.id, 'destinatario_text': "Un wey"}
-        view = self.get_instance(
-            DestinatarioCreationView,
-            request=self.request
-        )
-        view.get_context_data = lambda form: {}
-        form = DestinatarioForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
-        self.assertEqual(view.form_valid(form).status_code, 200)
-        self.assertFalse(hasattr(DestinatarioCreationView, 'object'))
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -546,23 +486,6 @@ class SitioEditTest(BaseViewTest):
         init = view.get_initial()
         self.assertTrue('company' in init)
         self.assertEqual(init['company'], self.user.currently_at)
-
-    def test_form_actually_changes_sitio(self):
-        sitio = factories.SitioFactory()
-        self.user.currently_at = sitio.company
-        form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
-                     'company': sitio.company.id}
-        view = self.get_instance(
-            SitioEditView,
-            request=self.request,
-            pk=sitio.pk
-        )
-        form = SitioForm(data=form_data, instance=sitio)
-        form.is_valid()
-        view.form_valid(form)
-        sitio_obj = Sitio.objects.get(pk=sitio.pk)
-        self.assertEqual(sitio.sitio_location, 'Aguascalientes, Ags.')
-        self.assertEqual(sitio_obj.pk, sitio.pk)
 
 
 class DestinatarioEditTest(BaseViewTest):

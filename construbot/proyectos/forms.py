@@ -76,6 +76,20 @@ class ClienteForm(forms.ModelForm):
 
 
 class SitioForm(forms.ModelForm):
+
+    def clean(self):
+        result = super(SitioForm, self).clean()
+        if self.cleaned_data.get('company') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data['company'].company_name == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
+
     class Meta:
         model = Sitio
         fields = '__all__'

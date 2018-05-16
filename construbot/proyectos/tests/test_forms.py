@@ -77,6 +77,7 @@ class ClienteFormTest(utils.BaseTestCase):
         self.user.currently_at = cliente_company
         form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
         form = forms.ClienteForm(data=form_data)
+        form.request = self.request
         self.assertTrue(form.is_valid())
 
     def test_cliente_form_saves_on_db(self):
@@ -84,13 +85,13 @@ class ClienteFormTest(utils.BaseTestCase):
         self.user.currently_at = cliente_company
         form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
         form = forms.ClienteForm(data=form_data)
+        form.request = self.request
         form.is_valid()
         form.save()
         cliente = models.Cliente.objects.get(cliente_name='Juanito')
         self.assertIsInstance(form.instance, models.Cliente)
         self.assertEqual(form.instance.id, cliente.id)
 
-    @tag('current')
     def test_cliente_edit_form_changes_instance(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
@@ -102,3 +103,70 @@ class ClienteFormTest(utils.BaseTestCase):
         form.save()
         self.assertEqual(form.instance.cliente_name, 'Juanito')
         self.assertEqual(form.instance.pk, cliente_factory.pk)
+
+
+class DestinatarioFormTest(utils.BaseTestCase):
+    def setUp(self):
+        self.user_factory = user_factories.UserFactory
+        self.user = self.make_user()
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
+    def test_destinatario_form_creation_is_not_valid_with_another_company(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company_2.id, 'destinatario_text': "Un wey"}
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        self.assertTrue(form.is_valid())
+
+
+class SitioFormTest(utils.BaseTestCase):
+
+    def setUp(self):
+        self.user_factory = user_factories.UserFactory
+        self.user = self.make_user()
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
+    def test_sitio_form_creation_is_not_valid_with_another_company(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company_2.id}
+        form = forms.SitioForm(data=form_data)
+        form.request = self.request
+        self.assertFalse(form.is_valid())
+
+    def test_sitio_form_creation_is_valid(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        form = forms.SitioForm(data=form_data)
+        form.request = self.request
+        self.assertTrue(form.is_valid())
+
+    def test_form_actually_changes_sitio(self):
+        sitio = factories.SitioFactory()
+        self.user.currently_at = sitio.company
+        form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
+                     'company': sitio.company.id}
+        form = forms.SitioForm(data=form_data, instance=sitio)
+        form.request = self.request
+        form.is_valid()
+        sitio_obj = models.Sitio.objects.get(pk=sitio.pk)
+        self.assertEqual(sitio.sitio_location, 'Aguascalientes, Ags.')
+        self.assertEqual(sitio_obj.pk, sitio.pk)
+
+    def test_sitio_form_saves_obj_in_db(self):
+        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = sitio_company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        form = forms.SitioForm(data=form_data)
+        form.request = self.request
+        form.is_valid()
+        form.save()
+        sitio = models.Sitio.objects.get(sitio_name='Tamaulipas')
+        self.assertIsInstance(form.instance, models.Sitio)
+        self.assertEqual(form.instance.id, sitio.id)

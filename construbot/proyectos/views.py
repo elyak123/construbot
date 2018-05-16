@@ -256,11 +256,10 @@ class DynamicCreation(ProyectosMenuMixin, CreateView):
         initial_obj['company'] = self.request.user.currently_at
         return initial_obj
 
-    def form_valid(self, form):
-        if form.cleaned_data['company'] == self.request.user.currently_at:
-            return super(DynamicCreation, self).form_valid(form)
-        else:
-            return super(DynamicCreation, self).form_invalid(form)
+    def get_form(self, *args, **kwargs):
+        form = super(DynamicCreation, self).get_form(form_class=None)
+        form.request = self.request
+        return form
 
 
 class ClienteCreationView(DynamicCreation):
