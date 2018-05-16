@@ -1,36 +1,43 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
+{% block title %} {{ object.username }}{% endblock %}
 
 {% block content %}
-<div class="container">
-
-  <div class="row">
-    <div class="col-sm-12">
-
-      <h2>{{ object.username }}</h2>
-      {% if object.name %}
-        <p>{{ object.name }}</p>
-      {% endif %}
-    </div>
-  </div>
-
-{% if object == request.user %}
-<!-- Action buttons -->
-<div class="row">
-
-  <div class="col-sm-12">
-    <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
-    <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
-    <!-- Your Stuff: Custom user template urls -->
-  </div>
-
+<h2 class="title" > Detalle del usuario {{ object.username }}</h2>
+<div class="cont_table_sample">
+  <table class="table_sample table_detalle">
+    <tr>
+      <th colspan="2"> {{ object.username }}</th>
+    </tr>
+    <tr>
+      <td>Nombre</td>
+      <td>{{ object.first_name }}</td>
+    </tr>
+    <tr>
+      <td>Apellidos</td>
+      <td>{{ object.last_name }}</td>
+    </tr>
+    <tr>
+      <td>Correo electrónico</td>
+      <td>{{ object.email }}</td>
+    </tr>
+    <tr>
+      <td>Fecha de registro</td>
+      <td>{{ object.user_creation }}</td>
+    </tr>
+  </table>
 </div>
-<!-- End Action buttons -->
+<br>
+<br>
+<h4>Compañías de trabajo:</h4>
+{% if object.company.all.exists %}
+  <ul>
+    {% for company in object.company.all %}
+      <li>{{ company.company_name }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>¡Este usuario no cuenta con compañías!</p>
 {% endif %}
-
-
-</div>
 {% endblock content %}
-

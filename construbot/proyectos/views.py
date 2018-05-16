@@ -495,7 +495,7 @@ class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
 
 
 class DynamicDelete(ProyectosMenuMixin, DeleteView):
-    template_name = 'proyectos/delete.html'
+    template_name = 'core/delete.html'
 
     def get_object(self):
         self.model = self.model_options[self.kwargs['model']]['model']

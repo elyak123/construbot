@@ -11,6 +11,11 @@ urlpatterns = [
         name='list'
     ),
     url(
+        regex=r'^eliminar/User/(?P<pk>\d+)/$',
+        view=views.UserDeleteView.as_view(),
+        name='delete_user'
+    ),
+    url(
         regex=r'^~redirect/$',
         view=views.UserRedirectView.as_view(),
         name='redirect'
@@ -21,7 +26,7 @@ urlpatterns = [
         name='new'
     ),
     url(
-        regex=r'^detail/(?P<username>[\w.@+-]+)/$',
+        regex=r'^detail/(?:(?P<username>[\w.@+-]+))/$',
         view=views.UserDetailView.as_view(),
         name='detail'
     ),
