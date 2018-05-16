@@ -1,10 +1,10 @@
 from construbot.users.tests import factories as user_factories
-from construbot.proyectos import factories
+from construbot.proyectos.tests import factories
 from random import random
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
-from construbot.proyectos.models import Contrato
+from construbot.proyectos.models import Contrato, Company
 from django.utils.six.moves import input
 
 
@@ -33,15 +33,17 @@ class Command(BaseCommand):
 
         company = []
         for i in range(0, 10):
-            if i > 4:
+            if i < 5:
                 company.append(factories.CompanyFactory(customer=customer[0], company_name='company_{0}'.format(i)))
             else:
                 company.append(factories.CompanyFactory(customer=customer[1], company_name='company_{0}'.format(i)))
 
-        self.user.currently_at = company[0]
-        self.user.company = company[0:5]
-        self.user_2.currently_at = company[5]
-        self.user_2.company = company[5:10]
+        for comp in Company.objects.filter(customer=self.user.customer):
+            self.user.company.add(comp)
+        self.user.currently_at = self.user.company.first()
+        for comp in Company.objects.filter(customer=self.user_2.customer):
+            self.user_2.company.add(comp)
+        self.user_2.currently_at = self.user_2.company.first()
 
         clientes = []
         sitios = []

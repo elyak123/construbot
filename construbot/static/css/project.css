@@ -180,14 +180,18 @@ a:hover {
 	height: 60px;
 }
 
-.anchor_menu_nav, .anchor_brand {
+.menu_nav, .anchor_brand{
 	color: white;
 	display: inline-block;
 	padding: 1.1em;
 	transition: .2s;
 }
 
-.anchor_menu_nav:hover, .anchor_brand:hover {
+.menu_nav span {
+	margin-left: 10px;
+}
+
+.anchor_brand:hover {
 	color: #c4c4c4;
 }
 
