@@ -8,7 +8,7 @@ from construbot.proyectos.views import (ContratoListView, ClienteListView, Sitio
                                         SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                                         SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
                                         ClienteAutocomplete, UnitAutocomplete)
-from construbot.proyectos.forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm)
+from construbot.proyectos import forms
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
@@ -334,28 +334,44 @@ class DestinatarioCreationTest(BaseViewTest):
         form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
         view = self.get_instance(
             DestinatarioCreationView,
-            request=self.request
+            request=self.request,
         )
-        form = DestinatarioForm(data=form_data)
-        validez = form.is_valid()
-        self.assertTrue(validez)
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        self.assertTrue(form.is_valid())
         self.assertEqual(view.form_valid(form).status_code, 302)
         self.assertEqual(view.form_valid(form).url, '/proyectos/destinatario/detalle/%s/' % view.object.id)
+    @tag('current')
+    @mock.patch('construbot.proyectos.views.DestinatarioDetailView.get_context_data')
+    def test_destinatario_form_redirects_correctly(self, mock_detail_context):
+        with mock.patch('construbot.proyectos.views.DestinatarioCreationView.test_func') as mock_test_func:
+            destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+            destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+            self.user.currently_at = destinatario_company
+            self.user.save()
+            self.user.company.add(destinatario_company)
+            form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey', 'cliente': destinatario_cliente.id}
+            self.client.login(username=self.user.username, password='password')
+            mock_test_func.return_value = True
+            response = self.client.post(self.reverse('proyectos:nuevo_destinatario'), data=form_data)
+            new_destinatario = Destinatario.objects.get(destinatario_text='Un wey')
+            with mock.patch('construbot.proyectos.views.DestinatarioDetailView.test_func') as detail_mock:
+                mock_detail_context.return_value = {}
+                detail_mock.return_value = True
+                self.assertRedirects(response, '/proyectos/destinatario/detalle/%s/' % new_destinatario.id)
+    
 
     def test_destinatario_form_saves_obj_in_database(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = destinatario_company
         form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey'}
-        view = self.get_instance(
-            DestinatarioCreationView,
-            request=self.request
-        )
-        form = DestinatarioForm(data=form_data)
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
         form.is_valid()
-        view.form_valid(form)
+        form.save()
         destinatario = Destinatario.objects.get(destinatario_text='Un wey')
-        self.assertIsInstance(view.object, Destinatario)
-        self.assertEqual(view.object.id, destinatario.id)
+        self.assertIsInstance(form.instance, Destinatario)
+        self.assertEqual(form.instance.id, destinatario.id)
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -527,14 +543,15 @@ class DestinatarioEditTest(BaseViewTest):
         self.user.currently_at = destinatario.company
         form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
                      'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
-        view = self.get_instance(
-            DestinatarioEditView,
-            request=self.request,
-            pk=destinatario.pk
-        )
-        form = DestinatarioForm(data=form_data, instance=destinatario)
+        # view = self.get_instance(
+        #     DestinatarioEditView,
+        #     request=self.request,
+        #     pk=destinatario.pk
+        # )
+        form = forms.DestinatarioForm(data=form_data, instance=destinatario)
+        form.request = self.request
         form.is_valid()
-        view.form_valid(form)
+        # view.form_valid(form)
         sitio_obj = Destinatario.objects.get(pk=destinatario.pk)
         self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
         self.assertEqual(sitio_obj.pk, destinatario.pk)
