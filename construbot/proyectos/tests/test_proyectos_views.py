@@ -8,7 +8,6 @@ from construbot.proyectos.views import (ContratoListView, ClienteListView, Sitio
                                         SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                                         SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
                                         ClienteAutocomplete, UnitAutocomplete)
-from construbot.proyectos import forms
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
@@ -327,7 +326,7 @@ class DestinatarioCreationTest(BaseViewTest):
         )
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
-    @tag('current')
+
     @mock.patch('construbot.proyectos.views.DestinatarioDetailView.get_context_data')
     def test_destinatario_form_redirects_correctly(self, mock_detail_context):
         with mock.patch('construbot.proyectos.views.DestinatarioCreationView.test_func') as mock_test_func:
@@ -349,23 +348,6 @@ class DestinatarioCreationTest(BaseViewTest):
                 mock_detail_context.return_value = {}
                 detail_mock.return_value = True
                 self.assertRedirects(response, '/proyectos/destinatario/detalle/%s/' % new_destinatario.id)
-
-    def test_destinatario_form_saves_obj_in_database(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
-        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
-        self.user.currently_at = destinatario_company
-        form_data = {
-            'company': destinatario_company.id,
-            'destinatario_text': 'Un wey',
-            'cliente': destinatario_cliente.id
-        }
-        form = forms.DestinatarioForm(data=form_data)
-        form.request = self.request
-        form.is_valid()
-        form.save()
-        destinatario = Destinatario.objects.get(destinatario_text='Un wey')
-        self.assertIsInstance(form.instance, Destinatario)
-        self.assertEqual(form.instance.id, destinatario.id)
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -531,24 +513,6 @@ class DestinatarioEditTest(BaseViewTest):
         init = view.get_initial()
         self.assertTrue('company' in init)
         self.assertEqual(init['company'], self.user.currently_at)
-
-    def test_form_actually_changes_destinatario(self):
-        destinatario = factories.DestinatarioFactory()
-        self.user.currently_at = destinatario.company
-        form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
-                     'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
-        # view = self.get_instance(
-        #     DestinatarioEditView,
-        #     request=self.request,
-        #     pk=destinatario.pk
-        # )
-        form = forms.DestinatarioForm(data=form_data, instance=destinatario)
-        form.request = self.request
-        form.is_valid()
-        # view.form_valid(form)
-        sitio_obj = Destinatario.objects.get(pk=destinatario.pk)
-        self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
-        self.assertEqual(sitio_obj.pk, destinatario.pk)
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
@@ -717,37 +681,39 @@ class UnitAutocompleteTest(BaseViewTest):
         self.assertDictEqual(dicc, dicc_test)
 
 
-# class CommandDatabasePoblation(BaseViewTest):
-#     def test_if_command_runs_correctly(self):
-#         out = StringIO()
-#         call_command('poblar', stdout=out)
-#         self.assertIn("La base de datos ha sido eliminada y poblada exitosamente con:\n" +
-#                       "- 2 Customer\n- 2 Clientes\n- 10 Compañías\n- 30 Clientes\n- 30 Sitios\n- 500 Contratos\n" +
-#                       "- 200 Unidades\n- 2000 Conceptos.", out.getvalue()
-#                       )
+"""
+    class CommandDatabasePoblation(BaseViewTest):
+        def test_if_command_runs_correctly(self):
+            out = StringIO()
+            call_command('poblar', stdout=out)
+            self.assertIn("La base de datos ha sido eliminada y poblada exitosamente con:\n" +
+                          "- 2 Customer\n- 2 Clientes\n- 10 Compañías\n- 30 Clientes\n- 30 Sitios\n- 500 Contratos\n" +
+                          "- 200 Unidades\n- 2000 Conceptos.", out.getvalue()
+                          )
 
-#     def test_if_new_database_are_created(self):
-#         call_command('poblar')
-#         qs_number = Customer.objects.all().count()
-#         self.assertEqual(qs_number, 2)
+        def test_if_new_database_are_created(self):
+            call_command('poblar')
+            qs_number = Customer.objects.all().count()
+            self.assertEqual(qs_number, 2)
 
-#         qs_number = User.objects.all().count()
-#         self.assertEqual(qs_number, 2)
+            qs_number = User.objects.all().count()
+            self.assertEqual(qs_number, 2)
 
-#         qs_number = Company.objects.all().count()
-#         self.assertEqual(qs_number, 10)
+            qs_number = Company.objects.all().count()
+            self.assertEqual(qs_number, 10)
 
-#         qs_number = Cliente.objects.all().count()
-#         self.assertEqual(qs_number, 30)
+            qs_number = Cliente.objects.all().count()
+            self.assertEqual(qs_number, 30)
 
-#         qs_number = Sitio.objects.all().count()
-#         self.assertEqual(qs_number, 30)
+            qs_number = Sitio.objects.all().count()
+            self.assertEqual(qs_number, 30)
 
-#         qs_number = Contrato.objects.all().count()
-#         self.assertEqual(qs_number, 500)
+            qs_number = Contrato.objects.all().count()
+            self.assertEqual(qs_number, 500)
 
-#         qs_number = Units.objects.all().count()
-#         self.assertEqual(qs_number, 200)
+            qs_number = Units.objects.all().count()
+            self.assertEqual(qs_number, 200)
 
-#         qs_number = Concept.objects.all().count()
-#         self.assertEqual(qs_number, 2000)
+            qs_number = Concept.objects.all().count()
+            self.assertEqual(qs_number, 2000)
+"""
