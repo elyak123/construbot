@@ -327,20 +327,6 @@ class DestinatarioCreationTest(BaseViewTest):
         )
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
-
-    def test_destinatario_form_creation_is_valid(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = destinatario_company
-        form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
-        view = self.get_instance(
-            DestinatarioCreationView,
-            request=self.request,
-        )
-        form = forms.DestinatarioForm(data=form_data)
-        form.request = self.request
-        self.assertTrue(form.is_valid())
-        self.assertEqual(view.form_valid(form).status_code, 302)
-        self.assertEqual(view.form_valid(form).url, '/proyectos/destinatario/detalle/%s/' % view.object.id)
     @tag('current')
     @mock.patch('construbot.proyectos.views.DestinatarioDetailView.get_context_data')
     def test_destinatario_form_redirects_correctly(self, mock_detail_context):
@@ -350,7 +336,11 @@ class DestinatarioCreationTest(BaseViewTest):
             self.user.currently_at = destinatario_company
             self.user.save()
             self.user.company.add(destinatario_company)
-            form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey', 'cliente': destinatario_cliente.id}
+            form_data = {
+                'company': destinatario_company.id,
+                'destinatario_text': 'Un wey',
+                'cliente': destinatario_cliente.id
+            }
             self.client.login(username=self.user.username, password='password')
             mock_test_func.return_value = True
             response = self.client.post(self.reverse('proyectos:nuevo_destinatario'), data=form_data)
@@ -359,12 +349,16 @@ class DestinatarioCreationTest(BaseViewTest):
                 mock_detail_context.return_value = {}
                 detail_mock.return_value = True
                 self.assertRedirects(response, '/proyectos/destinatario/detalle/%s/' % new_destinatario.id)
-    
 
     def test_destinatario_form_saves_obj_in_database(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         self.user.currently_at = destinatario_company
-        form_data = {'company': destinatario_company.id, 'destinatario_text': 'Un wey'}
+        form_data = {
+            'company': destinatario_company.id,
+            'destinatario_text': 'Un wey',
+            'cliente': destinatario_cliente.id
+        }
         form = forms.DestinatarioForm(data=form_data)
         form.request = self.request
         form.is_valid()

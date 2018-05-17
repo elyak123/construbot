@@ -7,10 +7,7 @@ MY_DATE_FORMATS = ['%Y-%m-%d']
 
 
 class ContratoForm(forms.ModelForm):
-    currently_at = forms.CharField(
-        widget=forms.HiddenInput(
-        )
-    )
+    currently_at = forms.CharField(widget=forms.HiddenInput())
 
     def clean(self):
         result = super(ContratoForm, self).clean()
@@ -88,7 +85,21 @@ class SitioForm(BaseCleanForm, forms.ModelForm):
         }
 
 
-class DestinatarioForm(BaseCleanForm, forms.ModelForm):
+class DestinatarioForm(forms.ModelForm):
+
+    def clean(self):
+        result = super(DestinatarioForm, self).clean()
+        if self.cleaned_data.get('cliente') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data['cliente'].company.company_name == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
+
     class Meta:
         model = Destinatario
         fields = '__all__'

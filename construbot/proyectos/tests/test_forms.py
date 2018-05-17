@@ -112,6 +112,27 @@ class DestinatarioFormTest(utils.BaseTestCase):
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
+    def test_destinatario_form_creation_is_valid(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        self.user.currently_at = destinatario_company
+        form_data = {
+            'company': destinatario_company.id,
+            'destinatario_text': "Un wey",
+            'cliente': destinatario_cliente.id
+        }
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        self.assertTrue(form.is_valid())
+
+    def test_destinatario_form_creation_No_client_is_NOT_valid(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        self.assertFalse(form.is_valid())
+
 
 class SitioFormTest(utils.BaseTestCase):
 
