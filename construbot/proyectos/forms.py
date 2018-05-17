@@ -7,10 +7,7 @@ MY_DATE_FORMATS = ['%Y-%m-%d']
 
 
 class ContratoForm(forms.ModelForm):
-    currently_at = forms.CharField(
-        widget=forms.HiddenInput(
-        )
-    )
+    currently_at = forms.CharField(widget=forms.HiddenInput())
 
     def clean(self):
         result = super(ContratoForm, self).clean()
@@ -52,10 +49,10 @@ class ContratoForm(forms.ModelForm):
         }
 
 
-class ClienteForm(forms.ModelForm):
+class BaseCleanForm(object):
 
     def clean(self):
-        result = super(ClienteForm, self).clean()
+        result = super(BaseCleanForm, self).clean()
         if self.cleaned_data.get('company') is None:
             raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
                                         'porfavor recarga y vuelve a intentarlo')
@@ -66,6 +63,9 @@ class ClienteForm(forms.ModelForm):
                 'Actualmente te encuentras en otra compañia, '
                 'es necesario recargar y repetir el proceso.'
             )
+
+
+class ClienteForm(BaseCleanForm, forms.ModelForm):
 
     class Meta:
         model = Cliente
@@ -75,20 +75,7 @@ class ClienteForm(forms.ModelForm):
         }
 
 
-class SitioForm(forms.ModelForm):
-
-    def clean(self):
-        result = super(SitioForm, self).clean()
-        if self.cleaned_data.get('company') is None:
-            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
-                                        'porfavor recarga y vuelve a intentarlo')
-        if self.cleaned_data['company'].company_name == self.request.user.currently_at.company_name:
-            return result
-        else:
-            raise forms.ValidationError(
-                'Actualmente te encuentras en otra compañia, '
-                'es necesario recargar y repetir el proceso.'
-            )
+class SitioForm(BaseCleanForm, forms.ModelForm):
 
     class Meta:
         model = Sitio
@@ -99,6 +86,20 @@ class SitioForm(forms.ModelForm):
 
 
 class DestinatarioForm(forms.ModelForm):
+
+    def clean(self):
+        result = super(DestinatarioForm, self).clean()
+        if self.cleaned_data.get('cliente') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data['cliente'].company.company_name == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
+
     class Meta:
         model = Destinatario
         fields = '__all__'

@@ -112,14 +112,55 @@ class DestinatarioFormTest(utils.BaseTestCase):
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
-    def test_destinatario_form_creation_is_not_valid_with_another_company(self):
+    def test_destinatario_form_creation_is_valid(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
-        destinatario_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         self.user.currently_at = destinatario_company
-        form_data = {'company': destinatario_company_2.id, 'destinatario_text': "Un wey"}
+        form_data = {
+            'company': destinatario_company.id,
+            'destinatario_text': "Un wey",
+            'cliente': destinatario_cliente.id
+        }
         form = forms.DestinatarioForm(data=form_data)
         form.request = self.request
         self.assertTrue(form.is_valid())
+
+    def test_destinatario_form_saves_obj_in_database(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        self.user.currently_at = destinatario_company
+        form_data = {
+            'company': destinatario_company.id,
+            'destinatario_text': 'Un wey',
+            'cliente': destinatario_cliente.id
+        }
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        form.is_valid()
+        form.save()
+        destinatario = forms.Destinatario.objects.get(destinatario_text='Un wey')
+        self.assertIsInstance(form.instance, forms.Destinatario)
+        self.assertEqual(form.instance.id, destinatario.id)
+
+    def test_destinatario_form_creation_No_client_is_NOT_valid(self):
+        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = destinatario_company
+        form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
+        form = forms.DestinatarioForm(data=form_data)
+        form.request = self.request
+        self.assertFalse(form.is_valid())
+
+    def test_form_actually_changes_destinatario(self):
+        destinatario = factories.DestinatarioFactory()
+        self.user.currently_at = destinatario.company
+        form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
+                     'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
+        form = forms.DestinatarioForm(data=form_data, instance=destinatario)
+        form.request = self.request
+        form.is_valid()
+        sitio_obj = models.Destinatario.objects.get(pk=destinatario.pk)
+        self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
+        self.assertEqual(sitio_obj.pk, destinatario.pk)
 
 
 class SitioFormTest(utils.BaseTestCase):
