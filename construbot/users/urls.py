@@ -26,7 +26,7 @@ urlpatterns = [
         name='new'
     ),
     url(
-        regex=r'^detalle/(?:(?P<username>[\w.@+-]+)/)?$',
+        regex=r'^detail/(?:(?P<username>[\w.@+-]+)/)?$',
         view=views.UserDetailView.as_view(),
         name='detail'
     ),

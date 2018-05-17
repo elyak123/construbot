@@ -89,11 +89,15 @@ class TestListUserView(BaseUserTestCase):
 
     def test_list_users_renders_correctly(self):
         self.client.login(username=self.user.username, password='password')
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertNotContains(response, 'foreign_user')
@@ -160,6 +164,8 @@ class TestUserCreateView(BaseUserTestCase):
             customer=self.user.customer
         )
         group, created = Group.objects.get_or_create(name='Users')
+        self.user.groups.add(group)
+        group, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(group)
         self.user.company.add(company)
         with self.login(username=self.user.username, password='password'):
