@@ -7,7 +7,7 @@ from construbot.proyectos.views import (ContratoListView, ClienteListView, Sitio
                                         DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
                                         SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                                         SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
-                                        ClienteAutocomplete, UnitAutocomplete, ProyectDashboardView, DynamicList)
+                                        ClienteAutocomplete, UnitAutocomplete, ProyectDashboardView, DynamicList, DynamicDetail)
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
@@ -54,6 +54,17 @@ class DynamicListTest(BaseViewTest):
         context = view.get_context_data()
         self.assertIn('model', context)
         self.assertEqual(context['model'], 'Foo')
+
+
+class DynamicDetailTest(BaseViewTest):
+
+    def test_DynamicListView_returns_correct_object_name_for_template(self):
+        view = self.get_instance(
+            DynamicDetail,
+            request=self.request
+        )
+        object_name = view.get_context_object_name(Contrato())
+        self.assertEqual(object_name, 'contrato')
 
 
 class ContratoListTest(BaseViewTest):
