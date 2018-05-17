@@ -19,7 +19,7 @@ class TestUser(TestCase):
     def test_get_absolute_url(self):
         self.assertEqual(
             self.user.get_absolute_url(),
-            '/users/detail/testuser/'
+            '/users/detalle/testuser/'
         )
 
     def test_no_soy_administrador(self):
