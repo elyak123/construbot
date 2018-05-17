@@ -7,7 +7,7 @@ from construbot.proyectos.views import (ContratoListView, ClienteListView, Sitio
                                         DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
                                         SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
                                         SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
-                                        ClienteAutocomplete, UnitAutocomplete)
+                                        ClienteAutocomplete, UnitAutocomplete, ProyectDashboardView, DynamicList)
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
@@ -24,6 +24,36 @@ class BaseViewTest(utils.BaseTestCase):
         self.user = self.make_user()
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
+
+
+class ProyectDashboardViewTest(BaseViewTest):
+
+    def test_view_gets_correct_object(self):
+        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
+        view = self.get_instance(
+            ProyectDashboardView,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, company_test)
+
+class DynamicListTest(BaseViewTest):
+
+    def test_context_contains_models_name(self):
+        view = self.get_instance(
+            DynamicList,
+            request=self.request
+        )
+        view.model = mock.Mock()
+        view.model.__name__ = 'Foo'
+        view.get_menu = lambda: {}
+        view.app_label_name = 'proyectos'
+        view.permiso_administracion = True
+        view.object_list = []
+        context = view.get_context_data()
+        self.assertIn('model', context)
+        self.assertEqual(context['model'], 'Foo')
 
 
 class ContratoListTest(BaseViewTest):
