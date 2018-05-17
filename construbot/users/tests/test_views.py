@@ -37,7 +37,7 @@ class TestUserRedirectView(BaseUserTestCase):
         #   self.make_user()
         self.assertEqual(
             view.get_redirect_url(),
-            '/users/detail/testuser/'
+            '/users/detalle/testuser/'
         )
 
 
@@ -60,7 +60,7 @@ class TestUserUpdateView(BaseUserTestCase):
         #   self.make_user()
         self.assertEqual(
             self.view.get_success_url(),
-            '/users/detail/testuser/'
+            '/users/detalle/testuser/'
         )
 
     def test_get_object(self):
@@ -89,11 +89,15 @@ class TestListUserView(BaseUserTestCase):
 
     def test_list_users_renders_correctly(self):
         self.client.login(username=self.user.username, password='password')
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertNotContains(response, 'foreign_user')
@@ -152,7 +156,7 @@ class TestUserCreateView(BaseUserTestCase):
         )
         view.object = self.make_user(username='some_user')
         success_url = view.get_success_url()
-        self.assertEqual('/users/detail/some_user/', success_url)
+        self.assertEqual('/users/detalle/some_user/', success_url)
 
     def test_user_creation_check_200(self):
         company = Company.objects.create(
@@ -160,6 +164,8 @@ class TestUserCreateView(BaseUserTestCase):
             customer=self.user.customer
         )
         group, created = Group.objects.get_or_create(name='Users')
+        self.user.groups.add(group)
+        group, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(group)
         self.user.company.add(company)
         with self.login(username=self.user.username, password='password'):

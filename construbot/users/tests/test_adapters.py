@@ -44,6 +44,8 @@ class LoginAccountTest(TestCase):
         company = Company.objects.create(company_name='my_company', customer=self.user.customer)
         self.user.company.add(company)
         self.user.groups.add(group)
+        group = Group.objects.create(name='Administrators')
+        self.user.groups.add(group)
 
     def test_login_successful(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):

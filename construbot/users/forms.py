@@ -47,6 +47,11 @@ class UsuarioInterno(UserCreationForm):
         super(UsuarioInterno, self).__init__(*args, **kwargs)
         self.fields['company'].queryset = Company.objects.filter(customer=user.customer)
 
+    def save(self, commit=True):
+        user = super(UserCreationForm, self).save(commit=True)
+        self._save_m2m()
+        return user
+
     class Meta:
         model = User
         exclude = [

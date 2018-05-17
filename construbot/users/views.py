@@ -10,6 +10,7 @@ from .forms import UsuarioInterno
 
 class UsersMenuMixin(AuthenticationTestMixin):
     app_label_name = UsersConfig.verbose_name
+    tengo_que_ser_admin = True
     menu_specific = [
         {
             'title': 'Listado',
@@ -25,14 +26,6 @@ class UsersMenuMixin(AuthenticationTestMixin):
             'parent': True,
             'type': 'submenu',
             'submenu': '',
-        }, {
-            'title': 'Mi usuario',
-            'url': 'users:detail',
-            'urlkwargs': {'username': 'yo'},
-            'icon': 'cog',
-            'parent': True,
-            'type': 'submenu',
-            'submenu': '',
         }
     ]
 
@@ -42,12 +35,12 @@ class UserDetailView(UsersMenuMixin, DetailView):
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
+    tengo_que_ser_admin = False
 
     def get_object(self, queryset=None):
-        if self.kwargs['username'] == 'yo':
-            return get_object_or_404(User, username=self.request.user.username)
-        else:
-            return get_object_or_404(User, username=self.kwargs['username'])
+        if not self.kwargs['username']:
+            self.kwargs['username'] = self.request.user.username
+        return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
 
     def get_tengo_que_ser_admin(self):
         if self.kwargs['username'] == self.request.user.username:
