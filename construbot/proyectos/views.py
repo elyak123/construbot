@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
-from django.db.models import Max, Count, Sum, F
+from django.db.models import Max, Count
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from dal import autocomplete
@@ -10,7 +10,6 @@ from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm, EstimateForm,
                     estimateConceptInlineForm)
-from construbot.core.utils import Round
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -95,34 +94,6 @@ class ProyectDashboardView(ProyectosMenuMixin, DetailView):
     def get_object(self, queryset=None):
         self.object = self.request.user.currently_at
         return self.object
-
-    def get_context_data(self, **kwargs):
-        context = super(ProyectDashboardView, self).get_context_data(**kwargs)
-        context['estimaciones_pendientes'] = Estimate.objects.select_related('project').filter(
-            project__cliente__company=self.object, invoiced=False)
-
-        context['estimaciones_facturadas'] = Estimate.objects.filter(
-            project__cliente__company=self.object, invoiced=True, paid=False)
-
-        context['contratos_vigentes'] = Contrato.objects.select_related('cliente').filter(
-            status=True, cliente__company=self.object).annotate(total_estimado=Round(Sum(
-                F('estimate__estimateconcept__cuantity_estimated') *
-                F('estimate__estimateconcept__concept__unit_price')
-            ) / F('monto') * 100
-            )).order_by('-monto')
-
-        context['total_sin_facturar'] = context['estimaciones_pendientes'].aggregate(
-            total=Round(Sum(
-                F('estimateconcept__cuantity_estimated') * F('concept__unit_price')
-            )))
-
-        context['total_sin_pago'] = context['estimaciones_facturadas'].aggregate(
-            total=Round(Sum(
-                F('estimateconcept__cuantity_estimated') * F('concept__unit_price')
-            )))
-
-        context['total_vigentes'] = context['contratos_vigentes'].aggregate(total_contato=Sum('monto'))
-        return context
 
 
 class DynamicList(ProyectosMenuMixin, ListView):

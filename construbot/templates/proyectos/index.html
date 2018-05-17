@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load usertags %}
 {% load i18n %}
 {% load humanize %}
 {% block title %} Proyectos {% endblock title %}
@@ -13,27 +13,25 @@
 				<th>Nombre</th>
 				<th>% Estimado</th>
 			</tr>
-			{% if contratos_vigentes.exists %}
-				{% for contrato in contratos_vigentes %}
-					<tr>
-						<td>
-							<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
-							Cliente: {{ contrato.cliente.cliente_name }}
-						</td>
-						<td style="text-align:center;">
-							{% if contrato.total_estimado %}
-								{{ contrato.total_estimado }} %
-							{% else %}
-								0.00 %
-							{% endif %}
-						</td>
-					</tr>
-				{% endfor %}
-			{% else %}
+			{% for contrato in object|contratosvigentes %}
+				<tr>
+					<td>
+						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
+						Cliente: {{ contrato.cliente.cliente_name }}
+					</td>
+					<td style="text-align:center;">
+						{% if contrato.total_estimado %}
+							{{ contrato.total_estimado }} %
+						{% else %}
+							0.00 %
+						{% endif %}
+					</td>
+				</tr>
+			{% empty%}
 				<tr>
 					<td colspan="2">¡No hay contratos vigentes!</td>
 				</tr>
-			{% endif %}
+			{% endfor %}
 		</table>
 	</div>
 	<div class="col-md-6">
@@ -45,22 +43,20 @@
 				<th>Estimacion</th>
 				<th>Monto</th>
 			</tr>
-			{% if estimaciones_pendientes.exists %}
-				{% for estimacion in estimaciones_pendientes %}
-					<tr>
-						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
-						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
-						<td>{{ estimacion.consecutive }}</td>
-						<td>
-							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
-						</td>
-					</tr>
-				{% endfor %}
-			{% else %}
+			{% for estimacion in object|estimacionespendientes %}
+				<tr>
+					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
+					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
+					<td>{{ estimacion.consecutive }}</td>
+					<td>
+						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
+					</td>
+				</tr>
+			{% empty %}
 				<tr>
 					<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
 				</tr>
-			{% endif %}
+			{% endfor %}
 		</table>
 		<p><strong>Estimaciones Facturadas Pendientes de Pago</strong></p>
 		<table class="table_sample table_left">
@@ -70,22 +66,20 @@
 				<th>Estimacion</th>
 				<th>Monto</th>
 			</tr>
-			{% if estimaciones_facturadas.exists %}
-				{% for estimacion in estimaciones_facturadas %}
-					<tr>
-						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
-						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
-						<td>{{ estimacion.consecutive }}</td>
-						<td>
-							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
-						</td>
-					</tr>
-				{% endfor %}
-			{% else %}
+			{% for estimacion in object|estimacionesfacturadas %}
+				<tr>
+					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
+					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
+					<td>{{ estimacion.consecutive }}</td>
+					<td>
+						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
+					</td>
+				</tr>
+			{% empty %}
 				<tr>
 					<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
 				</tr>
-			{% endif %}
+			{% endfor %}
 		</table>
 	</div>
 </div>
