@@ -67,60 +67,63 @@ urlpatterns = [
     ),
     url(regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
-        name='nuevo_contrato'),
-
+        name='nuevo_contrato'
+    ),
     url(regex=r'^cliente/nuevo/$',
         view=views.ClienteCreationView.as_view(),
-        name='nuevo_cliente'),
-
+        name='nuevo_cliente'
+    ),
     url(regex=r'^sitio/nuevo/$',
         view=views.SitioCreationView.as_view(),
-        name='nuevo_sitio'),
-
+        name='nuevo_sitio'
+    ),
     url(regex=r'^destinatario/nuevo/$',
         view=views.DestinatarioCreationView.as_view(),
-        name='nuevo_destinatario'),
-
+        name='nuevo_destinatario'
+    ),
     url(regex=r'^estimacion/nuevo/(?P<pk>\d+)/$',
         view=views.EstimateCreationView.as_view(),
-        name='nueva_estimacion'),
-
+        name='nueva_estimacion'
+    ),
     url(regex=r'^editar/contrato/(?P<pk>\d+)/$',
         view=views.ContratoEditView.as_view(),
-        name='editar_contrato'),
-
+        name='editar_contrato'
+    ),
     url(regex=r'^editar/cliente/(?P<pk>\d+)/$',
         view=views.ClienteEditView.as_view(),
-        name='editar_cliente'),
-
+        name='editar_cliente'
+    ),
     url(regex=r'^editar/sitio/(?P<pk>\d+)/$',
         view=views.SitioEditView.as_view(),
-        name='editar_sitio'),
-
-    url(regex=r'^editar/estimacion/(?P<pk>\d+)/$',
-        view=views.EstimateEditView.as_view(),
-        name='editar_estimacion'),
-
-    url(regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
-        view=views.DynamicDelete.as_view(),
-        name='eliminar'),
-
+        name='editar_sitio'
+    ),
     url(
-        regex=r'^delete/?P<model>\w+/(?P<pk>\d+)/$',
+        regex=r'^editar/destinatario/(?P<pk>\d+)/$',
         view=views.DestinatarioEditView.as_view(),
         name='editar_destinatario'
     ),
-
+    url(regex=r'^editar/estimacion/(?P<pk>\d+)/$',
+        view=views.EstimateEditView.as_view(),
+        name='editar_estimacion'
+    ),
+    url(regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
+        view=views.DynamicDelete.as_view(),
+        name='eliminar'
+    ),
     url(regex=r'cliente-autocomplete/$',
         view=views.ClienteAutocomplete.as_view(),
-        name='cliente-autocomplete'),
+        name='cliente-autocomplete'
+    ),
     url(regex=r'sitio-autocomplete/$',
         view=views.SitioAutocomplete.as_view(),
-        name='sitio-autocomplete'),
+        name='sitio-autocomplete'
+    ),
     url(regex=r'destinatario-autocomplete/$',
         view=views.DestinatarioAutocomplete.as_view(),
-        name='destinatario-autocomplete'),
+        name='destinatario-autocomplete'
+    ),
     url(regex=r'^unit-autocomplete/$',
         view=views.UnitAutocomplete.as_view(create_field='unit'),
-        name='unit-autocomplete'),
+        name='unit-autocomplete'
+    ),
 ]
