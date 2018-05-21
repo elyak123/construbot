@@ -257,6 +257,33 @@ class Concept(models.Model):
     def __str__(self):
         return self.concept_text
 
+    def importe_contratado(self):
+        return self.unit_price * self.total_cuantity
+
+    def unit_price_operations(self, attr):
+        new_attr = getattr(self, attr)
+        if new_attr is not None:
+            try:
+                return new_attr / self.unit_price
+            except AttributeError:
+                raise AttributeError(
+                    'El atributo %s no existe en %s, es necesario ejecutar '
+                    'add_estimateconcept_properties desde la instancia.'
+                    'de una Estimación' % (attr, self.concept_text)
+                )
+        else:
+            from decimal import Decimal
+            return Decimal('0.00')
+
+    def cantidad_estimado_anterior(self):
+        return self.unit_price_operations('anterior')
+
+    def cantidad_estimado_ala_fecha(self):
+        return self.unit_price_operations('acumulado')
+
+    def cantidad_esta_estimacion(self):
+        return self.unit_price_operations('estaestimacion')
+
 
 class ECSet(models.QuerySet):
 
