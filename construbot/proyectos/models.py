@@ -107,31 +107,6 @@ class Units(models.Model):
         return self.unit
 
 
-class EstimateSet(models.QuerySet):
-
-    def total_contratado(self):
-        estimateconcept_total = (
-            EstimateConcept.especial.apuntar_total_estimado()
-        )
-        return self.annotate(
-            contratado=models.Subquery(estimateconcept_total, output_field=models.DecimalField())
-        )
-
-    def estimado_anterior(self):
-        anterior = Concept.especial.estimado_anterior().values('anterior')[:1]
-        return self.annotate(estimacion_anterior=F('pk') - 1).annotate(
-            conceptos=models.Subquery(anterior, output_field=models.DecimalField())
-        )
-
-    def reporte_estimacion(self):
-        conceptos = (
-            Concept.especial.add_estimateconcept_properties()
-        )
-        return self.annotate(estimacion_anterior=F('pk') - 1).annotate(
-            conceptos=models.Subquery(conceptos, output_field=models.DecimalField())
-        )
-
-
 class Estimate(models.Model):
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
@@ -148,7 +123,6 @@ class Estimate(models.Model):
     payment_date = models.DateField(null=True, blank=True)
 
     objects = models.Manager()
-    especial = EstimateSet.as_manager()
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
@@ -218,6 +192,9 @@ class Estimate(models.Model):
         )
         return resultado
 
+    def anotaciones_conceptos(self):
+        conceptos = Concept.especial.filter(estimate_concept=self)
+        return conceptos.add_estimateconcept_properties(self.consecutive)
 
     class Meta:
         verbose_name = 'Estimacion'
@@ -226,41 +203,36 @@ class Estimate(models.Model):
 
 class ConceptSet(models.QuerySet):
 
-    def estimado_anterior(self, estimate_consecutive):
-            estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
+    def estimado_a_la_fecha(self, estimate_consecutive):
+            estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
             return self.annotate(
-                anterior=models.Subquery(
+                acumulado=models.Subquery(
                     estimateconcept,
                     output_field=models.DecimalField()
                 )
-            )#.aggregate(Sum('anterior'))#.order_by().values('anterior')  # .order_by().annotate(suma=Sum('estimado'))
+            )
 
-    def add_estimateconcept_properties(self):
-        estimado_anterior = (
-            EstimateConcept.especial.estimado_anterior().values('estimado').order_by().annotate(suma=Sum('estimado'))
-        )
-        estimado_a_la_fecha = (
-            EstimateConcept.especial.estimado_a_la_fecha().values('estimado').order_by().annotate(suma=Sum('estimado'))
-        )
-        esta_estimacion = (
-            EstimateConcept.especial.esta_estimacion().values('estimado').order_by().annotate(suma=Sum('estimado'))
-        )
+    def estimado_anterior(self, estimate_consecutive):
+        estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
         return self.annotate(
             anterior=models.Subquery(
-                estimado_anterior,
-                output_field=models.DecimalField()
-            )
-        ).annotate(
-            alafecha=models.Subquery(
-                estimado_a_la_fecha,
-                output_field=models.DecimalField()
-            )
-        ).annotate(
-            estaestimacion=models.Subquery(
-                esta_estimacion,
+                estimateconcept,
                 output_field=models.DecimalField()
             )
         )
+
+    def esta_estimacion(self, estimate_consecutive):
+        estimateconcept = EstimateConcept.especial.esta_estimacion(estimate_consecutive)
+        return self.annotate(
+            estaestimacion=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
+            )
+        )
+
+    def add_estimateconcept_properties(self, estimate_consecutive):
+        ec = estimate_consecutive
+        return self.estimado_a_la_fecha(ec).estimado_anterior(ec).esta_estimacion(ec)
 
 
 class Concept(models.Model):
@@ -291,28 +263,32 @@ class ECSet(models.QuerySet):
     def apuntar_total_estimado(self):
         return self.annotate(
             estimado=Sum(F('cuantity_estimated') * F('concept__unit_price')),
-            # anterior_pk=F('estimate__pk') - 1
-        ).values('estimado')
+        ).values('estimado').filter(concept=models.OuterRef('pk'))
+
+    def filtro_estimado_a_la_fecha(self, estimate_consecutive):
+        return self.filter(
+                estimate__consecutive__lte=estimate_consecutive
+            ).order_by().values('concept')
 
     def filtro_estimado_anterior(self, estimate_consecutive):
+        consecutivo = estimate_consecutive - 1
         return self.filter(
-                concept=models.OuterRef('pk'),
-                estimate__consecutive__lte=estimate_consecutive
-                #estimate__consecutive__lte=models.OuterRef(models.OuterRef('estimacion_anterior'))
-            ).order_by().values('concept')  # .aggregate(suma=Sum('estimado'))  # .order_by().values('estimado')  # 
+                estimate__consecutive=consecutivo
+            ).order_by().values('concept')
+
+    def filtro_esta_estimacion(self, estimate_consecutive):
+        return self.filter(
+                estimate__consecutive=estimate_consecutive
+            ).order_by().values('concept')
 
     def estimado_anterior(self, estimate_consecutive):
         return self.filtro_estimado_anterior(estimate_consecutive).apuntar_total_estimado()
 
-    def estimado_a_la_fecha(self):
-        return self.apuntar_total_estimado().filter(
-            estimate__consecutive__lte=models.OuterRef(models.OuterRef('estimacion_anterior'))
-        )
+    def estimado_a_la_fecha(self, estimate_consecutive):
+        return self.filtro_estimado_a_la_fecha(estimate_consecutive).apuntar_total_estimado()
 
-    def esta_estimacion(self):
-        return self.apuntar_total_estimado().filter(
-            estimate__consecutive=models.OuterRef(models.OuterRef('consecutive'))
-        )
+    def esta_estimacion(self, estimate_consecutive):
+        return self.filtro_esta_estimacion(estimate_consecutive).apuntar_total_estimado()
 
 
 class EstimateConcept(models.Model):
