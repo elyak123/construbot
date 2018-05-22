@@ -108,9 +108,6 @@ class Units(models.Model):
 
 
 class Estimate(models.Model):
-    """
-        Model that represents the estimate
-    """
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
     draft_by = models.ForeignKey(User, related_name='draft_by', on_delete=models.CASCADE)
@@ -124,6 +121,8 @@ class Estimate(models.Model):
     paid = models.BooleanField(default=False)
     invoiced = models.BooleanField(default=False)
     payment_date = models.DateField(null=True, blank=True)
+
+    objects = models.Manager()
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
@@ -193,12 +192,47 @@ class Estimate(models.Model):
         )
         return resultado
 
+    def anotaciones_conceptos(self):
+        conceptos = Concept.especial.filter(estimate_concept=self)
+        return conceptos.add_estimateconcept_properties(self.consecutive)
+
     class Meta:
         verbose_name = 'Estimacion'
         verbose_name_plural = 'Estimaciones'
 
-    # def __str__(self):
-    #     return self.nombre
+
+class ConceptSet(models.QuerySet):
+
+    def estimado_a_la_fecha(self, estimate_consecutive):
+            estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
+            return self.annotate(
+                acumulado=models.Subquery(
+                    estimateconcept,
+                    output_field=models.DecimalField()
+                )
+            )
+
+    def estimado_anterior(self, estimate_consecutive):
+        estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
+        return self.annotate(
+            anterior=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
+            )
+        )
+
+    def esta_estimacion(self, estimate_consecutive):
+        estimateconcept = EstimateConcept.especial.esta_estimacion(estimate_consecutive)
+        return self.annotate(
+            estaestimacion=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
+            )
+        )
+
+    def add_estimateconcept_properties(self, estimate_consecutive):
+        ec = estimate_consecutive
+        return self.estimado_a_la_fecha(ec).estimado_anterior(ec).esta_estimacion(ec)
 
 
 class Concept(models.Model):
@@ -213,12 +247,75 @@ class Concept(models.Model):
     total_cuantity = models.DecimalField('cuantity', max_digits=12, decimal_places=2, default=0.0)
     unit_price = models.DecimalField('unit_price', max_digits=12, decimal_places=2, default=0.0)
 
+    objects = models.Manager()
+    especial = ConceptSet.as_manager()
+
     class Meta:
         verbose_name = 'Concepto'
         verbose_name_plural = 'Conceptos'
 
     def __str__(self):
         return self.concept_text
+
+    def importe_contratado(self):
+        return self.unit_price * self.total_cuantity
+
+    def unit_price_operations(self, attr):
+        new_attr = getattr(self, attr)
+        if new_attr is not None:
+            try:
+                return new_attr / self.unit_price
+            except AttributeError:
+                raise AttributeError(
+                    'El atributo %s no existe en %s, es necesario ejecutar '
+                    'add_estimateconcept_properties desde la instancia.'
+                    'de una Estimación' % (attr, self.concept_text)
+                )
+        else:
+            from decimal import Decimal
+            return Decimal('0.00')
+
+    def cantidad_estimado_anterior(self):
+        return self.unit_price_operations('anterior')
+
+    def cantidad_estimado_ala_fecha(self):
+        return self.unit_price_operations('acumulado')
+
+    def cantidad_esta_estimacion(self):
+        return self.unit_price_operations('estaestimacion')
+
+
+class ECSet(models.QuerySet):
+
+    def apuntar_total_estimado(self):
+        return self.annotate(
+            estimado=Sum(F('cuantity_estimated') * F('concept__unit_price')),
+        ).values('estimado').filter(concept=models.OuterRef('pk'))
+
+    def filtro_estimado_a_la_fecha(self, estimate_consecutive):
+        return self.filter(
+                estimate__consecutive__lte=estimate_consecutive
+            ).order_by().values('concept')
+
+    def filtro_estimado_anterior(self, estimate_consecutive):
+        consecutivo = estimate_consecutive - 1
+        return self.filter(
+                estimate__consecutive=consecutivo
+            ).order_by().values('concept')
+
+    def filtro_esta_estimacion(self, estimate_consecutive):
+        return self.filter(
+                estimate__consecutive=estimate_consecutive
+            ).order_by().values('concept')
+
+    def estimado_anterior(self, estimate_consecutive):
+        return self.filtro_estimado_anterior(estimate_consecutive).apuntar_total_estimado()
+
+    def estimado_a_la_fecha(self, estimate_consecutive):
+        return self.filtro_estimado_a_la_fecha(estimate_consecutive).apuntar_total_estimado()
+
+    def esta_estimacion(self, estimate_consecutive):
+        return self.filtro_esta_estimacion(estimate_consecutive).apuntar_total_estimado()
 
 
 class EstimateConcept(models.Model):
@@ -229,6 +326,9 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
+
+    objects = models.Manager()
+    especial = ECSet.as_manager()
 
     class Meta:
         verbose_name = 'Estimado por Concepto'
