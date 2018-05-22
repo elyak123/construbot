@@ -230,9 +230,32 @@ class ConceptSet(models.QuerySet):
             )
         )
 
+    def concept_image_count(self):
+        return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
+
+    def total_imagenes_estimacion(self):
+        return self.aggregate(total_images=models.Count('image_count'))
+
+    def importe_total_esta_estimacion(self):
+        return self.aggregate(total=Sum('estaestimacion'))
+
+    def importe_total_anterior(self):
+        return self.aggregate(total=Sum('anterior'))
+
+    def importe_total_acumulado(self):
+        return self.aggregate(total=Sum('acumulado'))
+
+    def importe_total_contratado(self):
+        return self.aggregate(total=Sum(F('unit_price') * F('total_cuantity')))
+
     def add_estimateconcept_properties(self, estimate_consecutive):
-        ec = estimate_consecutive
-        return self.estimado_a_la_fecha(ec).estimado_anterior(ec).esta_estimacion(ec)
+        return (
+                self
+                .estimado_a_la_fecha(estimate_consecutive)
+                .estimado_anterior(estimate_consecutive)
+                .esta_estimacion(estimate_consecutive)
+                .concept_image_count()
+        )
 
 
 class Concept(models.Model):
@@ -283,6 +306,13 @@ class Concept(models.Model):
 
     def cantidad_esta_estimacion(self):
         return self.unit_price_operations('estaestimacion')
+
+    def annotar_imagenes(self, estimate_consecutive):
+        # resulta en QuerySet vacio.....
+        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(concept=self)
+        return ImageEstimateConcept.objects.filter(
+            estimateconcept=conceptos_estimacion,
+        )
 
 
 class ECSet(models.QuerySet):
