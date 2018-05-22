@@ -33,7 +33,6 @@
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-    <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
     <script type="text/javascript">
         $(document).ready(function(){
             var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
@@ -52,6 +51,7 @@
     </script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
+    <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
 {% endblock javascript_no_compress %}
 {% block content %}
