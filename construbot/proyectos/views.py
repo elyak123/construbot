@@ -184,13 +184,11 @@ class EstimateDetailView(DynamicDetail):
 
     def get_context_data(self, **kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
-        conceptos = self.model.get_concept_total(self.object)
+        conceptos = self.object.anotaciones_conceptos()
         context['estimate_images_count'] = self.object.estimateconcept_set.all().aggregate(
             Count('imageestimateconcept')
         )
-        context["conceptos"] = conceptos["conceptos"]
-        context["conceptos_generador"] = conceptos["estimate_concept"]
-        context["totales"] = conceptos["totales"]
+        context["conceptos"] = conceptos
         return context
 
 

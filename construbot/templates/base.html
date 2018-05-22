@@ -17,8 +17,10 @@
     {% compress css %}
       <link href="{% static 'css/project.css' %}" rel="stylesheet">
       {% block css %}
-      {% endblock %}
+      {% endblock css %}
     {% endcompress %}
+    {% block css_no_compress %}
+    {% endblock css_no_compress %}
 
   </head>
 
@@ -96,6 +98,8 @@
       {% block javascript %}
       {% endblock javascript %}
     {% endcompress %}
+    {% block javascript_no_compress %}
+    {% endblock javascript_no_compress %}
 
   </body>
 </html>
