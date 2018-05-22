@@ -29,7 +29,6 @@
             });
         }
     </script>
-    <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
@@ -52,6 +51,9 @@
         });
     </script>
 {% endblock javascript %}
+{% block javascript_no_compress %}
+    <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
+{% endblock javascript_no_compress %}
 {% block content %}
 {% language 'es' %}
     <form role="form" method="post" class="form" enctype="multipart/form-data">
