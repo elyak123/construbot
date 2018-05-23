@@ -271,6 +271,7 @@ $(document).ready(function(){
                 event.target.innerText = "Cancelar";
             }
         });
+
         $(document).on('change', '.custom-file-input', function(){
             $(this).parent().find(".custom-file-label")[0].innerText = $(this).val().replace(/C:\\fakepath\\/i, '');
         });

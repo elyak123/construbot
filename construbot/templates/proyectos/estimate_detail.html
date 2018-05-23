@@ -212,23 +212,25 @@
 						</td>
 					{% endif %}
 				</tr>
-				<tr>
-					<td colspan="9" style="height:600px; text-align: center;">
-							{% if concepto.image_count %}
-								{% for image in concepto.imageestimateconcept_set.all %}
-									{% if concepto.image_count == 1 %}
-										<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
-									{% elif concepto.image_count == 2 %}
-										<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 49%;" src="{{ image.image.url }}">
-									{% else %}
-										<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 49%; max-width: 49%;" src="{{ image.image.url }}">
-									{% endif %}
-								{% endfor %}
-							{% else %}
-								<img src="">
-							{% endif %}
-					</td>
-				</tr>
+				{% if conceptos.total_imagenes_estimacion.total_images %}
+					<tr>
+						<td colspan="9" style="height:600px; text-align: center;">
+								{% if concepto.image_count %}
+									{% for image in concepto.anotar_imagenes %}
+										{% if concepto.image_count == 1 %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
+										{% elif concepto.image_count == 2 %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 49%;" src="{{ image.image.url }}">
+										{% else %}
+											<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 49%; max-width: 49%;" src="{{ image.image.url }}">
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									<img src="">
+								{% endif %}
+						</td>
+					</tr>
+				{% endif %}
 			{% endfor %}
 			{% endlanguage %}
 		</tbody>
