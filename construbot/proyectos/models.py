@@ -129,69 +129,6 @@ class Estimate(models.Model):
             total=Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
         return total
 
-    def get_concept_total(self):
-        total_concept = self.concept_set.annotate(
-            total_concept_amount=Round(
-                F('total_cuantity') * F('unit_price')
-            ),).order_by('id')
-
-        lista = []
-        dicc_totales = {}
-        resultado = {}
-        total_project_amount = total_concept.aggregate(total=Round(
-            Sum(
-                F('total_cuantity') * F('unit_price')
-            )))["total"]
-        current_total_amount = 0
-        previous_total_amount = 0
-        historical_amount = 0
-        for concept in total_concept:
-            dicc = {}
-            current_total = concept.estimateconcept_set.filter(
-                estimate=self,
-            ).annotate(
-                current_amount=Round(
-                    F('cuantity_estimated') * F('concept__unit_price')
-                )
-            )
-            current_total_amount += current_total.first().current_amount
-            if self.consecutive > 1:
-                prev_est = concept.estimateconcept_set.filter(
-                    estimate__consecutive=self.consecutive - 1,
-                ).annotate(
-                    prev_amount=Round(
-                        F('cuantity_estimated') * F('concept__unit_price')
-                    )
-                )
-                dicc['prev_est'] = prev_est.first()
-                previous_total_amount += prev_est.first().prev_amount
-
-            all_prev_est = concept.estimateconcept_set.filter(
-                estimate__consecutive__lte=self.consecutive,
-            ).aggregate(
-                all_prev_amount=Round(
-                    Sum(F('cuantity_estimated') * F('concept__unit_price'))
-                ),
-                all_prev_estimated=Round(
-                    Sum(F('cuantity_estimated'))
-                )
-            )
-            historical_amount += all_prev_est["all_prev_amount"]
-            dicc['concept'] = concept
-            dicc['estimate_concept'] = current_total.first()
-            dicc['all_previous_est'] = all_prev_est
-            lista.append(dicc)
-        dicc_totales['total_project_amount'] = total_project_amount
-        dicc_totales['current_total_amount'] = current_total_amount
-        dicc_totales['previous_total_amount'] = previous_total_amount
-        dicc_totales['historical_amount'] = historical_amount
-        resultado["conceptos"] = lista
-        resultado["totales"] = dicc_totales
-        resultado["estimate_concept"] = self.estimateconcept_set.all().annotate(
-            image_count=models.Count('imageestimateconcept')
-        )
-        return resultado
-
     def anotaciones_conceptos(self):
         conceptos = Concept.especial.filter(estimate_concept=self)
         return conceptos.add_estimateconcept_properties(self.consecutive)
@@ -244,7 +181,7 @@ class ConceptSet(models.QuerySet):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
     def total_imagenes_estimacion(self):
-        return self.aggregate(total_images=models.Count('image_count'))
+        return self.aggregate(total_images=models.Sum('image_count'))
 
     def importe_total_esta_estimacion(self):
         return self.aggregate(total=Sum('estaestimacion'))
@@ -318,7 +255,7 @@ class Concept(models.Model):
     def cantidad_esta_estimacion(self):
         return self.unit_price_operations('estaestimacion')
 
-    def annotar_imagenes(self):
+    def anotar_imagenes(self):
         if hasattr(self, 'conceptoestimacion'):
             return ImageEstimateConcept.objects.filter(estimateconcept=self.conceptoestimacion)
         else:
