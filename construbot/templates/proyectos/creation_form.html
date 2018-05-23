@@ -15,10 +15,6 @@
   <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
   {#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
   <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-{% block javascript_no_compress %}
-  <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
-  <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
-{% endblock javascript_no_compress %}
   <script type="text/javascript">
     $(document).ready(function(){
       var fecha = $("#id_fecha");
@@ -30,7 +26,10 @@
     });
   </script>
 {% endblock javascript %}
-
+{% block javascript_no_compress %}
+  <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
+  <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
+{% endblock javascript_no_compress %}
 {% block title %}{% endblock %}
 
 {# Display django.contrib.messages as Bootstrap alerts #}
