@@ -318,12 +318,14 @@ class Concept(models.Model):
     def cantidad_esta_estimacion(self):
         return self.unit_price_operations('estaestimacion')
 
-    def annotar_imagenes(self, estimate_consecutive):
-        # resulta en QuerySet vacio.....
-        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(concept=self)
-        return ImageEstimateConcept.objects.filter(
-            estimateconcept=conceptos_estimacion,
-        )
+    def annotar_imagenes(self):
+        if hasattr(self, 'conceptoestimacion'):
+            return ImageEstimateConcept.objects.filter(estimateconcept=self.conceptoestimacion)
+        else:
+            raise AttributeError('No es posible realizar la operación porque es necesario '
+                                 'que se ejecute add_estimateconcept_properties o al menos '
+                                 'add_estimateconcept_ids desde la instancia de un QuerySet '
+                                 'con el manejador ConceptSet')
 
 
 class ECSet(models.QuerySet):
