@@ -1,6 +1,7 @@
 import json
 import decimal
 from unittest import mock, skip
+from django.shortcuts import reverse
 from django.core.management import call_command
 from django.utils.six import StringIO
 from django.test import RequestFactory, tag
@@ -9,7 +10,7 @@ from django.http import Http404
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import views
-from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
+from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato, Estimate
 from construbot.users.models import User, Company, Customer
 from . import factories
 
@@ -389,21 +390,87 @@ class DestinatarioCreationTest(BaseViewTest):
 
 
 class EstimateCreationTest(BaseViewTest):
-    @skip
+
     def test_estimate_post_correctly(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        cliente_contrato = factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
+        destinatario = factories.DestinatarioFactory(company=contrato_company, cliente=cliente_contrato)
+        concepto_1 = factories.ConceptoFactory(project=contrato)
+        self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
         self.user.groups.add(proyectos_group)
         self.client.login(username=self.user.username, password='password')
-        post_request = RequestFactory().post('/')
-        post_request.user = self.user
-        form_data = {}
-        response = self.post(views.EstimateCreationView, request=post_request, data=form_data, pk=contrato.pk)
-        self.assertEqual(response.status_code, 200)
-
+        form_data = {
+            'consecutive': '3',
+            'supervised_by': str(self.user.id),
+            'start_date': '2018-04-29',
+            'finish_date': '2018-05-15',
+            'draft_by': str(self.user.id),
+            'project': str(contrato.id),
+            'auth_by': str(destinatario.id),
+            'auth_date': '2018-05-15',
+            'estimateconcept_set-TOTAL_FORMS': '1',
+            'estimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-MAX_NUM_FORMS': '5',
+            'estimateconcept_set-0-concept': concepto_1.concept_text,
+            'estimateconcept_set-0-cuantity_estimated': '2',
+            'estimateconcept_set-0-imageestimateconcept_set-TOTAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
+        }
+        response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
+        try:
+            new_estimate = Estimate.objects.get(project=contrato)
+        except Estimate.ObjectDoesNotExist:
+            self.fail('La estimacion no fue creada.')
+        self.assertRedirects(
+            response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
+        )
+    @tag('current')
+    def test_estimate_post_renders_errors(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        cliente_contrato = factories.ClienteFactory(company=contrato_company)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        # Aqui con esta sentencia la prueba no pasa, considerar eliminar el campo company
+        # destinatario = factories.DestinatarioFactory(company=factories.CompanyFactory(), cliente=cliente_contrato)
+        destinatario = factories.DestinatarioFactory(
+            company=factories.CompanyFactory(),
+            cliente=factories.ClienteFactory()
+        )
+        concepto_1 = factories.ConceptoFactory(project=contrato)
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.user.groups.add(proyectos_group)
+        self.client.login(username=self.user.username, password='password')
+        form_data = {
+            'consecutive': '3',
+            'supervised_by': str(self.user.id),
+            'start_date': '2018-04-29',
+            'finish_date': '2018-05-15',
+            'draft_by': str(self.user.id),
+            'project': str(contrato.id),
+            'auth_by': str(destinatario.id),
+            'auth_date': '2018-05-15',
+            'estimateconcept_set-TOTAL_FORMS': '1',
+            'estimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-MAX_NUM_FORMS': '5',
+            'estimateconcept_set-0-concept': concepto_1.concept_text,
+            'estimateconcept_set-0-cuantity_estimated': '2',
+            'estimateconcept_set-0-imageestimateconcept_set-TOTAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
+        }
+        response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
+        self.assertFormError(response, 'form', None, 'Destinatarios y contratos no pueden ser de empresas diferentes')
 
 class ContratoEditViewTest(BaseViewTest):
     def test_obtiene_objeto_correctamente(self):

@@ -2,8 +2,8 @@ import string
 import datetime
 import factory
 import factory.fuzzy
-from construbot.users.tests.factories import CompanyFactory
-from construbot.proyectos.models import Cliente, Sitio, Contrato, Destinatario, Units, Concept
+from construbot.users.tests.factories import CompanyFactory, UserFactory
+from construbot.proyectos import models
 
 
 class ClienteFactory(factory.django.DjangoModelFactory):
@@ -11,7 +11,7 @@ class ClienteFactory(factory.django.DjangoModelFactory):
     company = factory.SubFactory(CompanyFactory)
 
     class Meta:
-        model = Cliente
+        model = models.Cliente
 
 
 class SitioFactory(factory.django.DjangoModelFactory):
@@ -19,7 +19,7 @@ class SitioFactory(factory.django.DjangoModelFactory):
     company = factory.SubFactory(CompanyFactory)
 
     class Meta:
-        model = Sitio
+        model = models.Sitio
 
 
 class DestinatarioFactory(factory.django.DjangoModelFactory):
@@ -28,7 +28,7 @@ class DestinatarioFactory(factory.django.DjangoModelFactory):
     cliente = factory.SubFactory(ClienteFactory)
 
     class Meta:
-        model = Destinatario
+        model = models.Destinatario
 
 
 class ContratoFactory(factory.django.DjangoModelFactory):
@@ -51,14 +51,26 @@ class ContratoFactory(factory.django.DjangoModelFactory):
     sitio = factory.SubFactory(SitioFactory)
 
     class Meta:
-        model = Contrato
+        model = models.Contrato
+
+
+class EstimateFactory(factory.django.DjangoModelFactory):
+    project = factory.SubFactory(ContratoFactory)
+    consecutive = factory.fuzzy.FuzzyInteger(0, 25)
+    draft_by = factory.SubFactory(UserFactory)
+    supervised_by = factory.SubFactory(UserFactory)
+    start_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
+    finish_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
+
+    class Meta:
+        model = models.Estimate
 
 
 class UnitFactory(factory.django.DjangoModelFactory):
     unit = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='unit_')
 
     class Meta:
-        model = Units
+        model = models.Units
 
 
 class ConceptoFactory(factory.django.DjangoModelFactory):
@@ -70,4 +82,4 @@ class ConceptoFactory(factory.django.DjangoModelFactory):
     unit_price = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
 
     class Meta:
-        model = Concept
+        model = models.Concept
