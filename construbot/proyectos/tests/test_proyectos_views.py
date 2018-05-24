@@ -2,12 +2,7 @@ from django.test import RequestFactory, tag
 from django.http import Http404
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
-from construbot.proyectos.views import (ContratoListView, ClienteListView, SitioListView, DestinatarioListView,
-                                        ContratoDetailView, ClienteDetailView, SitioDetailView, CatalogoConceptos,
-                                        DestinatarioDetailView, ContratoCreationView, ClienteCreationView,
-                                        SitioCreationView, DestinatarioCreationView, ContratoEditView, ClienteEditView,
-                                        SitioEditView, DestinatarioEditView, CatalogoConceptosInlineFormView, SitioAutocomplete,
-                                        ClienteAutocomplete, UnitAutocomplete, ProyectDashboardView, DynamicList, DynamicDetail)
+from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
 from django.core.management import call_command
@@ -32,17 +27,18 @@ class ProyectDashboardViewTest(BaseViewTest):
         company_test = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
         view = self.get_instance(
-            ProyectDashboardView,
+            views.ProyectDashboardView,
             request=self.request
         )
         obj = view.get_object()
         self.assertEqual(obj, company_test)
 
+
 class DynamicListTest(BaseViewTest):
 
     def test_context_contains_models_name(self):
         view = self.get_instance(
-            DynamicList,
+            views.DynamicList,
             request=self.request
         )
         view.model = mock.Mock()
@@ -60,7 +56,7 @@ class DynamicDetailTest(BaseViewTest):
 
     def test_DynamicListView_returns_correct_object_name_for_template(self):
         view = self.get_instance(
-            DynamicDetail,
+            views.DynamicDetail,
             request=self.request
         )
         object_name = view.get_context_object_name(Contrato())
@@ -76,7 +72,7 @@ class ContratoListTest(BaseViewTest):
         contrato_2 = factories.ContratoFactory()
         contrato_3 = factories.ContratoFactory(cliente=cliente_test)
         view = self.get_instance(
-            ContratoListView,
+            views.ContratoListView,
             request=self.request
         )
         qs = view.get_queryset()
@@ -92,7 +88,7 @@ class ClienteListTest(BaseViewTest):
         cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
         cliente_3 = factories.ClienteFactory()
         view = self.get_instance(
-            ClienteListView,
+            views.ClienteListView,
             request=self.request
         )
         qs = view.get_queryset()
@@ -108,7 +104,7 @@ class SitioListTest(BaseViewTest):
         sitio_2 = factories.SitioFactory(company=sitio_company)
         sitio_3 = factories.SitioFactory()
         view = self.get_instance(
-            SitioListView,
+            views.SitioListView,
             request=self.request
         )
         qs = view.get_queryset()
@@ -126,7 +122,7 @@ class DestinatarioListTest(BaseViewTest):
         destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
         destinatario_3 = factories.DestinatarioFactory()
         view = self.get_instance(
-            DestinatarioListView,
+            views.DestinatarioListView,
             request=self.request
         )
         qs = view.get_queryset()
@@ -143,7 +139,7 @@ class ContratoDetailTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         view = self.get_instance(
-            ContratoDetailView,
+            views.ContratoDetailView,
             pk=contrato.pk,
             request=self.request
         )
@@ -155,7 +151,7 @@ class ContratoDetailTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         view = self.get_instance(
-            ContratoDetailView,
+            views.ContratoDetailView,
             pk=contrato.pk,
             request=self.request
         )
@@ -169,7 +165,7 @@ class ClienteDetailTest(BaseViewTest):
         self.request.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company)
         view = self.get_instance(
-            ClienteDetailView,
+            views.ClienteDetailView,
             pk=cliente.pk,
             request=self.request
         )
@@ -180,7 +176,7 @@ class ClienteDetailTest(BaseViewTest):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=cliente_company)
         view = self.get_instance(
-            ClienteDetailView,
+            views.ClienteDetailView,
             pk=cliente.pk,
             request=self.request
         )
@@ -194,7 +190,7 @@ class SitioDetailTest(BaseViewTest):
         self.request.user.currently_at = sitio_company
         sitio = factories.SitioFactory(company=sitio_company)
         view = self.get_instance(
-            SitioDetailView,
+            views.SitioDetailView,
             pk=sitio.pk,
             request=self.request
         )
@@ -205,7 +201,7 @@ class SitioDetailTest(BaseViewTest):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
         sitio = factories.SitioFactory(company=sitio_company)
         view = self.get_instance(
-            SitioDetailView,
+            views.SitioDetailView,
             pk=sitio.pk,
             request=self.request
         )
@@ -223,7 +219,7 @@ class DestinatarioDetailTest(BaseViewTest):
             company=destinatario_company
         )
         view = self.get_instance(
-            DestinatarioDetailView,
+            views.DestinatarioDetailView,
             pk=destinatario.pk,
             request=self.request
         )
@@ -235,7 +231,7 @@ class DestinatarioDetailTest(BaseViewTest):
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         view = self.get_instance(
-            DestinatarioDetailView,
+            views.DestinatarioDetailView,
             pk=destinatario.pk,
             request=self.request
         )
@@ -249,7 +245,7 @@ class ContratoCreationTest(BaseViewTest):
         self.request.user.currently_at = contrato_company
         dicc = {"currently_at": contrato_company.company_name, "folio": 1}
         view = self.get_instance(
-            ContratoCreationView,
+            views.ContratoCreationView,
             request=self.request
         )
         dicc_test = view.get_initial()
@@ -262,7 +258,7 @@ class ContratoCreationTest(BaseViewTest):
         self.request.user.currently_at = contrato_company
         dicc = {"currently_at": contrato_company.company_name, "folio": contrato.folio + 1}
         view = self.get_instance(
-            ContratoCreationView,
+            views.ContratoCreationView,
             request=self.request
         )
         dicc_test = view.get_initial()
@@ -272,7 +268,7 @@ class ContratoCreationTest(BaseViewTest):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         view = self.get_instance(
-            ContratoCreationView,
+            views.ContratoCreationView,
             request=self.request
         )
         view.get_menu = lambda: []
@@ -294,7 +290,7 @@ class ContratoCreationTest(BaseViewTest):
                      }
         with mock.patch('construbot.proyectos.views.ContratoCreationView.get_form_kwargs') as get_form_mock:
             view = self.get_instance(
-                ContratoCreationView,
+                views.ContratoCreationView,
                 request=self.request
             )
             get_form_mock.return_value = {'data': form_data}
@@ -315,7 +311,7 @@ class ClienteCreationTest(BaseViewTest):
         self.request.user.currently_at = cliente_company
         dicc = {"company": cliente_company}
         view = self.get_instance(
-            ClienteCreationView,
+            views.ClienteCreationView,
             request=self.request
         )
         dicc_test = view.get_initial()
@@ -328,7 +324,7 @@ class ClienteCreationTest(BaseViewTest):
         form_data = {'cliente_name': "Juanito", 'company': cliente_company_2.id}
         with mock.patch('construbot.proyectos.views.ClienteCreationView.get_form_kwargs') as get_form_mock:
             view = self.get_instance(
-                ClienteCreationView,
+                views.ClienteCreationView,
                 request=self.request
             )
             get_form_mock.return_value = {'data': form_data}
@@ -349,7 +345,7 @@ class SitioCreationTest(BaseViewTest):
         self.request.user.currently_at = sitio_company
         dicc = {"company": sitio_company}
         view = self.get_instance(
-            SitioCreationView,
+            views.SitioCreationView,
             request=self.request
         )
         dicc_test = view.get_initial()
@@ -362,7 +358,7 @@ class DestinatarioCreationTest(BaseViewTest):
         self.request.user.currently_at = destinatario_company
         dicc = {"company": destinatario_company}
         view = self.get_instance(
-            DestinatarioCreationView,
+            views.DestinatarioCreationView,
             request=self.request
         )
         dicc_test = view.get_initial()
@@ -391,12 +387,22 @@ class DestinatarioCreationTest(BaseViewTest):
                 self.assertRedirects(response, '/proyectos/destinatario/detalle/%s/' % new_destinatario.id)
 
 
+# class EstimateCreationTest(BaseViewTest):
+
+#     def test_estimate_post_correctly(self):
+#         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+#         contrato = factories.ContratoFactory(company=contrato_company)
+#         self.client.login(username=self.user.username, password='password')
+#         form_data = {}
+#         response = self.post(EstimateCreationView, data=form_data)
+
+
 class ContratoEditViewTest(BaseViewTest):
     def test_obtiene_objeto_correctamente(self):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         self.user.currently_at = contrato.cliente.company
         view = self.get_instance(
-            ContratoEditView,
+            views.ContratoEditView,
             request=self.request,
             pk=contrato.pk,
         )
@@ -406,7 +412,7 @@ class ContratoEditViewTest(BaseViewTest):
     def test_get_object_raises_404_not_currently_at(self):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
-            ContratoEditView,
+            views.ContratoEditView,
             request=self.request,
             pk=contrato.pk
         )
@@ -417,7 +423,7 @@ class ContratoEditViewTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         self.user.currently_at = contrato.cliente.company
         view = self.get_instance(
-            ContratoEditView,
+            views.ContratoEditView,
             request=self.request,
             pk=contrato.pk
         )
@@ -437,7 +443,7 @@ class ContratoEditViewTest(BaseViewTest):
                      }
         with mock.patch('construbot.proyectos.views.ContratoEditView.get_form_kwargs') as get_form_mock:
             view = self.get_instance(
-                ContratoEditView,
+                views.ContratoEditView,
                 request=self.request,
                 pk=contrato_factory.pk
             )
@@ -456,7 +462,7 @@ class ClienteEditTest(BaseViewTest):
         cliente = factories.ClienteFactory()
         self.user.currently_at = cliente.company
         view = self.get_instance(
-            ClienteEditView,
+            views.ClienteEditView,
             request=self.request,
             pk=cliente.pk,
         )
@@ -466,7 +472,7 @@ class ClienteEditTest(BaseViewTest):
     def test_get_cliente_object_raises_404_not_currently_at(self):
         cliente = factories.ClienteFactory()
         view = self.get_instance(
-            ClienteEditView,
+            views.ClienteEditView,
             request=self.request,
             pk=cliente.pk,
         )
@@ -477,7 +483,7 @@ class ClienteEditTest(BaseViewTest):
         cliente = factories.ClienteFactory()
         self.user.currently_at = cliente.company
         view = self.get_instance(
-            ClienteEditView,
+            views.ClienteEditView,
             request=self.request,
             pk=cliente.pk,
         )
@@ -491,7 +497,7 @@ class SitioEditTest(BaseViewTest):
         sitio = factories.SitioFactory()
         self.user.currently_at = sitio.company
         view = self.get_instance(
-            SitioEditView,
+            views.SitioEditView,
             request=self.request,
             pk=sitio.pk,
         )
@@ -501,7 +507,7 @@ class SitioEditTest(BaseViewTest):
     def test_get_sitio_object_raises_404_not_currently_at(self):
         sitio = factories.SitioFactory()
         view = self.get_instance(
-            SitioEditView,
+            views.SitioEditView,
             request=self.request,
             pk=sitio.pk,
         )
@@ -512,7 +518,7 @@ class SitioEditTest(BaseViewTest):
         sitio = factories.SitioFactory()
         self.user.currently_at = sitio.company
         view = self.get_instance(
-            SitioEditView,
+            views.SitioEditView,
             request=self.request,
             pk=sitio.pk,
         )
@@ -526,7 +532,7 @@ class DestinatarioEditTest(BaseViewTest):
         destinatario = factories.DestinatarioFactory()
         self.user.currently_at = destinatario.cliente.company
         view = self.get_instance(
-            DestinatarioEditView,
+            views.DestinatarioEditView,
             request=self.request,
             pk=destinatario.pk,
         )
@@ -536,7 +542,7 @@ class DestinatarioEditTest(BaseViewTest):
     def test_get_destinatario_object_raises_404_not_currently_at(self):
         destinatario = factories.DestinatarioFactory()
         view = self.get_instance(
-            DestinatarioEditView,
+            views.DestinatarioEditView,
             request=self.request,
             pk=destinatario.pk,
         )
@@ -547,7 +553,7 @@ class DestinatarioEditTest(BaseViewTest):
         destinatario = factories.DestinatarioFactory()
         self.user.currently_at = destinatario.cliente.company
         view = self.get_instance(
-            DestinatarioEditView,
+            views.DestinatarioEditView,
             request=self.request,
             pk=destinatario.pk,
         )
@@ -563,7 +569,7 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         cliente_inline = factories.ClienteFactory(company=company_inline)
         contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
         view = self.get_instance(
-            CatalogoConceptosInlineFormView,
+            views.CatalogoConceptosInlineFormView,
             request=self.request,
             pk=contrato_inline.pk
         )
@@ -576,7 +582,7 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         cliente_inline = factories.ClienteFactory(company=company_inline)
         contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
         view = self.get_instance(
-            CatalogoConceptosInlineFormView,
+            views.CatalogoConceptosInlineFormView,
             request=self.request,
             pk=contrato_inline.pk
         )
@@ -601,7 +607,7 @@ class CatalogoConceptosTest(BaseViewTest):
                 project=contrato,
             )
         response = self.get(
-                CatalogoConceptos,
+                views.CatalogoConceptos,
                 pk=contrato.pk,
                 request=self.request,
         )
@@ -643,7 +649,7 @@ class ClienteAutocompleteTest(BaseViewTest):
         cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
         cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
         view = self.get_instance(
-            ClienteAutocomplete,
+            views.ClienteAutocomplete,
             request=self.request,
         )
         view.q = "aar"
@@ -657,7 +663,7 @@ class ClienteAutocompleteTest(BaseViewTest):
         cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
         cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
         view = self.get_instance(
-            ClienteAutocomplete,
+            views.ClienteAutocomplete,
             request=self.request,
         )
         view.q = ""
@@ -672,7 +678,7 @@ class SitioAutocompleteTest(BaseViewTest):
         sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
         sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
         view = self.get_instance(
-            SitioAutocomplete,
+            views.SitioAutocomplete,
             request=self.request,
         )
         view.q = "Pábé"
@@ -686,7 +692,7 @@ class SitioAutocompleteTest(BaseViewTest):
         sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
         sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
         view = self.get_instance(
-            SitioAutocomplete,
+            views.SitioAutocomplete,
             request=self.request,
         )
         view.q = ""
@@ -701,7 +707,7 @@ class UnitAutocompleteTest(BaseViewTest):
         unit = factories.UnitFactory(unit="Kilo")
         unit_2 = factories.UnitFactory(unit="Kilogramo")
         view = self.get_instance(
-            UnitAutocomplete,
+            views.UnitAutocomplete,
             request=self.request,
         )
         view.q = "kil"
@@ -713,7 +719,7 @@ class UnitAutocompleteTest(BaseViewTest):
         company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         view = self.get_instance(
-            UnitAutocomplete,
+            views.UnitAutocomplete,
             request=self.request,
         )
         view.q = "some search"
