@@ -1,16 +1,17 @@
+import json
+import decimal
+from unittest import mock, skip
+from django.core.management import call_command
+from django.utils.six import StringIO
 from django.test import RequestFactory, tag
+from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato
 from construbot.users.models import User, Company, Customer
-from django.core.management import call_command
-from django.utils.six import StringIO
 from . import factories
-import json
-import decimal
-from unittest import mock
 
 
 class BaseViewTest(utils.BaseTestCase):
@@ -387,14 +388,21 @@ class DestinatarioCreationTest(BaseViewTest):
                 self.assertRedirects(response, '/proyectos/destinatario/detalle/%s/' % new_destinatario.id)
 
 
-# class EstimateCreationTest(BaseViewTest):
-
-#     def test_estimate_post_correctly(self):
-#         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
-#         contrato = factories.ContratoFactory(company=contrato_company)
-#         self.client.login(username=self.user.username, password='password')
-#         form_data = {}
-#         response = self.post(EstimateCreationView, data=form_data)
+class EstimateCreationTest(BaseViewTest):
+    @skip
+    def test_estimate_post_correctly(self):
+        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        self.user.currently_at = contrato_company
+        self.user.groups.add(proyectos_group)
+        self.client.login(username=self.user.username, password='password')
+        post_request = RequestFactory().post('/')
+        post_request.user = self.user
+        form_data = {}
+        response = self.post(views.EstimateCreationView, request=post_request, data=form_data, pk=contrato.pk)
+        self.assertEqual(response.status_code, 200)
 
 
 class ContratoEditViewTest(BaseViewTest):
