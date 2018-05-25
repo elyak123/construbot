@@ -845,6 +845,26 @@ class CatalogoConceptosTest(BaseViewTest):
         self.assertJSONEqual(JSON_view, JSON_test)
 
 
+class DynamicDeleteTest(BaseViewTest):
+
+    @mock.patch.object(views.DynamicDelete, 'get_object')
+    def test_delete_method_calls_functions(self, mock_object):
+        with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
+            contrato_delete = mock.Mock()
+            contrato_delete.pk = 1
+            request = RequestFactory().post(
+                reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_delete.pk}),
+                data={'value': 'confirm'}
+            )
+            view = self.get_instance(
+                views.DynamicDelete,
+                request=request,
+            )
+            response = view.delete(request)
+        mock_object.assert_called_once()
+        mock_folio.assert_called_once()
+        self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
+
 class ClienteAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_cliente_object(self):
         company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)

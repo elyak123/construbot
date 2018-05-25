@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
-from django.db.models import Max, Count
+from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from dal import autocomplete
@@ -467,18 +467,18 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         )
         return obj
 
+    def folio_handling(self):
+        folio = self.object.folio if hasattr(self, 'folio') else 0
+        if folio:
+            qs = self.model.objects.filter(
+                **self.get_company_query(self.kwargs['model']), folio__gt=self.folio
+                ).update(folio=F('folio') - 1)
+            return qs
+        return None
+
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        try:
-            folio = self.object.folio
-        except AttributeError:
-            folio = 0
-        if folio:
-            qs = self.model.objects.filter(**self.get_company_query(self.kwargs['model']))
-            for i in qs:
-                if i.folio > folio:
-                    i.folio -= 1
-                    i.save()
+        self.folio_handling()
         self.object.delete()
         return JsonResponse({"exito": True})
 
