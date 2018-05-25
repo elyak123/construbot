@@ -479,8 +479,7 @@ class EstimateCreationTest(BaseViewTest):
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
         self.assertFormError(response, 'form', None, 'Destinatarios y contratos no pueden ser de empresas diferentes')
 
-    @skip
-    def test_estimate_post_renders_formset_errors(self):
+    def test_estimate_createview_renders_formset_errors(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
@@ -513,10 +512,92 @@ class EstimateCreationTest(BaseViewTest):
             'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
         }
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
-        self.assertFormsetError(response, 'generator_inline_concept', '0', 'cuantity_estimated', ['Enter a number.'])
-        self.assertRedirects(
-            response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
+        self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Enter a number.'])
+        self.assertEqual(response.status_code, 200)
+
+
+class EstimateEditTest(BaseViewTest):
+
+    def test_estimate_edit_saves_forms_when_valid(self):
+        company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente = factories.ClienteFactory(company=company)
+        contrato = factories.ContratoFactory(cliente=cliente)
+        estimacion = factories.EstimateFactory(project=contrato)
+        request = RequestFactory().post(
+            reverse('proyectos:editar_estimacion', kwargs={'pk': estimacion.pk}),
+            data={'dato': 'dato'}
         )
+        view = self.get_instance(
+            views.EstimateEditView,
+            request=request,
+            pk=contrato.pk
+        )
+        view.object = estimacion
+        with mock.patch('construbot.proyectos.forms.estimateConceptInlineForm') as mock_function:
+            mock_formset_instance = mock.Mock()
+            mock_formset = mock_formset_instance()
+            mock_formset.is_valid.return_value = True
+            mock_function.return_value = mock_formset_instance
+            mock_form = mock.Mock()
+            view.form_valid(mock_form)
+        self.assertTrue(mock_form.save.called)
+        self.assertTrue(mock_formset.is_valid.called)
+        self.assertTrue(mock_formset.save.called)
+
+    @mock.patch.object(views.EstimateEditView, 'form_invalid')
+    def test_estimate_edit_executes_form_invalid_on_formset_invalid(self, mock_method):
+        company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente = factories.ClienteFactory(company=company)
+        contrato = factories.ContratoFactory(cliente=cliente)
+        estimacion = factories.EstimateFactory(project=contrato)
+        request = RequestFactory().post(
+            reverse('proyectos:editar_estimacion', kwargs={'pk': estimacion.pk}),
+            data={'dato': 'dato'}
+        )
+        view = self.get_instance(
+            views.EstimateEditView,
+            request=request,
+            pk=contrato.pk
+        )
+        view.object = estimacion
+        with mock.patch('construbot.proyectos.forms.estimateConceptInlineForm') as mock_function:
+            mock_formset_instance = mock.Mock()
+            mock_formset = mock_formset_instance()
+            mock_formset.is_valid.return_value = False
+            mock_function.return_value = mock_formset_instance
+            mock_form = mock.Mock()
+            view.form_valid(mock_form)
+        self.assertTrue(mock_form.save.called)
+        self.assertTrue(mock_formset.is_valid.called)
+        self.assertFalse(mock_formset.save.called)
+        self.assertTrue(mock_method.caled)
+
+    @mock.patch.object(views.EstimateEditView, 'form_invalid')
+    def test_estimate_edit_returns_same_formset_on_errors(self, mock_method):
+        company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente = factories.ClienteFactory(company=company)
+        contrato = factories.ContratoFactory(cliente=cliente)
+        estimacion = factories.EstimateFactory(project=contrato)
+        view = self.get_instance(
+            views.EstimateEditView,
+            request=self.request,
+            pk=contrato.pk
+        )
+        view.object = estimacion
+        with mock.patch('construbot.proyectos.forms.estimateConceptInlineForm') as mock_function:
+            mock_formset_instance = mock.Mock()
+            mock_formset = mock_formset_instance()
+            mock_formset.is_valid.return_value = False
+            mock_function.return_value = mock_formset_instance
+            mock_form = mock.Mock()
+            view.form_valid(mock_form)
+            view.conceptForm = view.get_formset_for_context()
+        with self.assertRaises(AssertionError):
+            # nunca fue llamado, por lo tanto se levanta el error
+            mock_function().assert_any_call(instance=view.object)
+        # son dos llamados, una por la prueba y otra por la sentencia anterior...
+        self.assertEqual(mock_function.call_count, 2)
+        mock_formset.assert_called_once
 
 
 class ContratoEditViewTest(BaseViewTest):

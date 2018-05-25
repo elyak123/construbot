@@ -8,8 +8,7 @@ from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
-from .forms import (ContratoForm, ClienteForm, SitioForm, DestinatarioForm, ContractConceptInlineForm, EstimateForm,
-                    estimateConceptInlineForm)
+from construbot.proyectos import forms
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -189,7 +188,7 @@ class EstimateDetailView(DynamicDetail):
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
-    form_class = ContratoForm
+    form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
 
     def get_form(self, *args, **kwargs):
@@ -228,19 +227,19 @@ class DynamicCreation(ProyectosMenuMixin, CreateView):
 
 
 class ClienteCreationView(DynamicCreation):
-    form_class = ClienteForm
+    form_class = forms.ClienteForm
 
 
 class SitioCreationView(DynamicCreation):
-    form_class = SitioForm
+    form_class = forms.SitioForm
 
 
 class DestinatarioCreationView(DynamicCreation):
-    form_class = DestinatarioForm
+    form_class = forms.DestinatarioForm
 
 
 class EstimateCreationView(ProyectosMenuMixin, CreateView):
-    form_class = EstimateForm
+    form_class = forms.EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
 
@@ -249,7 +248,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         fill_data = self.fill_concept_formset()
-        inlineform = estimateConceptInlineForm(count=self.concept_count)
+        inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(initial=fill_data)
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
@@ -267,7 +266,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         if form.is_valid():
             return self.form_valid(form)
         else:
-            inlineform = estimateConceptInlineForm(count=self.concept_count)
+            inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
             generator_inline_concept = inlineform(initial=fill_data)
             return self.form_invalid(form, generator_inline_concept)
 
@@ -296,7 +295,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         return initial_dict
 
     def form_valid(self, form):
-        inlineform = estimateConceptInlineForm(count=self.concept_count)
+        inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(
             self.request.POST,
             self.request.FILES,
@@ -351,7 +350,7 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
-    form_class = ContratoForm
+    form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
 
     def get_form(self, *args, **kwargs):
@@ -374,19 +373,19 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
 
 class ClienteEditView(DynamicEdition):
-    form_class = ClienteForm
+    form_class = forms.ClienteForm
 
 
 class SitioEditView(DynamicEdition):
-    form_class = SitioForm
+    form_class = forms.SitioForm
 
 
 class DestinatarioEditView(DynamicEdition):
-    form_class = DestinatarioForm
+    form_class = forms.DestinatarioForm
 
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
-    form_class = EstimateForm
+    form_class = forms.EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate
 
@@ -406,7 +405,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
 
     def form_valid(self, form):
         form.save()
-        conceptformclass = estimateConceptInlineForm()
+        conceptformclass = forms.estimateConceptInlineForm()
         self.conceptForm = conceptformclass(
             self.request.POST,
             self.request.FILES,
@@ -418,29 +417,26 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         else:
             return self.form_invalid(form)
 
+    def get_formset_for_context(self):
+        if not hasattr(self, 'conceptForm'):
+            formset = forms.estimateConceptInlineForm()(instance=self.object)
+        else:
+            formset = self.conceptForm
+        return formset
+
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
-        if not hasattr(self, 'conceptForm'):
-            formset = estimateConceptInlineForm()(instance=self.object)
-        else:
-            formset = self.conceptForm
+        formset = self.get_formset_for_context()
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
         context['generator_inline_concept'] = formset
         context['image_formset_prefix'] = image_formset_prefix
         context['project_instance'] = project_instance
         return context
 
-    def get_success_url(self):
-        project_id = Estimate.objects.get(pk=self.kwargs.get('pk')).project.id
-        url = reverse_lazy('proyectos:contrato_detail', kwargs={
-            'pk': project_id
-        })
-        return url
-
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
-    form_class = ContractConceptInlineForm
+    form_class = forms.ContractConceptInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
 
     def get_object(self):

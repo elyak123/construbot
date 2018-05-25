@@ -124,6 +124,9 @@ class Estimate(models.Model):
 
     objects = models.Manager()
 
+    def get_absolute_url(self):
+        return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})
+
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
             total=Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
