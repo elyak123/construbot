@@ -864,6 +864,31 @@ class DynamicDeleteTest(BaseViewTest):
         mock_object.assert_called_once()
         mock_folio.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
+    @tag('current')
+    def test_folio_handling_perfoms_correct_qs(self):
+        company_delete = factories.CompanyFactory(customer=self.user.customer)
+        cliente_delete = factories.ClienteFactory(company=company_delete)
+        contrato_delete = factories.ContratoFactory(cliente=cliente_delete)
+        self.user.currently_at = company_delete
+        request = RequestFactory().post(
+            reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_delete.pk}),
+            data={'value': 'confirm'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.DynamicDelete,
+            request=request,
+            model='Contrato',
+            pk=contrato_delete.pk
+        )
+        obj = view.get_object()
+        qs = view.folio_handling()
+        # falta esto por probar.
+        # qs_test = [repr(a) for a in [cliente, cliente_2]]
+        # self.assertQuerysetEqual(qs, qs_test, ordered=False)
+        self.assertEqual(obj.pk, contrato_delete.pk)
+
+
 
 class ClienteAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_cliente_object(self):
