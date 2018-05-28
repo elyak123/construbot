@@ -847,6 +847,40 @@ class CatalogoConceptosTest(BaseViewTest):
 
 class DynamicDeleteTest(BaseViewTest):
 
+    @mock.patch('django.shortcuts.get_object_or_404')
+    def test_get_object_calls_get_obj_or_404(self, mock_404):
+        contrato = factories.ContratoFactory()
+        mock_404.return_value = contrato
+        self.user.currently_at = contrato.cliente.company
+        view = self.get_instance(
+            views.DynamicDelete,
+            request=self.request,
+            model='Contrato',
+            pk=contrato.pk
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, contrato)
+        mock_404.assert_called_once()
+
+    def test_dynamic_delete_gets_object(self):
+        company_delete = factories.CompanyFactory(customer=self.user.customer)
+        cliente_delete = factories.ClienteFactory(company=company_delete)
+        contrato_object = factories.ContratoFactory(folio=1, cliente=cliente_delete)
+        request = RequestFactory().post(
+            reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_object.pk}),
+            data={'value': 'confirm'}
+        )
+        request.user = self.user
+        self.user.currently_at = company_delete
+        view = self.get_instance(
+            views.DynamicDelete,
+            request=request,
+            model='Contrato',
+            pk=contrato_object.pk
+        )
+        view_obj = view.get_object()
+        self.assertEqual(contrato_object, view_obj)
+
     @mock.patch.object(views.DynamicDelete, 'get_object')
     def test_delete_method_calls_functions(self, mock_object):
         with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
@@ -864,8 +898,9 @@ class DynamicDeleteTest(BaseViewTest):
         mock_object.assert_called_once()
         mock_folio.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
-    @tag('current')
-    def test_folio_handling_perfoms_correct_qs(self):
+
+    @mock.patch.object(views.DynamicDelete, 'get_company_query')
+    def test_folio_handling_perfoms_correct_qs(self, mock_query):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
         cliente_delete = factories.ClienteFactory(company=company_delete)
         contrato_delete = factories.ContratoFactory(folio=1, cliente=cliente_delete)
@@ -883,13 +918,65 @@ class DynamicDeleteTest(BaseViewTest):
             model='Contrato',
             pk=contrato_delete.pk
         )
-        view.object = view.get_object()
+        view.object = contrato_delete
+        view.model = contrato_delete._meta.model
+        mock_query.return_value = (
+            {'cliente__company': self.user.currently_at, 'folio__gt': view.object.folio}, 'folio'
+        )
         view.folio_handling()
         contrato_delete_2.refresh_from_db()
         contrato_delete_3.refresh_from_db()
+        mock_query.assert_called_once()
         self.assertEqual(contrato_delete_2.folio, 1)
         self.assertEqual(contrato_delete_3.folio, 2)
-        self.assertEqual(view.object.pk, contrato_delete.pk)
+
+    @mock.patch.object(views.DynamicDelete, 'get_object')
+    def test_get_company_query_with_estimate(self, mock_object):
+        estimate = factories.EstimateFactory()
+        mock_object.return_value = estimate
+        request = RequestFactory().post(
+            reverse('proyectos:eliminar', kwargs={'model': 'Estimate', 'pk': estimate.pk}),
+            data={'value': 'confirm'}
+        )
+        self.user.currently_at = estimate.project.cliente.company
+        request.user = self.user
+        view = self.get_instance(
+            views.DynamicDelete,
+            request=request,
+            model='Estimate',
+            pk=estimate.pk
+        )
+        view.object = view.get_object()
+        control_dict = {
+            'project__cliente__company': self.request.user.currently_at,
+            'consecutive__gt': estimate.consecutive
+        }
+        kwargs, field = view.get_company_query('Estimate')
+        self.assertDictEqual(kwargs, control_dict)
+
+    @mock.patch.object(views.DynamicDelete, 'get_object')
+    def test_get_company_query_with_contrato(self, mock_object):
+        contrato = factories.ContratoFactory()
+        mock_object.return_value = contrato
+        request = RequestFactory().post(
+            reverse('proyectos:eliminar', kwargs={'model': 'Estimate', 'pk': contrato.pk}),
+            data={'value': 'confirm'}
+        )
+        self.user.currently_at = contrato.cliente.company
+        request.user = self.user
+        view = self.get_instance(
+            views.DynamicDelete,
+            request=request,
+            model='Estimate',
+            pk=contrato.pk
+        )
+        view.object = view.get_object()
+        control_dict = {
+            'cliente__company': self.request.user.currently_at,
+            'folio__gt': contrato.folio
+        }
+        kwargs, field = view.get_company_query('Contrato')
+        self.assertDictEqual(kwargs, control_dict)
 
 
 class ClienteAutocompleteTest(BaseViewTest):

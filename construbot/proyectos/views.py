@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django import shortcuts
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
@@ -139,7 +139,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
-        contrato = get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
+        contrato = shortcuts.get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
         queryset = self.model.objects.filter(project=contrato)
         json = {}
         json['conceptos'] = []
@@ -159,7 +159,7 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         return obj.__class__.__name__.lower()
 
     def get_object(self, queryset=None):
-        return get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+        return shortcuts.get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
 
 
 class ContratoDetailView(DynamicDetail):
@@ -271,7 +271,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             return self.form_invalid(form, generator_inline_concept)
 
     def fill_concept_formset(self):
-        self.project_instance = get_object_or_404(
+        self.project_instance = shortcuts.get_object_or_404(
             Contrato,
             pk=self.kwargs.get('pk'),
             cliente__company=self.request.user.currently_at
@@ -331,7 +331,7 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
     template_name = 'proyectos/creation_form.html'
 
     def get_object(self):
-        obj = get_object_or_404(
+        obj = shortcuts.get_object_or_404(
             self.form_class.Meta.model,
             pk=self.kwargs['pk'],
             **self.get_company_query(self.form_class.Meta.model.__name__)
@@ -359,7 +359,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         return form
 
     def get_object(self):
-        obj = get_object_or_404(
+        obj = shortcuts.get_object_or_404(
             Contrato,
             pk=self.kwargs['pk'],
             cliente__company=self.request.user.currently_at
@@ -390,7 +390,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
     model = Estimate
 
     def get_object(self, queryset=None):
-        self.object = get_object_or_404(
+        self.object = shortcuts.get_object_or_404(
             self.model,
             pk=self.kwargs['pk'],
             project__cliente__company=self.request.user.currently_at
@@ -441,7 +441,7 @@ class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
 
     def get_object(self):
         self.model = self.form_class.fk.related_model._meta.model
-        obj = get_object_or_404(
+        obj = shortcuts.get_object_or_404(
             self.model,
             cliente__company=self.request.user.currently_at,
             pk=self.kwargs['pk']
@@ -460,7 +460,7 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
 
     def get_object(self):
         self.model = self.model_options[self.kwargs['model']]['model']
-        obj = get_object_or_404(
+        obj = shortcuts.get_object_or_404(
             self.model,
             **self.get_company_query(self.kwargs['model']),
             pk=self.kwargs['pk']
