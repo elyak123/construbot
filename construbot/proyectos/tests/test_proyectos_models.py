@@ -39,7 +39,7 @@ class SitioModelTest(BaseModelTesCase):
     def test_sitio_absolute_url_is_correct(self):
         sitio = factories.SitioFactory()
         self.assertEqual(sitio.get_absolute_url(), '/proyectos/sitio/detalle/{}/'.format(sitio.pk))
-
+    @tag('current')
     def test_query_contratos_ordenados(self):
         sitio_company = user_factories.CompanyFactory()
         sitio = factories.SitioFactory(company=sitio_company)
@@ -50,7 +50,19 @@ class SitioModelTest(BaseModelTesCase):
         control = [repr(x) for x in sorted(
             [sitio_contrato_1, sitio_contrato_2], key=lambda x: repr(x.fecha), reverse=True)
         ]
-        self.assertQuerysetEqual(contratos_ordenados, control)
+        # breaks on:
+        # nombre_rAdLL6Km.fecha = 2014-12-11
+        # nombre_EcS6gC2S.fecha = 2014-05-27
+        self.assertQuerysetEqual(
+            contratos_ordenados,
+            control,
+            msg='\nsitio.get_contratos_ordenados:\n{}.fecha = {}\n{}.fecha = {}'.format(
+                contratos_ordenados[0].contrato_name,
+                contratos_ordenados[0].fecha,
+                contratos_ordenados[1].contrato_name,
+                contratos_ordenados[1].fecha,
+            )
+        )
 
 
 class ContratoModelTest(BaseModelTesCase):
@@ -61,7 +73,12 @@ class ContratoModelTest(BaseModelTesCase):
 
 
 class EstimateModelTest(BaseModelTesCase):
-    @skip
+
     def test_estimacion_absolute_url(self):
         estimacion = factories.EstimateFactory()
-        self.assertEqual(estimacion.get_absolute_url(), '/proyectos/estimacion/detalle/{}/'.format(estimacion.pk))
+        self.assertEqual(
+            estimacion.get_absolute_url(), '/proyectos/contrato/detalle/{}/'.format(estimacion.project.pk)
+        )
+
+    def test_total_estimate_method(self):
+        pass
