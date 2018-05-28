@@ -1,7 +1,8 @@
+from unittest import skip
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
-from construbot.proyectos import models
+# from construbot.proyectos import models
 from . import factories
 
 
@@ -19,7 +20,7 @@ class ClienteModelTest(BaseModelTesCase):
     def test_correct_absolute_url(self):
         cliente = factories.ClienteFactory()
         self.assertEqual(
-            cliente.get_absolute_url(), 
+            cliente.get_absolute_url(),
             '/proyectos/cliente/detalle/{}/'.format(cliente.pk)
         )
 
@@ -34,7 +35,14 @@ class ClienteModelTest(BaseModelTesCase):
 
 
 class SitioModelTest(BaseModelTesCase):
-    @tag('current')
+    # @tag('current')
     def test_sitio_absolute_url_is_correct(self):
         sitio = factories.SitioFactory()
         self.assertEqual(sitio.get_absolute_url(), '/proyectos/sitio/detalle/{}/'.format(sitio.pk))
+
+    @skip
+    def test_query_contratos_ordenados(self):
+        sitio_company = user_factories.CompanyFactory()
+        sitio = factories.SitioFactory(company=company)
+        sitio_contrato_1 = factories.ContratoFactory(sitio=sitio)
+
