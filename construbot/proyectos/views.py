@@ -467,10 +467,23 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         )
         return obj
 
+    def get_company_query(self, opcion):
+        kwargs = super(DynamicDelete, self).get_company_query(opcion)
+        if hasattr(self, 'object'):
+            if opcion == 'Estimate':
+                folio = {'consecutive__gt': self.object.consecutive}
+                field = 'consecutive'
+            else:
+                folio = {'folio__gt': self.object.folio}
+                field = 'folio'
+            kwargs.update(folio)
+            return (kwargs, field)
+        return kwargs
+
     def folio_handling(self):
-        self.model.objects.filter(
-            **self.get_company_query(self.kwargs['model']), folio__gt=self.object.folio
-            ).update(folio=F('folio') - 1)
+        if hasattr(self.object, 'folio') or hasattr(self.object, 'consecutive'):
+            kwargs, field = self.get_company_query(self.kwargs['model'])
+            self.model.objects.filter(**kwargs).update(folio=F(field) - 1)
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

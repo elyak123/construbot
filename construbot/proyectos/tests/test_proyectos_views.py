@@ -864,7 +864,7 @@ class DynamicDeleteTest(BaseViewTest):
         mock_object.assert_called_once()
         mock_folio.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
-
+    @tag('current')
     def test_folio_handling_perfoms_correct_qs(self):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
         cliente_delete = factories.ClienteFactory(company=company_delete)
