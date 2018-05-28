@@ -468,13 +468,9 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         return obj
 
     def folio_handling(self):
-        folio = self.object.folio if hasattr(self.object, 'folio') else 0
-        if folio:
-            qs = self.model.objects.filter(
-                **self.get_company_query(self.kwargs['model']), folio__gt=self.object.folio
-                ).update(folio=F('folio') - 1)
-            return qs
-        return None
+        self.model.objects.filter(
+            **self.get_company_query(self.kwargs['model']), folio__gt=self.object.folio
+            ).update(folio=F('folio') - 1)
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
