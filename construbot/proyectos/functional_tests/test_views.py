@@ -1,10 +1,8 @@
 from construbot.core.functional_tests_base import FunctionalTest
-from django.core.urlresolvers import reverse
 from selenium.webdriver.common.action_chains import ActionChains
 from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato
 from django.contrib.auth.models import Group
 from django.test import tag
-from django.urls import reverse
 
 
 @tag("index")

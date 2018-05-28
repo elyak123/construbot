@@ -3,6 +3,7 @@ from django.test import override_settings
 from selenium                   import webdriver
 from django.contrib.auth.models import Permission
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import Select
 import os
 import time
 from construbot.users.tests import factories as user_factories
@@ -83,6 +84,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                     sitio=sitios[0],
                 ))
             return contratos
+
+    def fast_multiselect(self, element_id, labels):
+            select = Select(self.browser.find_element_by_id(element_id))
+            select.deselect_all()
+            for label in labels:
+                select.select_by_visible_text(label)
 
     def tearDown(self):
         self.browser.quit()
