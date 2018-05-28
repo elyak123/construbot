@@ -35,14 +35,33 @@ class ClienteModelTest(BaseModelTesCase):
 
 
 class SitioModelTest(BaseModelTesCase):
-    # @tag('current')
+
     def test_sitio_absolute_url_is_correct(self):
         sitio = factories.SitioFactory()
         self.assertEqual(sitio.get_absolute_url(), '/proyectos/sitio/detalle/{}/'.format(sitio.pk))
 
-    @skip
     def test_query_contratos_ordenados(self):
         sitio_company = user_factories.CompanyFactory()
-        sitio = factories.SitioFactory(company=company)
+        sitio = factories.SitioFactory(company=sitio_company)
         sitio_contrato_1 = factories.ContratoFactory(sitio=sitio)
+        sitio_contrato_2 = factories.ContratoFactory(sitio=sitio)
+        factories.ContratoFactory()
+        contratos_ordenados = sitio.get_contratos_ordenados()
+        control = [repr(x) for x in sorted(
+            [sitio_contrato_1, sitio_contrato_2], key=lambda x: repr(x.fecha), reverse=True)
+        ]
+        self.assertQuerysetEqual(contratos_ordenados, control)
 
+
+class ContratoModelTest(BaseModelTesCase):
+
+    def test_contrato_absolute_url(self):
+        contrato = factories.ContratoFactory()
+        self.assertEqual(contrato.get_absolute_url(), '/proyectos/contrato/detalle/{}/'.format(contrato.pk))
+
+
+class EstimateModelTest(BaseModelTesCase):
+    @skip
+    def test_estimacion_absolute_url(self):
+        estimacion = factories.EstimateFactory()
+        self.assertEqual(estimacion.get_absolute_url(), '/proyectos/estimacion/detalle/{}/'.format(estimacion.pk))
