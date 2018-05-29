@@ -90,3 +90,6 @@ class EstimateConceptFactory(factory.django.DjangoModelFactory):
     concept = factory.SubFactory(ConceptoFactory)
     cuantity_estimated = factory.fuzzy.FuzzyDecimal(1, 25, precision=2)
     observations = factory.fuzzy.FuzzyText(length=140, chars=string.ascii_letters, prefix='observacion_')
+
+    class Meta:
+        model = models.EstimateConcept

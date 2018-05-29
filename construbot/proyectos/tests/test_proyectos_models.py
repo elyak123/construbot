@@ -39,7 +39,7 @@ class SitioModelTest(BaseModelTesCase):
     def test_sitio_absolute_url_is_correct(self):
         sitio = factories.SitioFactory()
         self.assertEqual(sitio.get_absolute_url(), '/proyectos/sitio/detalle/{}/'.format(sitio.pk))
-    @tag('current')
+
     def test_query_contratos_ordenados(self):
         sitio_company = user_factories.CompanyFactory()
         sitio = factories.SitioFactory(company=sitio_company)
@@ -47,16 +47,11 @@ class SitioModelTest(BaseModelTesCase):
         sitio_contrato_2 = factories.ContratoFactory(sitio=sitio)
         factories.ContratoFactory()
         contratos_ordenados = sitio.get_contratos_ordenados()
-        control = [repr(x) for x in sorted(
-            [sitio_contrato_1, sitio_contrato_2], key=lambda x: repr(x.fecha), reverse=True)
-        ]
-        # breaks on:
-        # nombre_rAdLL6Km.fecha = 2014-12-11
-        # nombre_EcS6gC2S.fecha = 2014-05-27
+        control = [repr(x) for x in sorted([sitio_contrato_1, sitio_contrato_2], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(
             contratos_ordenados,
             control,
-            msg='\nsitio.get_contratos_ordenados:\n{}.fecha = {}\n{}.fecha = {}'.format(
+            msg='\n\nsitio.get_contratos_ordenados:\n{}.fecha = {}\n{}.fecha = {}'.format(
                 contratos_ordenados[0].contrato_name,
                 contratos_ordenados[0].fecha,
                 contratos_ordenados[1].contrato_name,
@@ -81,4 +76,15 @@ class EstimateModelTest(BaseModelTesCase):
         )
 
     def test_total_estimate_method(self):
-        pass
+        contrato = factories.ContratoFactory()
+        estimacion = factories.EstimateFactory(project=contrato)
+        conceptos = [
+            factories.EstimateConceptFactory(
+                estimate=estimacion,
+                concept__project=contrato,
+                concept__unit_price=x,
+                cuantity_estimated=x
+            ) for x in range(10)
+        ]
+        aggregation = estimacion.total_estimate()
+        self.assertEqual(aggregation['total'], 285)
