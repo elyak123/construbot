@@ -3,6 +3,7 @@ from django.test import override_settings
 from selenium                   import webdriver
 from django.contrib.auth.models import Permission
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import Select
 import os
 import time
 from construbot.users.tests import factories as user_factories
@@ -34,19 +35,19 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.user2.company.add(company_test)
         self.user2.currently_at = company_test
 
-    def user_login(self):
+    def user_login(self, username, password):
         url = self.live_server_url + '/accounts/login/'
         self.browser.get(url)
         username_field = self.browser.find_element_by_name('login')
         password_field = self.browser.find_element_by_name('password')
-        username_field.send_keys(self.user.username)
-        password_field.send_keys('password')
+        username_field.send_keys(username)
+        password_field.send_keys(password)
         password_field.send_keys(Keys.ENTER)
 
-    def create_proyect_objects(self, n_contratos):
+    def create_proyect_objects(self, n_clientsitios, n_destinatarios, n_contratos, n_companies):
         clientes = []
         sitios = []
-        for i in range(0, 5):
+        for i in range(0, n_clientsitios):
             clientes.append(factories.ClienteFactory(
                 company=self.user.currently_at, cliente_name='cliente_{0}'.format(i))
             )
@@ -54,10 +55,17 @@ class FunctionalTest(StaticLiveServerTestCase):
                 company=self.user.currently_at, sitio_name='sitio_{0}'.format(i)))
 
         destinatarios = []
-        for i in range(0, 5):
+        for i in range(0, n_destinatarios):
             destinatarios.append(factories.DestinatarioFactory(
-                cliente=clientes[round(random() * 4)], destinatario_text='destinatario_{0}'.format(i))
+                cliente=clientes[round(random() * n_clientsitios-1)], destinatario_text='destinatario_{0}'.format(i))
             )
+
+        if n_companies:
+            company=[]
+            for i in range(0, n_companies):
+                company = user_factories.CompanyFactory(customer=self.user.customer)
+                self.user.company.add(company)
+                self.user2.company.add(company)
 
         if n_contratos:
             date = datetime.now()
@@ -76,6 +84,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                     sitio=sitios[0],
                 ))
             return contratos
+
+    def fast_multiselect(self, element_id, labels):
+            select = Select(self.browser.find_element_by_id(element_id))
+            select.deselect_all()
+            for label in labels:
+                select.select_by_visible_text(label)
 
     def tearDown(self):
         self.browser.quit()
