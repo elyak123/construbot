@@ -275,18 +275,21 @@ class ECSet(models.QuerySet):
 
     def filtro_estimado_a_la_fecha(self, estimate_consecutive):
         return self.filter(
-                estimate__consecutive__lte=estimate_consecutive
+                estimate__consecutive__lte=estimate_consecutive,
+                # concept=models.OuterRef('pk')
             ).order_by().values('concept')
 
     def filtro_estimado_anterior(self, estimate_consecutive):
         consecutivo = estimate_consecutive - 1
         return self.filter(
-                estimate__consecutive=consecutivo
+                estimate__consecutive=consecutivo,
+                # concept=models.OuterRef('pk')
             ).order_by().values('concept')
 
     def filtro_esta_estimacion(self, estimate_consecutive):
         return self.filter(
-                estimate__consecutive=estimate_consecutive
+                estimate__consecutive=estimate_consecutive,
+                # concept=models.OuterRef('pk')
             ).order_by().values('concept')
 
     def estimado_anterior(self, estimate_consecutive):

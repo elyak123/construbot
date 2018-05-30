@@ -88,3 +88,22 @@ class EstimateModelTest(BaseModelTesCase):
         ]
         aggregation = estimacion.total_estimate()
         self.assertEqual(aggregation['total'], 285)
+
+    # se acuerda realizar la prueba en los metodos de ConceptSet
+    # debido a que son una sola instrucción a la base de datos
+    # una vez teniendo la prueba como base, se puede cambiar
+    # ECSet.apuntar_total_estimado para quitarle el filtro y crear
+    # un test solo para dicho método.
+    # todo lo demás se queda igual.
+    # def test_apuntar_total_estimado(self):
+    #     contrato = factories.ContratoFactory()
+    #     estimacion = factories.EstimateFactory(project=contrato)
+    #     conceptos = [
+    #         factories.EstimateConceptFactory(
+    #             estimate=estimacion,
+    #             concept__project=contrato,
+    #             concept__unit_price=x,
+    #             cuantity_estimated=x
+    #         ) for x in range(10)
+    #     ]
+
