@@ -14,4 +14,6 @@ python:
 install:
   - pip install -r requirements/test.txt
 script:
-  - DJANGO_SETTINGS_MODULE=config.settings.test coverage run --source='.' manage.py test && coveralls 
+  - DJANGO_SETTINGS_MODULE=config.settings.test coverage run --source='.' manage.py test
+after_success:
+  - coveralls

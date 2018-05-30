@@ -1,8 +1,8 @@
-from unittest import skip
+from unittest import skip, mock
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
-# from construbot.proyectos import models
+from construbot.proyectos import models
 from . import factories
 
 
@@ -88,6 +88,12 @@ class EstimateModelTest(BaseModelTesCase):
         ]
         aggregation = estimacion.total_estimate()
         self.assertEqual(aggregation['total'], 285)
+
+    @mock.patch.object(models.ConceptSet, 'add_estimateconcept_properties')
+    def test_anotaciones_conceotos(self, mock_properties):
+        estimacion = factories.EstimateFactory()
+        estimacion.anotaciones_conceptos()
+        mock_properties.assert_called_once()
 
     # se acuerda realizar la prueba en los metodos de ConceptSet
     # debido a que son una sola instrucción a la base de datos
