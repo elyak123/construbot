@@ -95,6 +95,23 @@ class EstimateModelTest(BaseModelTesCase):
         estimacion.anotaciones_conceptos()
         mock_properties.assert_called_once()
 
+
+class ConceptoSetTest(BaseModelTesCase):
+    @skip
+    def test_anotacion_estimado_ala_fecha(self):
+        contrato = factories.ContratoFactory()
+        for concept_iterator in range(10):
+            concepto = factories.ConceptoFactory(project=contrato, unit_price=concept_iterator)
+            for ecset_iterator in range(10):
+                concepto_estimacion = factories.EstimateConceptFactory(
+                    concept=concepto, cuantity_estimated=ecset_iterator
+                )
+
+        totales = [0, 54, 108, 162, 216, 270, 324, 378, 432, 486]
+        conceptos = models.Concept.especial.filter(project=contrato).estimado_a_la_fecha()
+        for it, obj in enumerate(conceptos):
+            self.assertEqual(obj.acumulado, totales[it])
+
     # se acuerda realizar la prueba en los metodos de ConceptSet
     # debido a que son una sola instrucción a la base de datos
     # una vez teniendo la prueba como base, se puede cambiar
