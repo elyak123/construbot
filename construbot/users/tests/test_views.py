@@ -2,6 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory, tag
 from django.urls import reverse
 from django.contrib.auth.models import Group
+from django.contrib.auth import authenticate, login
 from construbot.users.models import Company
 from . import factories
 from . import utils
@@ -171,7 +172,7 @@ class TestUserCreateView(BaseUserTestCase):
         with self.login(username=self.user.username, password='password'):
             response = self.get_check_200('users:new')
             self.assertEqual(response.status_code, 200)
-    @tag('current')
+
     def test_user_creation_post_and_login(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -190,8 +191,8 @@ class TestUserCreateView(BaseUserTestCase):
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
                 'company': [str(company.id)],
-                'password1': 'esteesunpsslargo',
-                'password2': 'esteesunpsslargo'
+                'password1': '$eLumenPr0ferre',
+                'password2': '$eLumenPr0ferre'
             }
             response = self.client.post(reverse('users:new'), data)
             self.assertRedirects(
@@ -202,10 +203,42 @@ class TestUserCreateView(BaseUserTestCase):
                 )
             )
         new_user_response = self.client.post(
-            reverse('account_login'), {'login': 'test_user_1', 'password': 'esteesunpsslargo'}
+            reverse('account_login'), {'login': 'test_user_1', 'password': '$eLumenPr0ferre'}
         )
         self.assertRedirects(
             new_user_response,
             reverse('users:redirect'),
             msg_prefix=str(new_user_response.context_data['form'].errors)
         )
+
+    def test_user_created_can_login(self):
+        company = Company.objects.create(
+            company_name='some_company',
+            customer=self.user.customer
+        )
+        group, created = Group.objects.get_or_create(name='Users')
+        self.user.groups.add(group)
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
+        self.user.company.add(company)
+        with self.login(username=self.user.username, password='password'):
+            data = {
+                'customer': str(self.user.customer.id),
+                'username': 'test_user_dos',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'email': 'lkjas@hola.com',
+                'company': [str(company.id)],
+                'password1': 'esteesunpsslargo',
+                'password2': 'esteesunpsslargo'
+            }
+            response = self.client.post(reverse('users:new'), data)
+            self.assertRedirects(
+                response,
+                reverse('users:detail', kwargs={'username': 'test_user_dos'}),
+                msg_prefix='\n{}\n'.format(
+                    str(response.context_data['form'].errors) if hasattr(response, 'context_data') else ''
+                )
+            )
+        with self.login(username='test_user_dos', password='esteesunpsslargo'):
+            response = self.get_check_200('users:list')
