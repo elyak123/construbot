@@ -20,6 +20,7 @@ class UserFormTest(TestCase):
             })
         self.assertTrue(form.is_valid(), form.errors)
 
-class UserCreationFormTest(TestCase):
-    def test_(self):
-        pass
+
+# class UsuarioInternoTest(TestCase):
+#     def test_(self):
+#         pass
