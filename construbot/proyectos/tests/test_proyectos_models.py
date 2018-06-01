@@ -100,11 +100,13 @@ class ConceptoSetTest(BaseModelTesCase):
     @skip
     def test_anotacion_estimado_ala_fecha(self):
         contrato = factories.ContratoFactory()
+        estimacion = factories.EstimateFactory(project=contrato)
         for concept_iterator in range(10):
             concepto = factories.ConceptoFactory(project=contrato, unit_price=concept_iterator)
             for ecset_iterator in range(10):
                 concepto_estimacion = factories.EstimateConceptFactory(
-                    concept=concepto, cuantity_estimated=ecset_iterator
+                    concept=concepto, cuantity_estimated=ecset_iterator,
+                    #estimate=
                 )
 
         totales = [0, 54, 108, 162, 216, 270, 324, 378, 432, 486]
