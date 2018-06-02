@@ -48,7 +48,7 @@ class UsuarioInterno(UserCreationForm):
         self.fields['company'].queryset = Company.objects.filter(customer=user.customer)
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=True)
+        user = super(UsuarioInterno, self).save(commit=True)
         self._save_m2m()
         return user
 

@@ -208,9 +208,9 @@ class TestUserCreateView(BaseUserTestCase):
         self.assertRedirects(
             new_user_response,
             reverse('users:redirect'),
-            msg_prefix=str(new_user_response.context_data['form'].errors)
+            msg_prefix=str(new_user_response.context_data['form'].errors) if hasattr(response, 'context_data') else ''
         )
-
+    @tag('current')
     def test_user_created_can_login(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -241,4 +241,5 @@ class TestUserCreateView(BaseUserTestCase):
                 )
             )
         with self.login(username='test_user_dos', password='esteesunpsslargo'):
-            response = self.get_check_200('users:list')
+            response = self.client.get(reverse('users:detail', kwargs={'username': 'test_user_dos'}))
+            self.assertRedirects(response, reverse('users:redirect'))

@@ -21,5 +21,6 @@ pytest-sugar==0.9.0
 
 # Mine....
 coveralls==1.2.0
+selenium==3.12.0
 pip-autoremove==0.9.0
 pipdeptree==0.10.1

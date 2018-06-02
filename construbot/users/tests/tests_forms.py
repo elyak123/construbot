@@ -30,7 +30,7 @@ class UsuarioInternoTest(utils.BaseTestCase):
     def setUp(self):
         self.user_factory = factories.UserFactory
         self.user = self.make_user()
-    @tag('current')
+    #@tag('current')
     def test_UsuarioInterno_post(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -54,5 +54,6 @@ class UsuarioInternoTest(utils.BaseTestCase):
         form = forms.UsuarioInterno(self.user, data=data)
         self.assertTrue(form.is_valid(), form.errors)
         user = form.save()
+        # user.password << ''
         self.assertTrue(user.check_password('esteesunpsslargo'))
         self.assertTrue(authenticate(username='test_user_1', password='esteesunpsslargo'))
