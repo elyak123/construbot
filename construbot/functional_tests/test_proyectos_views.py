@@ -1,4 +1,4 @@
-from construbot.core.functional_tests_base import FunctionalTest
+from .functional_tests_base import FunctionalTest
 from selenium.webdriver.common.action_chains import ActionChains
 from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato
 from django.contrib.auth.models import Group
@@ -132,20 +132,24 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//option[contains(text(), '{0}')]".format(self.user.username)).click()
         self.browser.find_element_by_id("id_start_date").click()
         self.browser.find_element_by_id("id_finish_date").click()
+        self.browser.find_element_by_id("id_consecutive").click()
         self.browser.find_elements_by_class_name("select2-search--inline")[0].click()
-        self.browser.find_element_by_xpath('//li[@class = "select2-search--inline"]/following-sibling::span/child::span/child::span/child::ul/child::li/child::input').send_keys("destinatario")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'destinatario_1')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'destinatario_1')]").click()
+        self.browser.find_elements_by_class_name("select2-search__field")[0].send_keys("destinatario")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//li[contains(text(), 'destinatario_3')]"))
+        self.browser.find_element_by_class_name("select2-results__option--highlighted").click()
         self.browser.find_elements_by_class_name("select2-search--inline")[1].click()
-        self.browser.find_element_by_xpath('//select[@id = "id_auth_by_gen"]/following-sibling::span/child::span/child::span/child::ul/child::li/child::input').send_keys("destinatario")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'destinatario_1')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'destinatario_1')]").click()
+        self.browser.find_elements_by_class_name("select2-search__field")[1].send_keys("destinatario")
+        self.wait_for(lambda:self.browser.find_element_by_class_name("select2-results__option--highlighted"))
+        self.browser.find_element_by_class_name("select2-results__option--highlighted").click()
         self.browser.find_element_by_id("id_auth_date").click()
         for i in range(0,4):
             self.browser.find_element_by_id("id_estimateconcept_set-"+str(i)+"-cuantity_estimated").send_keys("10")
             self.browser.find_element_by_id("id_estimateconcept_set-"+str(i)+"-observations").click()
             self.browser.find_element_by_id("id_estimateconcept_set-"+str(i)+"-observations").send_keys("Observacion numero {0}".format(i+1))
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
+        self.wait_for(lambda:self.browser.find_element_by_class_name("title"))
+        self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del contrato {0}')]".format(contratos[0].contrato_name))
+        self.browser.find_element_by_xpath("//a[contains(text(), 'Estimación 1)]")
         
     def test_cliente_creation(self):
         self.user_login(self.user.username, "password")

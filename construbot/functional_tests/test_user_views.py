@@ -1,6 +1,6 @@
-from construbot.core.functional_tests_base import FunctionalTest
+from .functional_tests_base import FunctionalTest
 from django.urls import reverse
-from django.test import tag
+from django.test import tag, override_settings
 
 @tag("detail")
 class TestCorrectDetailView(FunctionalTest):
@@ -51,3 +51,20 @@ class TestCorrectUserCreation(FunctionalTest):
         self.user_login("TEST-USERNAME", "000password")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario TEST-USERNAME')]"))
         self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario TEST-USERNAME')]")
+
+    @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_create_admin_user(self):
+        url = self.live_server_url
+        self.browser.get(url)
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//a[@href='/accounts/signup/']"))
+        self.browser.find_element_by_xpath("//a[@href='/accounts/signup/']").click()
+        self.browser.find_element_by_id("id_email").send_keys("a@a.com")
+        self.browser.find_element_by_id("id_username").send_keys("test_user")
+        self.browser.find_element_by_id("id_password1").send_keys("somepass")
+        self.browser.find_element_by_id("id_password2").send_keys("somepass")
+        self.browser.find_element_by_id("id_first_name").send_keys("test")
+        self.browser.find_element_by_id("id_last_name").send_keys("user")
+        self.browser.find_element_by_id("id_company").send_keys("test_company")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//button[@type='submit']").click())
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario test_user')]"))
+        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario test_user')]")
