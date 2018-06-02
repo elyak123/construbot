@@ -248,12 +248,23 @@
 		<tfoot>
 			<tr>
 				<td class="cont_firmas" colspan="9">
+					<div class="cont_firma">
+						<div class="subrayado_f"></div>
+						<p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+						<p> <strong>Supervisor de Obras </strong></p>
+						<p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+					</div>
 					{% for firma in estimate.auth_by_gen.all %}
 						<div class="cont_firma">
 							<div class="subrayado_f"></div>
-							<p> <strong>{{ firma.destinatario_text }}</strong> </p>
-							<p> {% if firma.puesto %}<strong>{{ firma.puesto }}</strong>{% endif %} </p>
-							<p> <strong>{{ firma.cliente.company.company_name }}</strong> </p>
+							<p><strong>{{ firma.destinatario_text }}</strong></p>
+							{% if firma.puesto %}
+								<p><strong>{{ firma.puesto }}</strong></p>
+								<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+							{% else %}
+								<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+								<p style="color:white">-</p>
+							{% endif %}
 						</div>
 					{% endfor %}
 				</td>
