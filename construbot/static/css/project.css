@@ -489,6 +489,7 @@ table.estimate * , table.generator * {
 .cont_firma {
 	display: inline-block;
 	width: 20%;
+	min-height: 105px;
 }
 
 .cont_firma > p {
