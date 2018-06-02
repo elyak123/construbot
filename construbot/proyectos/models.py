@@ -1,8 +1,8 @@
 from django.db import models
-from construbot.users.models import User, Company
-from core.utils import Round, get_directory_path
 from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
+from core.utils import Round, get_directory_path
+from construbot.users.models import User, Company
 
 
 # Create your models here.

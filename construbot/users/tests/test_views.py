@@ -1,9 +1,7 @@
-from unittest import mock
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory, tag, override_settings
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import Group
-from django.contrib.auth import authenticate, login
 from construbot.users.models import Company
 from . import factories
 from . import utils

@@ -1,4 +1,4 @@
-from django.test import TestCase, tag, override_settings
+from django.test import TestCase, override_settings, tag
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate
 from construbot.users import forms
