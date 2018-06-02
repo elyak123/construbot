@@ -58,15 +58,14 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
-    fields = ['name', ]
+    fields = ['username', 'first_name', 'last_name', 'email']
 
     # we already imported User in the view code above, remember?
     model = User
 
     # send the user back to their own page after a successful update
     def get_success_url(self):
-        return reverse('users:detail',
-                       kwargs={'username': self.request.user.username})
+        return reverse('users:detail',)
 
     def get_object(self):
         # Only get the User record for the user making the request

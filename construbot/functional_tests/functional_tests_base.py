@@ -1,17 +1,17 @@
+from selenium                   import webdriver
+from selenium.webdriver.support.ui import Select
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
-from selenium                   import webdriver
-from django.contrib.auth.models import Permission
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.support.ui import Select
-import os
-import time
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos.tests import factories
-from selenium.webdriver.common.keys import Keys
 from construbot.proyectos.models import Company, Sitio, Destinatario, Contrato
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import WebDriverException
 from random import random
 from datetime import datetime, timedelta
+import os
+import time
 
 MAX_WAIT = 4
 
@@ -20,7 +20,7 @@ MAX_WAIT = 4
 class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
-        
+        self.actions = ActionChains(self.browser)
         self.user_factory = user_factories.UserFactory
         self.user = self.user_factory()
         company_test = user_factories.CompanyFactory(customer=self.user.customer)
