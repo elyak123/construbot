@@ -586,7 +586,9 @@ class EstimateEditTest(BaseViewTest):
         view.object = estimacion
         with mock.patch('construbot.proyectos.forms.estimateConceptInlineForm') as mock_function:
             mock_formset_klass = mock.Mock()
-            mock_formset = mock_formset_klass()
+            # mock_formset = mock_formset_klass()
+            mock_formset = mock.Mock()
+            mock_formset_klass.return_value = mock_formset
             mock_formset.is_valid.return_value = False
             mock_function.return_value = mock_formset_klass
             mock_form = mock.Mock()
@@ -597,11 +599,18 @@ class EstimateEditTest(BaseViewTest):
             mock_function().assert_any_call(instance=view.object)
         # son dos llamados, una por la prueba y otra por la sentencia anterior...
         self.assertEqual(mock_function.call_count, 2)
+        mock_formset_klass.assert_called_with(
+            self.request.POST, 
+            self.request.FILES, 
+            instance=estimacion
+        )
         try:
-            mock_formset.assert_called_once
+            mock_formset_klass.assert_called_once()
+            mock_formset.is_valid.assert_called_once()
         except AttributeError:
             # compatibilidad con python 3.5
-            self.assertEqual(mock_formset.call_count, 1)
+            self.assertEqual(mock_formset_klass.call_count, 1)
+            self.assertTrue(mock_formset.is_valid.call_count, 1)
 
 
 class ContratoEditViewTest(BaseViewTest):
