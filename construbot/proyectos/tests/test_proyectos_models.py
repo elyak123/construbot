@@ -93,7 +93,10 @@ class EstimateModelTest(BaseModelTesCase):
     def test_anotaciones_conceotos(self, mock_properties):
         estimacion = factories.EstimateFactory()
         estimacion.anotaciones_conceptos()
-        mock_properties.assert_called_once()
+        try:
+            mock_properties.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_properties.call_count, 1)
 
 
 class ConceptoSetTest(BaseModelTesCase):

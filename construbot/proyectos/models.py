@@ -131,7 +131,7 @@ class Estimate(models.Model):
         return total
 
     def anotaciones_conceptos(self):
-        conceptos = Concept.especial.filter(estimate_concept=self)
+        conceptos = Concept.especial.filter(estimate_concept=self).order_by('pk')
         return conceptos.add_estimateconcept_properties(self.consecutive)
 
     class Meta:
