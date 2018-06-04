@@ -139,7 +139,7 @@ class ConceptoSetTest(BaseModelTesCase):
         return estimacion_1, estimacion_2
 
     # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
-    def test_anotacion_estimado_ala_fecha(self):  # , mock_as_sql):
+    def test_anotacion_estimacion(self):  # , mock_as_sql):
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         main_query = estimate2.anotaciones_conceptos()
         self.assertEqual(main_query[0].acumulado, 3300)
@@ -171,3 +171,20 @@ class ConceptoSetTest(BaseModelTesCase):
         conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
         self.assertEqual(conceptos.total_imagenes_estimacion()['total_images'], 6)
 
+    def test_importe_total_esta_estimacion(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(
+            conceptos.esta_estimacion(estimate2.consecutive).importe_total_esta_estimacion()['total'],
+            4698
+        )
+
+    def test_importe_total_anterior(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(conceptos.estimado_anterior(estimate2.consecutive).importe_total_anterior()['total'], 4130)
+    @tag('current')
+    def test_importe_total_acumulado(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(conceptos.estimado_a_la_fecha(estimate2.consecutive).importe_total_acumulado()['total'], 8828)
