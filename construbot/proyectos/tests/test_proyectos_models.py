@@ -102,16 +102,8 @@ class EstimateModelTest(BaseModelTesCase):
         except AttributeError:
             self.assertEqual(mock_properties.call_count, 1)
 
-MEDIA_ROOT = tempfile.mkdtemp()
 
-
-@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ConceptoSetTest(BaseModelTesCase):
-
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
-        super().tearDownClass()
 
     def generacion_estimaciones_con_conceptos(self):
         conceptos_list = [
@@ -151,7 +143,7 @@ class ConceptoSetTest(BaseModelTesCase):
         return estimacion_1, estimacion_2
 
     # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
-    def test_anotacion_estimado_ala_fecha(self):#, mock_as_sql):
+    def test_anotacion_estimado_ala_fecha(self):  # , mock_as_sql):
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         main_query = estimate2.anotaciones_conceptos()
         self.assertEqual(main_query[0].acumulado, 3300)
