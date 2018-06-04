@@ -161,3 +161,13 @@ class ConceptoSetTest(BaseModelTesCase):
         conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
         for concept in conceptos:
             self.assertEqual(concept.image_count, 2)
+
+    def test_total_imagenes_estimacion(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for concepto in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
+        self.assertEqual(conceptos.total_imagenes_estimacion()['total_images'], 6)
+
