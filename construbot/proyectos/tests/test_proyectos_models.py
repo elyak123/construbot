@@ -1,6 +1,10 @@
+import shutil
+import tempfile
 from unittest import skip, mock
-from django.test import RequestFactory, tag
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import RequestFactory, override_settings, tag
 from construbot.users.tests import utils
+#from construbot.core.utils import fuzz
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
 from . import factories
@@ -98,11 +102,18 @@ class EstimateModelTest(BaseModelTesCase):
         except AttributeError:
             self.assertEqual(mock_properties.call_count, 1)
 
+MEDIA_ROOT = tempfile.mkdtemp()
 
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class ConceptoSetTest(BaseModelTesCase):
 
-    # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
-    def test_anotacion_estimado_ala_fecha(self):#, mock_as_sql):
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    def generacion_estimaciones_con_conceptos(self):
         conceptos_list = [
             {'code': 'CCA', 'total_cuantity': 1200, 'unit_price': 3},
             {'code': 'TOPO', 'total_cuantity': 800, 'unit_price': 8},
@@ -137,7 +148,12 @@ class ConceptoSetTest(BaseModelTesCase):
                 concept=concept_element,
                 cuantity_estimated=element_dict['cuantity_estimated']
             )
-        main_query = estimacion_2.anotaciones_conceptos()
+        return estimacion_1, estimacion_2
+
+    # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
+    def test_anotacion_estimado_ala_fecha(self):#, mock_as_sql):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        main_query = estimate2.anotaciones_conceptos()
         self.assertEqual(main_query[0].acumulado, 3300)
         self.assertEqual(main_query[0].anterior, 900)
         self.assertEqual(main_query[0].estaestimacion, 2400)
@@ -147,3 +163,13 @@ class ConceptoSetTest(BaseModelTesCase):
         self.assertEqual(main_query[2].acumulado, 968)
         self.assertEqual(main_query[2].anterior, 270)
         self.assertEqual(main_query[2].estaestimacion, 698)
+
+    def test_concept_image_count(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for concepto in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
+        for concept in conceptos:
+            self.assertEqual(concept.image_count, 2)
