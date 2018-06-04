@@ -1,10 +1,6 @@
-import shutil
-import tempfile
-from unittest import skip, mock
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import RequestFactory, override_settings, tag
+from unittest import mock
+from django.test import RequestFactory, tag
 from construbot.users.tests import utils
-#from construbot.core.utils import fuzz
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
 from . import factories
