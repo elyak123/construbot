@@ -183,8 +183,15 @@ class ConceptoSetTest(BaseModelTesCase):
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
         self.assertEqual(conceptos.estimado_anterior(estimate2.consecutive).importe_total_anterior()['total'], 4130)
-    @tag('current')
+
     def test_importe_total_acumulado(self):
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
         self.assertEqual(conceptos.estimado_a_la_fecha(estimate2.consecutive).importe_total_acumulado()['total'], 8828)
+
+
+class ConceptTest(BaseModelTesCase):
+
+    def test_importe_contratado(self):
+        concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)
+        self.assertEqual(concepto.importe_contratado(), 600)
