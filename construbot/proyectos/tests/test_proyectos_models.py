@@ -224,7 +224,15 @@ class ConceptTest(BaseModelTesCase):
         mock_operations.assert_called_once_with('acumulado')
 
     @mock.patch.object(models.Concept, 'unit_price_operations')
-    def test_cantidad_estimado_ala_fecha(self, mock_operations):
+    def test_cantidad_esta_estimacion(self, mock_operations):
         concept = factories.ConceptoFactory()
         concept.cantidad_esta_estimacion()
         mock_operations.assert_called_once_with('estaestimacion')
+
+    def test_anotar_imagenes(self):
+        pass
+
+    def test_anotar_imagenes_raises_error(self):
+        concept = factories.ConceptoFactory()
+        with self.assertRaises(AttributeError):
+            concept.anotar_imagenes()

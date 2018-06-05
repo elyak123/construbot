@@ -233,16 +233,16 @@ class Concept(models.Model):
         return self.unit_price * self.total_cuantity
 
     def unit_price_operations(self, attr):
-        new_attr = getattr(self, attr)
-        if new_attr is not None:
-            try:
-                return new_attr / self.unit_price
-            except AttributeError:
-                raise AttributeError(
-                    'El atributo %s no existe en %s, es necesario ejecutar '
-                    'add_estimateconcept_properties desde la instancia.'
-                    'de una Estimación' % (attr, self.concept_text)
+        if hasattr(self, attr):
+            new_attr = getattr(self, attr)
+        else:
+            raise AttributeError(
+                'El atributo %s no existe en %s, es necesario ejecutar '
+                'add_estimateconcept_properties desde la instancia'
+                'de una Estimación.' % (attr, self.concept_text)
                 )
+        if new_attr is not None:
+            return new_attr / self.unit_price
         else:
             from decimal import Decimal
             return Decimal('0.00')
