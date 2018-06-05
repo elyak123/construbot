@@ -195,3 +195,36 @@ class ConceptTest(BaseModelTesCase):
     def test_importe_contratado(self):
         concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)
         self.assertEqual(concepto.importe_contratado(), 600)
+
+    def test_unit_price_operations(self):
+        concept = factories.ConceptoFactory(unit_price=2)
+        concept.anterior = 3450
+        self.assertEqual(concept.unit_price_operations('anterior'), 1725)
+
+    def test_unit_price_operations_raises_error(self):
+        concept = factories.ConceptoFactory()
+        with self.assertRaises(AttributeError):
+            concept.unit_price_operations('anterior')
+
+    def test_unit_price_operations_returns_zero(self):
+        concept = factories.ConceptoFactory()
+        concept.anterior = None
+        self.assertEqual(concept.unit_price_operations('anterior'), 0)
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_estimado_anterior(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_estimado_anterior()
+        mock_operations.assert_called_once_with('anterior')
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_estimado_ala_fecha(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_estimado_ala_fecha()
+        mock_operations.assert_called_once_with('acumulado')
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_estimado_ala_fecha(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_esta_estimacion()
+        mock_operations.assert_called_once_with('estaestimacion')

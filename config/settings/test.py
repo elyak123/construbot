@@ -59,3 +59,7 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
         'django.template.loaders.app_directories.Loader',
     ], ],
 ]
+# To avoid the following exception:
+# django_coverage_plugin.plugin.DjangoTemplatePluginException: 
+# Template debugging must be enabled in settings.
+TEMPLATES[0]['OPTIONS']['debug'] = True
