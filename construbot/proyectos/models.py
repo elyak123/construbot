@@ -325,3 +325,6 @@ class EstimateConcept(models.Model):
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to='hola/bla/')
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} {}'.format(self.id, repr(self.estimateconcept))

@@ -30,7 +30,7 @@ class ClienteModelTest(BaseModelTesCase):
         contrato_2 = factories.ContratoFactory(cliente=cliente)
         factories.ContratoFactory()
         contratos_ordenados = cliente.get_contratos_ordenados()
-        qs_control = [repr(x) for x in sorted([contrato_1, contrato_2], key=lambda x: repr(x.fecha), reverse=True)]
+        qs_control = [repr(x) for x in sorted([contrato_1, contrato_2], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(contratos_ordenados, qs_control)
 
 
@@ -189,6 +189,31 @@ class ConceptoSetTest(BaseModelTesCase):
         conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
         self.assertEqual(conceptos.estimado_a_la_fecha(estimate2.consecutive).importe_total_acumulado()['total'], 8828)
 
+    def test_anotar_imagenes(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for estimate_cpt in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=estimate_cpt)
+            factories.ImageEstimateConceptFactory(estimateconcept=estimate_cpt)
+        conceptos = models.Concept.especial.filter(
+                        estimate_concept=estimate1
+                    ).add_estimateconcept_ids(estimate1.consecutive)
+        concepto = conceptos.first()
+        imagenes = concepto.anotar_imagenes()
+        imagenes_control = models.ImageEstimateConcept.objects.filter(estimateconcept__concept=concepto)
+        represetnation_img_control = [repr(x) for x in imagenes_control]
+        self.assertQuerysetEqual(
+            imagenes,
+            represetnation_img_control,
+            msg='\n{} {}\n{} {}'.format(
+                imagenes[0].id,
+                imagenes_control[0].id,
+                imagenes[1].id,
+                imagenes_control[1].id
+            ),
+            ordered=False
+        )
+
 
 class ConceptTest(BaseModelTesCase):
 
@@ -229,10 +254,9 @@ class ConceptTest(BaseModelTesCase):
         concept.cantidad_esta_estimacion()
         mock_operations.assert_called_once_with('estaestimacion')
 
-    def test_anotar_imagenes(self):
-        pass
-
     def test_anotar_imagenes_raises_error(self):
+        # anotar imagenes se encuentra en la clase anterior debido a los subqueries
+        # necesarios para ejecutar los metodos.
         concept = factories.ConceptoFactory()
         with self.assertRaises(AttributeError):
             concept.anotar_imagenes()
