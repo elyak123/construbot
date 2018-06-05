@@ -1,9 +1,10 @@
-from . import factories
+import decimal
+from unittest import mock
 from django.test import RequestFactory, tag
 from construbot.users.tests import factories as user_factories
 from construbot.users.tests import utils
 from construbot.proyectos import forms, models
-import decimal
+from . import factories
 
 
 class ContratoFormTest(utils.BaseTestCase):
@@ -211,3 +212,21 @@ class SitioFormTest(utils.BaseTestCase):
         sitio = models.Sitio.objects.get(sitio_name='Tamaulipas')
         self.assertIsInstance(form.instance, models.Sitio)
         self.assertEqual(form.instance.id, sitio.id)
+
+
+class BaseCleanFormTest(utils.BaseTestCase):
+
+    def test_clean_BaseCleanFormTest_company_is_None(self):
+        forms.BaseCleanForm._meta = mock.Mock()
+        form = forms.BaseCleanForm()
+        form.cleaned_data = {'company': None}
+        with self.assertRaises(forms.forms.ValidationError):
+            form.clean()
+
+    def test_clean_BaseCleanFormTest_different_currently_at(self):
+        forms.BaseCleanForm._meta = mock.Mock()
+        forms.BaseCleanForm.request = mock.Mock()
+        form = forms.BaseCleanForm()
+        form.cleaned_data = {'company': mock.Mock()}
+        with self.assertRaises(forms.forms.ValidationError):
+            form.clean()

@@ -49,7 +49,7 @@ class ContratoForm(forms.ModelForm):
         }
 
 
-class BaseCleanForm(object):
+class BaseCleanForm(forms.ModelForm):
 
     def clean(self):
         result = super(BaseCleanForm, self).clean()
@@ -65,7 +65,7 @@ class BaseCleanForm(object):
             )
 
 
-class ClienteForm(BaseCleanForm, forms.ModelForm):
+class ClienteForm(BaseCleanForm):
 
     class Meta:
         model = Cliente
@@ -75,7 +75,7 @@ class ClienteForm(BaseCleanForm, forms.ModelForm):
         }
 
 
-class SitioForm(BaseCleanForm, forms.ModelForm):
+class SitioForm(BaseCleanForm):
 
     class Meta:
         model = Sitio
