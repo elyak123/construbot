@@ -2,6 +2,7 @@ import string
 import datetime
 import factory
 import factory.fuzzy
+from construbot.core.utils import FuzzyImage
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
 
@@ -93,3 +94,11 @@ class EstimateConceptFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.EstimateConcept
+
+
+class ImageEstimateConceptFactory(factory.django.DjangoModelFactory):
+    image = FuzzyImage()
+    estimateconcept = factory.SubFactory(EstimateConceptFactory)
+
+    class Meta:
+        model = models.ImageEstimateConcept

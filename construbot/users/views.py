@@ -115,7 +115,8 @@ class UserListView(UsersMenuMixin, ListView):
     slug_url_kwarg = 'username'
 
     def get_queryset(self):
-        return self.model.objects.filter(company=self.request.user.currently_at)
+        qs = self.model.objects.filter(company=self.request.user.currently_at).exclude(id=self.request.user.id)
+        return qs
 
 
 class CompanyChangeView(TemplateView, AuthenticationTestMixin):

@@ -35,15 +35,15 @@ a:hover {
 }
 
 .content_with_sidebar {
-	margin: 45px 20px 0 220px;
+	margin: 60px 20px 50px 220px;
 }
 
 .content_with_little_sidebar {
-	margin: 45px 30px 0 65px;
+	margin: 60px 30px 0 65px;
 }
 
 .content_without_sidebar {
-	margin: 45px 10px 0 10px;
+	margin: 60px 10px 0 10px;
 }
 
 .title {
@@ -121,13 +121,6 @@ a:hover {
 	background-color: #086898;
 }
 
-.cont_result {
-	display: none;
-	margin: 0 0 0 5%;
-	width: 90%;
-	box-shadow: 0px 2px 5px 0px;
-}
-
 .cont_message_no_result {
 	display: none;
 }
@@ -152,6 +145,17 @@ a:hover {
 /*FIN DE ESTILOS PARA SELECTOR DE COMPAÑIA*/
 
 /*ESTILOS PARA NAV PERSONALIZADO*/
+.anchor_menu_nav {
+	display: inherit;
+    color: white;
+    padding: 1.3em .5em;
+}
+
+.anchor_menu_nav:hover {
+	text-decoration: none;
+	color: white;
+}
+
 .cont_nav_navegacion {
 	height: 60px;
 }
@@ -323,9 +327,8 @@ a:hover {
 }
 
 .table_results {
-	display: none;
 	text-align: center;
-	width: 100%;
+	display: none;
 }
 
 .table_normal tr>td {

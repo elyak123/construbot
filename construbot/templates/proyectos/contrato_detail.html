@@ -43,19 +43,25 @@
 	</table>
 </div>
 <br>
-<div class="cont_listado"><strong>Catálogo de conceptos </strong><a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><span class="oi oi-pencil"></span></a><span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span></div>
-<div class="cont_result" id="cont_result_concept">
-	<table class="table_results">
-		<tr>
-			<th> Código </th>
-			<th> Concepto </th>
-			<th> Unidad </th>
-			<th> Cantidad </th>
-			<th> Precio unitario </th>
-		</tr>
-	</table>
-	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
+<div class="cont_listado">
+	<strong>Catálogo de conceptos </strong>
+	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
 </div>
+<table class="table_results table_sample">
+	<tr>
+		<th> Código </th>
+		<th> Concepto </th>
+		<th> Unidad </th>
+		<th> Cantidad </th>
+		<th> Precio unitario </th>
+	</tr>
+	<tr>
+		<td colspan="5">
+			<a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar Catálogo</a>
+		</td>
+	</tr>
+</table>
+<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
 {% if contrato.estimate_set.exists %}
 	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
 	<table class="table_sample table_normal">
@@ -87,7 +93,7 @@
 		</tbody>
 	</table>
 {% else %}
-	<h3> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</h3>
+	<h3 class="title"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</h3>
 {% endif %}
 {% endlanguage %}
 {% endblock %}

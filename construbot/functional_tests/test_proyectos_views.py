@@ -143,7 +143,7 @@ class TestCreatingObjects(FunctionalTest):
         for i in range(0,4):
             self.browser.find_element_by_id('id_concept_set-%i-code'%i).send_keys('%i'%i)
             self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).click()
-            self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).send_keys('Concepto para probar la creación de conceptos')
+            self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).send_keys('Concepto {0}'.format(i))
             self.browser.find_element_by_id('id_concept_set-%i-total_cuantity'%i).clear()
             self.browser.find_element_by_id('id_concept_set-%i-total_cuantity'%i).send_keys('%i'%(i+1))
             self.browser.find_element_by_id('id_concept_set-%i-unit_price'%i).clear()
@@ -183,7 +183,7 @@ class TestCreatingObjects(FunctionalTest):
         for i in range(0,4):
             self.browser.find_element_by_id('id_concept_set-%i-code'%i).send_keys('%i'%i)
             self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).click()
-            self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).send_keys('Concepto para probar la creación de conceptos')
+            self.browser.find_element_by_id('id_concept_set-%i-concept_text'%i).send_keys('Concepto {0}'.format(i))
             self.browser.find_element_by_id('id_concept_set-%i-total_cuantity'%i).clear()
             self.browser.find_element_by_id('id_concept_set-%i-total_cuantity'%i).send_keys('%i'%(i+1))
             self.browser.find_element_by_id('id_concept_set-%i-unit_price'%i).clear()
@@ -219,7 +219,7 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_class_name("title"))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del contrato {0}')]".format(contratos[0].contrato_name))
-        self.browser.find_element_by_xpath("//a[contains(text(), 'Estimación 1)]")
+        self.browser.find_element_by_xpath("//a[contains(text(), 'Estimación 1')]")
         
     def test_cliente_creation(self):
         self.user_login(self.user.username, "password")

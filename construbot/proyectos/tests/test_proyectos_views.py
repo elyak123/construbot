@@ -479,6 +479,43 @@ class EstimateCreationTest(BaseViewTest):
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
         self.assertFormError(response, 'form', None, 'Destinatarios y contratos no pueden ser de empresas diferentes')
 
+    def test_estimate_post_pagada_sin_fecha_pago(self):
+        contrato = factories.ContratoFactory()
+        proyectos_group = Group.objects.create(name='Proyectos')
+        destinatario = factories.DestinatarioFactory(
+            company=contrato.cliente.company,
+            cliente=contrato.cliente
+        )
+        concepto_1 = factories.ConceptoFactory(project=contrato)
+        self.user.company.add(contrato.cliente.company)
+        self.user.currently_at = contrato.cliente.company
+        self.user.groups.add(proyectos_group)
+        self.client.login(username=self.user.username, password='password')
+        form_data = {
+            'consecutive': '3',
+            'supervised_by': str(self.user.id),
+            'start_date': '2018-04-29',
+            'finish_date': '2018-05-15',
+            'draft_by': str(self.user.id),
+            'project': str(contrato.id),
+            'auth_by': str(destinatario.id),
+            'auth_date': '2018-05-15',
+            'paid': True,
+            'payment_date': '',
+            'estimateconcept_set-TOTAL_FORMS': '1',
+            'estimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-MAX_NUM_FORMS': '5',
+            'estimateconcept_set-0-concept': concepto_1.concept_text,
+            'estimateconcept_set-0-cuantity_estimated': '2',
+            'estimateconcept_set-0-imageestimateconcept_set-TOTAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
+        }
+        response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
+        self.assertFormError(response, 'form', 'payment_date', 'Si la estimación fué pagada, es necesaria fecha de pago.')
+
     def test_estimate_createview_renders_formset_errors(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
@@ -585,10 +622,12 @@ class EstimateEditTest(BaseViewTest):
         )
         view.object = estimacion
         with mock.patch('construbot.proyectos.forms.estimateConceptInlineForm') as mock_function:
-            mock_formset_instance = mock.Mock()
-            mock_formset = mock_formset_instance()
+            mock_formset_klass = mock.Mock()
+            # mock_formset = mock_formset_klass()
+            mock_formset = mock.Mock()
+            mock_formset_klass.return_value = mock_formset
             mock_formset.is_valid.return_value = False
-            mock_function.return_value = mock_formset_instance
+            mock_function.return_value = mock_formset_klass
             mock_form = mock.Mock()
             view.form_valid(mock_form)
             view.conceptForm = view.get_formset_for_context()
@@ -597,7 +636,18 @@ class EstimateEditTest(BaseViewTest):
             mock_function().assert_any_call(instance=view.object)
         # son dos llamados, una por la prueba y otra por la sentencia anterior...
         self.assertEqual(mock_function.call_count, 2)
-        mock_formset.assert_called_once
+        mock_formset_klass.assert_called_with(
+            self.request.POST, 
+            self.request.FILES, 
+            instance=estimacion
+        )
+        try:
+            mock_formset_klass.assert_called_once()
+            mock_formset.is_valid.assert_called_once()
+        except AttributeError:
+            # compatibilidad con python 3.5
+            self.assertEqual(mock_formset_klass.call_count, 1)
+            self.assertTrue(mock_formset.is_valid.call_count, 1)
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -860,7 +910,10 @@ class DynamicDeleteTest(BaseViewTest):
         )
         obj = view.get_object()
         self.assertEqual(obj, contrato)
-        mock_404.assert_called_once()
+        try:
+            mock_404.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_404.call_count, 1)
 
     def test_dynamic_delete_gets_object(self):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
@@ -895,8 +948,10 @@ class DynamicDeleteTest(BaseViewTest):
                 request=request,
             )
             response = view.delete(request)
-        mock_object.assert_called_once()
-        mock_folio.assert_called_once()
+        try:
+            mock_object.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_object.call_count, 1)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
 
     @mock.patch.object(views.DynamicDelete, 'get_company_query')
@@ -926,7 +981,10 @@ class DynamicDeleteTest(BaseViewTest):
         view.folio_handling()
         contrato_delete_2.refresh_from_db()
         contrato_delete_3.refresh_from_db()
-        mock_query.assert_called_once()
+        try:
+            mock_query.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_query.call_count, 1)
         self.assertEqual(contrato_delete_2.folio, 1)
         self.assertEqual(contrato_delete_3.folio, 2)
 

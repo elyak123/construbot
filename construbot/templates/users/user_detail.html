@@ -26,18 +26,22 @@
       <td>Fecha de registro</td>
       <td>{{ object.user_creation }}</td>
     </tr>
+    <tr>
+      <td><strong>Compañías de trabajo</strong></td>
+      <td>
+        {% if object.company.all.exists %}
+          <ul style="list-style:none; padding:0;">
+            {% for company in object.company.all %}
+              <li>{{ company.company_name }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          ¡Este usuario no cuenta con compañías!
+        {% endif %}
+      </td>
+    </tr>
   </table>
 </div>
 <br>
 <br>
-<h4>Compañías de trabajo:</h4>
-{% if object.company.all.exists %}
-  <ul>
-    {% for company in object.company.all %}
-      <li>{{ company.company_name }}</li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>¡Este usuario no cuenta con compañías!</p>
-{% endif %}
 {% endblock content %}

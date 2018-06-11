@@ -1,4 +1,4 @@
-from unittest import skip, mock
+from unittest import mock
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
@@ -30,7 +30,7 @@ class ClienteModelTest(BaseModelTesCase):
         contrato_2 = factories.ContratoFactory(cliente=cliente)
         factories.ContratoFactory()
         contratos_ordenados = cliente.get_contratos_ordenados()
-        qs_control = [repr(x) for x in sorted([contrato_1, contrato_2], key=lambda x: repr(x.fecha), reverse=True)]
+        qs_control = [repr(x) for x in sorted([contrato_1, contrato_2], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(contratos_ordenados, qs_control)
 
 
@@ -93,42 +93,170 @@ class EstimateModelTest(BaseModelTesCase):
     def test_anotaciones_conceotos(self, mock_properties):
         estimacion = factories.EstimateFactory()
         estimacion.anotaciones_conceptos()
-        mock_properties.assert_called_once()
+        try:
+            mock_properties.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_properties.call_count, 1)
 
 
 class ConceptoSetTest(BaseModelTesCase):
-    @skip
-    def test_anotacion_estimado_ala_fecha(self):
+
+    def generacion_estimaciones_con_conceptos(self):
+        conceptos_list = [
+            {'code': 'CCA', 'total_cuantity': 1200, 'unit_price': 3},
+            {'code': 'TOPO', 'total_cuantity': 800, 'unit_price': 8},
+            {'code': 'OTRO', 'total_cuantity': 8000, 'unit_price': 0.2},
+        ]
+        estimate_concept_list = [
+            {'estimate_cons': 1, 'code': 'CCA', 'cuantity_estimated': 300},
+            {'estimate_cons': 1, 'code': 'TOPO', 'cuantity_estimated': 370},
+            {'estimate_cons': 1, 'code': 'OTRO', 'cuantity_estimated': 1350},
+            {'estimate_cons': 2, 'code': 'CCA', 'cuantity_estimated': 800},
+            {'estimate_cons': 2, 'code': 'TOPO', 'cuantity_estimated': 200},
+            {'estimate_cons': 2, 'code': 'OTRO', 'cuantity_estimated': 3490},
+        ]
         contrato = factories.ContratoFactory()
-        estimacion = factories.EstimateFactory(project=contrato)
-        for concept_iterator in range(10):
-            concepto = factories.ConceptoFactory(project=contrato, unit_price=concept_iterator)
-            for ecset_iterator in range(10):
-                concepto_estimacion = factories.EstimateConceptFactory(
-                    concept=concepto, cuantity_estimated=ecset_iterator,
-                    #estimate=
-                )
+        estimacion_1 = factories.EstimateFactory(project=contrato, consecutive=1)
+        estimacion_2 = factories.EstimateFactory(project=contrato, consecutive=2)
+        for element in conceptos_list:
+            factories.ConceptoFactory(
+                code=element['code'],
+                project=contrato,
+                total_cuantity=element['total_cuantity'],
+                unit_price=element['unit_price']
+            )
+        for element_dict in estimate_concept_list:
+            if element_dict['estimate_cons'] == 1:
+                estimacion_element = estimacion_1
+            else:
+                estimacion_element = estimacion_2
+            concept_element = models.Concept.objects.get(project=contrato, code=element_dict['code'])
+            factories.EstimateConceptFactory(
+                estimate=estimacion_element,
+                concept=concept_element,
+                cuantity_estimated=element_dict['cuantity_estimated']
+            )
+        return estimacion_1, estimacion_2
 
-        totales = [0, 54, 108, 162, 216, 270, 324, 378, 432, 486]
-        conceptos = models.Concept.especial.filter(project=contrato).estimado_a_la_fecha()
-        for it, obj in enumerate(conceptos):
-            self.assertEqual(obj.acumulado, totales[it])
+    # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
+    def test_anotacion_estimacion(self):  # , mock_as_sql):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        main_query = estimate2.anotaciones_conceptos()
+        self.assertEqual(main_query[0].acumulado, 3300)
+        self.assertEqual(main_query[0].anterior, 900)
+        self.assertEqual(main_query[0].estaestimacion, 2400)
+        self.assertEqual(main_query[1].acumulado, 4560)
+        self.assertEqual(main_query[1].anterior, 2960)
+        self.assertEqual(main_query[1].estaestimacion, 1600)
+        self.assertEqual(main_query[2].acumulado, 968)
+        self.assertEqual(main_query[2].anterior, 270)
+        self.assertEqual(main_query[2].estaestimacion, 698)
 
-    # se acuerda realizar la prueba en los metodos de ConceptSet
-    # debido a que son una sola instrucción a la base de datos
-    # una vez teniendo la prueba como base, se puede cambiar
-    # ECSet.apuntar_total_estimado para quitarle el filtro y crear
-    # un test solo para dicho método.
-    # todo lo demás se queda igual.
-    # def test_apuntar_total_estimado(self):
-    #     contrato = factories.ContratoFactory()
-    #     estimacion = factories.EstimateFactory(project=contrato)
-    #     conceptos = [
-    #         factories.EstimateConceptFactory(
-    #             estimate=estimacion,
-    #             concept__project=contrato,
-    #             concept__unit_price=x,
-    #             cuantity_estimated=x
-    #         ) for x in range(10)
-    #     ]
+    def test_concept_image_count(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for concepto in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
+        for concept in conceptos:
+            self.assertEqual(concept.image_count, 2)
 
+    def test_total_imagenes_estimacion(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for concepto in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+            factories.ImageEstimateConceptFactory(estimateconcept=concepto)
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate1).concept_image_count()
+        self.assertEqual(conceptos.total_imagenes_estimacion()['total_images'], 6)
+
+    def test_importe_total_esta_estimacion(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(
+            conceptos.esta_estimacion(estimate2.consecutive).importe_total_esta_estimacion()['total'],
+            4698
+        )
+
+    def test_importe_total_anterior(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(conceptos.estimado_anterior(estimate2.consecutive).importe_total_anterior()['total'], 4130)
+
+    def test_importe_total_acumulado(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
+        self.assertEqual(conceptos.estimado_a_la_fecha(estimate2.consecutive).importe_total_acumulado()['total'], 8828)
+
+    def test_anotar_imagenes(self):
+        estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
+        ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
+        for estimate_cpt in ecset:
+            factories.ImageEstimateConceptFactory(estimateconcept=estimate_cpt)
+            factories.ImageEstimateConceptFactory(estimateconcept=estimate_cpt)
+        conceptos = models.Concept.especial.filter(
+                        estimate_concept=estimate1
+                    ).add_estimateconcept_ids(estimate1.consecutive)
+        concepto = conceptos.first()
+        imagenes = concepto.anotar_imagenes()
+        imagenes_control = models.ImageEstimateConcept.objects.filter(estimateconcept__concept=concepto)
+        represetnation_img_control = [repr(x) for x in imagenes_control]
+        self.assertQuerysetEqual(
+            imagenes,
+            represetnation_img_control,
+            msg='\n{} {}\n{} {}'.format(
+                imagenes[0].id,
+                imagenes_control[0].id,
+                imagenes[1].id,
+                imagenes_control[1].id
+            ),
+            ordered=False
+        )
+
+
+class ConceptTest(BaseModelTesCase):
+
+    def test_importe_contratado(self):
+        concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)
+        self.assertEqual(concepto.importe_contratado(), 600)
+
+    def test_unit_price_operations(self):
+        concept = factories.ConceptoFactory(unit_price=2)
+        concept.anterior = 3450
+        self.assertEqual(concept.unit_price_operations('anterior'), 1725)
+
+    def test_unit_price_operations_raises_error(self):
+        concept = factories.ConceptoFactory()
+        with self.assertRaises(AttributeError):
+            concept.unit_price_operations('anterior')
+
+    def test_unit_price_operations_returns_zero(self):
+        concept = factories.ConceptoFactory()
+        concept.anterior = None
+        self.assertEqual(concept.unit_price_operations('anterior'), 0)
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_estimado_anterior(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_estimado_anterior()
+        mock_operations.assert_called_once_with('anterior')
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_estimado_ala_fecha(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_estimado_ala_fecha()
+        mock_operations.assert_called_once_with('acumulado')
+
+    @mock.patch.object(models.Concept, 'unit_price_operations')
+    def test_cantidad_esta_estimacion(self, mock_operations):
+        concept = factories.ConceptoFactory()
+        concept.cantidad_esta_estimacion()
+        mock_operations.assert_called_once_with('estaestimacion')
+
+    def test_anotar_imagenes_raises_error(self):
+        # anotar imagenes se encuentra en la clase anterior debido a los subqueries
+        # necesarios para ejecutar los metodos.
+        concept = factories.ConceptoFactory()
+        with self.assertRaises(AttributeError):
+            concept.anotar_imagenes()

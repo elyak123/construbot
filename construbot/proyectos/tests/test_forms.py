@@ -1,9 +1,10 @@
-from . import factories
+import decimal
+from unittest import mock
 from django.test import RequestFactory, tag
 from construbot.users.tests import factories as user_factories
 from construbot.users.tests import utils
 from construbot.proyectos import forms, models
-import decimal
+from . import factories
 
 
 class ContratoFormTest(utils.BaseTestCase):
@@ -211,3 +212,54 @@ class SitioFormTest(utils.BaseTestCase):
         sitio = models.Sitio.objects.get(sitio_name='Tamaulipas')
         self.assertIsInstance(form.instance, models.Sitio)
         self.assertEqual(form.instance.id, sitio.id)
+
+
+class BaseCleanFormTest(utils.BaseTestCase):
+
+    def test_clean_BaseCleanFormTest_company_is_None(self):
+        forms.BaseCleanForm._meta = mock.Mock()
+        form = forms.BaseCleanForm()
+        form.cleaned_data = {'company': None}
+        with self.assertRaises(forms.forms.ValidationError):
+            form.clean()
+
+    def test_clean_BaseCleanFormTest_different_currently_at(self):
+        forms.BaseCleanForm._meta = mock.Mock()
+        forms.BaseCleanForm.request = mock.Mock()
+        form = forms.BaseCleanForm()
+        form.cleaned_data = {'company': mock.Mock()}
+        with self.assertRaises(forms.forms.ValidationError):
+            form.clean()
+
+
+class EstimateFormTest(utils.BaseTestCase):
+
+    def setUp(self):
+        self.user_factory = user_factories.UserFactory
+        self.user = self.make_user()
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
+    def test_clean_estimateform_raises_different_company_client_and_contrato(self):
+        contrato = factories.ContratoFactory()
+        destinatario_2 = factories.DestinatarioFactory(
+            company=contrato.cliente.company,
+            cliente=contrato.cliente
+        )
+        destinatario = factories.DestinatarioFactory(
+            company=contrato.cliente.company,
+            #cliente=contrato.cliente
+        )
+        form_data = {
+            'project': str(contrato.pk),
+            'consecutive': '1',
+            'draft_by': [str(self.user.pk)],
+            'supervised_by': [str(self.user.pk)],
+            'start_date': '2018-03-18',
+            'finish_date': '2018-04-12',
+            'auth_by': [str(destinatario_2.pk)],
+            'auth_by_gen': [str(destinatario.pk)],
+
+        }
+        form = forms.EstimateForm(form_data)
+        self.assertFalse(form.is_valid())

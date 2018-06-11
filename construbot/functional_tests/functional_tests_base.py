@@ -1,17 +1,17 @@
-from selenium                   import webdriver
-from selenium.webdriver.support.ui import Select
+import os
+import time
+from random import random
+from datetime import datetime, timedelta
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from django.contrib.auth.models import Permission
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos.tests import factories
 from construbot.proyectos.models import Company, Sitio, Destinatario, Contrato
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import WebDriverException
-from random import random
-from datetime import datetime, timedelta
-import os
-import time
 
 MAX_WAIT = 4
 

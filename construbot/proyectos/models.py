@@ -1,8 +1,8 @@
 from django.db import models
-from construbot.users.models import User, Company
-from core.utils import Round, get_directory_path
 from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
+from core.utils import Round, get_directory_path
+from construbot.users.models import User, Company
 
 
 # Create your models here.
@@ -131,7 +131,7 @@ class Estimate(models.Model):
         return total
 
     def anotaciones_conceptos(self):
-        conceptos = Concept.especial.filter(estimate_concept=self)
+        conceptos = Concept.especial.filter(estimate_concept=self).order_by('pk')
         return conceptos.add_estimateconcept_properties(self.consecutive)
 
     class Meta:
@@ -233,16 +233,16 @@ class Concept(models.Model):
         return self.unit_price * self.total_cuantity
 
     def unit_price_operations(self, attr):
-        new_attr = getattr(self, attr)
-        if new_attr is not None:
-            try:
-                return new_attr / self.unit_price
-            except AttributeError:
-                raise AttributeError(
-                    'El atributo %s no existe en %s, es necesario ejecutar '
-                    'add_estimateconcept_properties desde la instancia.'
-                    'de una Estimación' % (attr, self.concept_text)
+        if hasattr(self, attr):
+            new_attr = getattr(self, attr)
+        else:
+            raise AttributeError(
+                'El atributo %s no existe en %s, es necesario ejecutar '
+                'add_estimateconcept_properties desde la instancia'
+                'de una Estimación.' % (attr, self.concept_text)
                 )
+        if new_attr is not None:
+            return new_attr / self.unit_price
         else:
             from decimal import Decimal
             return Decimal('0.00')
@@ -325,3 +325,6 @@ class EstimateConcept(models.Model):
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to='hola/bla/')
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} {}'.format(self.id, repr(self.estimateconcept))
