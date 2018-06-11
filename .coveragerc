@@ -21,7 +21,7 @@ exclude_lines =
     if __name__ == .__main__.:
 skip_covered = True
 precision = 2
-sort = Cover
+sort = Miss
 omit =
     */migrations/*
     config/settings/*
