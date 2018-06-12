@@ -37,7 +37,7 @@ class TestUserRedirectView(BaseUserTestCase):
         #   self.make_user()
         self.assertEqual(
             view.get_redirect_url(),
-            '/users/detalle/'
+            '/users/detalle/testuser/'
         )
 
 
@@ -60,7 +60,7 @@ class TestUserUpdateView(BaseUserTestCase):
         #   self.make_user()
         self.assertEqual(
             self.view.get_success_url(),
-            '/users/detalle/testuser/'
+            '/users/detalle/'
         )
 
     def test_get_object(self):
