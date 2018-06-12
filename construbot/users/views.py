@@ -58,7 +58,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
-    fields = ['name', ]
+    fields = ['name', 'first_name', 'last_name', 'email']
 
     # we already imported User in the view code above, remember?
     model = User
