@@ -61,15 +61,15 @@ $(document).ready(function(){
         });
     }
 
-    if($(".icon_right")){
-        $(".icon_right").on("click", function(){
+    if($(".icon_right").length){
+        function lanzar_catalogo_conceptos(){
             var data_id = $("#dato")[0].getAttribute("data-id")
             $(".icon_right-up")[0].style.display = "initial";
             $(".icon_right")[0].style.display = "none";
             $.ajax({
                 url: "/proyectos/contrato/catalogo-list/" + data_id + "/",
                 success: function(result){
-                    $(".cont_result")[0].style.display = "block";
+                    $(".table_results")[0].style.display = "block";
                     result = result.conceptos;
                     len = result.length;
                     if(len>0){
@@ -84,13 +84,16 @@ $(document).ready(function(){
                     }
                 }
             });
+        }
+        $(".icon_right").on("click", function(){
+            lanzar_catalogo_conceptos();
         });
 
         $(".icon_right-up").on("click", function(){
             $(".icon_right-up")[0].style.display = "none";
             $(".icon_right")[0].style.display = "initial";
             if(len>0){
-                $(".cont_result")[0].style.display = "none";
+                $(".table_results")[0].style.display = "none";
                 $(".table_results")[0].style.display = "none";
                 for(i=0; i<len; i++){
                     $(".table_results")[0].deleteRow(1);
@@ -99,6 +102,7 @@ $(document).ready(function(){
                 $(".cont_message_no_result")[0].style.display = "none";
             }
         });
+        lanzar_catalogo_conceptos();
     }
 
     var intcomma = function(value) {
@@ -113,9 +117,9 @@ $(document).ready(function(){
     };
 
     function OnchangeEventHandler(event) {
-        if(event.target.value){
+        if(event.target.getAttribute("value")){
             $.ajax({
-                url:'/users/company-change/' + event.target.value + '/',
+                url:'/users/company-change/' + event.target.getAttribute("value") + '/',
                 type: 'GET',
                 success: function(response){
                     window.location.reload();
@@ -123,8 +127,10 @@ $(document).ready(function(){
             });
         } 
     }
-    document.querySelector('#company_select').onchange=OnchangeEventHandler
-
+    $(document).on("click",".drop-company", function(event){
+        OnchangeEventHandler(event);
+    });
+    
     function ajustarContenido(arg){
         if(arg==1){
             cont_contenedor.removeClass("content_with_little_sidebar");

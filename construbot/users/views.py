@@ -60,13 +60,13 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 class UserUpdateView(UsersMenuMixin, UpdateView):
     fields = ['name', 'first_name', 'last_name', 'email']
 
+
     # we already imported User in the view code above, remember?
     model = User
 
     # send the user back to their own page after a successful update
     def get_success_url(self):
-        return reverse('users:detail',
-                       kwargs={'username': self.request.user.username})
+        return reverse('users:detail',)
 
     def get_object(self):
         # Only get the User record for the user making the request
@@ -116,7 +116,8 @@ class UserListView(UsersMenuMixin, ListView):
     slug_url_kwarg = 'username'
 
     def get_queryset(self):
-        return self.model.objects.filter(company=self.request.user.currently_at)
+        qs = self.model.objects.filter(company=self.request.user.currently_at).exclude(id=self.request.user.id)
+        return qs
 
 
 class CompanyChangeView(TemplateView, AuthenticationTestMixin):

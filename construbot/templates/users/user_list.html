@@ -8,14 +8,20 @@
 
 <div class="container">
   <h2>Listado de usuarios en {{ request.user.currently_at.company_name }} </h2>
-  <div class="list-group">
-    {% for user in user_list %}
-		<div class="div_list border_normal">
-			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'users:detail' user.username %}">{{ user.username }}</h4></a>
-			<a class="boton_edicion" href="{% url 'users:update' %}">Editar</a> / 
-			<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="User" data-id="{{ user.id }}" href="#">Eliminar</a>
-		</div>
-    {% endfor %}
-  </div>
+  	{% if user_list.exists %}
+	  <div class="list-group">
+	    {% for user in user_list %}
+			<div class="div_list border_normal">
+				<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'users:detail' user.username %}">{{ user.username }}</h4></a>
+				<a class="boton_edicion" href="{% url 'users:update' %}">Editar</a> / 
+				<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="User" data-id="{{ user.id }}" href="#">Eliminar</a>
+			</div>
+	    {% endfor %}
+	  </div>
+	{% else %}
+	  <br>
+	  <br>
+	  <h4>Usted no cuenta con usuarios aún.</h4>
+	{% endif %}
 </div>
 {% endblock content %}

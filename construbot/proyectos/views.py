@@ -502,7 +502,7 @@ class ClienteAutocomplete(BaseAutocompleteView):
             qs = Cliente.objects.filter(
                 cliente_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
-            )
+            ).order_by("cliente_name")
         else:
             qs = Cliente.objects.none()
         return qs
@@ -514,7 +514,7 @@ class SitioAutocomplete(BaseAutocompleteView):
             qs = Sitio.objects.filter(
                 sitio_name__unaccent__icontains=self.q,
                 company=self.request.user.currently_at
-            )
+            ).order_by("sitio_name")
         else:
             qs = Sitio.objects.none()
         return qs
@@ -526,7 +526,7 @@ class DestinatarioAutocomplete(BaseAutocompleteView):
             qs = Destinatario.objects.filter(
                 destinatario_text__unaccent__icontains=self.q,
                 cliente__company=self.request.user.currently_at
-            )
+            ).order_by("destinatario_text")
         else:
             qs = Destinatario.objects.none()
         return qs
@@ -546,7 +546,7 @@ class UnitAutocomplete(BaseAutocompleteView):
 
     def get_queryset(self):
         if self.q:
-            qs = self.model.objects.filter(**self.get_key_words())
+            qs = self.model.objects.filter(**self.get_key_words()).order_by("unit")
             return qs
         elif self.request.POST:
             return self.model.objects

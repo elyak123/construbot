@@ -20,7 +20,7 @@ MAX_WAIT = 4
 class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
-        
+        self.actions = ActionChains(self.browser)
         self.user_factory = user_factories.UserFactory
         self.user = self.user_factory()
         company_test = user_factories.CompanyFactory(customer=self.user.customer)
