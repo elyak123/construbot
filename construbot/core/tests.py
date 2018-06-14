@@ -54,7 +54,7 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
             instance.get_key_words()
 
     @mock.patch.object(BasicAutocomplete, 'get_key_words')
-    def test_(self, mock_kw):
+    def test_autocomplete_get_queryset(self, mock_kw):
         mock_kw.return_value = {'mock_kw': 'bla'}
         instance = BasicAutocomplete()
         instance.request = mock.Mock()
@@ -64,13 +64,16 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
         instance.model.objects = mock.Mock()
         queryset_mock = mock.Mock()
         queryset_mock.order_by = mock.Mock()
+        queryset_mock_instance = mock.Mock()
+        queryset_mock.order_by.return_value = queryset_mock_instance
         filter_mock = mock.Mock()
         filter_mock.return_value = queryset_mock
         instance.model.objects.filter = filter_mock
         instance.model.objects.order_by = mock.Mock()
-        instance.get_queryset()
+        qs = instance.get_queryset()
         instance.model.objects.filter.assert_called_with(**mock_kw())
         queryset_mock.order_by.assert_called_with('mock_ordering')
+        self.assertEqual(qs, queryset_mock_instance)
 
     def test_get_post_key_words(self):
         instance = BasicAutocomplete()
