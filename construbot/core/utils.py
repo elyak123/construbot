@@ -35,8 +35,6 @@ class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetVie
     app_label_name = ''
     title = ''
     description = ''
-    key_words = {}
-    post_key_words = {}
     ordering = ''
 
     def has_add_permission(self, request):
@@ -56,7 +54,10 @@ class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetVie
             return self.model.objects
 
     def get_post_key_words(self):
-        return self.post_key_words
+        raise NotImplementedError(
+            'Es necesario sobreescribir el metodo get_post_key_words'
+            'para realizar el post para crear el objeto.'
+        )
 
     def create_object(self, text):
         """Create an object given a text."""

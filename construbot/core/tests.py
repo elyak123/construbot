@@ -68,7 +68,11 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
         filter_mock.return_value = queryset_mock
         instance.model.objects.filter = filter_mock
         instance.model.objects.order_by = mock.Mock()
-        qs = instance.get_queryset()
+        instance.get_queryset()
         instance.model.objects.filter.assert_called_with(**mock_kw())
         queryset_mock.order_by.assert_called_with('mock_ordering')
 
+    def test_get_post_key_words(self):
+        instance = BasicAutocomplete()
+        with self.assertRaises(NotImplementedError):
+            instance.get_post_key_words()
