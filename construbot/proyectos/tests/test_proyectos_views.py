@@ -1055,15 +1055,15 @@ class ClienteAutocompleteTest(BaseViewTest):
     def test_if_cliente_autocomplete_returns_none(self):
         company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
-        cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
-        cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
+        factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
+        factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
         view = self.get_instance(
             views.ClienteAutocomplete,
             request=self.request,
         )
         view.q = ""
         qs = view.get_queryset()
-        self.assertFalse(qs.exists())
+        self.assertIsNone(qs)
 
 
 class SitioAutocompleteTest(BaseViewTest):
@@ -1084,15 +1084,15 @@ class SitioAutocompleteTest(BaseViewTest):
     def test_if_sitio_autocomplete_returns_none(self):
         company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
-        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
-        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
+        factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
         view = self.get_instance(
             views.SitioAutocomplete,
             request=self.request,
         )
         view.q = ""
         qs = view.get_queryset()
-        self.assertFalse(qs.exists())
+        self.assertIsNone(qs)
 
 
 class UnitAutocompleteTest(BaseViewTest):

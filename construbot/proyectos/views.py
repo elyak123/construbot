@@ -498,6 +498,7 @@ class AutocompletePoryectos(BasicAutocomplete):
 
 
 class ClienteAutocomplete(AutocompletePoryectos):
+    model = Cliente
     ordering = 'cliente_name'
 
     def get_key_words(self):
@@ -516,6 +517,7 @@ class ClienteAutocomplete(AutocompletePoryectos):
 
 
 class SitioAutocomplete(AutocompletePoryectos):
+    model = Sitio
     ordering = 'sitio_name'
 
     def get_key_words(self):

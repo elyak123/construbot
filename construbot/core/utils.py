@@ -43,7 +43,10 @@ class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetVie
         return True
 
     def get_key_words(self):
-        return self.key_words
+        raise NotImplementedError(
+            'Es necesario sobreescribir el metodo get_key_words'
+            'para realizar el query.'
+        )
 
     def get_queryset(self):
         if self.request.user and self.q:
