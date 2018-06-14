@@ -9,6 +9,7 @@ from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from construbot.proyectos import forms
+from construbot.core.utils import BasicAutocomplete
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -492,61 +493,77 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         return JsonResponse({"exito": True})
 
 
-class BaseAutocompleteView(AuthenticationTestMixin, autocomplete.Select2QuerySetView):
+class AutocompletePoryectos(BasicAutocomplete):
     app_label_name = ProyectosConfig.verbose_name
 
 
-class ClienteAutocomplete(BaseAutocompleteView):
-    def get_queryset(self):
-        if self.q:
-            qs = Cliente.objects.filter(
-                cliente_name__unaccent__icontains=self.q,
-                company=self.request.user.currently_at
-            ).order_by("cliente_name")
-        else:
-            qs = Cliente.objects.none()
-        return qs
-
-
-class SitioAutocomplete(BaseAutocompleteView):
-    def get_queryset(self):
-        if self.q:
-            qs = Sitio.objects.filter(
-                sitio_name__unaccent__icontains=self.q,
-                company=self.request.user.currently_at
-            ).order_by("sitio_name")
-        else:
-            qs = Sitio.objects.none()
-        return qs
-
-
-class DestinatarioAutocomplete(BaseAutocompleteView):
-    def get_queryset(self):
-        if self.q:
-            qs = Destinatario.objects.filter(
-                destinatario_text__unaccent__icontains=self.q,
-                cliente__company=self.request.user.currently_at
-            ).order_by("destinatario_text")
-        else:
-            qs = Destinatario.objects.none()
-        return qs
-
-
-class UnitAutocomplete(BaseAutocompleteView):
-    model = Units
+class ClienteAutocomplete(AutocompletePoryectos):
+    ordering = 'cliente_name'
 
     def get_key_words(self):
-        self.key_words = {
+        key_words = {
+            'cliente_name__unaccent__icontains': self.q,
+            'company': self.request.user.currently_at
+        }
+        return key_words
+
+    def get_post_key_words(self):
+        kw = {
+            'cliente_name': self.q,
+            'company': self.request.user.currently_at
+        }
+        return kw
+
+
+class SitioAutocomplete(AutocompletePoryectos):
+    ordering = 'sitio_name'
+
+    def get_key_words(self):
+        key_words = {
+            'sitio_name__unaccent__icontains': self.q,
+            'company': self.request.user.currently_at
+        }
+        return key_words
+
+    def get_post_key_words(self):
+        kw = {
+            'sitio_name': self.q,
+            'company': self.request.user.currently_at
+        }
+        return kw
+
+
+class DestinatarioAutocomplete(AutocompletePoryectos):
+    model = Destinatario
+    ordering = 'destinatario_text'
+
+    def get_key_words(self):
+        key_words = {
+            'destinatario_text__unaccent__icontains': self.q,
+            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente
+        }
+        return key_words
+
+    def get_post_key_words(self):
+        kw = {
+            'company': self.request.user.currently_at,
+            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente,
+        }
+        return kw
+
+
+class UnitAutocomplete(AutocompletePoryectos):
+    model = Units
+    ordering = 'unit'
+
+    def get_key_words(self):
+        key_words = {
             'unit__unaccent__icontains': self.q
         }
-        return self.key_words
+        return key_words
 
-    def has_add_permission(self, request):
-        return True
-
-    def get_queryset(self):
-        if self.q:
-            qs = self.model.objects.filter(**self.get_key_words()).order_by("unit")
-            return qs
-        elif self.request.POST:
-            return self.model.objects
+    def get_post_key_words(self):
+        kw = {
+            'unit': self.q
+        }
+        return kw

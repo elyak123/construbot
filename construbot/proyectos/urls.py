@@ -111,15 +111,15 @@ urlpatterns = [
         name='eliminar'
     ),
     url(regex=r'cliente-autocomplete/$',
-        view=views.ClienteAutocomplete.as_view(),
+        view=views.ClienteAutocomplete.as_view(create_field='cliente_name'),
         name='cliente-autocomplete'
     ),
     url(regex=r'sitio-autocomplete/$',
-        view=views.SitioAutocomplete.as_view(),
+        view=views.SitioAutocomplete.as_view(create_field='sitio_name'),
         name='sitio-autocomplete'
     ),
     url(regex=r'destinatario-autocomplete/$',
-        view=views.DestinatarioAutocomplete.as_view(),
+        view=views.DestinatarioAutocomplete.as_view(create_field='destinatario_text'),
         name='destinatario-autocomplete'
     ),
     url(regex=r'^unit-autocomplete/$',

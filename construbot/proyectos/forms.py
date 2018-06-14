@@ -171,12 +171,14 @@ class EstimateForm(forms.ModelForm):
             ),
             'auth_by': autocomplete.ModelSelect2Multiple(
                 url='proyectos:destinatario-autocomplete',
+                forward=['project'],
                 attrs={
                     'data-minimum-input-length': 2,
                 }
             ),
             'auth_by_gen': autocomplete.ModelSelect2Multiple(
                 url='proyectos:destinatario-autocomplete',
+                forward=['project'],
                 attrs={
                     'data-minimum-input-length': 2,
                 }
