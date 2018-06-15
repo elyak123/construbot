@@ -262,4 +262,32 @@ class EstimateFormTest(utils.BaseTestCase):
 
         }
         form = forms.EstimateForm(form_data)
-        self.assertFalse(form.is_valid())
+        with self.assertRaises(forms.forms.ValidationError):
+            self.assertFalse(form.is_valid())
+            form.clean()
+
+    def test_estimateforom_raises_error_auth_by_gen_company_contrato(self):
+        contrato = factories.ContratoFactory()
+        destinatario_2 = factories.DestinatarioFactory(
+            company=contrato.cliente.company,
+            cliente=contrato.cliente
+        )
+        destinatario = factories.DestinatarioFactory(
+            company=contrato.cliente.company,
+            #cliente=contrato.cliente
+        )
+        form_data = {
+            'project': str(contrato.pk),
+            'consecutive': '1',
+            'draft_by': [str(self.user.pk)],
+            'supervised_by': [str(self.user.pk)],
+            'start_date': '2018-03-18',
+            'finish_date': '2018-04-12',
+            'auth_by': [str(destinatario.pk)],
+            'auth_by_gen': [str(destinatario_2.pk)],
+
+        }
+        form = forms.EstimateForm(form_data)
+        with self.assertRaises(forms.forms.ValidationError):
+            self.assertFalse(form.is_valid())
+            form.clean()
