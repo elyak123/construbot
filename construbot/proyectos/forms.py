@@ -151,11 +151,9 @@ class EstimateForm(forms.ModelForm):
             ),
             'project': forms.HiddenInput(),
             'draft_by': forms.HiddenInput(),
-            'supervised_by': autocomplete.ModelSelect2Multiple(
+            'supervised_by': autocomplete.ModelSelect2(
                 url='proyectos:user-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 2,
-                }
+                attrs={'data-minimum-input-length': 3}
             ),
             'start_date': forms.DateInput(
                 attrs={
