@@ -568,26 +568,20 @@ class UnitAutocomplete(AutocompletePoryectos):
     def has_add_permission(self, request):
         return True
 
-    def get_queryset(self):
-        if self.q:
-            qs = self.model.objects.filter(**self.get_key_words()).order_by("unit")
-            return qs
-        elif self.request.POST:
-            return self.model.objects
-
     def get_post_key_words(self):
         kw = {
             'unit': self.q
         }
         return kw
 
-class UserAutocomplete(BaseAutocompleteView):
-    def get_queryset(self):
-        if self.q:
-            qs = User.objects.filter(
-                username__unaccent__icontains=self.q,
-                company=self.request.user.currently_at
-            ).order_by("username")
-        else:
-            qs = User.objects.none()
-        return qs
+class UserAutocomplete(AutocompletePoryectos):
+    model = User
+    ordering = 'username'
+
+    def get_key_words(self):
+        key_words = {
+            'username__unaccent__icontains': self.q,
+            'company': self.request.user.currently_at
+        }
+
+        return key_words
