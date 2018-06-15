@@ -1,0 +1,22 @@
+{% load humanize %}
+{% for concepto in conceptos %}
+	<tr>
+		<td> {{ concepto.code }} </td>
+		<td> {{ concepto.concept_text }} {% lorem 1 p %} </td>
+		<td> {{ concepto.unit.unit }} </td>
+		<td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
+		<td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
+		<td class="right"> $ {{ concepto.importe_contratado|floatformat:"2"|intcomma }}</td>
+		{% if concepto.cantidad_estimado_anterior %}
+			<td class="right"> {{ concepto.cantidad_estimado_anterior|floatformat:"2"|intcomma }} </td>
+			<td class="right">$ {{ concepto.anterior|floatformat:"2"|intcomma }}</td>
+		{% else %}
+			<td style="text-align: center;"> - </td>
+			<td style="text-align: center;"> - </td>
+		{% endif %}
+		<td class="right"> {{ concepto.cantidad_estimado_ala_fecha }} </td>
+		<td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
+		<td class="right"> {{ concepto.cantidad_esta_estimacion }} </td>
+		<td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
+	</tr>
+{% endfor %}

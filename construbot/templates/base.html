@@ -25,9 +25,11 @@
   </head>
 
   <body>
-
     <div class="cont_nav_navegacion d-print-none">
       <nav class="nav_navegacion">
+        {% if request.user.is_authenticated %}
+            <span class="oi oi-menu menu-icon"></span>
+        {% endif %}
         <a class="anchor_brand" href="{% url 'home' %}"> Construbot </a>
         <div class="cont_list_menu_nav">
           <ul class="list_menu_nav">
@@ -54,21 +56,8 @@
         </div>
       </nav>
     </div>
-    {% if current_user.company.exists %}
-      <div class='div_miniform d-print-none'>
-        <div class="dropdown show">
-          <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Actualmente en: {{ request.user.currently_at.company_name }}
-          </a>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            {% for company in current_user.company.all %}
-              {% if  company.company_name != current_user.currently_at.company_name %}
-                <a class="dropdown-item drop-company" id="{{ company.company_name }}" value='{{ company.company_name }}' href="#">{{ company.company_name }}</a>
-              {% endif %}
-            {% endfor%}
-          </div>
-        </div>
-      </div>
+    {% if menu %}
+      {% include "menu.html" %}
     {% endif %}
     <div id="cont_content" class="content_with{% if not menu %}_little{% endif %}_sidebar">
       {% if messages %}
@@ -76,15 +65,25 @@
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
-
+      {% if current_user.company.exists %}
+        <div class='div_miniform d-print-none'>
+          <div class="dropdown show">
+            <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Actualmente en: {{ request.user.currently_at.company_name }}
+            </a>
+            <div style="width:100%;" class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              {% for company in current_user.company.all %}
+                {% if  company.company_name != current_user.currently_at.company_name %}
+                  <a class="dropdown-item drop-company" id="{{ company.company_name }}" value='{{ company.company_name }}' href="#">{{ company.company_name }}</a>
+                {% endif %}
+              {% endfor%}
+            </div>
+          </div>
+        </div>
+      {% endif %}
       {% block content %}
         <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
-
-      {% if menu %}
-        {% include "menu.html" %}
-      {% endif %}
-
     </div>
 
     {% block modal %}{% endblock modal %}

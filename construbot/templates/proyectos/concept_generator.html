@@ -1,0 +1,42 @@
+{% load humanize %}
+{% for concepto in conceptos %}
+	<tr>
+		<td> {{ concepto.code }} </td>
+		<td class="generatorDescription">
+			<p>{{ concepto.concept_text }}</p>
+			{% lorem 1 p %}
+		</td>
+		<td> - </td>
+		<td> - </td>
+		<td> - </td>
+		<td> - </td>
+		<td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+		<td style="text-align:center;"> {{ concepto.unit.unit }} </td>
+		{% if concepto.observations %}
+			<td> {{ concepto.observations }} </td>
+		{% else %}
+			<td>
+				<p> {% lorem 1 p %} </p>
+			</td>
+		{% endif %}
+	</tr>
+	{% if conceptos.total_imagenes_estimacion.total_images %}
+		<tr>
+			<td colspan="9" style="height:600px; text-align: center;">
+					{% if concepto.image_count %}
+						{% for image in concepto.anotar_imagenes %}
+							{% if concepto.image_count == 1 %}
+								<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
+							{% elif concepto.image_count == 2 %}
+								<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 49%;" src="{{ image.image.url }}">
+							{% else %}
+								<img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 49%; max-width: 49%;" src="{{ image.image.url }}">
+							{% endif %}
+						{% endfor %}
+					{% else %}
+						<img src="">
+					{% endif %}
+			</td>
+		</tr>
+	{% endif %}
+{% endfor %}

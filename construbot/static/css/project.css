@@ -34,6 +34,15 @@ a:hover {
 	text-decoration: none;
 }
 
+.disp_none {
+	display: block !important;
+	box-shadow: 2px -4px 9px 1px;
+}
+
+.blur {
+	filter: blur(2px);
+}
+
 .content_with_sidebar {
 	margin: 60px 20px 50px 220px;
 }
@@ -114,11 +123,9 @@ a:hover {
 }
 
 .cont_listado {
-	color: white;
 	padding: 8px;
 	width: 90%;
 	margin-left: 5%;
-	background-color: #086898;
 }
 
 .cont_message_no_result {
@@ -226,6 +233,7 @@ a:hover {
 	top: 60px;
 	position: fixed;
 	width: 200px;
+	z-index: 1;
 	background-color: #3c3e4a;
 	left: 0;
 	height: 100%;
@@ -514,6 +522,18 @@ table.estimate * , table.generator * {
 
 /*QUERYSETS*/
 /*PARA LA BARRA SUPERIOR*/
+.menu-icon {
+	font-size: 14px;
+    height: 36px;
+    width: 38px;
+    text-align: center;
+    margin-left: 10px;
+    cursor: pointer;
+    background-color: #d9d5cd;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
 
 @media print {
     #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
@@ -530,14 +550,22 @@ table.estimate * , table.generator * {
 	 }
 }
 
-@media screen and (max-width: 400px){
-  .anchor_menu_nav, .anchor_brand {
-	padding: 1.1em .4em;
+@media screen and (min-width: 600px){
+	.cont_menu_lateral, .anchor_brand {
+		display: inline-block !important;
+	}
 }
 
-@media screen and (max-width: 375px){
-	.cont_menu_lateral {
+@media screen and (max-width: 600px){
+	.anchor_menu_nav {
+		padding: 1.1em .4em;
+	}
+	.cont_menu_lateral, .anchor_brand {
 		display: none;
+	}
+	.menu-icon {
+		display: inline-block;
+		margin-top: 10px;
 	}
 }
 /*IMPRESIÓN DE ESTIMACIÓN*/

@@ -8,6 +8,7 @@ from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from construbot.users.models import User
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 
@@ -569,3 +570,16 @@ class UnitAutocomplete(AutocompletePoryectos):
             'unit': self.q
         }
         return kw
+
+
+class UserAutocomplete(AutocompletePoryectos):
+    model = User
+    ordering = 'username'
+
+    def get_key_words(self):
+        key_words = {
+            'username__unaccent__icontains': self.q,
+            'company': self.request.user.currently_at
+        }
+
+        return key_words
