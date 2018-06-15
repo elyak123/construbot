@@ -8,6 +8,7 @@ from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from construbot.users.models import User
 from construbot.proyectos import forms
 
 
@@ -550,3 +551,14 @@ class UnitAutocomplete(BaseAutocompleteView):
             return qs
         elif self.request.POST:
             return self.model.objects
+
+class UserAutocomplete(BaseAutocompleteView):
+    def get_queryset(self):
+        if self.q:
+            qs = User.objects.filter(
+                username__unaccent__icontains=self.q,
+                company=self.request.user.currently_at
+            ).order_by("username")
+        else:
+            qs = User.objects.none()
+        return qs

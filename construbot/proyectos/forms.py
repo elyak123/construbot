@@ -151,6 +151,12 @@ class EstimateForm(forms.ModelForm):
             ),
             'project': forms.HiddenInput(),
             'draft_by': forms.HiddenInput(),
+            'supervised_by': autocomplete.ModelSelect2Multiple(
+                url='proyectos:user-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 2,
+                }
+            ),
             'start_date': forms.DateInput(
                 attrs={
                     'class': 'datetimepicker-input',
