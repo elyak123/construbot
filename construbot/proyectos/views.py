@@ -565,14 +565,12 @@ class UnitAutocomplete(AutocompletePoryectos):
         }
         return key_words
 
-    def has_add_permission(self, request):
-        return True
-
     def get_post_key_words(self):
         kw = {
             'unit': self.q
         }
         return kw
+
 
 class UserAutocomplete(AutocompletePoryectos):
     model = User
