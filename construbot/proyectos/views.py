@@ -4,7 +4,6 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
-from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
@@ -141,7 +140,9 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
-        contrato = shortcuts.get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
+        contrato = shortcuts.get_object_or_404(
+            Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+        )
         queryset = self.model.objects.filter(project=contrato)
         json = {}
         json['conceptos'] = []
@@ -161,7 +162,9 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         return obj.__class__.__name__.lower()
 
     def get_object(self, queryset=None):
-        return shortcuts.get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+        return shortcuts.get_object_or_404(
+            self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
+        )
 
 
 class ContratoDetailView(DynamicDetail):
@@ -279,7 +282,12 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             cliente__company=self.request.user.currently_at
         )
         concepts = Concept.objects.filter(project=self.project_instance).order_by('id')
-        data = [{'concept': x, 'cuantity_estimated': 0, 'concept_text_input': x.concept_text} for x in concepts]
+        data = [
+            {
+                'concept': x, 'cuantity_estimated': 0,
+                'concept_text_input': x.concept_text
+            } for x in concepts
+        ]
         self.concept_count = concepts.count()
         return data
 
