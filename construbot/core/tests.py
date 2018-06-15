@@ -2,7 +2,7 @@ from unittest import mock
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils
 from .context import ContextManager
-from .utils import BasicAutocomplete
+from .utils import BasicAutocomplete, get_directory_path
 # Create your tests here.
 
 
@@ -75,7 +75,44 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
         queryset_mock.order_by.assert_called_with('mock_ordering')
         self.assertEqual(qs, queryset_mock_instance)
 
+    def test_autocomplete_on_post_returns_default_manager(self):
+        instance = BasicAutocomplete()
+        instance.request = mock.MagicMock()
+        instance.model = mock.MagicMock()
+        manager = mock.MagicMock()
+        instance.model.objects = manager
+        instance.q = None
+        self.assertEqual(instance.get_queryset(), manager)
+
     def test_get_post_key_words(self):
         instance = BasicAutocomplete()
         with self.assertRaises(NotImplementedError):
             instance.get_post_key_words()
+
+    @mock.patch.object(BasicAutocomplete, 'get_post_key_words')
+    @mock.patch.object(BasicAutocomplete, 'get_queryset')
+    def test_autocomplete_create_object(self, mock_queryset, post_kw_mock):
+        instance = BasicAutocomplete()
+        instance.create_field = 'hola'
+        post_kw_mock.return_value = {'key': 'value'}
+        manager = mock.MagicMock()
+        mock_queryset.return_value = manager
+        mock_create_method = mock.MagicMock()
+        manager.create = mock_create_method
+        instance.create_object('foo')
+        self.assertEqual(instance.post_key_words, {'hola': 'foo', 'key': 'value'})
+        self.assertTrue(post_kw_mock.called)
+        manager.create.assert_called_with(**{'hola': 'foo', 'key': 'value'})
+
+
+class DirectoyPathTest(utils.BaseTestCase):
+
+    @mock.patch('construbot.core.utils.strftime')
+    def test_get_directory_path_returns_correct_string(self, mock_strftime):
+        mock_strftime.return_value = '2018-06-15-17-28-49'
+        mock_instance = mock.MagicMock()
+        mock_instance._meta.verbose_name_plural = 'models'
+        mock_instance.cliente.company.customer.customer_name = 'customer'
+        mock_instance.cliente.company.company_name = 'company'
+        path = get_directory_path(mock_instance, 'file.txt')
+        self.assertEqual(path, 'customer/company/models/2018-06-15-17-28-49-file.txt')
