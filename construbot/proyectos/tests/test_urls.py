@@ -72,9 +72,10 @@ class TestProyectsURLs(TestCase):
                                  '/proyectos/editar/cliente/1/')
 
     def test_editar_sitio_reverse(self):
-        self.assertEqual(reverse('proyectos:editar_sitio',
-                                 kwargs={'pk': 1}),
-                                 '/proyectos/editar/sitio/1/')
+        self.assertEqual(
+            reverse('proyectos:editar_sitio', kwargs={'pk': 1}),
+            '/proyectos/editar/sitio/1/'
+        )
 
     def test_editar_destinatario_reverse(self):
         self.assertEqual(reverse('proyectos:editar_destinatario',

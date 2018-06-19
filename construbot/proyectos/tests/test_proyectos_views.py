@@ -8,7 +8,6 @@ from django.test import RequestFactory, tag
 from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
-from construbot.users.tests import factories as user_factories
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato, Estimate
 from construbot.users.models import User, Company, Customer
@@ -17,7 +16,7 @@ from . import factories
 
 class BaseViewTest(utils.BaseTestCase):
     def setUp(self):
-        self.user_factory = user_factories.UserFactory
+        self.user_factory = factories.UserFactory
         self.user = self.make_user()
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
@@ -32,7 +31,7 @@ class BaseViewTest(utils.BaseTestCase):
 class ProyectDashboardViewTest(BaseViewTest):
 
     def test_view_gets_correct_object(self):
-        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
         view = self.get_instance(
             views.ProyectDashboardView,
@@ -73,7 +72,7 @@ class DynamicDetailTest(BaseViewTest):
 
 class ContratoListTest(BaseViewTest):
     def test_contrato_different_customer_doesnt_appear(self):
-        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
         cliente_test = factories.ClienteFactory(company=company_test)
         contrato = factories.ContratoFactory(cliente=cliente_test)
@@ -90,7 +89,7 @@ class ContratoListTest(BaseViewTest):
 
 class ClienteListTest(BaseViewTest):
     def test_cliente_query_only_same_client(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_bLdYMUBC')
         cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
@@ -106,7 +105,7 @@ class ClienteListTest(BaseViewTest):
 
 class SitioListTest(BaseViewTest):
     def test_sitio_query_only_same_company(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = sitio_company
         sitio = factories.SitioFactory(company=sitio_company)
         sitio_2 = factories.SitioFactory(company=sitio_company)
@@ -122,7 +121,7 @@ class SitioListTest(BaseViewTest):
 
 class DestinatarioListTest(BaseViewTest):
     def test_destinatario_query_same_client_company(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
@@ -142,7 +141,7 @@ class DestinatarioListTest(BaseViewTest):
 
 class ContratoDetailTest(BaseViewTest):
     def test_assert_request_returns_correct_contrato_object(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
@@ -155,7 +154,7 @@ class ContratoDetailTest(BaseViewTest):
         self.assertEqual(obj, contrato)
 
     def test_assert_contrato_request_returns_404_with_no_currently_at(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         view = self.get_instance(
@@ -169,7 +168,7 @@ class ContratoDetailTest(BaseViewTest):
 
 class ClienteDetailTest(BaseViewTest):
     def test_assert_request_returns_correct_cliente_object(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company)
         view = self.get_instance(
@@ -181,7 +180,7 @@ class ClienteDetailTest(BaseViewTest):
         self.assertEqual(obj, cliente)
 
     def test_assert_cliente_request_returns_404_with_no_currently_at(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=cliente_company)
         view = self.get_instance(
             views.ClienteDetailView,
@@ -194,7 +193,7 @@ class ClienteDetailTest(BaseViewTest):
 
 class SitioDetailTest(BaseViewTest):
     def test_assert_request_returns_correct_sitio_object(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = sitio_company
         sitio = factories.SitioFactory(company=sitio_company)
         view = self.get_instance(
@@ -206,7 +205,7 @@ class SitioDetailTest(BaseViewTest):
         self.assertEqual(obj, sitio)
 
     def test_assert_sitio_request_returns_404_with_no_currently_at(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio = factories.SitioFactory(company=sitio_company)
         view = self.get_instance(
             views.SitioDetailView,
@@ -219,7 +218,7 @@ class SitioDetailTest(BaseViewTest):
 
 class DestinatarioDetailTest(BaseViewTest):
     def test_assert_request_returns_correct_destinatario_object(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         destinatario = factories.DestinatarioFactory(
@@ -235,7 +234,7 @@ class DestinatarioDetailTest(BaseViewTest):
         self.assertEqual(obj, destinatario)
 
     def test_assert_request_returns_404_with_no_currently_at(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
         destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         view = self.get_instance(
@@ -249,7 +248,7 @@ class DestinatarioDetailTest(BaseViewTest):
 
 class ContratoCreationTest(BaseViewTest):
     def test_get_initial_returns_1_when_no_contratos(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         dicc = {"currently_at": contrato_company.company_name, "folio": 1}
         view = self.get_instance(
@@ -260,7 +259,7 @@ class ContratoCreationTest(BaseViewTest):
         self.assertDictEqual(dicc_test, dicc)
 
     def test_get_initial_returns_the_next_id_when_contratos_exist(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         self.request.user.currently_at = contrato_company
@@ -273,7 +272,7 @@ class ContratoCreationTest(BaseViewTest):
         self.assertDictEqual(dicc_test, dicc)
 
     def test_get_context_data_has_same_company_that_currently_at(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         view = self.get_instance(
             views.ContratoCreationView,
@@ -286,9 +285,9 @@ class ContratoCreationTest(BaseViewTest):
         self.assertEqual(dicc_test['company'], contrato_company)
 
     def test_contrato_form_creation_is_not_valid_with_another_company(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
-        contrato_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company_2 = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(company=contrato_company)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
@@ -315,7 +314,7 @@ class ContratoCreationTest(BaseViewTest):
 
 class ClienteCreationTest(BaseViewTest):
     def test_get_initial_returns_the_correct_company(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = cliente_company
         dicc = {"company": cliente_company}
         view = self.get_instance(
@@ -326,8 +325,8 @@ class ClienteCreationTest(BaseViewTest):
         self.assertDictEqual(dicc_test, dicc)
 
     def test_cliente_form_creation_is_not_valid_with_another_company(self):
-        cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
-        cliente_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        cliente_company = factories.CompanyFactory(customer=self.user.customer)
+        cliente_company_2 = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         form_data = {'cliente_name': "Juanito", 'company': cliente_company_2.id}
         with mock.patch('construbot.proyectos.views.ClienteCreationView.get_form_kwargs') as get_form_mock:
@@ -349,7 +348,7 @@ class ClienteCreationTest(BaseViewTest):
 
 class SitioCreationTest(BaseViewTest):
     def test_get_initial_returns_the_correct_company(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = sitio_company
         dicc = {"company": sitio_company}
         view = self.get_instance(
@@ -362,7 +361,7 @@ class SitioCreationTest(BaseViewTest):
 
 class DestinatarioCreationTest(BaseViewTest):
     def test_get_initial_returns_the_correct_company(self):
-        destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
         dicc = {"company": destinatario_company}
         view = self.get_instance(
@@ -375,7 +374,7 @@ class DestinatarioCreationTest(BaseViewTest):
     @mock.patch('construbot.proyectos.views.DestinatarioDetailView.get_context_data')
     def test_destinatario_form_redirects_correctly(self, mock_detail_context):
         with mock.patch('construbot.proyectos.views.DestinatarioCreationView.test_func') as mock_test_func:
-            destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
+            destinatario_company = factories.CompanyFactory(customer=self.user.customer)
             destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
             self.user.currently_at = destinatario_company
             self.user.save()
@@ -398,7 +397,7 @@ class DestinatarioCreationTest(BaseViewTest):
 class EstimateCreationTest(BaseViewTest):
 
     def test_estimate_post_correctly(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
@@ -440,7 +439,7 @@ class EstimateCreationTest(BaseViewTest):
         )
 
     def test_estimate_post_renders_errors(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
@@ -519,7 +518,7 @@ class EstimateCreationTest(BaseViewTest):
         )
 
     def test_estimate_createview_renders_formset_errors(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
@@ -558,7 +557,7 @@ class EstimateCreationTest(BaseViewTest):
 class EstimateEditTest(BaseViewTest):
 
     def test_estimate_edit_saves_forms_when_valid(self):
-        company = user_factories.CompanyFactory(customer=self.user.customer)
+        company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
         estimacion = factories.EstimateFactory(project=contrato)
@@ -585,7 +584,7 @@ class EstimateEditTest(BaseViewTest):
 
     @mock.patch.object(views.EstimateEditView, 'form_invalid')
     def test_estimate_edit_executes_form_invalid_on_formset_invalid(self, mock_method):
-        company = user_factories.CompanyFactory(customer=self.user.customer)
+        company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
         estimacion = factories.EstimateFactory(project=contrato)
@@ -613,7 +612,7 @@ class EstimateEditTest(BaseViewTest):
 
     @mock.patch.object(views.EstimateEditView, 'form_invalid')
     def test_estimate_edit_returns_same_formset_on_errors(self, mock_method):
-        company = user_factories.CompanyFactory(customer=self.user.customer)
+        company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
         estimacion = factories.EstimateFactory(project=contrato)
@@ -687,7 +686,7 @@ class ContratoEditViewTest(BaseViewTest):
         self.assertEqual(init_obj['currently_at'], self.user.currently_at.company_name)
 
     def test_contrato_edit_not_currently_returns_invalid(self):
-        contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(company=contrato_company)
@@ -819,7 +818,7 @@ class DestinatarioEditTest(BaseViewTest):
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
     def test_get_correct_contract_object(self):
-        company_inline = user_factories.CompanyFactory(customer=self.user.customer)
+        company_inline = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_inline
         cliente_inline = factories.ClienteFactory(company=company_inline)
         contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
@@ -832,7 +831,7 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         self.assertEqual(test_obj, contrato_inline)
 
     def test_correct_success_url(self):
-        company_inline = user_factories.CompanyFactory(customer=self.user.customer)
+        company_inline = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_inline
         cliente_inline = factories.ClienteFactory(company=company_inline)
         contrato_inline = factories.ContratoFactory(cliente=cliente_inline)
@@ -847,7 +846,7 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
 
 class CatalogoConceptosTest(BaseViewTest):
     def test_json_formed_correctly(self):
-        company = user_factories.CompanyFactory(customer=self.user.customer)
+        company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = company
         unit = factories.UnitFactory(unit='meter')
         cliente = factories.ClienteFactory(company=company)
@@ -1041,7 +1040,7 @@ class DynamicDeleteTest(BaseViewTest):
 
 class ClienteAutocompleteTest(BaseViewTest):
     def test_autocomplete_returns_the_correct_cliente_object(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
         cliente_2 = factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
@@ -1055,7 +1054,7 @@ class ClienteAutocompleteTest(BaseViewTest):
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
     def test_if_cliente_autocomplete_returns_none(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
         factories.ClienteFactory(cliente_name="äAROn", company=company_autocomplete)
@@ -1067,9 +1066,11 @@ class ClienteAutocompleteTest(BaseViewTest):
         qs = view.get_queryset()
         self.assertIsNone(qs)
 
-    def test_get_kwy_words_returns_correct_dict(self):
+    def test_cliente_get_key_words_returns_correct_dict(self):
         instance = views.ClienteAutocomplete()
         instance.q = 'hola'
+        instance.create_field = 'cliente_name'
+        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
         instance.request = self.request
         dict_control = {
             'cliente_name__unaccent__icontains': 'hola',
@@ -1077,7 +1078,7 @@ class ClienteAutocompleteTest(BaseViewTest):
         }
         self.assertDictEqual(instance.get_key_words(), dict_control)
 
-    def test_get_post_key_words_correct_dict(self):
+    def test_cliente_autocomplete_get_post_key_words_correct_dict(self):
         instance = views.ClienteAutocomplete()
         company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = company
@@ -1089,7 +1090,7 @@ class ClienteAutocompleteTest(BaseViewTest):
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
     def test_autocomplete_create_object_saves_db(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         request = RequestFactory().post(
             reverse('proyectos:cliente-autocomplete', kwargs={}),
@@ -1109,7 +1110,7 @@ class ClienteAutocompleteTest(BaseViewTest):
 
 class SitioAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_sitio_object(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
         sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
@@ -1123,7 +1124,7 @@ class SitioAutocompleteTest(BaseViewTest):
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
     def test_if_sitio_autocomplete_returns_none(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
         factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
@@ -1135,10 +1136,47 @@ class SitioAutocompleteTest(BaseViewTest):
         qs = view.get_queryset()
         self.assertIsNone(qs)
 
+    def test_sitio_get_post_kw_returns_correct_dict(self):
+        instance = views.SitioAutocomplete()
+        self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.request = self.request
+        instance.q = 'bla bla'
+        dict_control = {'company': self.request.user.currently_at}
+        self.assertDictEqual(instance.get_post_key_words(), dict_control)
+
+
+class DestinatarioAutocompleteTest(BaseViewTest):
+
+    def test_destinatario_autocomplete_returns_correct_dict(self):
+        instance = views.DestinatarioAutocomplete()
+        instance.q = 'hola'
+        instance.create_field = 'destinatario_text'
+        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.request = self.request
+        contrato = factories.ContratoFactory(cliente__company=self.request.user.currently_at)
+        instance.forwarded = {'project': contrato.id}
+        dict_control = {
+            'destinatario_text__unaccent__icontains': 'hola',
+            'cliente': contrato.cliente
+        }
+        self.assertDictEqual(instance.get_key_words(), dict_control)
+
+    def test_destinatario_get_post_keywords_correct_dict(self):
+        instance = views.DestinatarioAutocomplete()
+        instance.create_field = 'destinatario_text'
+        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.request = self.request
+        contrato = factories.ContratoFactory(cliente__company=self.request.user.currently_at)
+        instance.forwarded = {'project': contrato.id}
+        dict_control = {
+            'company': self.request.user.currently_at,
+            'cliente': contrato.cliente
+        }
+        self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
 class UnitAutocompleteTest(BaseViewTest):
-    def test_if_autocomplete_returns_the_correct_unit_object(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+    def test_unit_autocomplete_returns_the_correct_unit_object(self):
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         unit = factories.UnitFactory(unit="Kilo")
         unit_2 = factories.UnitFactory(unit="Kilogramo")
@@ -1151,8 +1189,8 @@ class UnitAutocompleteTest(BaseViewTest):
         qs_test = [repr(a) for a in [unit, unit_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
-    def test_if_autocomplete_returns_the_correct_key_words(self):
-        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+    def test_unit_autocomplete_returns_the_correct_key_words(self):
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         view = self.get_instance(
             views.UnitAutocomplete,
@@ -1162,6 +1200,20 @@ class UnitAutocompleteTest(BaseViewTest):
         dicc = {'unit__unaccent__icontains': view.q}
         dicc_test = view.get_key_words()
         self.assertDictEqual(dicc, dicc_test)
+
+
+class UserAutocompleteTest(BaseViewTest):
+
+    def test_user_autocomplete_get_key_words(self):
+        instance = views.UserAutocomplete()
+        instance.q = 'Fulano'
+        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.request = self.request
+        dict_control = {
+            'username__unaccent__icontains':'Fulano',
+            'company': self.request.user.currently_at
+        }
+        self.assertDictEqual(instance.get_key_words(), dict_control)
 
 
 """

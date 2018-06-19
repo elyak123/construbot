@@ -505,16 +505,22 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
 class AutocompletePoryectos(BasicAutocomplete):
     app_label_name = ProyectosConfig.verbose_name
 
+    def get_key_words(self):
+        base_string = '__unaccent__icontains'
+        if self.create_field:
+            search_string = self.create_field + base_string
+            return {search_string: self.q}
+        else:
+            return {}
+
 
 class ClienteAutocomplete(AutocompletePoryectos):
     model = Cliente
     ordering = 'cliente_name'
 
     def get_key_words(self):
-        key_words = {
-            'cliente_name__unaccent__icontains': self.q,
-            'company': self.request.user.currently_at
-        }
+        key_words = super(ClienteAutocomplete, self).get_key_words()
+        key_words.update({'company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
@@ -527,10 +533,8 @@ class SitioAutocomplete(AutocompletePoryectos):
     ordering = 'sitio_name'
 
     def get_key_words(self):
-        key_words = {
-            'sitio_name__unaccent__icontains': self.q,
-            'company': self.request.user.currently_at
-        }
+        key_words = super(SitioAutocomplete, self).get_key_words()
+        key_words.update({'company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
@@ -543,10 +547,8 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
     ordering = 'destinatario_text'
 
     def get_key_words(self):
-        key_words = {
-            'destinatario_text__unaccent__icontains': self.q,
-            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente
-        }
+        key_words = super(DestinatarioAutocomplete, self).get_key_words()
+        key_words.update({'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente})
         return key_words
 
     def get_post_key_words(self):
@@ -562,9 +564,7 @@ class UnitAutocomplete(AutocompletePoryectos):
     ordering = 'unit'
 
     def get_key_words(self):
-        key_words = {
-            'unit__unaccent__icontains': self.q
-        }
+        key_words = {'unit__unaccent__icontains': self.q}
         return key_words
 
 
@@ -577,5 +577,4 @@ class UserAutocomplete(AutocompletePoryectos):
             'username__unaccent__icontains': self.q,
             'company': self.request.user.currently_at
         }
-
         return key_words
