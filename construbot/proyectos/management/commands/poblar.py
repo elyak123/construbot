@@ -4,7 +4,7 @@ from random import random
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
-from construbot.proyectos.models import Contrato, Company
+from construbot.proyectos.models import Contrato
 from django.utils.six.moves import input
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -77,8 +77,8 @@ class Command(BaseCommand):
             raise ImproperlyConfigured('¡No existen customer para asignar a las compañías!')
 
         if self.users:
-            for comp in Company.objects.all():
-                self.users[round(random()*len(self.users)-1)].company.add(comp)
+            for comp in range(0, len(self.company)):
+                self.users[round(random()*len(self.users)-1)].company.add(self.company[comp])
         else:
             raise ImproperlyConfigured('¡No existen usuarios para asignarles las compañías!')
 
