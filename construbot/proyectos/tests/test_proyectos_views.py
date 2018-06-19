@@ -1,6 +1,6 @@
 import json
 import decimal
-from unittest import mock, skip
+from unittest import mock
 from django.shortcuts import reverse
 from django.core.management import call_command
 from django.utils.six import StringIO
@@ -1210,7 +1210,7 @@ class UserAutocompleteTest(BaseViewTest):
         self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
         instance.request = self.request
         dict_control = {
-            'username__unaccent__icontains':'Fulano',
+            'username__unaccent__icontains': 'Fulano',
             'company': self.request.user.currently_at
         }
         self.assertDictEqual(instance.get_key_words(), dict_control)

@@ -1,13 +1,14 @@
-from construbot.users.tests import factories as user_factories
-from construbot.proyectos.tests import factories
 from random import random
 from datetime import datetime, timedelta
-from django.core.management.base import BaseCommand
-from django.core.management import call_command
-from construbot.proyectos.models import Contrato
 from django.utils.six.moves import input
 from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
+from construbot.users.tests import factories as user_factories
+from construbot.proyectos.tests import factories
+from construbot.proyectos.models import Contrato
+
 
 class Command(BaseCommand):
 
