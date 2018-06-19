@@ -86,8 +86,7 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
 
     def test_get_post_key_words(self):
         instance = BasicAutocomplete()
-        with self.assertRaises(NotImplementedError):
-            instance.get_post_key_words()
+        self.assertDictEqual(instance.get_post_key_words(), {})
 
     @mock.patch.object(BasicAutocomplete, 'get_post_key_words')
     @mock.patch.object(BasicAutocomplete, 'get_queryset')

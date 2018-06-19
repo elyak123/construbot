@@ -518,10 +518,7 @@ class ClienteAutocomplete(AutocompletePoryectos):
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'cliente_name': self.q,
-            'company': self.request.user.currently_at
-        }
+        kw = {'company': self.request.user.currently_at}
         return kw
 
 
@@ -537,10 +534,7 @@ class SitioAutocomplete(AutocompletePoryectos):
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'sitio_name': self.q,
-            'company': self.request.user.currently_at
-        }
+        kw = {'company': self.request.user.currently_at}
         return kw
 
 
@@ -572,12 +566,6 @@ class UnitAutocomplete(AutocompletePoryectos):
             'unit__unaccent__icontains': self.q
         }
         return key_words
-
-    def get_post_key_words(self):
-        kw = {
-            'unit': self.q
-        }
-        return kw
 
 
 class UserAutocomplete(AutocompletePoryectos):

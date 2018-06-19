@@ -1077,6 +1077,35 @@ class ClienteAutocompleteTest(BaseViewTest):
         }
         self.assertDictEqual(instance.get_key_words(), dict_control)
 
+    def test_get_post_key_words_correct_dict(self):
+        instance = views.ClienteAutocomplete()
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = company
+        instance.request = self.request
+        instance.q = 'hola'
+        dict_control = {
+            'company': self.request.user.currently_at
+        }
+        self.assertDictEqual(instance.get_post_key_words(), dict_control)
+
+    def test_autocomplete_create_object_saves_db(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        request = RequestFactory().post(
+            reverse('proyectos:cliente-autocomplete', kwargs={}),
+            data={'text': 'nombre de cliente'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.ClienteAutocomplete,
+            request=request,
+        )
+        view.q = request.GET.get('q', '')
+        view.create_field = 'cliente_name'
+        obj = view.create_object(request.POST.get('text'))
+        self.assertEqual(obj.cliente_name, 'nombre de cliente')
+        self.assertTrue(isinstance(obj.pk, int))
+
 
 class SitioAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_sitio_object(self):

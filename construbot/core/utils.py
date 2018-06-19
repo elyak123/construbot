@@ -56,10 +56,7 @@ class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetVie
             return self.model.objects
 
     def get_post_key_words(self):
-        raise NotImplementedError(
-            'Es necesario sobreescribir el metodo get_post_key_words'
-            'para realizar el post para crear el objeto.'
-        )
+        return {}
 
     def create_object(self, text):
         """Create an object given a text."""
