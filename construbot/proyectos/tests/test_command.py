@@ -2,7 +2,7 @@ from unittest import mock
 from django.test import tag
 from django.test.utils import override_settings
 from construbot.users.tests import utils
-from construbot.proyectos.management.commands.poblar import Command
+from construbot.proyectos.management.commands.poblar import Command, ImproperlyConfigured
 
 
 class BaseCommandTest(utils.BaseTestCase):
@@ -16,9 +16,14 @@ class BaseCommandTest(utils.BaseTestCase):
 
 class PoblarCommandTesting(BaseCommandTest):
 
-    @override_settings(DEBUG=True)
+    @override_settings(DEBUG=False)
+    def test_handle_raises_at_debug_false(self):
+        instance = Command()
+        with self.assertRaises(ImproperlyConfigured):
+            instance.handle()
+
     @mock.patch('construbot.proyectos.management.commands.poblar.user_factories.CustomerFactory')
-    def test_create_correct_user(self, mock_customer_factory):
+    def test_create_correct_customer(self, mock_customer_factory):
         instance = Command()
         instance.create_customer(3)
         calls = [
@@ -29,8 +34,8 @@ class PoblarCommandTesting(BaseCommandTest):
         self.assertEqual(mock_customer_factory.call_count, 3)
         mock_customer_factory.assert_has_calls(calls, any_order=False)
         self.assertEqual(len(instance.customer), 3)
+        self.assertIsInstance(instance.customer, list)
 
-    @override_settings(DEBUG=True)
     @mock.patch('construbot.proyectos.management.commands.poblar.user_factories.GroupFactory')
     def test_create_core_groups(self, mock_group_factory):
         instance = Command()
@@ -44,5 +49,8 @@ class PoblarCommandTesting(BaseCommandTest):
         self.assertEqual(len(instance.groups), 3)
         mock_group_factory.assert_has_calls(calls, any_order=False)
 
-    def test_create_user_correctly(self):
-        pass
+    def test_create_user_raises_error_no_customer(self):
+        instance = Command()
+        instance.customer = None
+        with self.assertRaises(ImproperlyConfigured):
+            instance.create_user(3)
