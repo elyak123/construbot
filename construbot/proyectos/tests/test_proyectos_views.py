@@ -514,7 +514,9 @@ class EstimateCreationTest(BaseViewTest):
             'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
         }
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
-        self.assertFormError(response, 'form', 'payment_date', 'Si la estimación fué pagada, es necesaria fecha de pago.')
+        self.assertFormError(
+            response, 'form', 'payment_date', 'Si la estimación fué pagada, es necesaria fecha de pago.'
+        )
 
     def test_estimate_createview_renders_formset_errors(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -1038,7 +1040,7 @@ class DynamicDeleteTest(BaseViewTest):
 
 
 class ClienteAutocompleteTest(BaseViewTest):
-    def test_if_autocomplete_returns_the_correct_cliente_object(self):
+    def test_autocomplete_returns_the_correct_cliente_object(self):
         company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         cliente = factories.ClienteFactory(cliente_name="ÁáRón", company=company_autocomplete)
@@ -1064,6 +1066,45 @@ class ClienteAutocompleteTest(BaseViewTest):
         view.q = ""
         qs = view.get_queryset()
         self.assertIsNone(qs)
+
+    def test_get_kwy_words_returns_correct_dict(self):
+        instance = views.ClienteAutocomplete()
+        instance.q = 'hola'
+        instance.request = self.request
+        dict_control = {
+            'cliente_name__unaccent__icontains': 'hola',
+            'company': self.request.user.currently_at
+        }
+        self.assertDictEqual(instance.get_key_words(), dict_control)
+
+    def test_get_post_key_words_correct_dict(self):
+        instance = views.ClienteAutocomplete()
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = company
+        instance.request = self.request
+        instance.q = 'hola'
+        dict_control = {
+            'company': self.request.user.currently_at
+        }
+        self.assertDictEqual(instance.get_post_key_words(), dict_control)
+
+    def test_autocomplete_create_object_saves_db(self):
+        company_autocomplete = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        request = RequestFactory().post(
+            reverse('proyectos:cliente-autocomplete', kwargs={}),
+            data={'text': 'nombre de cliente'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.ClienteAutocomplete,
+            request=request,
+        )
+        view.q = request.GET.get('q', '')
+        view.create_field = 'cliente_name'
+        obj = view.create_object(request.POST.get('text'))
+        self.assertEqual(obj.cliente_name, 'nombre de cliente')
+        self.assertTrue(isinstance(obj.pk, int))
 
 
 class SitioAutocompleteTest(BaseViewTest):
