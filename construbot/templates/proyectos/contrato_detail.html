@@ -5,12 +5,12 @@
 
 {% block content %}
 {% language 'es' %}
-<h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2>
+<h2 class="title" > Reporte de contrato </h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle">
 		<tr>
-			<th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
+			<th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
 		</tr>
 		<tr>
 			<td>Código de contrato</td>
@@ -47,23 +47,26 @@
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
 </div>
+
 <table class="table_results table_sample">
+	{% if contrato.concept_set.exists %}
 	<tr>
 		<th> Código </th>
-		<th> Concepto </th>
+		<th style="width:500px;"> Concepto </th>
 		<th> Unidad </th>
 		<th> Cantidad </th>
 		<th> Precio unitario </th>
 	</tr>
+	{% endif %}
 	<tr>
 		<td colspan="5">
 			<a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar Catálogo</a>
 		</td>
 	</tr>
 </table>
-<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
+
 {% if contrato.estimate_set.exists %}
-	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
+	<h2 class="title"> Listado de estimaciones </h2>
 	<table class="table_sample table_normal">
 		<tbody>
 			<tr>

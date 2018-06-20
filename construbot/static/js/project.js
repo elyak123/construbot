@@ -78,11 +78,9 @@ $(document).ready(function(){
                         $(".table_results")[0].style.display = "inline-table";
                         for(i=1; i<=len; i++){
                             var row = $(".table_results")[0].insertRow(i);
-                            var row_content = "<td>"+result[i-1]["code"]+"</td><td>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+"$ "+intcomma(result[i-1]["unit_price"])+"</td>";
+                            var row_content = "<td>"+result[i-1]["code"]+"</td><td style='text-align:left;'>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+"$ "+intcomma(result[i-1]["unit_price"])+"</td>";
                             row.innerHTML = row_content;
                         }
-                    } else {
-                        $(".cont_message_no_result")[0].style.display = "block";
                     }
                 }
             });
@@ -100,9 +98,7 @@ $(document).ready(function(){
                 for(i=0; i<len; i++){
                     $(".table_results")[0].deleteRow(1);
                 }
-            } else {
-                $(".cont_message_no_result")[0].style.display = "none";
-            }
+            } 
         });
         lanzar_catalogo_conceptos();
     }
