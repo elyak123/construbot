@@ -1138,6 +1138,8 @@ class SitioAutocompleteTest(BaseViewTest):
         dict_control = {'company': self.request.user.currently_at}
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
+    def test_integration_for_post_in_sitio(self):
+        self.fail('falta test de integracion para post en sitio')
 
 class DestinatarioAutocompleteTest(BaseViewTest):
 
