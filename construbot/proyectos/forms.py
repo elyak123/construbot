@@ -87,24 +87,11 @@ class SitioForm(BaseCleanForm):
 
 class DestinatarioForm(forms.ModelForm):
 
-    def clean(self):
-        result = super(DestinatarioForm, self).clean()
-        if self.cleaned_data.get('cliente') is None:
-            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
-                                        'porfavor recarga y vuelve a intentarlo')
-        if self.cleaned_data['cliente'].company.company_name == self.request.user.currently_at.company_name:
-            return result
-        else:
-            raise forms.ValidationError(
-                'Actualmente te encuentras en otra compañia, '
-                'es necesario recargar y repetir el proceso.'
-            )
-
     class Meta:
         model = Destinatario
         fields = '__all__'
         widgets = {
-            'company': forms.HiddenInput(),
+            #'company': forms.HiddenInput(),
             'cliente': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}

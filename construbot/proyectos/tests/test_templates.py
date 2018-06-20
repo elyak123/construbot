@@ -4,6 +4,7 @@ from construbot.proyectos.models import Estimate
 from . import factories
 from test_plus.test import TestCase
 
+
 class TestProyectsURLsCorrectTemplates(TestCase):
     """Test URL patterns for users app."""
 
@@ -74,7 +75,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_destinatario_detail_uses_correct_template(self):
         destinatario_cliente = factories.ClienteFactory(company=self.user.company.first())
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente, company=self.user.company.first())
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:destinatario_detail', kwargs={'pk': destinatario.pk}))
         self.assertTemplateUsed(response, 'proyectos/destinatario_detail.html')
@@ -145,7 +146,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_editar_destinatario_uses_correct_template(self):
         destinatario_cliente = factories.ClienteFactory(company=self.user.company.first())
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente, company=self.user.company.first())
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_destinatario', kwargs={'pk': destinatario.pk}))
         self.assertTemplateUsed(response, 'proyectos/creation_form.html')
@@ -171,11 +172,14 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         contrato_sitio = factories.SitioFactory(company=self.user.company.first())
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_factory.pk}))
+        response = self.client.get(
+            reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_factory.pk})
+        )
         self.assertTemplateUsed(response, 'core/delete.html')
 
+
 class TestProyectsURLsCorrectStatusCode(TestCase):
-    
+
     def setUp(self):
         self.user_factory = user_factories.UserFactory
         self.user = self.make_user()
@@ -243,7 +247,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_destinatario_detail_has_correct_status_code(self):
         destinatario_cliente = factories.ClienteFactory(company=self.user.company.first())
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente, company=self.user.company.first())
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:destinatario_detail', kwargs={'pk': destinatario.pk}))
         self.assertEqual(response.status_code, 200)
@@ -314,7 +318,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_editar_destinatario_has_correct_status_code(self):
         destinatario_cliente = factories.ClienteFactory(company=self.user.company.first())
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente, company=self.user.company.first())
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_destinatario', kwargs={'pk': destinatario.pk}))
         self.assertEqual(response.status_code, 200)
@@ -340,7 +344,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
         contrato_sitio = factories.SitioFactory(company=self.user.company.first())
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_factory.pk}))
+        response = self.client.get(
+            reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_factory.pk})
+        )
         self.assertEqual(response.status_code, 200)
-
-        

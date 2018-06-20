@@ -116,7 +116,6 @@ class Command(BaseCommand):
                 cliente = self.clientes[round(random() * len(self.clientes)-1)]
                 self.destinatarios.append(factories.DestinatarioFactory(
                     cliente=cliente,
-                    company=cliente.company,
                     destinatario_text='destinatario_{0}'.format(i))
                 )
             else:

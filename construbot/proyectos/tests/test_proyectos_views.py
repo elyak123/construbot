@@ -221,10 +221,7 @@ class DestinatarioDetailTest(BaseViewTest):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
         destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
-        destinatario = factories.DestinatarioFactory(
-            cliente=destinatario_cliente,
-            company=destinatario_company
-        )
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         view = self.get_instance(
             views.DestinatarioDetailView,
             pk=destinatario.pk,
@@ -402,7 +399,7 @@ class EstimateCreationTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
-        destinatario = factories.DestinatarioFactory(company=contrato_company, cliente=cliente_contrato)
+        destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
@@ -444,12 +441,7 @@ class EstimateCreationTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
-        # Aqui con esta sentencia la prueba no pasa, considerar eliminar el campo company
-        # destinatario = factories.DestinatarioFactory(company=factories.CompanyFactory(), cliente=cliente_contrato)
-        destinatario = factories.DestinatarioFactory(
-            company=factories.CompanyFactory(),
-            cliente=factories.ClienteFactory()
-        )
+        destinatario = factories.DestinatarioFactory(cliente=factories.ClienteFactory())
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
@@ -481,10 +473,7 @@ class EstimateCreationTest(BaseViewTest):
     def test_estimate_post_pagada_sin_fecha_pago(self):
         contrato = factories.ContratoFactory()
         proyectos_group = Group.objects.create(name='Proyectos')
-        destinatario = factories.DestinatarioFactory(
-            company=contrato.cliente.company,
-            cliente=contrato.cliente
-        )
+        destinatario = factories.DestinatarioFactory(cliente=contrato.cliente)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato.cliente.company)
         self.user.currently_at = contrato.cliente.company
@@ -523,7 +512,7 @@ class EstimateCreationTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
-        destinatario = factories.DestinatarioFactory(company=contrato_company, cliente=cliente_contrato)
+        destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
@@ -638,8 +627,8 @@ class EstimateEditTest(BaseViewTest):
         # son dos llamados, una por la prueba y otra por la sentencia anterior...
         self.assertEqual(mock_function.call_count, 2)
         mock_formset_klass.assert_called_with(
-            self.request.POST, 
-            self.request.FILES, 
+            self.request.POST,
+            self.request.FILES,
             instance=estimacion
         )
         try:
@@ -1174,6 +1163,7 @@ class DestinatarioAutocompleteTest(BaseViewTest):
         }
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
+
 class UnitAutocompleteTest(BaseViewTest):
     def test_unit_autocomplete_returns_the_correct_unit_object(self):
         company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
@@ -1214,41 +1204,3 @@ class UserAutocompleteTest(BaseViewTest):
             'company': self.request.user.currently_at
         }
         self.assertDictEqual(instance.get_key_words(), dict_control)
-
-
-"""
-    class CommandDatabasePoblation(BaseViewTest):
-        def test_if_command_runs_correctly(self):
-            out = StringIO()
-            call_command('poblar', stdout=out)
-            self.assertIn("La base de datos ha sido eliminada y poblada exitosamente con:\n" +
-                          "- 2 Customer\n- 2 Clientes\n- 10 Compañías\n- 30 Clientes\n- 30 Sitios\n- 500 Contratos\n" +
-                          "- 200 Unidades\n- 2000 Conceptos.", out.getvalue()
-                          )
-
-        def test_if_new_database_are_created(self):
-            call_command('poblar')
-            qs_number = Customer.objects.all().count()
-            self.assertEqual(qs_number, 2)
-
-            qs_number = User.objects.all().count()
-            self.assertEqual(qs_number, 2)
-
-            qs_number = Company.objects.all().count()
-            self.assertEqual(qs_number, 10)
-
-            qs_number = Cliente.objects.all().count()
-            self.assertEqual(qs_number, 30)
-
-            qs_number = Sitio.objects.all().count()
-            self.assertEqual(qs_number, 30)
-
-            qs_number = Contrato.objects.all().count()
-            self.assertEqual(qs_number, 500)
-
-            qs_number = Units.objects.all().count()
-            self.assertEqual(qs_number, 200)
-
-            qs_number = Concept.objects.all().count()
-            self.assertEqual(qs_number, 2000)
-"""
