@@ -538,9 +538,10 @@ class SitioAutocomplete(AutocompletePoryectos):
         return key_words
 
     def get_post_key_words(self):
-        # es necesario el campo de cliente en hiddeninput y usar un
-        # self.forward
-        kw = {'company': self.request.user.currently_at}
+        # Depende enteramente de la existencia de destinatario en el
+        # formulario... suceptible a errores....
+        cliente = shortcuts.get_object_or_404(Cliente, pk=int(self.forwarded.get('cliente')))
+        kw = {'cliente': cliente}
         return kw
 
 
@@ -554,10 +555,7 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'company': self.request.user.currently_at,
-            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente,
-        }
+        kw = {'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente}
         return kw
 
 

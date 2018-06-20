@@ -1132,14 +1132,34 @@ class SitioAutocompleteTest(BaseViewTest):
 
     def test_sitio_get_post_kw_returns_correct_dict(self):
         instance = views.SitioAutocomplete()
-        self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        self.user.currently_at = cliente.company
         instance.request = self.request
         instance.q = 'bla bla'
-        dict_control = {'company': self.request.user.currently_at}
+        instance.forwarded = {'cliente': str(cliente.id)}
+        dict_control = {'cliente': cliente}
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
     def test_integration_for_post_in_sitio(self):
-        self.fail('falta test de integracion para post en sitio')
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        cliente_autocomplete = factories.ClienteFactory(company=company_autocomplete)
+        self.user.currently_at = company_autocomplete
+        request = RequestFactory().post(
+            reverse('proyectos:sitio-autocomplete', kwargs={}),
+            data={'text': 'nombre del sitio'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.SitioAutocomplete,
+            request=request,
+        )
+        view.forwarded = {'cliente': str(cliente_autocomplete.id)}
+        view.q = request.GET.get('q', '')
+        view.create_field = 'sitio_name'
+        obj = view.create_object(request.POST.get('text'))
+        self.assertEqual(obj.sitio_name, 'nombre del sitio')
+        self.assertTrue(isinstance(obj.pk, int))
+
 
 class DestinatarioAutocompleteTest(BaseViewTest):
 
@@ -1164,11 +1184,28 @@ class DestinatarioAutocompleteTest(BaseViewTest):
         instance.request = self.request
         contrato = factories.ContratoFactory(cliente__company=self.request.user.currently_at)
         instance.forwarded = {'project': contrato.id}
-        dict_control = {
-            'company': self.request.user.currently_at,
-            'cliente': contrato.cliente
-        }
+        dict_control = {'cliente': contrato.cliente}
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
+
+    def test_integration_for_post_in_destinatario(self):
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        contrato = factories.ContratoFactory(cliente__company=company_autocomplete)
+        request = RequestFactory().post(
+            reverse('proyectos:destinatario-autocomplete', kwargs={}),
+            data={'text': 'nombre del destinatario'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.DestinatarioAutocomplete,
+            request=request,
+        )
+        view.forwarded = {'project': contrato.id}
+        view.q = request.GET.get('q', '')
+        view.create_field = 'destinatario_text'
+        obj = view.create_object(request.POST.get('text'))
+        self.assertEqual(obj.destinatario_text, 'nombre del destinatario')
+        self.assertTrue(isinstance(obj.pk, int))
 
 
 class UnitAutocompleteTest(BaseViewTest):
