@@ -138,8 +138,7 @@ class ConceptoSetTest(BaseModelTesCase):
             )
         return estimacion_1, estimacion_2
 
-    # @mock.patch('django.db.models.expressions.ResolvedOuterRef.as_sql')
-    def test_anotacion_estimacion(self):  # , mock_as_sql):
+    def test_anotacion_estimacion(self):
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         main_query = estimate2.anotaciones_conceptos()
         self.assertEqual(main_query[0].acumulado, 3300)

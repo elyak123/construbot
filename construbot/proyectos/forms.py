@@ -91,7 +91,6 @@ class DestinatarioForm(forms.ModelForm):
         model = Destinatario
         fields = '__all__'
         widgets = {
-            #'company': forms.HiddenInput(),
             'cliente': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}
