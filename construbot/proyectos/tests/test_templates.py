@@ -47,7 +47,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_catalogo_edit_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
@@ -55,7 +55,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_contrato_detail_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:contrato_detail', kwargs={'pk': contrato_factory.pk}))
@@ -68,7 +68,8 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/cliente_detail.html')
 
     def test_sitio_detail_uses_correct_template(self):
-        sitio = factories.SitioFactory(company=self.user.company.first())
+        sitio_cliente = factories.ClienteFactory(company=self.user.company.first())
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:sitio_detail', kwargs={'pk': sitio.pk}))
         self.assertTemplateUsed(response, 'proyectos/sitio_detail.html')
@@ -82,7 +83,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_estimate_detail_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         estimate = Estimate.objects.create(
             project=contrato_factory,
@@ -118,7 +119,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_nueva_estimacion_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato_factory.pk}))
@@ -126,7 +127,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_editar_contrato_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_contrato', kwargs={'pk': contrato_factory.pk}))
@@ -139,7 +140,8 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/creation_form.html')
 
     def test_editar_sitio_uses_correct_template(self):
-        sitio = factories.SitioFactory(company=self.user.company.first())
+        sitio_cliente = factories.ClienteFactory(company=self.user.company.first())
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_sitio', kwargs={'pk': sitio.pk}))
         self.assertTemplateUsed(response, 'proyectos/creation_form.html')
@@ -153,7 +155,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_editar_estimacion_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         estimate = Estimate.objects.create(
             project=contrato_factory,
@@ -169,7 +171,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_delete_models_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(
@@ -219,7 +221,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_catalogo_edit_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
@@ -227,7 +229,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_contrato_detail_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:contrato_detail', kwargs={'pk': contrato_factory.pk}))
@@ -240,7 +242,8 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_sitio_detail_has_correct_status_code(self):
-        sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
+        sitio = factories.SitioFactory(cliente=contrato_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:sitio_detail', kwargs={'pk': sitio.pk}))
         self.assertEqual(response.status_code, 200)
@@ -254,7 +257,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_estimate_detail_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         estimate = Estimate.objects.create(
             project=contrato_factory,
@@ -290,7 +293,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_nueva_estimacion_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato_factory.pk}))
@@ -298,7 +301,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_editar_contrato_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_contrato', kwargs={'pk': contrato_factory.pk}))
@@ -311,7 +314,8 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_editar_sitio_has_correct_status_code(self):
-        sitio = factories.SitioFactory(company=self.user.company.first())
+        sitio_cliente = factories.ClienteFactory(company=self.user.company.first())
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:editar_sitio', kwargs={'pk': sitio.pk}))
         self.assertEqual(response.status_code, 200)
@@ -325,7 +329,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_editar_estimacion_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         estimate = Estimate.objects.create(
             project=contrato_factory,
@@ -341,7 +345,7 @@ class TestProyectsURLsCorrectStatusCode(TestCase):
 
     def test_delete_models_has_correct_status_code(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(

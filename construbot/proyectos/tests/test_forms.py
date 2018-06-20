@@ -18,7 +18,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -32,7 +32,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -52,7 +52,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
@@ -182,18 +182,18 @@ class SitioFormTest(utils.BaseTestCase):
         self.assertFalse(form.is_valid())
 
     def test_sitio_form_creation_is_valid(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        sitio_cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        self.user.currently_at = sitio_cliente.company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'cliente': sitio_cliente.id}
         form = forms.SitioForm(data=form_data)
         form.request = self.request
         self.assertTrue(form.is_valid())
 
     def test_form_actually_changes_sitio(self):
         sitio = factories.SitioFactory()
-        self.user.currently_at = sitio.company
+        self.user.currently_at = sitio.cliente.company
         form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
-                     'company': sitio.company.id}
+                     'cliente': sitio.cliente.id}
         form = forms.SitioForm(data=form_data, instance=sitio)
         form.request = self.request
         form.is_valid()
@@ -203,8 +203,9 @@ class SitioFormTest(utils.BaseTestCase):
 
     def test_sitio_form_saves_obj_in_db(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'cliente': sitio_cliente.id}
         form = forms.SitioForm(data=form_data)
         form.request = self.request
         form.is_valid()

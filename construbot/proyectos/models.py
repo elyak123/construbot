@@ -31,8 +31,8 @@ class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
     # cambiar esto a cliente en lugar de company
-    #cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    #company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})

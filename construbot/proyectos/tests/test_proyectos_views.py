@@ -106,9 +106,10 @@ class ClienteListTest(BaseViewTest):
 class SitioListTest(BaseViewTest):
     def test_sitio_query_only_same_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
-        sitio = factories.SitioFactory(company=sitio_company)
-        sitio_2 = factories.SitioFactory(company=sitio_company)
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
+        sitio_2 = factories.SitioFactory(cliente__company=sitio_company)
         sitio_3 = factories.SitioFactory()
         view = self.get_instance(
             views.SitioListView,
@@ -194,8 +195,9 @@ class ClienteDetailTest(BaseViewTest):
 class SitioDetailTest(BaseViewTest):
     def test_assert_request_returns_correct_sitio_object(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.request.user.currently_at = sitio_company
-        sitio = factories.SitioFactory(company=sitio_company)
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         view = self.get_instance(
             views.SitioDetailView,
             pk=sitio.pk,
@@ -206,14 +208,15 @@ class SitioDetailTest(BaseViewTest):
 
     def test_assert_sitio_request_returns_404_with_no_currently_at(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
-        sitio = factories.SitioFactory(company=sitio_company)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company)
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         view = self.get_instance(
             views.SitioDetailView,
             pk=sitio.pk,
             request=self.request
         )
         with self.assertRaises(Http404):
-            obj = view.get_object()
+            view.get_object()
 
 
 class DestinatarioDetailTest(BaseViewTest):
@@ -286,7 +289,7 @@ class ContratoCreationTest(BaseViewTest):
         self.user.currently_at = contrato_company
         contrato_company_2 = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -678,7 +681,7 @@ class ContratoEditViewTest(BaseViewTest):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
@@ -738,7 +741,7 @@ class ClienteEditTest(BaseViewTest):
 class SitioEditTest(BaseViewTest):
     def test_obtiene_objeto_sitio_correctamente(self):
         sitio = factories.SitioFactory()
-        self.user.currently_at = sitio.company
+        self.user.currently_at = sitio.cliente.company
         view = self.get_instance(
             views.SitioEditView,
             request=self.request,
@@ -759,7 +762,7 @@ class SitioEditTest(BaseViewTest):
 
     def test_sitio_get_initial_has_company(self):
         sitio = factories.SitioFactory()
-        self.user.currently_at = sitio.company
+        self.user.currently_at = sitio.cliente.company
         view = self.get_instance(
             views.SitioEditView,
             request=self.request,
@@ -1100,9 +1103,10 @@ class ClienteAutocompleteTest(BaseViewTest):
 class SitioAutocompleteTest(BaseViewTest):
     def test_if_autocomplete_returns_the_correct_sitio_object(self):
         company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        cliente_autocomplete = factories.ClienteFactory(company=company_autocomplete)
         self.user.currently_at = company_autocomplete
-        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
-        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        sitio = factories.SitioFactory(sitio_name="PÁbellón de Arteaga", cliente=cliente_autocomplete)
+        sitio_2 = factories.SitioFactory(sitio_name="Pabéllón del Sol", cliente=cliente_autocomplete)
         view = self.get_instance(
             views.SitioAutocomplete,
             request=self.request,
@@ -1114,9 +1118,10 @@ class SitioAutocompleteTest(BaseViewTest):
 
     def test_if_sitio_autocomplete_returns_none(self):
         company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        cliente_autocomplete = factories.ClienteFactory(company=company_autocomplete)
         self.user.currently_at = company_autocomplete
-        factories.SitioFactory(sitio_name="PÁbellón de Arteaga", company=company_autocomplete)
-        factories.SitioFactory(sitio_name="Pabéllón del Sol", company=company_autocomplete)
+        factories.SitioFactory(sitio_name="PÁbellón de Arteaga", cliente=cliente_autocomplete)
+        factories.SitioFactory(sitio_name="Pabéllón del Sol", cliente=cliente_autocomplete)
         view = self.get_instance(
             views.SitioAutocomplete,
             request=self.request,

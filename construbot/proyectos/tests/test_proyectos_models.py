@@ -41,8 +41,8 @@ class SitioModelTest(BaseModelTesCase):
         self.assertEqual(sitio.get_absolute_url(), '/proyectos/sitio/detalle/{}/'.format(sitio.pk))
 
     def test_query_contratos_ordenados(self):
-        sitio_company = user_factories.CompanyFactory()
-        sitio = factories.SitioFactory(company=sitio_company)
+        sitio_cliente = factories.ClienteFactory()
+        sitio = factories.SitioFactory(cliente=sitio_cliente)
         sitio_contrato_1 = factories.ContratoFactory(sitio=sitio)
         sitio_contrato_2 = factories.ContratoFactory(sitio=sitio)
         factories.ContratoFactory()

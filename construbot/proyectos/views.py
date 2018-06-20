@@ -76,7 +76,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 'company': self.request.user.currently_at
             },
             'Sitio': {
-                'company': self.request.user.currently_at
+                'cliente__company': self.request.user.currently_at
             },
             'Destinatario': {
                 'cliente__company': self.request.user.currently_at
@@ -534,10 +534,12 @@ class SitioAutocomplete(AutocompletePoryectos):
 
     def get_key_words(self):
         key_words = super(SitioAutocomplete, self).get_key_words()
-        key_words.update({'company': self.request.user.currently_at})
+        key_words.update({'cliente__company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
+        # es necesario el campo de cliente en hiddeninput y usar un
+        # self.forward
         kw = {'company': self.request.user.currently_at}
         return kw
 

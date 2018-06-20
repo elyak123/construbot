@@ -75,13 +75,13 @@ class ClienteForm(BaseCleanForm):
         }
 
 
-class SitioForm(BaseCleanForm):
+class SitioForm(forms.ModelForm):
 
     class Meta:
         model = Sitio
         fields = '__all__'
         widgets = {
-            'company': forms.HiddenInput()
+            'cliente': forms.HiddenInput()
         }
 
 
