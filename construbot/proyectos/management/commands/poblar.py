@@ -113,8 +113,10 @@ class Command(BaseCommand):
         self.destinatarios = []
         for i in range(0, number):
             if self.clientes:
+                cliente = self.clientes[round(random() * len(self.clientes)-1)]
                 self.destinatarios.append(factories.DestinatarioFactory(
-                    cliente=self.clientes[round(random() * len(self.clientes)-1)],
+                    cliente=cliente,
+                    company=cliente.company,
                     destinatario_text='destinatario_{0}'.format(i))
                 )
             else:
@@ -159,3 +161,7 @@ class Command(BaseCommand):
                 ))
             else:
                 raise ImproperlyConfigured('¡No existen contratos y/o unidades para asignarles a los conceptos!')
+
+    def random_index_from_list(self, _list):
+        index = round(random() * (len(_list) - 1))
+        return index
