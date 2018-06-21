@@ -46,10 +46,9 @@
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
+	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
 </div>
-
 <table class="table_results table_sample">
-	{% if contrato.concept_set.exists %}
 	<tr>
 		<th> Código </th>
 		<th style="width:500px;"> Concepto </th>
@@ -57,13 +56,13 @@
 		<th> Cantidad </th>
 		<th> Precio unitario </th>
 	</tr>
-	{% endif %}
 	<tr>
 		<td colspan="5">
 			<a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar Catálogo</a>
 		</td>
 	</tr>
 </table>
+
 
 {% if contrato.estimate_set.exists %}
 	<h2 class="title"> Listado de estimaciones </h2>
