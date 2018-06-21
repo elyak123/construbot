@@ -54,3 +54,9 @@ class PoblarCommandTesting(BaseCommandTest):
         instance.customer = None
         with self.assertRaises(ImproperlyConfigured):
             instance.create_user(3)
+
+    def test_create_companies_raises_error_no_customer(self):
+        instance = Command()
+        instance.customer = None
+        with self.assertRaises(ImproperlyConfigured):
+            instance.create_companies(3)

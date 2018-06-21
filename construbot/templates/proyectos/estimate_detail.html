@@ -24,15 +24,15 @@
 	<table class="estimate">
 		<thead>
 				<tr>
-					<th colspan="7" style="border-style:none;">
+					<th colspan="5" style="border-style:none;">
 						<div class="cont_est_title">
 							<h4> {{ estimate.project.cliente.cliente_name }}</h4>
 							<p> El nombre largo de un contrato, llamado {{ estimate.project.contrato_name }} </p>
 							<p> Estimación de obra </p>
 						</div>
 					</th>
-					<th colspan="5" style="border-style:none;">
-						<table class="cont_est_data">
+					<th colspan="7" style="border-style:none;">
+						<table class="informacion">
 							<thead>
 								<tr>
 									<th>Contratista:</th>
@@ -130,9 +130,9 @@
 					</div>
 				</th>
 			</tr>
-			<tr>
+			<tr style="margin-bottom:25px;">
 				<th class="sin_borde" colspan="5">
-					<table class="" style="width: 100%;">
+					<table class="informacion" style="width: 100%;">
 						<tr>
 							<td>PROYECTO:</td>
 							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
@@ -149,7 +149,7 @@
 				</th>
 				<th class="sin_borde" colspan="1"></th>
 				<th class="sin_borde" colspan="3">
-					<table class="">
+					<table class="informacion">
 						<tr>
 							<td>CONTRATISTA:</td>
 							<td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
