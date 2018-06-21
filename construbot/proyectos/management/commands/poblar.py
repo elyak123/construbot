@@ -98,11 +98,11 @@ class Command(BaseCommand):
     def create_sitios(self, number):
         self.sitios = []
         for i in range(0, number):
-            if self.company:
+            if self.clientes:
                 rand = round(random() * len(self.company)-1)
                 self.sitios.append(
                     factories.SitioFactory(
-                        company=self.company[rand],
+                        cliente=self.clientes[rand],
                         sitio_name='sitio_{0}'.format(i)
                     )
                 )
@@ -116,7 +116,6 @@ class Command(BaseCommand):
                 cliente = self.clientes[round(random() * len(self.clientes)-1)]
                 self.destinatarios.append(factories.DestinatarioFactory(
                     cliente=cliente,
-                    company=cliente.company,
                     destinatario_text='destinatario_{0}'.format(i))
                 )
             else:

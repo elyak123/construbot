@@ -18,7 +18,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -32,7 +32,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -52,7 +52,7 @@ class ContratoFormTest(utils.BaseTestCase):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato_sitio = factories.SitioFactory(company=contrato_company)
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
@@ -146,15 +146,15 @@ class DestinatarioFormTest(utils.BaseTestCase):
     def test_destinatario_form_creation_No_client_is_NOT_valid(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = destinatario_company
-        form_data = {'company': destinatario_company.id, 'destinatario_text': "Un wey"}
+        form_data = {'destinatario_text': "Un wey"}
         form = forms.DestinatarioForm(data=form_data)
         form.request = self.request
         self.assertFalse(form.is_valid())
 
     def test_form_actually_changes_destinatario(self):
         destinatario = factories.DestinatarioFactory()
-        self.user.currently_at = destinatario.company
-        form_data = {'company': destinatario.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
+        self.user.currently_at = destinatario.cliente.company
+        form_data = {'company': destinatario.cliente.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
                      'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
         form = forms.DestinatarioForm(data=form_data, instance=destinatario)
         form.request = self.request
@@ -182,18 +182,18 @@ class SitioFormTest(utils.BaseTestCase):
         self.assertFalse(form.is_valid())
 
     def test_sitio_form_creation_is_valid(self):
-        sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        sitio_cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        self.user.currently_at = sitio_cliente.company
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'cliente': sitio_cliente.id}
         form = forms.SitioForm(data=form_data)
         form.request = self.request
         self.assertTrue(form.is_valid())
 
     def test_form_actually_changes_sitio(self):
         sitio = factories.SitioFactory()
-        self.user.currently_at = sitio.company
+        self.user.currently_at = sitio.cliente.company
         form_data = {'sitio_name': 'Ex-Taller de Ferrocarriles', 'sitio_location': 'Aguascalientes, Ags.',
-                     'company': sitio.company.id}
+                     'cliente': sitio.cliente.id}
         form = forms.SitioForm(data=form_data, instance=sitio)
         form.request = self.request
         form.is_valid()
@@ -203,8 +203,9 @@ class SitioFormTest(utils.BaseTestCase):
 
     def test_sitio_form_saves_obj_in_db(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company.id}
+        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'cliente': sitio_cliente.id}
         form = forms.SitioForm(data=form_data)
         form.request = self.request
         form.is_valid()
@@ -229,65 +230,4 @@ class BaseCleanFormTest(utils.BaseTestCase):
         form = forms.BaseCleanForm()
         form.cleaned_data = {'company': mock.Mock()}
         with self.assertRaises(forms.forms.ValidationError):
-            form.clean()
-
-
-class EstimateFormTest(utils.BaseTestCase):
-
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
-
-    def test_clean_estimateform_raises_different_company_client_and_contrato(self):
-        contrato = factories.ContratoFactory()
-        destinatario_2 = factories.DestinatarioFactory(
-            company=contrato.cliente.company,
-            cliente=contrato.cliente
-        )
-        destinatario = factories.DestinatarioFactory(
-            company=contrato.cliente.company,
-            #cliente=contrato.cliente
-        )
-        form_data = {
-            'project': str(contrato.pk),
-            'consecutive': '1',
-            'draft_by': [str(self.user.pk)],
-            'supervised_by': [str(self.user.pk)],
-            'start_date': '2018-03-18',
-            'finish_date': '2018-04-12',
-            'auth_by': [str(destinatario_2.pk)],
-            'auth_by_gen': [str(destinatario.pk)],
-
-        }
-        form = forms.EstimateForm(form_data)
-        with self.assertRaises(forms.forms.ValidationError):
-            self.assertFalse(form.is_valid())
-            form.clean()
-
-    def test_estimateforom_raises_error_auth_by_gen_company_contrato(self):
-        contrato = factories.ContratoFactory()
-        destinatario_2 = factories.DestinatarioFactory(
-            company=contrato.cliente.company,
-            cliente=contrato.cliente
-        )
-        destinatario = factories.DestinatarioFactory(
-            company=contrato.cliente.company,
-            #cliente=contrato.cliente
-        )
-        form_data = {
-            'project': str(contrato.pk),
-            'consecutive': '1',
-            'draft_by': [str(self.user.pk)],
-            'supervised_by': [str(self.user.pk)],
-            'start_date': '2018-03-18',
-            'finish_date': '2018-04-12',
-            'auth_by': [str(destinatario.pk)],
-            'auth_by_gen': [str(destinatario_2.pk)],
-
-        }
-        form = forms.EstimateForm(form_data)
-        with self.assertRaises(forms.forms.ValidationError):
-            self.assertFalse(form.is_valid())
             form.clean()

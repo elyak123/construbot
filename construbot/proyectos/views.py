@@ -76,7 +76,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 'company': self.request.user.currently_at
             },
             'Sitio': {
-                'company': self.request.user.currently_at
+                'cliente__company': self.request.user.currently_at
             },
             'Destinatario': {
                 'cliente__company': self.request.user.currently_at
@@ -534,11 +534,14 @@ class SitioAutocomplete(AutocompletePoryectos):
 
     def get_key_words(self):
         key_words = super(SitioAutocomplete, self).get_key_words()
-        key_words.update({'company': self.request.user.currently_at})
+        key_words.update({'cliente__company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'company': self.request.user.currently_at}
+        # Depende enteramente de la existencia de destinatario en el
+        # formulario... suceptible a errores....
+        cliente = shortcuts.get_object_or_404(Cliente, pk=int(self.forwarded.get('cliente')))
+        kw = {'cliente': cliente}
         return kw
 
 
@@ -552,10 +555,7 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'company': self.request.user.currently_at,
-            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente,
-        }
+        kw = {'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente}
         return kw
 
 
