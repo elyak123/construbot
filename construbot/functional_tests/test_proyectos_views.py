@@ -122,8 +122,8 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//*[contains(text(), 'sitio_1')]").click()
         self.browser.find_element_by_id("id_monto").send_keys("10000")
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del contrato PRUEBA DE CONTRATO 1')]"))
-        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del contrato PRUEBA DE CONTRATO 1')]")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Reporte de contrato ')]"))
+        self.browser.find_element_by_xpath("//h2[contains(text(), ' Reporte de contrato ')]")
 
     def test_create_catalogo_conceptos(self):
         self.user_login(self.user.username, "password")
@@ -137,8 +137,9 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_class_name("oi-bookmark").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)))
         self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)).click()
-        self.wait_for(lambda:self.browser.find_element_by_class_name("oi-pencil"))
-        self.browser.find_element_by_class_name("oi-pencil").click()
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
+        self.browser.execute_script("arguments[0].scrollIntoView(true);", self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
+        self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]").click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_concept_set-0-code"))
         for i in range(0,4):
             self.browser.find_element_by_id('id_concept_set-%i-code'%i).send_keys('%i'%i)
@@ -177,8 +178,8 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_class_name("oi-bookmark").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)))
         self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)).click()
-        self.wait_for(lambda:self.browser.find_element_by_class_name("oi-pencil"))
-        self.browser.find_element_by_class_name("oi-pencil").click()
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
+        self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]").click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_concept_set-0-code"))
         for i in range(0,4):
             self.browser.find_element_by_id('id_concept_set-%i-code'%i).send_keys('%i'%i)
@@ -240,6 +241,7 @@ class TestCreatingObjects(FunctionalTest):
 
     def test_sitio_creation(self):
         self.user_login(self.user.username, "password")
+        self.create_proyect_objects(5, 5, 0, 0)
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
         self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
@@ -252,6 +254,11 @@ class TestCreatingObjects(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_id('id_sitio_name'))
         self.browser.find_element_by_id("id_sitio_name").send_keys("SITIO DE PRUEBA 1")
         self.browser.find_element_by_id('id_sitio_location').send_keys("LOCACION DE PRUEBA 1")
+        self.browser.find_element_by_xpath('//span[@aria-labelledby="select2-id_cliente-container"]').click()
+        self.wait_for(lambda:self.browser.find_element_by_class_name('select2-search__field'))
+        self.browser.find_element_by_class_name('select2-search__field').send_keys("clie")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'cliente_1')]"))
+        self.browser.find_element_by_xpath("//*[contains(text(), 'cliente_1')]").click()
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio SITIO DE PRUEBA 1')]"))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio SITIO DE PRUEBA 1')]")
@@ -268,11 +275,9 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_class_name("oi-people").click()
         self.wait_for(lambda:self.browser.find_element_by_class_name('oi-plus'))
         self.browser.find_element_by_class_name('oi-plus').click()
-        self.wait_for(lambda:self.browser.find_element_by_id('id_tratamiento'))
-        self.browser.find_element_by_id("id_tratamiento").send_keys("LIC.")
+        self.wait_for(lambda:self.browser.find_element_by_id('id_destinatario_text'))
         self.browser.find_element_by_id('id_destinatario_text').send_keys("DESTINATARIO DE PRUEBA 1")
         self.browser.find_element_by_id('id_puesto').send_keys("SOME")
-        self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.browser.find_element_by_xpath('//span[@aria-labelledby="select2-id_cliente-container"]').click()
         self.wait_for(lambda:self.browser.find_element_by_class_name('select2-search__field'))
         self.browser.find_element_by_class_name('select2-search__field').send_keys("clie")
@@ -301,9 +306,8 @@ class TestEditingObjects(FunctionalTest):
         self.browser.find_element_by_id("id_contrato_name").clear()
         self.browser.find_element_by_id("id_contrato_name").send_keys("EDICION NUMERO 1 A CONTRATO")
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
-        contratos = Contrato.objects.all()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del contrato {0}')]".format(contratos[2].contrato_name)))
-        self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del contrato {0}')]".format(contratos[2].contrato_name))
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Reporte de contrato ')]"))
+        self.browser.find_element_by_xpath("//th[contains(text(), '{0}. {1}')]".format(contratos[2].folio, contratos[2].contrato_shortName))
 
     def test_destinatario_edit(self):
         self.user_login(self.user.username, "password")

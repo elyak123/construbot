@@ -12,8 +12,9 @@ from selenium.webdriver.common.keys import Keys
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos.tests import factories
 from construbot.proyectos.models import Company, Sitio, Destinatario, Contrato
+from selenium.webdriver.common.action_chains import ActionChains
 
-MAX_WAIT = 4
+MAX_WAIT = 10
 
 
 @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
@@ -52,7 +53,7 @@ class FunctionalTest(StaticLiveServerTestCase):
                 company=self.user.currently_at, cliente_name='cliente_{0}'.format(i))
             )
             sitios.append(factories.SitioFactory(
-                company=self.user.currently_at, sitio_name='sitio_{0}'.format(i)))
+                cliente=clientes[round(random() * len(clientes)-1)], sitio_name='sitio_{0}'.format(i)))
 
         destinatarios = []
         for i in range(0, n_destinatarios):
