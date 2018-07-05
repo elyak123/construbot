@@ -130,6 +130,8 @@ a:hover {
 
 .cont_message_no_result {
 	display: none;
+	text-align: center;
+	font-size: 16px;
 }
 /*FIN DE ESTILOS PARA LISTADOS AJAX*/
 

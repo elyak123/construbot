@@ -81,7 +81,10 @@ class SitioForm(forms.ModelForm):
         model = Sitio
         fields = '__all__'
         widgets = {
-            'cliente': forms.HiddenInput()
+            'cliente': autocomplete.ModelSelect2(
+                url='proyectos:cliente-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
         }
 
 
