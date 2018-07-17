@@ -44,7 +44,8 @@ class ContratoForm(forms.ModelForm):
             ),
             'sitio': autocomplete.ModelSelect2(
                 url='proyectos:sitio-autocomplete',
-                attrs={'data-minimum-input-length': 3}
+                attrs={'data-minimum-input-length': 3},
+                forward=['cliente']
             ),
         }
 
