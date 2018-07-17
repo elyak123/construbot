@@ -17,11 +17,13 @@
   <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function(){
-      var fecha = $("#id_fecha");
-      var fecha_limpia = fecha[0].value.replace(/\[|\'|\]/g,'');
-      fecha.datetimepicker({'format':"YYYY-MM-DD"});
-      if (fecha_limpia){
-        fecha[0].value = fecha_limpia;
+      if($("#id_fecha").length){
+        var fecha = $("#id_fecha");
+        var fecha_limpia = fecha[0].value.replace(/\[|\'|\]/g,'');
+        fecha.datetimepicker({'format':"YYYY-MM-DD"});
+        if (fecha_limpia){
+          fecha[0].value = fecha_limpia;
+        }
       }
     });
   </script>
