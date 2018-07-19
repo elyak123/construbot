@@ -51,18 +51,16 @@
 				<th>Fecha</th>
 				<th>Proyecto</th>
 				<th>Estimacion</th>
-				{% if is_administrador %}<th>Monto</th>{% endif %}
+				<th>Monto</th>
 			</tr>
 			{% for estimacion in object|estimacionespendientes %}
 				<tr>
 					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
 					<td>{{ estimacion.consecutive }}</td>
-					{% if is_administrador %}
 					<td>
 						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 					</td>
-					{% endif %}
 				</tr>
 			{% empty %}
 				<tr>
@@ -76,18 +74,16 @@
 				<th>Fecha</th>
 				<th>Proyecto</th>
 				<th>Estimacion</th>
-				{% if is_administrador %}<th>Monto</th>{% endif %}
+				<th>Monto</th>
 			</tr>
 			{% for estimacion in object|estimacionesfacturadas %}
 				<tr>
 					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
 					<td>{{ estimacion.consecutive }}</td>
-					{% if is_administrador %}
 					<td>
 						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 					</td>
-					{% endif %}
 				</tr>
 			{% empty %}
 				<tr>

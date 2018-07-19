@@ -28,10 +28,12 @@
 			<td>Sitio</td>
 			<td>{{ contrato.sitio.sitio_name }}</td>
 		</tr>
+		{% if is_administrador %}
 		<tr>
 			<td>Monto sin IVA</td>
 			<td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
 		</tr>
+		{% endif %}
 		<tr>
 			<td>Fecha de Firma</td>
 			<td>{{ contrato.fecha|date:"d/F/Y" }}</td>
