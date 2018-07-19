@@ -13,11 +13,13 @@ from construbot.core.utils import BasicAutocomplete
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
+    tengo_que_ser_admin = True
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
         {
             'title': 'Catalogos',
             'url': '',
+            'always_appear': True,
             'icon': 'book',
             'parent': True,
             'type': 'submenu',
@@ -25,24 +27,28 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 {
                     'title': 'Contratos',
                     'url': 'construbot.proyectos:listado_de_contratos',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'bookmark',
                 },
                 {
                     'title': 'Clientes',
                     'url': 'construbot.proyectos:listado_de_clientes',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'person',
                 },
                 {
                     'title': 'Ubicaciones',
                     'url': 'construbot.proyectos:listado_de_sitios',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'map-marker',
                 },
                 {
                     'title': 'Contactos',
                     'url': 'construbot.proyectos:listado_de_destinatarios',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'people',
                 },
@@ -89,6 +95,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 
 class ProyectDashboardView(ProyectosMenuMixin, DetailView):
+    tengo_que_ser_admin = False
     template_name = 'proyectos/index.html'
 
     def get_object(self, queryset=None):
@@ -168,6 +175,7 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
 
 
 class ContratoDetailView(DynamicDetail):
+    tengo_que_ser_admin = False
     model = Contrato
 
 
@@ -184,6 +192,7 @@ class DestinatarioDetailView(DynamicDetail):
 
 
 class EstimateDetailView(DynamicDetail):
+    tengo_que_ser_admin = False
     model = Estimate
 
     def get_context_data(self, **kwargs):
@@ -244,6 +253,7 @@ class DestinatarioCreationView(DynamicCreation):
 
 
 class EstimateCreationView(ProyectosMenuMixin, CreateView):
+    tengo_que_ser_admin = False
     form_class = forms.EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
@@ -395,6 +405,7 @@ class DestinatarioEditView(DynamicEdition):
 
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
+    tengo_que_ser_admin = False
     form_class = forms.EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate

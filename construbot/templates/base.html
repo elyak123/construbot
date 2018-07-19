@@ -39,7 +39,7 @@
                   ¡Hola {{ request.user.username }}!
                   <a id="dropdownMenu2" style="cursor:pointer;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="oi oi-caret-bottom"></span></a>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                    <a class="dropdown-item" href="{% url 'users:detail' %}"><span style="margin:0;" class="oi oi-cog"></span> Mi usuario</a>
+                    <a class="dropdown-item" href="{% url 'users:detail' request.user.username %}"><span style="margin:0;" class="oi oi-cog"></span> Mi usuario</a>
                     <a class="dropdown-item" href="{% url 'users:update' %}"><span style="margin:0;" class="oi oi-pencil"></span> Editar usuario</a>
                     <a class="dropdown-item" href="{% url 'account_logout' %}"><span style="margin:0;" class="oi oi-account-logout"></span> Cerrar Sesión </a>
                   </div>
@@ -60,7 +60,7 @@
     {% if menu %}
       {% include "menu.html" %}
     {% endif %}
-    <div id="cont_content" class="content_with{% if not menu %}_little{% endif %}_sidebar">
+    <div id="cont_content" class="content_with{% if not request.user.is_authenticated %}out_auth{% elif not menu %}_little{% endif %}_sidebar">
       {% if messages %}
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
@@ -90,7 +90,7 @@
     {% block modal %}{% endblock modal %}
     {% bootstrap_javascript jquery='full' %}
     {% compress js %}
-      <script src="{% static 'js/project.js' %}"></script>
+      {% if request.user.is_authenticated %}<script src="{% static 'js/project.js' %}"></script>{% endif %}
       {% block javascript %}
       {% endblock javascript %}
     {% endcompress %}
