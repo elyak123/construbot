@@ -52,6 +52,7 @@ class UserDetailView(UsersMenuMixin, DetailView):
 
 
 class UserRedirectView(UsersMenuMixin, RedirectView):
+    tengo_que_ser_admin = False
     permanent = False
 
     def get_redirect_url(self):

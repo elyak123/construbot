@@ -9,20 +9,20 @@
 <h2 class="title d-print-none"> Detalle de Estimación </h2>
 <br class="d-print-none">
 <ul class="nav nav-tabs nav-pills d-print-none">
+  <li class="nav-item">
+    <a id="generator_appear" class="nav-link active" href="#">Generador</a>
+  </li>
   {% if is_administrador %}
     <li class="nav-item">
-      <a id="estimate_appear" class="nav-link active" href="#">Estimación</a>
+      <a id="estimate_appear" class="nav-link" href="#">Estimación</a>
     </li>
   {% endif %}
-  <li class="nav-item">
-    <a id="generator_appear" class="nav-link" href="#">Generador</a>
-  </li>
   <li class="nav-item">
     <a id="print_es" class="nav-link" href="#">Imprimir</a>
   </li>
 </ul>
 <br class="d-print-none">
-<div class="cont_estimacion">
+<div style="display:none;" class="cont_estimacion">
   {% if is_administrador %}
   <table class="estimate">
     <thead>
@@ -122,7 +122,7 @@
   </table>
   {% endif %}
 </div>
-<div style="display:none;" class="cont_generator">
+<div class="cont_generator">
   <table class="generator">
     <thead>
       <tr>

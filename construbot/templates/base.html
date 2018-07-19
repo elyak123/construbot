@@ -60,7 +60,7 @@
     {% if menu %}
       {% include "menu.html" %}
     {% endif %}
-    <div id="cont_content" class="content_with{% if not menu %}_little{% endif %}_sidebar">
+    <div id="cont_content" class="content_with{% if not request.user.is_authenticated %}out_auth{% elif not menu %}_little{% endif %}_sidebar">
       {% if messages %}
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
@@ -90,7 +90,7 @@
     {% block modal %}{% endblock modal %}
     {% bootstrap_javascript jquery='full' %}
     {% compress js %}
-      <script src="{% static 'js/project.js' %}"></script>
+      {% if request.user.is_authenticated %}<script src="{% static 'js/project.js' %}"></script>{% endif %}
       {% block javascript %}
       {% endblock javascript %}
     {% endcompress %}
