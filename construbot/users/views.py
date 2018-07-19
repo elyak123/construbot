@@ -15,6 +15,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
         {
             'title': 'Listado',
             'url': 'users:list',
+            'always_appear': False,
             'icon': 'list',
             'parent': True,
             'type': 'submenu',
@@ -22,6 +23,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
         }, {
             'title': 'Crear',
             'url': 'users:new',
+            'always_appear': False,
             'icon': 'star',
             'parent': True,
             'type': 'submenu',
@@ -58,6 +60,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
+    tengo_que_ser_admin = False
     fields = ['name', 'first_name', 'last_name', 'email']
 
 

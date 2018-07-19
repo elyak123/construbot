@@ -9,9 +9,11 @@
 <h2 class="title d-print-none"> Detalle de Estimación </h2>
 <br class="d-print-none">
 <ul class="nav nav-tabs nav-pills d-print-none">
-  <li class="nav-item">
-    <a id="estimate_appear" class="nav-link active" href="#">Estimación</a>
-  </li>
+  {% if is_administrador %}
+    <li class="nav-item">
+      <a id="estimate_appear" class="nav-link active" href="#">Estimación</a>
+    </li>
+  {% endif %}
   <li class="nav-item">
     <a id="generator_appear" class="nav-link" href="#">Generador</a>
   </li>
@@ -21,200 +23,202 @@
 </ul>
 <br class="d-print-none">
 <div class="cont_estimacion">
-	<table class="estimate">
-		<thead>
-				<tr>
-					<th colspan="5" style="border-style:none;">
-						<div class="cont_est_title">
-							<h4> {{ estimate.project.cliente.cliente_name }}</h4>
-							<p> El nombre largo de un contrato, llamado {{ estimate.project.contrato_name }} </p>
-							<p> Estimación de obra </p>
-						</div>
-					</th>
-					<th colspan="7" style="border-style:none;">
-						<table class="informacion">
-							<thead>
-								<tr>
-									<th>Contratista:</th>
-									<td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
-								</tr>
-								<tr>
-									<th>Contrato:</th>
-									<td class="subrayado"> {{ estimate.project.code }} </td>
-								</tr>
-								<tr>
-									<th>Estimación N°:</th>
-									<td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
-								</tr>
-								<tr>
-									<th>Fecha:</th>
-									<td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
-								</tr>
-								<tr>
-									<th>Período:</th>
-									<td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
-								</tr>
-							</thead>
-						</table>
-					</th>
-				</tr>		
-				<tr class="center">
-					<th rowspan="2">N°</th>
-					<th rowspan="2" style="width: 500px;">CONCEPTOS DE OBRA</th>
-					<th colspan="4">CONTRATADO</th>
-					<th colspan="2">ESTIMADO ANTERIOR</th>
-					<th colspan="2">ESTIMADO A LA FECHA</th>
-					<th colspan="2">ESTA ESTIMACIÓN</th>
-				</tr>
-				<tr class="center">
-					<th>UNIDAD</th>
-					<th>CANTIDAD</th>
-					<th>P.U.</th>
-					<th>IMPORTE</th>
-					<th>CANTIDAD</th>
-					<th>IMPORTE</th>
-					<th>CANTIDAD</th>
-					<th>IMPORTE</th>
-					<th>CANTIDAD</th>
-					<th>IMPORTE</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% language 'en' %}
-				{% include "proyectos/concept_estimate.html" %}
-				<tr>
-					<td class="right" colspan="2"><strong>Totales: </strong></td>
-					<td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
-					<td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
-					<td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
-					<td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
-				</tr>
-				{% endlanguage %}
-			</tbody>
-			<tfoot>
-				<tr>
-					<td class="cont_firmas" colspan="12">
-						<div class="cont_firma">
-							<div class="subrayado_f"></div>
-							<p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-							<p> <strong>Supervisor de Obras </strong></p>
-							<p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
-						</div>
-						{% for firma in estimate.auth_by.all %}
-							<div class="cont_firma">
-								<div class="subrayado_f"></div>
-								<p><strong>{{ firma.destinatario_text }}</strong></p>
-								{% if firma.puesto %}
-									<p><strong>{{ firma.puesto }}</strong></p>
-									<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-								{% else %}
-									<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-									<p style="color:white">-</p>
-								{% endif %}
-							</div>
-						{% endfor %}
-					</td>
-				</tr>
-			</tfoot>
-	</table>
+  {% if is_administrador %}
+  <table class="estimate">
+    <thead>
+        <tr>
+          <th colspan="5" style="border-style:none;">
+            <div class="cont_est_title">
+              <h4> {{ estimate.project.cliente.cliente_name }}</h4>
+              <p> El nombre largo de un contrato, llamado {{ estimate.project.contrato_name }} </p>
+              <p> Estimación de obra </p>
+            </div>
+          </th>
+          <th colspan="7" style="border-style:none;">
+            <table class="informacion">
+              <thead>
+                <tr>
+                  <th>Contratista:</th>
+                  <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+                </tr>
+                <tr>
+                  <th>Contrato:</th>
+                  <td class="subrayado"> {{ estimate.project.code }} </td>
+                </tr>
+                <tr>
+                  <th>Estimación N°:</th>
+                  <td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
+                </tr>
+                <tr>
+                  <th>Fecha:</th>
+                  <td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+                </tr>
+                <tr>
+                  <th>Período:</th>
+                  <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+                </tr>
+              </thead>
+            </table>
+          </th>
+        </tr>   
+        <tr class="center">
+          <th rowspan="2">N°</th>
+          <th rowspan="2" style="width: 500px;">CONCEPTOS DE OBRA</th>
+          <th colspan="4">CONTRATADO</th>
+          <th colspan="2">ESTIMADO ANTERIOR</th>
+          <th colspan="2">ESTIMADO A LA FECHA</th>
+          <th colspan="2">ESTA ESTIMACIÓN</th>
+        </tr>
+        <tr class="center">
+          <th>UNIDAD</th>
+          <th>CANTIDAD</th>
+          <th>P.U.</th>
+          <th>IMPORTE</th>
+          <th>CANTIDAD</th>
+          <th>IMPORTE</th>
+          <th>CANTIDAD</th>
+          <th>IMPORTE</th>
+          <th>CANTIDAD</th>
+          <th>IMPORTE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% language 'en' %}
+        {% include "proyectos/concept_estimate.html" %}
+        <tr>
+          <td class="right" colspan="2"><strong>Totales: </strong></td>
+          <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
+          <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
+          <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
+          <td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
+        </tr>
+        {% endlanguage %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td class="cont_firmas" colspan="12">
+            <div class="cont_firma">
+              <div class="subrayado_f"></div>
+              <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+              <p> <strong>Supervisor de Obras </strong></p>
+              <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+            </div>
+            {% for firma in estimate.auth_by.all %}
+              <div class="cont_firma">
+                <div class="subrayado_f"></div>
+                <p><strong>{{ firma.destinatario_text }}</strong></p>
+                {% if firma.puesto %}
+                  <p><strong>{{ firma.puesto }}</strong></p>
+                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                {% else %}
+                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                  <p style="color:white">-</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </td>
+        </tr>
+      </tfoot>
+  </table>
+  {% endif %}
 </div>
 <div style="display:none;" class="cont_generator">
-	<table class="generator">
-		<thead>
-			<tr>
-				<th class="sin_borde" colspan="9">
-					<div class="cont_est_gen">
-						<h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
-						<h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
-						<h4> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
-					</div>
-				</th>
-			</tr>
-			<tr style="margin-bottom:25px;">
-				<th class="sin_borde" colspan="5">
-					<table class="informacion" style="width: 100%;">
-						<tr>
-							<td>PROYECTO:</td>
-							<td class="subrayado"> {{ estimate.project.contrato_name }} </td>
-						</tr>
-						<tr>
-							<td>CONTRATO:</td>
-							<td class="subrayado" style="width: 200%;"> {{ estimate.project.code }} </td>
-						</tr>
-						<tr>
-							<td>ÁREA:</td>
-							<td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
-						</tr>
-					</table>
-				</th>
-				<th class="sin_borde" colspan="1"></th>
-				<th class="sin_borde" colspan="3">
-					<table class="informacion">
-						<tr>
-							<td>CONTRATISTA:</td>
-							<td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
-						</tr>
-						<tr>
-							<td>PERIODO:</td>
-							<td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
-						</tr>
-						<tr>
-							<td>PLANOS:</td>
-							<td class="subrayado"> - </td>
-						</tr>
-					</table>
-				</th>			
-			</tr>
-			<tr class="center">
-				<th rowspan="2">CÓDIGO</th>
-				<th rowspan="2" style="width: 600px;">DESCRIPCIÓN</th>
-				<th rowspan="2">LARGO</th>
-				<th rowspan="2">ANCHO</th>
-				<th rowspan="2">PIEZAS</th>
-				<th rowspan="2">KG/ML</th>
-				<th colspan="2">VOLUMEN EJECUTADO</th>
-				<th rowspan="2" style="width: 600px;">OBSERVACIONES</th>
-			</tr>
-			<tr class="center">
-				<th>CANTIDAD</th>
-				<th>UNIDAD</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% language 'en' %}
-			{% include "proyectos/concept_generator.html" %}
-			{% endlanguage %}
-		</tbody>
-		<tfoot>
-			<tr>
-				<td class="cont_firmas" colspan="9">
-					<div class="cont_firma">
-						<div class="subrayado_f"></div>
-						<p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-						<p> <strong>Supervisor de Obras </strong></p>
-						<p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
-					</div>
-					{% for firma in estimate.auth_by_gen.all %}
-						<div class="cont_firma">
-							<div class="subrayado_f"></div>
-							<p><strong>{{ firma.destinatario_text }}</strong></p>
-							{% if firma.puesto %}
-								<p><strong>{{ firma.puesto }}</strong></p>
-								<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-							{% else %}
-								<p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-								<p style="color:white">-</p>
-							{% endif %}
-						</div>
-					{% endfor %}
-				</td>
-			</tr>
-		</tfoot>
-		<tbody></tbody>
-	</table>
+  <table class="generator">
+    <thead>
+      <tr>
+        <th class="sin_borde" colspan="9">
+          <div class="cont_est_gen">
+            <h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
+            <h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
+            <h4> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
+          </div>
+        </th>
+      </tr>
+      <tr style="margin-bottom:25px;">
+        <th class="sin_borde" colspan="5">
+          <table class="informacion" style="width: 100%;">
+            <tr>
+              <td>PROYECTO:</td>
+              <td class="subrayado"> {{ estimate.project.contrato_name }} </td>
+            </tr>
+            <tr>
+              <td>CONTRATO:</td>
+              <td class="subrayado" style="width: 200%;"> {{ estimate.project.code }} </td>
+            </tr>
+            <tr>
+              <td>ÁREA:</td>
+              <td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
+            </tr>
+          </table>
+        </th>
+        <th class="sin_borde" colspan="1"></th>
+        <th class="sin_borde" colspan="3">
+          <table class="informacion">
+            <tr>
+              <td>CONTRATISTA:</td>
+              <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+            </tr>
+            <tr>
+              <td>PERIODO:</td>
+              <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+            </tr>
+            <tr>
+              <td>PLANOS:</td>
+              <td class="subrayado"> - </td>
+            </tr>
+          </table>
+        </th>     
+      </tr>
+      <tr class="center">
+        <th rowspan="2">CÓDIGO</th>
+        <th rowspan="2" style="width: 600px;">DESCRIPCIÓN</th>
+        <th rowspan="2">LARGO</th>
+        <th rowspan="2">ANCHO</th>
+        <th rowspan="2">PIEZAS</th>
+        <th rowspan="2">KG/ML</th>
+        <th colspan="2">VOLUMEN EJECUTADO</th>
+        <th rowspan="2" style="width: 600px;">OBSERVACIONES</th>
+      </tr>
+      <tr class="center">
+        <th>CANTIDAD</th>
+        <th>UNIDAD</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% language 'en' %}
+      {% include "proyectos/concept_generator.html" %}
+      {% endlanguage %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td class="cont_firmas" colspan="9">
+          <div class="cont_firma">
+            <div class="subrayado_f"></div>
+            <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+            <p> <strong>Supervisor de Obras </strong></p>
+            <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+          </div>
+          {% for firma in estimate.auth_by_gen.all %}
+            <div class="cont_firma">
+              <div class="subrayado_f"></div>
+              <p><strong>{{ firma.destinatario_text }}</strong></p>
+              {% if firma.puesto %}
+                <p><strong>{{ firma.puesto }}</strong></p>
+                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+              {% else %}
+                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                <p style="color:white">-</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </td>
+      </tr>
+    </tfoot>
+    <tbody></tbody>
+  </table>
 </div>
-<div style="text-align:center;">
-	<a href="{% url 'proyectos:contrato_detail' estimate.project.id %}"><button type="button" class="btn btn-primary">Volver a detalle de contrato</button></a>
+<div class="d-print-none" style="text-align:center;">
+  <a href="{% url 'proyectos:contrato_detail' estimate.project.id %}"><button type="button" class="btn btn-primary">Volver a detalle de contrato</button></a>
 </div>
 {% endlanguage %}
 {% endblock content %}

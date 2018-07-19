@@ -2,6 +2,7 @@ main_menu = [
     {
         'title': 'Users',
         'url': 'users:list',
+        'always_appear': False,
         'urlkwargs': None,
         'icon': 'person',
         'parent': False,
@@ -10,6 +11,7 @@ main_menu = [
     {
         'title': 'Documentos',
         'url': 'oficios:Start',
+        'always_appear': False,
         'urlkwargs': '',
         'icon': 'glyphicon glyphicon-folder-open',
         'parent': False,
@@ -18,6 +20,7 @@ main_menu = [
     {
         'title': 'Pendientes',
         'url': 'pendientes:Tasklist',
+        'always_appear': False,
         'urlkwargs': '',
         'icon': 'glyphicon glyphicon-check',
         'parent': False,
@@ -27,6 +30,7 @@ main_menu = [
     {
         'title': 'Proyectos',
         'url': 'proyectos:proyect_dashboard',
+        'always_appear': True,
         'urlkwargs': '',
         'icon': 'briefcase',
         'parent': False,

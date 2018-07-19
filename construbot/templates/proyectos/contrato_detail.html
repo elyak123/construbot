@@ -43,6 +43,7 @@
 	</table>
 </div>
 <br>
+{% if is_administrador %}
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
@@ -62,8 +63,7 @@
 		</td>
 	</tr>
 </table>
-
-
+{% endif %}
 {% if contrato.estimate_set.exists %}
 	<h2 class="title"> Listado de estimaciones </h2>
 	<table class="table_sample table_normal">
@@ -71,7 +71,7 @@
 			<tr>
 				<th> No. </th>
 				<th> Nombre </th>
-				<th> Monto </th>
+				{% if is_administrador %} <th> Monto </th>{% endif %}
 				<th> F. de Pago </th>
 				<th> Editar </th>
 			</tr>
@@ -79,7 +79,7 @@
 			<tr>
 				<td>{{ estimacion.consecutive }}</td>
 				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-				<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
+				{% if is_administrador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>{% endif %}
 				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
 				<td>
 					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
