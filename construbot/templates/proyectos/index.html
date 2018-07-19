@@ -6,7 +6,12 @@
 
 {% block content %}
 <div class="row" style="text-align:center;">
+	{% if is_administrador %}
 	<div class="col-md-6">
+	{% else %}
+	<div class="col-2"></div>
+	<div class="col-8">
+	{% endif %}
 		<p><strong>Contratos Vigentes</strong></p>
 		<table class="table_sample table_left">
 			<tr>
@@ -38,6 +43,7 @@
 			{% endfor %}
 		</table>
 	</div>
+	{% if is_administrador %}
 	<div class="col-md-6">
 		<p><strong>Estimaciones Pendientes de Facturar</strong></p>
 		<table class="table_sample table_left">
@@ -90,5 +96,8 @@
 			{% endfor %}
 		</table>
 	</div>
+	{% else %}
+	<div class="col-2"></div>
+	{% endif %}
 </div>
 {% endblock content %}
