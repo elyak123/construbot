@@ -47,6 +47,12 @@ class ContratoForm(forms.ModelForm):
                 attrs={'data-minimum-input-length': 3},
                 forward=['cliente']
             ),
+            'users': autocomplete.ModelSelect2Multiple(
+                url='proyectos:user-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
         }
 
 

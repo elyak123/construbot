@@ -7,108 +7,93 @@
 {% block content %}
 <div class="row" style="text-align:center;">
 	{% if is_administrador %}
-	<div class="col-md-6">
+		<div class="col-md-6">
 	{% else %}
-	<div class="col-2"></div>
-	<div class="col-8">
+		<div class="col-2"></div>
+		<div class="col-8">
 	{% endif %}
 		<p><strong>Contratos Vigentes</strong></p>
 		<table class="table_sample table_left">
 			<tr>
 				<th>Nombre</th>
 				{% if is_administrador %}
-				<th>% Estimado</th>
+					<th>% Estimado</th>
 				{% endif %}
 			</tr>
-			{% if is_administrador %}
-				{% for contrato in object|contratosvigentes %}
-					<tr>
-						<td>
-							<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
-							Cliente: {{ contrato.cliente.cliente_name }}
-						</td>
-						{% if is_administrador %}
+			{% for contrato in c_object %}
+				<tr>
+					<td>
+						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
+						Cliente: {{ contrato.cliente.cliente_name }}
+					</td>
+					{% if is_administrador %}
 						<td style="text-align:center;">
-							{% if contrato.total_estimado %}
-								{{ contrato.total_estimado }} %
-							{% else %}
-								0.00 %
-							{% endif %}
-						</td>
+						{% if contrato.total_estimado %}
+							{{ contrato.total_estimado }} %
+						{% else %}
+							0.00 %
 						{% endif %}
-					</tr>
-				{% empty%}
-					<tr>
-						<td colspan="2">¡No hay contratos vigentes!</td>
-					</tr>
-				{% endfor %}
-			{% else %}
-				{% for contrato in queryset %}
-					<tr>
-						<td>
-							<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
-							Cliente: {{ contrato.cliente.cliente_name }}
-						</td>
-					</tr>
-				{% empty%}
-					<tr>
-						<td colspan="2">¡No hay contratos vigentes!</td>
-					</tr>
-				{% endfor %}
-			{% endif %}
+					</td>
+					{% endif %}
+				</tr>
+			{% empty%}
+				<tr>
+					<td colspan="2">¡No hay contratos vigentes!</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 	{% if is_administrador %}
-	<div class="col-md-6">
-		<p><strong>Estimaciones Pendientes de Facturar</strong></p>
-		<table class="table_sample table_left">
-			<tr>
-				<th>Fecha</th>
-				<th>Proyecto</th>
-				<th>Estimacion</th>
-				<th>Monto</th>
-			</tr>
-			{% for estimacion in object|estimacionespendientes %}
+		<div class="col-md-6">
+			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
+			<table class="table_sample table_left">
 				<tr>
-					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
-					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
-					<td>{{ estimacion.consecutive }}</td>
-					<td>
-						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
-					</td>
+					<th>Fecha</th>
+					<th>Proyecto</th>
+					<th>Estimacion</th>
+					<th>Monto</th>
 				</tr>
-			{% empty %}
+				{% for estimacion in object|estimacionespendientes %}
+					<tr>
+						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
+						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
+						<td>{{ estimacion.consecutive }}</td>
+						<td>
+							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
+						</td>
+					</tr>
+				{% empty %}
+					<tr>
+						<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
+					</tr>
+				{% endfor %}
+			</table>
+			<p><strong>Estimaciones Facturadas Pendientes de Pago</strong></p>
+			<table class="table_sample table_left">
 				<tr>
-					<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
+					<th>Fecha</th>
+					<th>Proyecto</th>
+					<th>Estimacion</th>
+					<th>Monto</th>
 				</tr>
-			{% endfor %}
-		</table>
-		<p><strong>Estimaciones Facturadas Pendientes de Pago</strong></p>
-		<table class="table_sample table_left">
-			<tr>
-				<th>Fecha</th>
-				<th>Proyecto</th>
-				<th>Estimacion</th>
-				<th>Monto</th>
-			</tr>
-			{% for estimacion in object|estimacionesfacturadas %}
-				<tr>
-					<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
-					<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
-					<td>{{ estimacion.consecutive }}</td>
-					<td>
-						<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
-					</td>
-				</tr>
-			{% empty %}
-				<tr>
-					<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
-				</tr>
-			{% endfor %}
-		</table>
-	</div>
+				{% for estimacion in object|estimacionesfacturadas %}
+					<tr>
+						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
+						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
+						<td>{{ estimacion.consecutive }}</td>
+						<td>
+							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
+						</td>
+					</tr>
+				{% empty %}
+					<tr>
+						<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
 	{% else %}
-	<div class="col-2"></div>
+		<div class="col-2"></div>
 	{% endif %}
 </div>
 {% endblock content %}

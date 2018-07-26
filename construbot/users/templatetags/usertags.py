@@ -7,17 +7,6 @@ from construbot.proyectos import models
 register = template.Library()
 
 
-@register.filter(name='contratosvigentes')
-def contratosvigentes(empresa):
-    contratos = models.Contrato.objects.select_related('cliente').filter(
-            status=True, cliente__company=empresa).annotate(total_estimado=Round(Sum(
-                F('estimate__estimateconcept__cuantity_estimated') *
-                F('estimate__estimateconcept__concept__unit_price')
-            ) / F('monto') * 100
-            )).order_by('-monto')
-    return contratos
-
-
 @register.filter(name='totalvigentes')
 def totalvigentes(empresa):
     total_vigentes = contratosvigentes(empresa).aggregate(total_contato=Sum('monto'))
