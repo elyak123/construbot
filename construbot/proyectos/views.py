@@ -94,13 +94,22 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         return company_query[opcion]
 
 
-class ProyectDashboardView(ProyectosMenuMixin, DetailView):
+class ProyectDashboardView(ProyectosMenuMixin, ListView):
     tengo_que_ser_admin = False
     template_name = 'proyectos/index.html'
+    model = Contrato
 
-    def get_object(self, queryset=None):
-        self.object = self.request.user.currently_at
-        return self.object
+    def get_queryset(self, queryset=None):
+        self.queryset = self.model.objects.filter(
+            users = self.request.user
+        )
+        return super(ProyectDashboardView, self).get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super(ProyectDashboardView, self).get_context_data(**kwargs)
+        if self.permiso_administracion:
+            context['object'] = self.request.user.currently_at
+        return context
 
 
 class DynamicList(ProyectosMenuMixin, ListView):

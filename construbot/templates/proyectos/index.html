@@ -20,27 +20,42 @@
 				<th>% Estimado</th>
 				{% endif %}
 			</tr>
-			{% for contrato in object|contratosvigentes %}
-				<tr>
-					<td>
-						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
-						Cliente: {{ contrato.cliente.cliente_name }}
-					</td>
-					{% if is_administrador %}
-					<td style="text-align:center;">
-						{% if contrato.total_estimado %}
-							{{ contrato.total_estimado }} %
-						{% else %}
-							0.00 %
+			{% if is_administrador %}
+				{% for contrato in object|contratosvigentes %}
+					<tr>
+						<td>
+							<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
+							Cliente: {{ contrato.cliente.cliente_name }}
+						</td>
+						{% if is_administrador %}
+						<td style="text-align:center;">
+							{% if contrato.total_estimado %}
+								{{ contrato.total_estimado }} %
+							{% else %}
+								0.00 %
+							{% endif %}
+						</td>
 						{% endif %}
-					</td>
-					{% endif %}
-				</tr>
-			{% empty%}
-				<tr>
-					<td colspan="2">¡No hay contratos vigentes!</td>
-				</tr>
-			{% endfor %}
+					</tr>
+				{% empty%}
+					<tr>
+						<td colspan="2">¡No hay contratos vigentes!</td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				{% for contrato in queryset %}
+					<tr>
+						<td>
+							<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
+							Cliente: {{ contrato.cliente.cliente_name }}
+						</td>
+					</tr>
+				{% empty%}
+					<tr>
+						<td colspan="2">¡No hay contratos vigentes!</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
 		</table>
 	</div>
 	{% if is_administrador %}

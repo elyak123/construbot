@@ -94,6 +94,11 @@ class TestListUserView(BaseUserTestCase):
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 200)
 
+    def test_list_users_renders_correct_error(self):
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('users:list'))
+        self.assertEqual(response.status_code, 403)
+
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()
         group, created = Group.objects.get_or_create(name='Administrators')
@@ -147,7 +152,7 @@ class TestUserCreateView(BaseUserTestCase):
         query = [repr(x) for x in self.user.company.all()]
         self.assertNotEqual(other_user.customer, self.user.customer)
         self.assertIsInstance(form, UsuarioInterno)
-        self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)
+        self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)    
 
     def test_user_creation_correct_success_url(self):
         view = self.get_instance(

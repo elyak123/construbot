@@ -73,6 +73,7 @@ class Contrato(models.Model):
     status = models.BooleanField(default=True)
     file = models.FileField(upload_to=get_directory_path, blank=True, null=True)
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
+    users = models.ManyToManyField(User)
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
