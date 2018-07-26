@@ -17,14 +17,14 @@ class Command(BaseCommand):
             self.user_factory = user_factories.UserFactory
             self.create_customer(5)
             self.create_core_groups()
-            self.create_user(5)
-            self.create_companies(10)
+            self.create_user(10)
+            self.create_companies(30)
             self.create_clientes(100)
-            self.create_sitios(2000)
-            self.create_destinatarios(2000)
-            self.create_contratos(15000)
-            self.create_units(2000)
-            self.create_concepts(50000)
+            self.create_sitios(200)
+            self.create_destinatarios(200)
+            self.create_contratos(1500)
+            self.create_units(200)
+            self.create_concepts(5000)
             self.stdout.write(self.style.SUCCESS(
             "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
             "- {0} Customer\n- {1} Usuarios\n- {2} Compañías\n- {3}".format(
