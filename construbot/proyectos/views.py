@@ -10,6 +10,7 @@ from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Esti
 from construbot.users.models import User
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
+from .utils import contratosvigentes
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
@@ -94,13 +95,18 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         return company_query[opcion]
 
 
-class ProyectDashboardView(ProyectosMenuMixin, DetailView):
+class ProyectDashboardView(ProyectosMenuMixin, ListView):
     tengo_que_ser_admin = False
     template_name = 'proyectos/index.html'
+    model = Contrato
 
-    def get_object(self, queryset=None):
-        self.object = self.request.user.currently_at
-        return self.object
+    def get_context_data(self, **kwargs):
+        context = super(ProyectDashboardView, self).get_context_data(**kwargs)
+        context['object'] = self.request.user.currently_at
+        context['c_object'] = contratosvigentes(
+            self.request.user, self.permiso_administracion
+        )
+        return context
 
 
 class DynamicList(ProyectosMenuMixin, ListView):
