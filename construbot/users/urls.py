@@ -26,6 +26,21 @@ urlpatterns = [
         name='new'
     ),
     url(
+        regex=r'^nuevo/company/$',
+        view=views.CompanyCreateView.as_view(),
+        name='new_company'
+    ),
+    url(
+        regex=r'^listado/company/$',
+        view=views.CompanyListView.as_view(),
+        name='company_list'
+    ),
+    url(
+        regex=r'^detalle/company/(?P<pk>\d+)/$',
+        view=views.CompanyDetailView.as_view(),
+        name='company_detail'
+    ),
+    url(
         regex=r'^detalle/(?:(?P<username>[\w.@+-]+)/)?$',
         view=views.UserDetailView.as_view(),
         name='detail'

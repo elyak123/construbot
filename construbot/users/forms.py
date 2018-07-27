@@ -1,9 +1,10 @@
 # from django import forms
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
 from .models import User, Company
+from dal import autocomplete
 
 
 class UserForm(UserCreationForm):
@@ -67,6 +68,78 @@ class UsuarioInterno(UserCreationForm):
             'name',
         ]
 
+        widgets = {
+            'customer': forms.HiddenInput(),
+            'company': autocomplete.ModelSelect2Multiple(
+                url='proyectos:company-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
+
+
+class UsuarioEdit(UserChangeForm):
+    class Meta:
+        model = User
+        exclude = [
+            'password',
+            'last_login',
+            'is_superuser',
+            'user_permissions',
+            'is_staff',
+            'is_active',
+            'date_joined',
+            'last_supervised',
+            'currently_at',
+            'name',
+        ]
+
+        widgets = {
+            'customer': forms.HiddenInput(),
+            'company': autocomplete.ModelSelect2Multiple(
+                url='proyectos:company-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
+
+
+class UsuarioEditNoAdmin(UserChangeForm):
+    class Meta:
+        model = User
+        exclude = [
+            'password',
+            'groups',
+            'company',
+            'last_login',
+            'is_superuser',
+            'user_permissions',
+            'is_staff',
+            'is_active',
+            'date_joined',
+            'last_supervised',
+            'currently_at',
+            'name',
+        ]
+
+        widgets = {
+            'customer': forms.HiddenInput(),
+            'company': autocomplete.ModelSelect2Multiple(
+                url='proyectos:company-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+        }
+
+
+class CompanyForm(forms.ModelForm):
+
+    class Meta:
+        model = Company
+        fields = '__all__'
         widgets = {
             'customer': forms.HiddenInput(),
         }

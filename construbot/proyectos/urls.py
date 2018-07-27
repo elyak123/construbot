@@ -130,4 +130,8 @@ urlpatterns = [
         view=views.UserAutocomplete.as_view(),
         name='user-autocomplete'
     ),
+     url(regex=r'^company-autocomplete/$',
+        view=views.CompanyAutocomplete.as_view(),
+        name='company-autocomplete'
+    ),
 ]

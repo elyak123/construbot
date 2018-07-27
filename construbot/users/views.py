@@ -1,11 +1,12 @@
 from django.core.urlresolvers import reverse
+from django.db.models.functions import Lower
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from .auth import AuthenticationTestMixin
 from django.shortcuts import get_object_or_404
 from django import http
 from .apps import UsersConfig
 from .models import User, Company
-from .forms import UsuarioInterno
+from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm
 
 
 class UsersMenuMixin(AuthenticationTestMixin):
@@ -13,13 +14,28 @@ class UsersMenuMixin(AuthenticationTestMixin):
     tengo_que_ser_admin = True
     menu_specific = [
         {
-            'title': 'Listado',
-            'url': 'users:list',
+            'title': 'Listados',
+            'url': '',
             'always_appear': False,
             'icon': 'list',
             'parent': True,
             'type': 'submenu',
-            'submenu': '',
+            'submenu': [
+                {
+                    'title': 'Usuarios',
+                    'url': 'users:list',
+                    'always_appear': False,
+                    'urlkwargs': '',
+                    'icon': 'bookmark',
+                },
+                {
+                    'title': 'Compañías',
+                    'url': 'users:company_list',
+                    'always_appear': False,
+                    'urlkwargs': '',
+                    'icon': 'person',
+                },
+            ],
         }, {
             'title': 'Crear',
             'url': 'users:new',
@@ -61,18 +77,17 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
     tengo_que_ser_admin = False
-    fields = ['name', 'first_name', 'last_name', 'email']
 
+    def get_form_class(self, form_class=None):
+        if self.permiso_administracion:
+            return UsuarioEdit
+        else:
+            return UsuarioEditNoAdmin
 
-    # we already imported User in the view code above, remember?
-    model = User
-
-    # send the user back to their own page after a successful update
     def get_success_url(self):
-        return reverse('users:detail',)
+        return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_object(self):
-        # Only get the User record for the user making the request
         return User.objects.get(username=self.request.user.username)
 
 
@@ -90,6 +105,19 @@ class UserCreateView(UsersMenuMixin, CreateView):
 
     def get_initial(self):
         initial = super(UserCreateView, self).get_initial()
+        initial['customer'] = self.request.user.customer
+        return initial
+
+class CompanyCreateView(UsersMenuMixin, CreateView):
+    form_class = CompanyForm
+    app_label_name = UsersConfig.verbose_name
+    template_name = 'proyectos/creation_form.html'
+
+    def get_success_url(self):
+        return reverse('users:company_detail', kwargs={'pk': self.object.pk})
+
+    def get_initial(self):
+        initial = super(CompanyCreateView, self).get_initial()
         initial['customer'] = self.request.user.customer
         return initial
 
@@ -132,3 +160,33 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
             self.request.user.currently_at = new_company
             self.request.user.save()
             return http.HttpResponse(self.request.user.currently_at.company_name)
+
+class CompanyListView(UsersMenuMixin, ListView):
+    paginate_by = 10
+    model = Company
+    ordering = '-company_name'
+
+    def get_queryset(self):
+        if self.queryset is None:
+            self.queryset = self.model.objects.filter(
+                customer=self.request.user.customer).order_by(
+                Lower('company_name')
+            )
+        return super(CompanyListView, self).get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super(CompanyListView, self).get_context_data(**kwargs)
+        context['model'] = self.model.__name__
+        return context
+
+
+class CompanyDetailView(UsersMenuMixin, DetailView):
+    model = Company
+
+    def get_context_object_name(self, obj):
+        return obj.__class__.__name__.lower()
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            self.model, pk=self.kwargs['pk']
+        )

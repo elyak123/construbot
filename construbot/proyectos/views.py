@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
-from construbot.users.models import User
+from construbot.users.models import User, Company
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 from .utils import contratosvigentes
@@ -593,5 +593,17 @@ class UserAutocomplete(AutocompletePoryectos):
         key_words = {
             'username__unaccent__icontains': self.q,
             'company': self.request.user.currently_at
+        }
+        return key_words
+
+
+class CompanyAutocomplete(AutocompletePoryectos):
+    model = Company
+    ordering = 'company_name'
+
+    def get_key_words(self):
+        key_words = {
+            'company_name__unaccent__icontains': self.q,
+            'customer': self.request.user.customer
         }
         return key_words
