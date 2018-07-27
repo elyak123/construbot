@@ -31,14 +31,18 @@ class BaseViewTest(utils.BaseTestCase):
 class ProyectDashboardViewTest(BaseViewTest):
 
     def test_view_gets_correct_object(self):
+        pdv = views.ProyectDashboardView
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
+        proyectos_group = Group.objects.create(name='Proyectos')
+        pdv.user_groups = [proyectos_group]
+        pdv.permiso_administracion = True
         view = self.get_instance(
             views.ProyectDashboardView,
             request=self.request
         )
-        obj = view.get_object()
-        self.assertEqual(obj, company_test)
+        obj = view.get_context_data()
+        self.assertEqual(obj['object'], company_test)
 
 
 class DynamicListTest(BaseViewTest):
