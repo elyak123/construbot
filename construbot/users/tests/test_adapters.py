@@ -1,4 +1,5 @@
 # from unittest import skip
+from django.test import tag
 from test_plus.test import TestCase
 from django.urls import reverse
 from construbot.users.models import User, Company
@@ -33,7 +34,7 @@ class AccountAdapterTest(TestCase):
                 'last_name': 'Doe',
                 'company': 'My own company',
             }, follow=True)
-            self.assertRedirects(response, reverse('users:detail', kwargs={'username': 'Joe'}))
+            self.assertRedirects(response, reverse('proyectos:proyect_dashboard'))
 
 
 class LoginAccountTest(TestCase):
@@ -45,10 +46,12 @@ class LoginAccountTest(TestCase):
         self.user.company.add(company)
         self.user.groups.add(group)
         group = Group.objects.create(name='Administrators')
+        group_projects = Group.objects.create(name='Proyectos')
+        self.user.groups.add(group_projects)
         self.user.groups.add(group)
 
     def test_login_successful(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):
             self.client.login(username=self.user.username, password='password')
             response = self.client.get(reverse('account_login'), follow=True)
-            self.assertRedirects(response, reverse('users:detail', kwargs={'username': self.user.username}))
+            self.assertRedirects(response, reverse('proyectos:proyect_dashboard'))
