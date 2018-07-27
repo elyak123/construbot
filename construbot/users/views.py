@@ -88,7 +88,7 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
         return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_object(self):
-        return User.objects.get(username=self.request.user.username)
+        return self.request.user
 
 
 class UserCreateView(UsersMenuMixin, CreateView):

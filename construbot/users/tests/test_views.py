@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory, override_settings, tag
 from django.urls import reverse
 from django.contrib.auth.models import Group
 from construbot.users.models import Company
@@ -58,9 +58,10 @@ class TestUserUpdateView(BaseUserTestCase):
     def test_get_success_url(self):
         # Expect: '/users/testuser/', as that is the default username for
         #   self.make_user()
+        self.view.object = self.view.get_object()
         self.assertEqual(
             self.view.get_success_url(),
-            '/users/detalle/'
+            '/users/detalle/{}/'.format(self.user.username)
         )
 
     def test_get_object(self):
