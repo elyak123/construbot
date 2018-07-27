@@ -4,7 +4,6 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
-from dal import autocomplete
 from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
@@ -14,11 +13,13 @@ from construbot.core.utils import BasicAutocomplete
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
+    tengo_que_ser_admin = True
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
         {
             'title': 'Catalogos',
             'url': '',
+            'always_appear': True,
             'icon': 'book',
             'parent': True,
             'type': 'submenu',
@@ -26,24 +27,28 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 {
                     'title': 'Contratos',
                     'url': 'construbot.proyectos:listado_de_contratos',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'bookmark',
                 },
                 {
                     'title': 'Clientes',
                     'url': 'construbot.proyectos:listado_de_clientes',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'person',
                 },
                 {
                     'title': 'Ubicaciones',
                     'url': 'construbot.proyectos:listado_de_sitios',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'map-marker',
                 },
                 {
                     'title': 'Contactos',
                     'url': 'construbot.proyectos:listado_de_destinatarios',
+                    'always_appear': False,
                     'urlkwargs': '',
                     'icon': 'people',
                 },
@@ -77,7 +82,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
                 'company': self.request.user.currently_at
             },
             'Sitio': {
-                'company': self.request.user.currently_at
+                'cliente__company': self.request.user.currently_at
             },
             'Destinatario': {
                 'cliente__company': self.request.user.currently_at
@@ -90,6 +95,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 
 class ProyectDashboardView(ProyectosMenuMixin, DetailView):
+    tengo_que_ser_admin = False
     template_name = 'proyectos/index.html'
 
     def get_object(self, queryset=None):
@@ -141,7 +147,9 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
     ordering = 'code'
 
     def get(self, request, *args, **kwargs):
-        contrato = shortcuts.get_object_or_404(Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at)
+        contrato = shortcuts.get_object_or_404(
+            Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+        )
         queryset = self.model.objects.filter(project=contrato)
         json = {}
         json['conceptos'] = []
@@ -161,10 +169,13 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         return obj.__class__.__name__.lower()
 
     def get_object(self, queryset=None):
-        return shortcuts.get_object_or_404(self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__))
+        return shortcuts.get_object_or_404(
+            self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
+        )
 
 
 class ContratoDetailView(DynamicDetail):
+    tengo_que_ser_admin = False
     model = Contrato
 
 
@@ -181,6 +192,7 @@ class DestinatarioDetailView(DynamicDetail):
 
 
 class EstimateDetailView(DynamicDetail):
+    tengo_que_ser_admin = False
     model = Estimate
 
     def get_context_data(self, **kwargs):
@@ -241,6 +253,7 @@ class DestinatarioCreationView(DynamicCreation):
 
 
 class EstimateCreationView(ProyectosMenuMixin, CreateView):
+    tengo_que_ser_admin = False
     form_class = forms.EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
@@ -279,7 +292,12 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             cliente__company=self.request.user.currently_at
         )
         concepts = Concept.objects.filter(project=self.project_instance).order_by('id')
-        data = [{'concept': x, 'cuantity_estimated': 0, 'concept_text_input': x.concept_text} for x in concepts]
+        data = [
+            {
+                'concept': x, 'cuantity_estimated': 0,
+                'concept_text_input': x.concept_text
+            } for x in concepts
+        ]
         self.concept_count = concepts.count()
         return data
 
@@ -387,6 +405,7 @@ class DestinatarioEditView(DynamicEdition):
 
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
+    tengo_que_ser_admin = False
     form_class = forms.EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate
@@ -497,23 +516,26 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
 class AutocompletePoryectos(BasicAutocomplete):
     app_label_name = ProyectosConfig.verbose_name
 
+    def get_key_words(self):
+        base_string = '__unaccent__icontains'
+        if self.create_field:
+            search_string = self.create_field + base_string
+            return {search_string: self.q}
+        else:
+            return {}
+
 
 class ClienteAutocomplete(AutocompletePoryectos):
     model = Cliente
     ordering = 'cliente_name'
 
     def get_key_words(self):
-        key_words = {
-            'cliente_name__unaccent__icontains': self.q,
-            'company': self.request.user.currently_at
-        }
+        key_words = super(ClienteAutocomplete, self).get_key_words()
+        key_words.update({'company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'cliente_name': self.q,
-            'company': self.request.user.currently_at
-        }
+        kw = {'company': self.request.user.currently_at}
         return kw
 
 
@@ -522,17 +544,15 @@ class SitioAutocomplete(AutocompletePoryectos):
     ordering = 'sitio_name'
 
     def get_key_words(self):
-        key_words = {
-            'sitio_name__unaccent__icontains': self.q,
-            'company': self.request.user.currently_at
-        }
+        key_words = super(SitioAutocomplete, self).get_key_words()
+        key_words.update({'cliente__company': self.request.user.currently_at})
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'sitio_name': self.q,
-            'company': self.request.user.currently_at
-        }
+        # Depende enteramente de la existencia de destinatario en el
+        # formulario... suceptible a errores....
+        cliente = shortcuts.get_object_or_404(Cliente, pk=int(self.forwarded.get('cliente')))
+        kw = {'cliente': cliente}
         return kw
 
 
@@ -541,17 +561,12 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
     ordering = 'destinatario_text'
 
     def get_key_words(self):
-        key_words = {
-            'destinatario_text__unaccent__icontains': self.q,
-            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente
-        }
+        key_words = super(DestinatarioAutocomplete, self).get_key_words()
+        key_words.update({'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente})
         return key_words
 
     def get_post_key_words(self):
-        kw = {
-            'company': self.request.user.currently_at,
-            'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente,
-        }
+        kw = {'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente}
         return kw
 
 
@@ -560,16 +575,8 @@ class UnitAutocomplete(AutocompletePoryectos):
     ordering = 'unit'
 
     def get_key_words(self):
-        key_words = {
-            'unit__unaccent__icontains': self.q
-        }
+        key_words = {'unit__unaccent__icontains': self.q}
         return key_words
-
-    def get_post_key_words(self):
-        kw = {
-            'unit': self.q
-        }
-        return kw
 
 
 class UserAutocomplete(AutocompletePoryectos):
@@ -581,5 +588,4 @@ class UserAutocomplete(AutocompletePoryectos):
             'username__unaccent__icontains': self.q,
             'company': self.request.user.currently_at
         }
-
         return key_words

@@ -15,6 +15,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
         {
             'title': 'Listado',
             'url': 'users:list',
+            'always_appear': False,
             'icon': 'list',
             'parent': True,
             'type': 'submenu',
@@ -22,6 +23,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
         }, {
             'title': 'Crear',
             'url': 'users:new',
+            'always_appear': False,
             'icon': 'star',
             'parent': True,
             'type': 'submenu',
@@ -50,14 +52,15 @@ class UserDetailView(UsersMenuMixin, DetailView):
 
 
 class UserRedirectView(UsersMenuMixin, RedirectView):
+    tengo_que_ser_admin = False
     permanent = False
 
     def get_redirect_url(self):
-        return reverse('users:detail',
-                       kwargs={'username': self.request.user.username})
+        return reverse('proyectos:proyect_dashboard')
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
+    tengo_que_ser_admin = False
     fields = ['name', 'first_name', 'last_name', 'email']
 
 

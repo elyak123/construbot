@@ -5,12 +5,12 @@
 
 {% block content %}
 {% language 'es' %}
-<h2 class="title" > Detalle del contrato {{ contrato.contrato_name }}</h2>
+<h2 class="title" > Reporte de contrato </h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
 	<table class="table_sample table_detalle">
 		<tr>
-			<th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_name }}</th>
+			<th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
 		</tr>
 		<tr>
 			<td>Código de contrato</td>
@@ -28,10 +28,12 @@
 			<td>Sitio</td>
 			<td>{{ contrato.sitio.sitio_name }}</td>
 		</tr>
+		{% if is_administrador %}
 		<tr>
 			<td>Monto sin IVA</td>
 			<td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
 		</tr>
+		{% endif %}
 		<tr>
 			<td>Fecha de Firma</td>
 			<td>{{ contrato.fecha|date:"d/F/Y" }}</td>
@@ -43,14 +45,16 @@
 	</table>
 </div>
 <br>
+{% if is_administrador %}
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
+	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.</div>
 </div>
 <table class="table_results table_sample">
 	<tr>
 		<th> Código </th>
-		<th> Concepto </th>
+		<th style="width:500px;"> Concepto </th>
 		<th> Unidad </th>
 		<th> Cantidad </th>
 		<th> Precio unitario </th>
@@ -61,15 +65,15 @@
 		</td>
 	</tr>
 </table>
-<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}"><strong>aquí</strong></a>.</div>
+{% endif %}
 {% if contrato.estimate_set.exists %}
-	<h2 class="title"> Listado de estimaciones de {{ contrato.contrato_shortName }}</h2>
+	<h2 class="title"> Listado de estimaciones </h2>
 	<table class="table_sample table_normal">
 		<tbody>
 			<tr>
 				<th> No. </th>
 				<th> Nombre </th>
-				<th> Monto </th>
+				{% if is_administrador %} <th> Monto </th>{% endif %}
 				<th> F. de Pago </th>
 				<th> Editar </th>
 			</tr>
@@ -77,7 +81,7 @@
 			<tr>
 				<td>{{ estimacion.consecutive }}</td>
 				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-				<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
+				{% if is_administrador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>{% endif %}
 				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
 				<td>
 					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /

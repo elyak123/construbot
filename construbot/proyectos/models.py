@@ -30,8 +30,7 @@ class Cliente(models.Model):
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
-    # cambiar esto a cliente en lugar de company
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})
@@ -48,15 +47,9 @@ class Sitio(models.Model):
 
 
 class Destinatario(models.Model):
-    # Discutir eliminar company de aqui
-    # para acceder a el podemos hacer
-    # self.model.filter(cliente__company__company_name='bla')
-    company = models.ForeignKey(Company)
-    # Discutir quitarlo, se usaba poco en la app anterior.
-    tratamiento = models.CharField(max_length=10, null=True, blank=True)
     destinatario_text = models.CharField(max_length=80)
     puesto = models.CharField(max_length=50, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
@@ -72,18 +65,14 @@ class Destinatario(models.Model):
 class Contrato(models.Model):
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
-    # contract_code = models.CharField(max_length=80, null=True, blank=True)
     fecha = models.DateField()
     contrato_name = models.CharField(max_length=300)
     contrato_shortName = models.CharField(max_length=80)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
-    # casa_habitacion = models.BooleanField(default=False)
     file = models.FileField(upload_to=get_directory_path, blank=True, null=True)
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
-    # fecha_esperada_terminacion = models.DateField('Fecha esperada de terminacion',
-    #                                               blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})

@@ -55,6 +55,10 @@ a:hover {
 	margin: 60px 10px 0 10px;
 }
 
+.content_without_auth_sidebar {
+	margin: 15px 50px 20px 50px
+}
+
 .title {
 	margin: 2% 5%;
 }
@@ -130,6 +134,8 @@ a:hover {
 
 .cont_message_no_result {
 	display: none;
+	text-align: center;
+	font-size: 16px;
 }
 /*FIN DE ESTILOS PARA LISTADOS AJAX*/
 
@@ -433,6 +439,10 @@ a:hover {
 }
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+table.informacion * {
+	padding: 0 !important;
+}
+
 table.estimate, table.generator {
 	font-size: 11px;
 	width: 100%;
@@ -457,11 +467,12 @@ table.estimate * , table.generator * {
 
 .cont_est_title > p{
 	margin: 5px 0;
+	font-size: 13px;
 	padding: 0;
 }
 
 .cont_est_title > h4 {
-	font-size: 22px;
+	font-size: 18px;
 }
 
 .cont_est_data {
@@ -470,6 +481,7 @@ table.estimate * , table.generator * {
 
 .subrayado {
     border-style: solid;
+    min-width: 400px;
     border-width: 0 0 2px 0;
 }
 
