@@ -11,7 +11,7 @@ urlpatterns = [
         name='list'
     ),
     url(
-        regex=r'^eliminar/User/(?P<pk>\d+)/$',
+        regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
         view=views.UserDeleteView.as_view(),
         name='delete_user'
     ),
@@ -31,6 +31,11 @@ urlpatterns = [
         name='new_company'
     ),
     url(
+        regex=r'^update/(?P<pk>\d+)/$',
+        view=views.CompanyEditView.as_view(),
+        name='company_edit'
+    ),
+    url(
         regex=r'^listado/company/$',
         view=views.CompanyListView.as_view(),
         name='company_list'
@@ -46,12 +51,12 @@ urlpatterns = [
         name='detail'
     ),
     url(
-        regex=r'^~update/$',
+        regex=r'^update/(?:(?P<username>\w+)/)?$',
         view=views.UserUpdateView.as_view(),
         name='update'
     ),
     url(
-        regex=r'^company-change/(?P<company>\w+)/$',
+        regex=r'^company-change/(?P<company>[\w ]+)/$',
         view=views.CompanyChangeView.as_view(),
         name='company-change'
     ),

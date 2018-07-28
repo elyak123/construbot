@@ -66,6 +66,7 @@ class TestUserUpdateView(BaseUserTestCase):
 
     def test_get_object(self):
         # Expect: self.user, as that is the request's user object
+        self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_object(),
             self.user

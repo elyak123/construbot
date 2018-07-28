@@ -1,5 +1,6 @@
 # from django import forms
 from django import forms
+from django.forms import ValidationError
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
@@ -80,10 +81,14 @@ class UsuarioInterno(UserCreationForm):
 
 
 class UsuarioEdit(UserChangeForm):
+
+    def __init__(self, user, *args, **kwargs):
+        super(UsuarioEdit, self).__init__(*args, **kwargs)
+        self.user = user
+
     class Meta:
         model = User
         exclude = [
-            'password',
             'last_login',
             'is_superuser',
             'user_permissions',
@@ -96,6 +101,7 @@ class UsuarioEdit(UserChangeForm):
         ]
 
         widgets = {
+            'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
             'company': autocomplete.ModelSelect2Multiple(
                 url='proyectos:company-autocomplete',
@@ -105,12 +111,20 @@ class UsuarioEdit(UserChangeForm):
             ),
         }
 
+    def clean_groups(self):
+        l_groups = self.data.getlist('groups')
+        customer = self.user.customer
+        numero_admins = User.objects.filter(customer=customer, groups__name='Administrators').count()
+        group = Group.objects.get(name='Administrators').id
+        if numero_admins == 1 and (str(group) not in l_groups and self.user.is_administrator()):
+            raise ValidationError('¡No puedes quedarte sin administradores!')
+        return l_groups
+
 
 class UsuarioEditNoAdmin(UserChangeForm):
     class Meta:
         model = User
         exclude = [
-            'password',
             'groups',
             'company',
             'last_login',
@@ -125,6 +139,7 @@ class UsuarioEditNoAdmin(UserChangeForm):
         ]
 
         widgets = {
+            'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
             'company': autocomplete.ModelSelect2Multiple(
                 url='proyectos:company-autocomplete',
@@ -136,6 +151,25 @@ class UsuarioEditNoAdmin(UserChangeForm):
 
 
 class CompanyForm(forms.ModelForm):
+
+    def __init__(self, user, *args, **kwargs):
+        super(CompanyForm, self).__init__(*args, **kwargs)
+        self.user = user
+
+    class Meta:
+        model = Company
+        fields = '__all__'
+        widgets = {
+            'customer': forms.HiddenInput(),
+        }
+
+    def save(self):
+        company = super(CompanyForm, self).save()
+        self.user.company.add(company.id)
+        return company
+
+
+class CompanyEditForm(forms.ModelForm):
 
     class Meta:
         model = Company

@@ -17,7 +17,7 @@ class Command(BaseCommand):
             self.user_factory = user_factories.UserFactory
             self.create_customer(5)
             self.create_core_groups()
-            self.create_user(10)
+            self.create_user(20)
             self.create_companies(30)
             self.create_clientes(100)
             self.create_sitios(200)
@@ -77,8 +77,10 @@ class Command(BaseCommand):
             raise ImproperlyConfigured('¡No existen customer para asignar a las compañías!')
 
         if self.users:
-            for comp in range(0, len(self.company)):
-                self.users[round(random()*len(self.users)-1)].company.add(self.company[comp])
+            for usr in range(0, len(self.users)-1):
+                for company in range(0, len(self.company)):
+                    if (round(random()*1.1)) and self.users[usr].customer == self.company[company].customer:
+                        self.users[usr].company.add(self.company[company])
         else:
             raise ImproperlyConfigured('¡No existen usuarios para asignarles las compañías!')
 

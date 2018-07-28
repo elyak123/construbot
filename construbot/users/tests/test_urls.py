@@ -43,7 +43,7 @@ class TestUserURLs(TestCase):
 
     def test_update_reverse(self):
         """users:update should reverse to /users/~update/."""
-        self.assertEqual(reverse('users:update'), '/users/~update/')
+        self.assertEqual(reverse('users:update'), '/users/update/')
 
     def test_update_resolve(self):
         """/users/~update/ should resolve to users:update."""

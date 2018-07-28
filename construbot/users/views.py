@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django import http
 from .apps import UsersConfig
 from .models import User, Company
-from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm
+from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm, CompanyEditForm
 
 
 class UsersMenuMixin(AuthenticationTestMixin):
@@ -47,6 +47,17 @@ class UsersMenuMixin(AuthenticationTestMixin):
         }
     ]
 
+    def get_company_query(self, opcion):
+        company_query = {
+            'User': {
+                'company': self.request.user.currently_at
+            },
+            'Company': {
+                'customer': self.request.user.customer
+            }
+        }
+        return company_query[opcion]
+
 
 class UserDetailView(UsersMenuMixin, DetailView):
     model = User
@@ -78,6 +89,11 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 class UserUpdateView(UsersMenuMixin, UpdateView):
     tengo_que_ser_admin = False
 
+    def get_form_kwargs(self):
+        kwargs = super(UserUpdateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_form_class(self, form_class=None):
         if self.permiso_administracion:
             return UsuarioEdit
@@ -87,14 +103,21 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
     def get_success_url(self):
         return reverse('users:detail', kwargs={'username': self.object.username})
 
-    def get_object(self):
-        return self.request.user
+    def get_object(self, queryset=None):
+        if not hasattr(self.kwargs, 'username'):
+            return self.request.user
+        return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
 
 
 class UserCreateView(UsersMenuMixin, CreateView):
-    form_class = UsuarioInterno
     app_label_name = UsersConfig.verbose_name
     template_name = 'users/create_user.html'
+
+    def get_form_class(self, form_class=None):
+        if self.permiso_administracion:
+            return UsuarioEdit
+        else:
+            return UsuarioEditNoAdmin
 
     def get_form(self, form_class=None):
         form_class = self.get_form_class()
@@ -122,13 +145,28 @@ class CompanyCreateView(UsersMenuMixin, CreateView):
         return initial
 
 
+class CompanyEditView(UsersMenuMixin, UpdateView):
+    form_class = CompanyEditForm
+    template_name = 'proyectos/creation_form.html'
+
+    def get_success_url(self):
+        return reverse('users:company_detail', kwargs={'pk': self.object.pk})
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Company, pk=self.kwargs['pk'], user=self.request.user)
+
+
 class UserDeleteView(UsersMenuMixin, DeleteView):
     template_name = 'core/delete.html'
+    model_options = {
+        'User': User,
+        'Company': Company
+    }
 
     def get_object(self):
         obj = get_object_or_404(
-            User,
-            company=self.request.user.currently_at,
+            self.model_options[self.kwargs['model']],
+            **self.get_company_query(self.kwargs['model']),
             pk=self.kwargs['pk']
         )
         return obj
@@ -168,10 +206,7 @@ class CompanyListView(UsersMenuMixin, ListView):
 
     def get_queryset(self):
         if self.queryset is None:
-            self.queryset = self.model.objects.filter(
-                customer=self.request.user.customer).order_by(
-                Lower('company_name')
-            )
+            self.queryset = self.request.user.company.order_by('company_name')
         return super(CompanyListView, self).get_queryset()
 
     def get_context_data(self, **kwargs):
