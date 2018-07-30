@@ -171,6 +171,25 @@ class ConceptSet(models.QuerySet):
     def concept_image_count(self):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
+    def get_largo_alto_ancho(self, estimate_consecutive):
+        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
+            concept=models.OuterRef('pk')
+        )
+        largo = conceptos_estimacion.values('largo')
+        ancho = conceptos_estimacion.values('ancho')
+        alto = conceptos_estimacion.values('alto')
+        return self.annotate(
+            largo=models.Subquery(
+                largo, output_field=models.DecimalField(decimal_places=2)
+            ),
+            ancho=models.Subquery(
+                ancho, output_field=models.DecimalField(decimal_places=2)
+            ),
+            alto=models.Subquery(
+                alto, output_field=models.DecimalField(decimal_places=2)
+            ),
+        )
+
     def total_imagenes_estimacion(self):
         return self.aggregate(total_images=models.Sum('image_count'))
 
@@ -194,6 +213,7 @@ class ConceptSet(models.QuerySet):
                 .esta_estimacion(estimate_consecutive)
                 .add_estimateconcept_ids(estimate_consecutive)
                 .concept_image_count()
+                .get_largo_alto_ancho(estimate_consecutive)
         )
 
 
@@ -300,6 +320,9 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
+    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
+    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
+    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
     objects = models.Manager()
     especial = ECSet.as_manager()
 

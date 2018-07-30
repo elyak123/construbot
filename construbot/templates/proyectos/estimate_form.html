@@ -69,9 +69,21 @@
                 <div style="text-align: center;"><h4>Concepto: {{ frm.concept.value }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
-                {% bootstrap_field frm.cuantity_estimated %}
                 {% bootstrap_field frm.observations %}
-
+                <div class="row">
+                    <div class="col-sm-3">
+                        {% bootstrap_field frm.cuantity_estimated %}
+                    </div>
+                    <div class="col-sm-3">
+                        {% bootstrap_field frm.largo %}
+                    </div>
+                    <div class="col-sm-3">
+                        {% bootstrap_field frm.ancho %}
+                    </div>
+                    <div class="col-sm-3">
+                        {% bootstrap_field frm.alto %}
+                    </div>
+                </div>
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
                     <div class="dynamic-form">
