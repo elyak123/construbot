@@ -69,6 +69,18 @@ class UsuarioInterno(UserCreationForm):
             'name',
         ]
 
+        labels = {
+            'username': 'Nombre de Usuario',
+            'first_name': 'Nombres',
+            'last_name': 'Apellidos',
+            'email': 'Correo electrónico',
+            'groups': 'Grupos de trabajo',
+            'company': 'Compañías de trabajo',
+            'password1': 'Contraseña',
+            'password2': 'Confirme Contraseña'
+        }
+
+
         widgets = {
             'customer': forms.HiddenInput(),
             'company': autocomplete.ModelSelect2Multiple(
@@ -99,6 +111,15 @@ class UsuarioEdit(UserChangeForm):
             'currently_at',
             'name',
         ]
+
+        labels = {
+            'username': 'Nombre de Usuario',
+            'first_name': 'Nombres',
+            'last_name': 'Apellidos',
+            'email': 'Correo electrónico',
+            'groups': 'Grupos de trabajo',
+            'company': 'Compañías de trabajo',
+        }
 
         widgets = {
             'password': forms.HiddenInput(),
@@ -159,6 +180,10 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = '__all__'
+        labels = {
+            'full_name': 'Razón social',
+            'company_name': 'Nombre de la compañía'
+        }
         widgets = {
             'customer': forms.HiddenInput(),
         }

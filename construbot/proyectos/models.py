@@ -300,7 +300,6 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
-
     objects = models.Manager()
     especial = ECSet.as_manager()
 

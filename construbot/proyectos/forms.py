@@ -25,6 +25,13 @@ class ContratoForm(forms.ModelForm):
     class Meta:
         model = Contrato
         fields = '__all__'
+        labels = {
+            'code': 'Folio del contrato',
+            'contrato_name': 'Nombre del contrato',
+            'contrato_shortName': 'Nombre corto',
+            'file': 'Archivo',
+            'users': '¿A qué usuarios desea asignarlo?'
+        }
         widgets = {
             'fecha': forms.DateInput(
                 attrs={
@@ -77,6 +84,9 @@ class ClienteForm(BaseCleanForm):
     class Meta:
         model = Cliente
         fields = '__all__'
+        labels = {
+            'cliente_name': 'Nombre del cliente'
+        }
         widgets = {
             'company': forms.HiddenInput()
         }
@@ -87,6 +97,11 @@ class SitioForm(forms.ModelForm):
     class Meta:
         model = Sitio
         fields = '__all__'
+        labels = {
+            'sitio_name': 'Nombre del sitio',
+            'sitio_location': 'Ubicación',
+            'cliente': '¿A qué cliente pertenece?'
+        }
         widgets = {
             'cliente': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
@@ -100,6 +115,10 @@ class DestinatarioForm(forms.ModelForm):
     class Meta:
         model = Destinatario
         fields = '__all__'
+        labels = {
+            'destinatario_text': 'Nombre del destinatario',
+            'cliente': '¿En qué empresa trabaja?'
+        }
         widgets = {
             'cliente': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
@@ -285,7 +304,10 @@ def estimateConceptInlineForm(count=0):
     inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
         'concept',
         'cuantity_estimated',
-        'observations'
+        'observations',
+        'largo',
+        'ancho',
+        'alto',
     ), max_num=count, extra=count, can_delete=False, widgets={
         'concept': ConceptDummyWidget(attrs={'readonly': True}),
         'cuantity_estimated': forms.TextInput(),

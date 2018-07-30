@@ -10,6 +10,7 @@ from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm,
 
 
 class UsersMenuMixin(AuthenticationTestMixin):
+    change_company_ability = False
     app_label_name = UsersConfig.verbose_name
     tengo_que_ser_admin = True
     menu_specific = [
@@ -26,14 +27,14 @@ class UsersMenuMixin(AuthenticationTestMixin):
                     'url': 'users:list',
                     'always_appear': False,
                     'urlkwargs': '',
-                    'icon': 'bookmark',
+                    'icon': 'person',
                 },
                 {
                     'title': 'Compañías',
                     'url': 'users:company_list',
                     'always_appear': False,
                     'urlkwargs': '',
-                    'icon': 'person',
+                    'icon': 'briefcase',
                 },
             ],
         }, {
@@ -43,7 +44,22 @@ class UsersMenuMixin(AuthenticationTestMixin):
             'icon': 'star',
             'parent': True,
             'type': 'submenu',
-            'submenu': '',
+            'submenu': [
+                {
+                    'title': 'Usuarios',
+                    'url': 'users:new',
+                    'always_appear': False,
+                    'urlkwargs': '',
+                    'icon': 'person',
+                },
+                {
+                    'title': 'Compañías',
+                    'url': 'users:new_company',
+                    'always_appear': False,
+                    'urlkwargs': '',
+                    'icon': 'briefcase',
+                },
+            ],
         }
     ]
 
@@ -104,20 +120,15 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
         return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_object(self, queryset=None):
-        if not hasattr(self.kwargs, 'username'):
+        if not self.kwargs.get('username', None):
             return self.request.user
         return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
 
 
 class UserCreateView(UsersMenuMixin, CreateView):
+    form_class = UsuarioInterno
     app_label_name = UsersConfig.verbose_name
     template_name = 'users/create_user.html'
-
-    def get_form_class(self, form_class=None):
-        if self.permiso_administracion:
-            return UsuarioEdit
-        else:
-            return UsuarioEditNoAdmin
 
     def get_form(self, form_class=None):
         form_class = self.get_form_class()
@@ -135,6 +146,10 @@ class CompanyCreateView(UsersMenuMixin, CreateView):
     form_class = CompanyForm
     app_label_name = UsersConfig.verbose_name
     template_name = 'proyectos/creation_form.html'
+
+    def get_form(self, form_class=None):
+        form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
 
     def get_success_url(self):
         return reverse('users:company_detail', kwargs={'pk': self.object.pk})
@@ -178,6 +193,7 @@ class UserDeleteView(UsersMenuMixin, DeleteView):
 
 
 class UserListView(UsersMenuMixin, ListView):
+    change_company_ability = True
     app_label_name = UsersConfig.verbose_name
     model = User
     # These next two lines tell the view to index lookups by username
@@ -223,5 +239,5 @@ class CompanyDetailView(UsersMenuMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(
-            self.model, pk=self.kwargs['pk']
+            self.model, pk=self.kwargs['pk'], customer=self.request.user.customer
         )
