@@ -58,7 +58,7 @@ class TestUserUpdateView(BaseUserTestCase):
     def test_get_success_url(self):
         # Expect: '/users/testuser/', as that is the default username for
         #   self.make_user()
-        self.view.kwargs = {'username': 'Daniel'}
+        self.view.kwargs = {'username': 'testuser'}
         self.view.object = self.view.get_object()
         self.assertEqual(
             self.view.get_success_url(),
