@@ -190,6 +190,16 @@ class ConceptSet(models.QuerySet):
             ),
         )
 
+    def get_observations(self, estimate_consecutive):
+        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
+            concept=models.OuterRef('pk')
+        ).values('observations')
+        return self.annotate(
+            observations=models.Subquery(
+                conceptos_estimacion, output_field=models.TextField()
+            )
+        )
+
     def total_imagenes_estimacion(self):
         return self.aggregate(total_images=models.Sum('image_count'))
 
@@ -214,6 +224,7 @@ class ConceptSet(models.QuerySet):
                 .add_estimateconcept_ids(estimate_consecutive)
                 .concept_image_count()
                 .get_largo_alto_ancho(estimate_consecutive)
+                .get_observations(estimate_consecutive)
         )
 
 
