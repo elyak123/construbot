@@ -8,6 +8,7 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
 
     login_url = settings.LOGIN_URL
     tengo_que_ser_admin = False
+    change_company_ability = True
 
     def test_func(self):
         if not self.request.user.is_authenticated:
@@ -36,7 +37,11 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
         context['current_user'] = self.request.user
         context['user_pass'] = self.request.user.is_authenticated
         context['is_administrador'] = self.permiso_administracion
+        context['puedo_cambiar'] = self.get_change_company_ability()
         return context
 
     def get_tengo_que_ser_admin(self):
         return self.tengo_que_ser_admin
+
+    def get_change_company_ability(self):
+        return self.change_company_ability

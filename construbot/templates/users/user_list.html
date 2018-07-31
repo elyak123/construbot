@@ -13,7 +13,7 @@
 	    {% for user in user_list %}
 			<div class="div_list border_normal">
 				<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'users:detail' user.username %}">{{ user.username }}</h4></a>
-				<a class="boton_edicion" href="{% url 'users:update' %}">Editar</a> / 
+				<a class="boton_edicion" href="{% url 'users:update' user.username %}">Editar</a> / 
 				<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="User" data-id="{{ user.id }}" href="#">Eliminar</a>
 			</div>
 	    {% endfor %}

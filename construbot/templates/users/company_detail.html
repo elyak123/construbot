@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %} Detalle de {{ company.company_name }} {% endblock %}
+
+{% block content %}
+{% language 'es' %}
+<h2 class="title" > Detalle de {{ company.company_name }} </h2>
+
+{% if company.cliente_set.exists %}
+	<h2 class="title"> Listado de clientes con la compañía: </h2>
+	<table class="table_sample table_normal">
+		<tr>
+			<th class="th_table_sample"> Nombre </th>
+			<th class="th_table_sample"> No. de proyectos </th>
+		</tr>
+	{% for cliente in company.cliente_set.all %}
+		<tr>
+			<td><a href="{% url 'proyectos:cliente_detail' cliente.id %}">{{ cliente.cliente_name }}</a></td>
+			<td>{{ cliente.contrato_set.count }}</td>
+		</tr>
+	{% endfor %}
+{% endif %}
+
+{% endlanguage %}
+{% endblock %}

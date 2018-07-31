@@ -7,7 +7,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>{% block title %}Construbot{% endblock title %}</title>
     <meta name="description" content="{% block metadescription %}{% endblock metadescription %}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="author" content="{% block author %}{% endblock author %}">
     {# Bootstrap 4 #}
     {% bootstrap_css %}
@@ -66,7 +66,7 @@
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
-      {% if current_user.company.exists %}
+      {% if current_user.company.exists and puedo_cambiar %}
         <div class='div_miniform d-print-none'>
           <div class="dropdown show">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

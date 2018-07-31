@@ -20,6 +20,7 @@
         var setPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
     </script>
     <script src="{% static 'js/inlineform.js' %}"></script>
+    <script src="{% static 'js/estimate_button.js' %}"></script>
     <script type="text/javascript">
         var fileSets = document.getElementsByClassName('dynamic-form');
         var formset = undefined;
@@ -69,9 +70,26 @@
                 <div style="text-align: center;"><h4>Concepto: {{ frm.concept.value }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
-                {% bootstrap_field frm.cuantity_estimated %}
                 {% bootstrap_field frm.observations %}
-
+                <div class="row">
+                    <div class="col-md-3">
+                        {% bootstrap_field frm.largo %}
+                    </div>
+                    <div class="col-md-3">
+                        {% bootstrap_field frm.ancho %}
+                    </div>
+                    <div class="col-md-3">
+                        {% bootstrap_field frm.alto %}
+                    </div>
+                    <div class="col-md-3 row">
+                        <div class="col-xl-4">
+                            <button style="margin-top:29px" class="calcular_cantidad btn btn-primary">Calcular</button>
+                        </div>
+                        <div class="col-xl-8">
+                            {% bootstrap_field frm.cuantity_estimated %}
+                        </div>
+                    </div>
+                </div>
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
                     <div class="dynamic-form">

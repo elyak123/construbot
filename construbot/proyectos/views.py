@@ -172,6 +172,8 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
 
 class DynamicDetail(ProyectosMenuMixin, DetailView):
+    change_company_ability = False
+
     def get_context_object_name(self, obj):
         return obj.__class__.__name__.lower()
 
@@ -209,6 +211,7 @@ class EstimateDetailView(DynamicDetail):
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
+    change_company_ability = False
     form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
 
@@ -234,6 +237,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 
 
 class DynamicCreation(ProyectosMenuMixin, CreateView):
+    change_company_ability = False
     template_name = 'proyectos/creation_form.html'
 
     def get_initial(self):
@@ -260,6 +264,7 @@ class DestinatarioCreationView(DynamicCreation):
 
 
 class EstimateCreationView(ProyectosMenuMixin, CreateView):
+    change_company_ability = False
     tengo_que_ser_admin = False
     form_class = forms.EstimateForm
     model = Contrato
@@ -355,6 +360,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
 
 
 class DynamicEdition(ProyectosMenuMixin, UpdateView):
+    change_company_ability = False
     template_name = 'proyectos/creation_form.html'
 
     def get_object(self):
@@ -377,6 +383,7 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
+    change_company_ability = False
     form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
 
@@ -413,6 +420,7 @@ class DestinatarioEditView(DynamicEdition):
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
     tengo_que_ser_admin = False
+    change_company_ability = False
     form_class = forms.EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate
@@ -464,6 +472,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
 
 
 class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
+    change_company_ability = False
     form_class = forms.ContractConceptInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
 
@@ -605,6 +614,12 @@ class CompanyAutocomplete(AutocompletePoryectos):
     def get_key_words(self):
         key_words = {
             'company_name__unaccent__icontains': self.q,
-            'customer': self.request.user.customer
         }
         return key_words
+
+    def get_queryset(self):
+        if self.request.user and self.q:
+            qs = self.request.user.company.filter(**self.get_key_words()).order_by(self.ordering)
+            return qs
+        elif self.request.user and self.request.POST:
+            return self.model.objects
