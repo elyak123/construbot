@@ -13,5 +13,10 @@ $(document).ready(function(){
     let v3 = parseFloat(values.children[2].children[0].children[1].value);
     field.value = (v1*v2*v3).toFixed(2);
   }
-
+  $('textarea').each(function () {
+    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+  }).on('input', function () {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
 });

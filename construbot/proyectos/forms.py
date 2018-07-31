@@ -309,9 +309,9 @@ def estimateConceptInlineForm(count=0):
         'ancho',
         'alto',
     ), max_num=count, extra=count, can_delete=False, widgets={
-        'concept': ConceptDummyWidget(attrs={'readonly': True}),
+        'concept': ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
         'cuantity_estimated': forms.TextInput(),
-        'observations': forms.Textarea(attrs={'rows': 3})
+        'observations': forms.Textarea()
     }, labels={
         'concept': 'Concepto',
         'cuantity_estimated': 'Cantidad estimada',
