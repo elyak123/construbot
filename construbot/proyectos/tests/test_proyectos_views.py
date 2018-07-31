@@ -1065,6 +1065,33 @@ class ClienteAutocompleteTest(BaseViewTest):
         qs = view.get_queryset()
         self.assertIsNone(qs)
 
+    def test_autocomplete_returns_the_correct_company_object(self):
+        company1 = factories.CompanyFactory(company_name="CömPaNy", customer=self.user.customer)
+        company2 = factories.CompanyFactory(company_name="CóMPaNy", customer=self.user.customer)
+        self.user.company.add(company1)
+        self.user.company.add(company2)
+        self.user.currently_at = company1
+        view = self.get_instance(
+            views.CompanyAutocomplete,
+            request=self.request,
+        )
+        view.q = "com"
+        qs = view.get_queryset()
+        qs_test = [repr(a) for a in [company1, company2]]
+        self.assertQuerysetEqual(qs, qs_test, ordered=False)
+
+    def test_if_company_autocomplete_returns_none(self):
+        company1 = factories.CompanyFactory(company_name="CömPaNy", customer=self.user.customer)
+        company2 = factories.CompanyFactory(company_name="CóMPaNy", customer=self.user.customer)
+        self.user.currently_at = company1
+        view = self.get_instance(
+            views.CompanyAutocomplete,
+            request=self.request,
+        )
+        view.q = ""
+        qs = view.get_queryset()
+        self.assertIsNone(qs)
+
     def test_cliente_get_key_words_returns_correct_dict(self):
         instance = views.ClienteAutocomplete()
         instance.q = 'hola'
