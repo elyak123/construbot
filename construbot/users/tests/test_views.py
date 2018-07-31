@@ -73,6 +73,13 @@ class TestUserUpdateView(BaseUserTestCase):
             self.user
         )
 
+    def test_get_form_kwargs(self):
+        test_kwargs = {'initial': {}, 'prefix': None,'user': self.user}
+        self.assertEqual(
+            self.view.get_form_kwargs(),
+            test_kwargs
+        )
+
 
 class TestListUserView(BaseUserTestCase):
     def setUp(self):
@@ -128,6 +135,24 @@ class TestDetailUserView(BaseUserTestCase):
         with self.assertRaises(PermissionDenied):
             view.test_func()
 
+    def test_detail_view_another_user_requires_admin_perms(self):
+        group, created = Group.objects.get_or_create(name='Users')
+        self.user.groups.add(group)
+        group, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(group)
+        company = Company.objects.create(
+            company_name='another_company',
+            customer=self.user.customer
+        )
+        self.user.company.add(company)
+        self.user.currently_at = company
+        view = self.get_instance(
+            UserDetailView,
+            request=self.get_request(self.user),
+        )
+        view.kwargs['username'] = None
+        obj = view.get_object()
+        self.assertEqual(obj, self.user)
 
 class TestUserCreateView(BaseUserTestCase):
     def test_user_creation_form_query_involves_requests_user_companies(self):
