@@ -31,19 +31,33 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/contrato_list.html')
 
     def test_clientes_list_uses_correct_template(self):
-        self.client.login(username=self.user.username, password='password')
         company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
         self.user.currently_at = company_test
-        cliente_test = factories.ClienteFactory(company=company_test)
+        self.client.login(username=self.user.username, password='password')
+        for i in range(0, 15):
+            factories.ClienteFactory(company=company_test)
         response = self.client.get(reverse('proyectos:listado_de_clientes'))
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        sitio_cliente = factories.ClienteFactory(company=company_test)
+        for i in range(0, 15):
+            factories.SitioFactory(cliente=sitio_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_sitios'))
         self.assertTemplateUsed(response, 'proyectos/sitio_list.html')
 
     def test_destinatarios_list_uses_correct_template(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        destinatario_cliente = factories.ClienteFactory(company=company_test)
+        for i in range(0, 15):
+            factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_destinatarios'))
         self.assertTemplateUsed(response, 'proyectos/destinatario_list.html')
