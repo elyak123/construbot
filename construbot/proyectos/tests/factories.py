@@ -25,6 +25,7 @@ class SitioFactory(factory.django.DjangoModelFactory):
 
 class DestinatarioFactory(factory.django.DjangoModelFactory):
     destinatario_text = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='destinatario_')
+    puesto = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters)
     cliente = factory.SubFactory(ClienteFactory)
 
     class Meta:
