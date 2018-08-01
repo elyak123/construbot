@@ -9,10 +9,15 @@ from . import utils
 from ..views import (
     UserRedirectView,
     UserUpdateView, UserDetailView,
-    UserCreateView
+    UserCreateView, CompanyCreateView,
+    CompanyEditView, UserDeleteView,
+    CompanyChangeView, CompanyListView,
+    CompanyDetailView
 )
-from ..forms import UsuarioInterno
-
+from ..forms import (
+    UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
+    CompanyForm
+)
 
 class BaseUserTestCase(utils.BaseTestCase):
 
@@ -44,20 +49,14 @@ class TestUserRedirectView(BaseUserTestCase):
 class TestUserUpdateView(BaseUserTestCase):
 
     def setUp(self):
-        # call BaseUserTestCase.setUp()
         super(TestUserUpdateView, self).setUp()
-        # Instantiate the view directly. Never do this outside a test!
         self.view = UserUpdateView()
         # Generate a fake request
         request = self.factory.get('/fake-url')
-        # Attach the user to the request
         request.user = self.user
-        # Attach the request to the view
         self.view.request = request
 
     def test_get_success_url(self):
-        # Expect: '/users/testuser/', as that is the default username for
-        #   self.make_user()
         self.view.kwargs = {'username': 'testuser'}
         self.view.object = self.view.get_object()
         self.assertEqual(
@@ -66,20 +65,39 @@ class TestUserUpdateView(BaseUserTestCase):
         )
 
     def test_get_object(self):
-        # Expect: self.user, as that is the request's user object
         self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_object(),
             self.user
         )
 
+    def test_get_current_user_object_if_not_user_kwargs(self):
+        self.view.kwargs = {}
+        self.assertEqual(
+            self.view.get_object(),
+            self.user
+        )
+
     def test_get_form_kwargs(self):
-        test_kwargs = {'initial': {}, 'prefix': None,'user': self.user}
+        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
         )
 
+    def test_returns_admin_form(self):
+        self.view.permiso_administracion = True
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEdit
+        )
+
+    def test_returns_no_admin_form(self):
+        self.view.permiso_administracion = False
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEditNoAdmin
+        )
 
 class TestListUserView(BaseUserTestCase):
     def setUp(self):
@@ -240,3 +258,168 @@ class TestUserCreateView(BaseUserTestCase):
         with self.login(username='test_user_tres', password='esteesunpsslargo'):
             response = self.client.get(reverse('users:detail', kwargs={'username': 'test_user_tres'}))
             self.assertEqual(response.status_code, 200)
+
+
+class TestCompanyCreateView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestCompanyCreateView, self).setUp()
+        self.view = CompanyCreateView()
+        # Generate a fake request
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+
+    def test_get_form(self):
+        self.assertEqual(
+            self.view.get_form().__class__,
+            CompanyForm
+        )
+
+    def test_correct_success_url(self):
+        self.view.object = factories.CompanyFactory(customer=self.user.customer)
+        test_url = '/users/detalle/company/{}/'.format(self.view.object.pk)
+        self.assertEqual(
+            self.view.get_success_url(),
+            test_url
+        )
+
+    def test_correct_initial_data(self):
+        test_customer = self.user.customer
+        self.assertEqual(
+            self.view.get_initial()['customer'],
+            test_customer
+        )
+
+
+class TestCompanyEditView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestCompanyEditView, self).setUp()
+        self.view = CompanyEditView()
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+    
+    def test_correct_success_url(self):
+        self.view.object = factories.CompanyFactory(customer=self.user.customer)
+        test_url = '/users/detalle/company/{}/'.format(self.view.object.pk)
+        self.assertEqual(
+            self.view.get_success_url(),
+            test_url
+        )
+
+    def test_get_correct_object(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(test_company)
+        self.view.kwargs = {'pk': test_company.pk}
+        self.assertEqual(
+            self.view.get_object(),
+            test_company
+        )
+
+class TestUserDeleteView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestUserDeleteView, self).setUp()
+        self.view = UserDeleteView()
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+    
+    def test_get_correct_object(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.view.kwargs = {'pk': test_company.pk, 'model': 'Company'}
+        self.assertEqual(
+            self.view.get_object(),
+            test_company
+        )
+
+    def test_delete_object(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.view.kwargs = {'pk': test_company.pk, 'model': 'Company'}
+        self.assertEqual(self.view.delete(request=self.request).status_code, 200)
+
+class TestCompanyChangeView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestCompanyChangeView, self).setUp()
+        self.view = CompanyChangeView()
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company)
+        self.user.currently_at = company
+
+    def test_get_and_change_method(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.view.kwargs = {'company': test_company.company_name}
+        self.user.company.add(test_company)
+        self.assertEqual(
+            self.view.get(self.request).status_code,
+            200
+        )
+        self.assertEqual(
+            self.user.currently_at,
+            test_company
+        )
+
+
+class TestCompanyListView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestCompanyListView, self).setUp()
+        self.view = CompanyListView()
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company)
+        self.user.currently_at = company
+
+    def test_get_correct_queryset(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(test_company)
+        test_companies_qs = [repr(a) for a in self.user.company.order_by('-company_name')]
+        self.assertQuerysetEqual(
+            self.view.get_queryset(),
+            test_companies_qs
+        )
+
+    def test_get_context_data_has_model_name_attr(self):
+        self.view.object_list = [repr(a) for a in self.user.company.order_by('-company_name')]
+        self.view.kwargs={}
+        self.view.user_groups = self.user.groups.all()
+        self.view.permiso_administracion = True
+        self.assertEqual(
+            self.view.get_context_data()['model'],
+            'Company'
+        )
+
+class TestCompanyDetailView(BaseUserTestCase):
+
+    def setUp(self):
+        super(TestCompanyDetailView, self).setUp()
+        self.view = CompanyDetailView()
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+        self.view.request = request
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company)
+        self.user.currently_at = company
+    
+    def test_get_correct_context_object_name(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.assertEqual(
+            self.view.get_context_object_name(test_company),
+            'company'
+        )
+
+    def test_get_correct_object(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.view.kwargs = {'pk': test_company.pk}
+        self.assertEqual(
+            self.view.get_object(),
+            test_company
+        )
