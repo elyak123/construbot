@@ -209,6 +209,7 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
     app_label_name = UsersConfig.verbose_name
 
     def get(self, request, *args, **kwargs):
+        # Agregar un apartado donde se responda con 403 el cambio de compañía en 'else'
         new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
         if new_company in self.request.user.company.all():
             self.request.user.currently_at = new_company
@@ -222,7 +223,7 @@ class CompanyListView(UsersMenuMixin, ListView):
 
     def get_queryset(self):
         if self.queryset is None:
-            self.queryset = self.request.user.company.order_by('company_name')
+            self.queryset = self.request.user.company
         return super(CompanyListView, self).get_queryset()
 
     def get_context_data(self, **kwargs):
