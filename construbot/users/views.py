@@ -83,7 +83,7 @@ class UserDetailView(UsersMenuMixin, DetailView):
     tengo_que_ser_admin = False
 
     def get_object(self, queryset=None):
-        if not self.kwargs['username']:
+        if not self.kwargs.get('username', None):
             self.kwargs['username'] = self.request.user.username
         return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
 

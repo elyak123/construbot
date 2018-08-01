@@ -9,10 +9,13 @@ from . import utils
 from ..views import (
     UserRedirectView,
     UserUpdateView, UserDetailView,
-    UserCreateView
+    UserCreateView, CompanyCreateView,
+    CompanyEditView
 )
-from ..forms import UsuarioInterno
-
+from ..forms import (
+    UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
+    CompanyForm
+)
 
 class BaseUserTestCase(utils.BaseTestCase):
 
@@ -73,13 +76,33 @@ class TestUserUpdateView(BaseUserTestCase):
             self.user
         )
 
+    def test_get_current_user_object_if_not_user_kwargs(self):
+        self.view.kwargs = {}
+        self.assertEqual(
+            self.view.get_object(),
+            self.user
+        )
+
     def test_get_form_kwargs(self):
-        test_kwargs = {'initial': {}, 'prefix': None,'user': self.user}
+        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
         )
 
+    def test_returns_admin_form(self):
+        self.view.permiso_administracion = True
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEdit
+        )
+
+    def test_returns_no_admin_form(self):
+        self.view.permiso_administracion = False
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEditNoAdmin
+        )
 
 class TestListUserView(BaseUserTestCase):
     def setUp(self):
@@ -240,3 +263,71 @@ class TestUserCreateView(BaseUserTestCase):
         with self.login(username='test_user_tres', password='esteesunpsslargo'):
             response = self.client.get(reverse('users:detail', kwargs={'username': 'test_user_tres'}))
             self.assertEqual(response.status_code, 200)
+
+
+class TestCompanyCreateView(BaseUserTestCase):
+
+    def setUp(self):
+        # call BaseUserTestCase.setUp()
+        super(TestCompanyCreateView, self).setUp()
+        # Instantiate the view directly. Never do this outside a test!
+        self.view = CompanyCreateView()
+        # Generate a fake request
+        request = self.factory.get('/fake-url')
+        # Attach the user to the request
+        request.user = self.user
+        # Attach the request to the view
+        self.view.request = request
+
+    def test_get_form(self):
+        self.assertEqual(
+            self.view.get_form().__class__,
+            CompanyForm
+        )
+
+    def test_correct_success_url(self):
+        self.view.object = factories.CompanyFactory(customer=self.user.customer)
+        test_url = '/users/detalle/company/{}/'.format(self.view.object.pk)
+        self.assertEqual(
+            self.view.get_success_url(),
+            test_url
+        )
+
+    def test_correct_initial_data(self):
+        test_customer = self.user.customer
+        self.assertEqual(
+            self.view.get_initial()['customer'],
+            test_customer
+        )
+
+
+class TestCompanyEditView(BaseUserTestCase):
+
+    def setUp(self):
+        # call BaseUserTestCase.setUp()
+        super(TestCompanyEditView, self).setUp()
+        # Instantiate the view directly. Never do this outside a test!
+        self.view = CompanyEditView()
+        # Generate a fake request
+        request = self.factory.get('/fake-url')
+        # Attach the user to the request
+        request.user = self.user
+        # Attach the request to the view
+        self.view.request = request
+    
+    def test_correct_success_url(self):
+        self.view.object = factories.CompanyFactory(customer=self.user.customer)
+        test_url = '/users/detalle/company/{}/'.format(self.view.object.pk)
+        self.assertEqual(
+            self.view.get_success_url(),
+            test_url
+        )
+    
+    def test_get_correct_object(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(test_company)
+        self.view.kwargs = {'pk': test_company.pk}
+        self.assertEqual(
+            self.view.get_object(),
+            test_company
+        )

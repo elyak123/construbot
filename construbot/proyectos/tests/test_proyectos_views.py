@@ -552,6 +552,43 @@ class EstimateCreationTest(BaseViewTest):
         self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Enter a number.'])
         self.assertEqual(response.status_code, 200)
 
+    def test_estimate_auth_by_gen_other_company_fail(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        cliente_contrato = factories.ClienteFactory(company=contrato_company)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        destinatario = factories.DestinatarioFactory(cliente=contrato_cliente)
+        destinatario2 = factories.DestinatarioFactory(cliente=factories.ClienteFactory())
+        concepto_1 = factories.ConceptoFactory(project=contrato)
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.user.groups.add(proyectos_group)
+        self.client.login(username=self.user.username, password='password')
+        form_data = {
+            'consecutive': '3',
+            'supervised_by': str(self.user.id),
+            'start_date': '2018-04-29',
+            'finish_date': '2018-05-15',
+            'draft_by': str(self.user.id),
+            'project': str(contrato.id),
+            'auth_by': str(destinatario.id),
+            'auth_by_gen': str(destinatario2.id),
+            'auth_date': '2018-05-15',
+            'estimateconcept_set-TOTAL_FORMS': '1',
+            'estimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-MAX_NUM_FORMS': '5',
+            'estimateconcept_set-0-concept': concepto_1.concept_text,
+            'estimateconcept_set-0-cuantity_estimated': '2',
+            'estimateconcept_set-0-imageestimateconcept_set-TOTAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
+        }
+        response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
+        self.assertFormError(response, 'form', None, 'Destinatarios y contratos no pueden ser de empresas diferentes')
+
 
 class EstimateEditTest(BaseViewTest):
 
