@@ -29,9 +29,12 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_contratos'))
         self.assertTemplateUsed(response, 'proyectos/contrato_list.html')
-
+    @tag('current')
     def test_clientes_list_uses_correct_template(self):
         self.client.login(username=self.user.username, password='password')
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
+        cliente_test = factories.ClienteFactory(company=company_test)
         response = self.client.get(reverse('proyectos:listado_de_clientes'))
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
