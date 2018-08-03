@@ -2,12 +2,13 @@ from .functional_tests_base import FunctionalTest
 from django.urls import reverse
 from django.test import tag, override_settings
 
+
 @tag("detail")
 class TestCorrectDetailView(FunctionalTest):
     def test_correct_detail_view(self):
         self.user_login(self.user.username, "password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario {0}')]".format(self.user.username)))
-        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario {0}')]".format(self.user.username))
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
+        self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]")
 
     def test_join_to_another_user_detail(self):
         self.user_login(self.user.username, "password")
@@ -22,7 +23,12 @@ class TestCorrectListView(FunctionalTest):
     def test_correct_list_view(self):
         self.user_login(self.user.username, "password")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Users')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Listado')]").click()
+        self.browser.find_element_by_xpath("//*[contains(text(), 'Users')]").click()
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Listados')]"))
+        listados = self.browser.find_element_by_xpath("//*[contains(text(), 'Listados')]")
+        hover = self.actions.move_to_element(catalogos)
+        hover.perform()
+        self.browser.find_element_by_xpath("//*[contains(text(), 'Usuarios')]").click()
         self.browser.find_element_by_xpath("//a[contains(text(), "+self.user2.username+")]")
 
 
@@ -45,8 +51,8 @@ class TestEditingUsers(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_xpath("//button[@type='submit']").click())
         self.wait_for(lambda:self.browser.find_element_by_xpath("//div[contains(text(), 'You have signed out.')]"))
         self.user_login(self.user.username, "password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario {0}')]".format(self.user.username)))
-        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario {0}')]".format(self.user.username))
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
+        self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]")
 
 
 @tag("create")
@@ -72,8 +78,8 @@ class TestCorrectUserCreation(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_xpath("//button[@type='submit']").click())
         self.wait_for(lambda:self.browser.find_element_by_xpath("//div[contains(text(), 'You have signed out.')]"))
         self.user_login("TEST-USERNAME", "000password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario TEST-USERNAME')]"))
-        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario TEST-USERNAME')]")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
+        self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]")
 
     @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
     def test_create_admin_user(self):
@@ -89,5 +95,5 @@ class TestCorrectUserCreation(FunctionalTest):
         self.browser.find_element_by_id("id_last_name").send_keys("user")
         self.browser.find_element_by_id("id_company").send_keys("test_company")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//button[@type='submit']").click())
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario test_user')]"))
-        self.browser.find_element_by_xpath("//h2[contains(text(), 'Detalle del usuario test_user')]")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
+        self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]")

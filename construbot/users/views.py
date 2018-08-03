@@ -196,7 +196,6 @@ class UserListView(UsersMenuMixin, ListView):
     change_company_ability = True
     app_label_name = UsersConfig.verbose_name
     model = User
-    # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
