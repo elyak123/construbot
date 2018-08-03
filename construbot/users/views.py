@@ -165,7 +165,7 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     template_name = 'proyectos/creation_form.html'
 
     def get_success_url(self):
-        return reverse('users:detail', kwargs={'pk': self.object.pk})
+        return reverse('users:company_detail', kwargs={'pk': self.object.pk})
 
     def get_object(self, queryset=None):
         return get_object_or_404(Company, pk=self.kwargs['pk'], user=self.request.user)
