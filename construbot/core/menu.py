@@ -4,7 +4,7 @@ main_menu = [
         'url': 'users:list',
         'always_appear': False,
         'urlkwargs': None,
-        'icon': 'people',
+        'icon': 'person',
         'parent': False,
         'child': False,
     },
