@@ -1,6 +1,7 @@
 from .functional_tests_base import FunctionalTest
 from django.urls import reverse
 from django.test import tag, override_settings
+import time
 
 
 @tag("detail")
@@ -26,9 +27,9 @@ class TestCorrectListView(FunctionalTest):
         self.browser.find_element_by_xpath("//*[contains(text(), 'Users')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Listados')]"))
         listados = self.browser.find_element_by_xpath("//*[contains(text(), 'Listados')]")
-        hover = self.actions.move_to_element(catalogos)
+        hover = self.actions.move_to_element(listados)
         hover.perform()
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Usuarios')]").click()
+        self.browser.find_element_by_xpath("//span[contains(text(), 'Usuarios')]").click()
         self.browser.find_element_by_xpath("//a[contains(text(), "+self.user2.username+")]")
 
 
@@ -60,14 +61,21 @@ class TestCorrectUserCreation(FunctionalTest):
     def test_correct_user_creation_and_login(self):
         self.user_login(self.user.username, "password")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Users')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Crear')]").click()
+        self.browser.find_element_by_xpath("//*[contains(text(), 'Users')]").click()
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Crear')]"))
+        listados = self.browser.find_element_by_xpath("//*[contains(text(), 'Crear')]")
+        hover = self.actions.move_to_element(listados)
+        hover.perform()
+        self.browser.find_element_by_xpath("//a[@href='/users/new/']").click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_groups"))
         self.fast_multiselect('id_groups', ['proyectos', 'users', 'Administrators'])
         self.browser.find_element_by_id("id_username").send_keys("TEST-USERNAME")
         self.browser.find_element_by_id("id_first_name").send_keys("TEST")
         self.browser.find_element_by_id("id_last_name").send_keys("USERNAME")
         self.browser.find_element_by_id("id_email").send_keys("a@a.com")
-        self.fast_multiselect('id_company', ['{0}'.format(self.user.currently_at.company_name)])
+        self.browser.find_element_by_class_name("select2-search__field").send_keys("company")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user.currently_at.company_name)))
+        self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user.currently_at.company_name)).click()
         self.browser.find_element_by_id("id_password1").send_keys("000password")
         self.browser.find_element_by_id("id_password2").send_keys("000password")
         self.browser.find_element_by_xpath("//button[@type='submit']").click()

@@ -197,7 +197,7 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_elements_by_class_name("select2-search--inline")[0].click()
         self.browser.find_elements_by_class_name("select2-search__field")[0].send_keys("destinatario")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Create \"destinatario\"')]"))
-            self.browser.find_element_by_xpath("//*[contains(text(), 'Create \"destinatario\"')]").click()
+        self.browser.find_element_by_xpath("//*[contains(text(), 'Create \"destinatario\"')]").click()
         self.browser.find_elements_by_class_name("select2-search--inline")[1].click()
         self.browser.find_elements_by_class_name("select2-search__field")[1].send_keys("destinatario")
         self.wait_for(lambda:self.browser.find_element_by_class_name("select2-results__option--highlighted"))
