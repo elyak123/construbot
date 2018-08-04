@@ -51,7 +51,7 @@ urlpatterns = [
         name='detail'
     ),
     url(
-        regex=r'^update/(?:(?P<username>\w+)/)?$',
+        regex=r'^update/(?:(?P<username>[\w.@+-]+)/)?$',
         view=views.UserUpdateView.as_view(),
         name='update'
     ),
