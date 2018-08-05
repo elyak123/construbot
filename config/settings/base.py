@@ -60,6 +60,7 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     #'crispy_forms',  # Form layouts
+    'rest_framework',
     'bootstrap4',
     'allauth',  # registration
     'allauth.account',  # registration
@@ -72,6 +73,7 @@ LOCAL_APPS = [
     'construbot.users.apps.UsersConfig',
     # Your stuff: custom apps go here
     'construbot.proyectos.apps.ProyectosConfig',
+    'construbot.api.apps.ApiConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

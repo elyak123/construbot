@@ -8,6 +8,9 @@ wheel==0.30.0
 # Conservative Django
 django==1.11.9 # pyup: <2.0
 
+# REST
+djangorestframework==3.8.2
+
 # Configuration
 django-environ==0.4.4
 whitenoise==3.3.1
