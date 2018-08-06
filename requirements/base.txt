@@ -10,6 +10,7 @@ django==1.11.9 # pyup: <2.0
 
 # REST
 djangorestframework==3.8.2
+djangorestframework-jwt==1.11.0
 
 # Configuration
 django-environ==0.4.4
