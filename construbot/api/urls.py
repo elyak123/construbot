@@ -6,7 +6,7 @@ from . import views
 app_name = 'construbot.api'
 
 urlpatterns = [
-    url(regex='customer/list/', view=views.customer_list, name='customerlist'),
+    url(regex='customer/list/', view=views.CustomerList.as_view(), name='customerlist'),
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-refresh/', refresh_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
