@@ -1,13 +1,13 @@
 from django.http import JsonResponse
 from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from construbot.users.models import Customer
 from construbot.api.serializers import CustomerSerializer
 
 # Create your views here.
 
 
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def customer_list(request):
     """
     List all code snippets, or create a new snippet.

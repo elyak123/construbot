@@ -24,3 +24,8 @@ coveralls==1.2.0
 selenium==3.12.0
 pip-autoremove==0.9.0
 pipdeptree==0.10.1
+
+# For djangorestframework
+coreapi>=1.32.0
+Markdown>=2.1.0
+django-filter>=1.0.1
