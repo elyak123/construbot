@@ -277,7 +277,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTHENTICATION CONFIGURATION
 # ------------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
+    'construbot.core.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 

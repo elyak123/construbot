@@ -57,7 +57,7 @@ class TestUserUpdateView(BaseUserTestCase):
         self.view.request = request
 
     def test_get_success_url(self):
-        self.view.kwargs = {'username': 'testuser'}
+        self.view.kwargs = {'username': self.user.username}
         self.view.object = self.view.get_object()
         self.assertEqual(
             self.view.get_success_url(),
@@ -208,7 +208,7 @@ class TestUserCreateView(BaseUserTestCase):
         )
         view.object = self.make_user(username='some_user')
         success_url = view.get_success_url()
-        self.assertEqual('/users/detalle/some_user/', success_url)
+        self.assertEqual('/users/detalle/{}/'.format(view.object.username), success_url)
 
     def test_user_creation_check_200(self):
         company = Company.objects.create(
