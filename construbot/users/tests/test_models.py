@@ -13,13 +13,13 @@ class TestUser(TestCase):
     def test__str__(self):
         self.assertEqual(
             self.user.__str__(),
-            'testuser'  # This is the default username for self.make_user()
+            self.user.username  # This is the default username for self.make_user()
         )
 
     def test_get_absolute_url(self):
         self.assertEqual(
             self.user.get_absolute_url(),
-            '/users/detalle/testuser/'
+            '/users/detalle/{}/'.format(self.user.username)
         )
 
     def test_no_soy_administrador(self):
