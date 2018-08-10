@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from construbot.users.models import Customer
-from construbot.api.serializers import CustomerSerializer
+from construbot.api.serializers import CustomerSerializer, UserSerializer
 
 
 class CustomerList(generics.ListCreateAPIView):
@@ -13,13 +13,6 @@ class CustomerList(generics.ListCreateAPIView):
 
 class UserRetrive(generics.RetrieveAPIView):
     permission_classes = (IsAdminUser,)
-    serializer_class = CustomerSerializer
+    serializer_class = UserSerializer
+    queryset = get_user_model().objects
     lookup_field = 'email'
-
-    def get_object(self):
-        User = get_user_model()
-        try:
-        	user = User.objects.get(email=self.kwargs['email'])
-        except User.DoesNotExist:
-        	user = User.objects.none()
-        return user
