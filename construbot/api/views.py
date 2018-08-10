@@ -13,8 +13,13 @@ class CustomerList(generics.ListCreateAPIView):
 
 class UserRetrive(generics.RetrieveAPIView):
     permission_classes = (IsAdminUser,)
+    serializer_class = CustomerSerializer
     lookup_field = 'email'
 
-    def get_queryset(self):
+    def get_object(self):
         User = get_user_model()
-        return User.objects
+        try:
+        	user = User.objects.get(email=self.kwargs['email'])
+        except User.DoesNotExist:
+        	user = User.objects.none()
+        return user
