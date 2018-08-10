@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^api-token-refresh/', refresh_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
     url(
-        regex=r'^users/(?P<email>[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4})/$',
-        view=views.UserRetrive.as_view(), name='get_user'
+        regex=r'^users/unique/$',
+        view=views.email_uniqueness, name='get_user'
     )
 ]
