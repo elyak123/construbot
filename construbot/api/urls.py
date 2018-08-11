@@ -13,5 +13,9 @@ urlpatterns = [
     url(
         regex=r'^users/unique/$',
         view=views.email_uniqueness, name='get_user'
+    ),
+    url(
+        regex=r'^create/$',
+        view=views.create_customer_user_and_company, name='creation'
     )
 ]
