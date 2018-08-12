@@ -59,4 +59,10 @@ def create_customer_user_and_company(request):
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
-        return Response({'email': user.email, 'token': token})
+        return Response(
+            {
+                'id': user.id,
+                'email': user.email,
+                'token': token
+            }
+        )
