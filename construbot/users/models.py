@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 @python_2_unicode_compatible
 class Customer(models.Model):
-    customer_name = models.CharField(max_length=120, unique=True, blank=True, null=True)
+    customer_name = models.CharField(max_length=120, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Customer'
