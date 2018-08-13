@@ -18,7 +18,7 @@ def get_directory_path(instance, filename):
     instance_company = instance.cliente.company.company_name
 
     return '{0}-{1}/{2}/{3}/{4}-{5}'.format(
-        instance_customer.id, instance_consumer.customer_name, instance_company, instance_model, date_str, filename
+        instance_consumer.id, instance_consumer.customer_name, instance_company, instance_model, date_str, filename
     )
 
 
