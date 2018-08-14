@@ -64,3 +64,13 @@ def create_customer_user_and_company(request):
                 'token': token
             }
         )
+
+@api_view(['POST'])
+def check_password_reset(request):
+    if request.method == 'POST':
+        user = User.objects.get(id=request.data['user_id'])
+        response = {}
+        response['user_id'] = user.id
+        response['user_id_compbr'] = user.id==int(request.data['land_id'])
+        response['unusable_pwd'] = not user.has_usable_password()
+        return Response(response)
