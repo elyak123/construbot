@@ -112,6 +112,7 @@ class DirectoyPathTest(utils.BaseTestCase):
         mock_instance = mock.MagicMock()
         mock_instance._meta.verbose_name_plural = 'models'
         mock_instance.cliente.company.customer.customer_name = 'customer'
+        mock_instance.cliente.company.customer.id = '12'
         mock_instance.cliente.company.company_name = 'company'
         path = get_directory_path(mock_instance, 'file.txt')
-        self.assertEqual(path, 'customer/company/models/2018-06-15-17-28-49-file.txt')
+        self.assertEqual(path, '12-customer/company/models/2018-06-15-17-28-49-file.txt')

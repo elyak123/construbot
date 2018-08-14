@@ -17,5 +17,9 @@ urlpatterns = [
     url(
         regex=r'^create/$',
         view=views.create_customer_user_and_company, name='creation'
+    ),
+    url(
+        regex=r'^check-password-reset/$',
+        view=views.check_password_reset, name='check_user'
     )
 ]
