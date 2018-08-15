@@ -23,7 +23,7 @@
 			{% for contrato in c_object %}
 				<tr>
 					<td>
-						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_name }}</a><br>
+						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</a><br>
 						Cliente: {{ contrato.cliente.cliente_name }}
 					</td>
 					{% if is_administrador %}

@@ -4,7 +4,6 @@
 		<td> {{ concepto.code }} </td>
 		<td class="generatorDescription">
 			<p>{{ concepto.concept_text }}</p>
-			{% lorem 1 p %}
 		</td>
 		<td> {{ concepto.largo }} </td>
 		<td> {{ concepto.ancho }} </td>
@@ -15,7 +14,6 @@
 			<td> {{ concepto.observations }} </td>
 		{% else %}
 			<td>
-				<p> {% lorem 1 p %} </p>
 			</td>
 		{% endif %}
 	</tr>

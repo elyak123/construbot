@@ -14,7 +14,7 @@
 <div class="cont_divs_list">
 	{% for i in object_list %}
 		<div class="div_list border_normal">
-			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:contrato_detail' i.id %}">{{ i.folio }}. {{ i.contrato_name }}</h4></a>
+			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'proyectos:contrato_detail' i.id %}">{{ i.folio }}. {{ i.contrato_shortName }}</h4></a>
 			<p class="p_div_list"><strong>Fecha: </strong> {{ i.fecha }} </p>
 			<p class="p_div_list"><strong>Monto: </strong> ${% language 'en' %}{{ i.monto|intcomma }}{% endlanguage %} </p>
 			<a class="boton_edicion" href="{% url 'proyectos:editar_contrato' i.id %}">Editar</a> / 

@@ -337,7 +337,7 @@ ContractConceptInlineForm = forms.inlineformset_factory(
         }),
         'unit': autocomplete.ModelSelect2(
             url='proyectos:unit-autocomplete',
-            attrs={'data-minimum-input-length': 3}
+            attrs={'data-minimum-input-length': 1}
         ),
         'code': forms.TextInput(attrs={
             'class': 'inlineCode'
