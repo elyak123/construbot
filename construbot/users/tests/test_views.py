@@ -86,10 +86,16 @@ class TestUserUpdateView(BaseUserTestCase):
             test_kwargs
         )
 
+    @tag('current')
     def test_get_form_kwargs_different_user(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)
-        test_user = self.user_factory(company=self.user.company.first(), customer=self.user.customer, email='hola@hola.com')
+        test_user = self.user_factory(
+            company=self.user.company.first(),
+            customer=self.user.customer,
+            email='hola@hola.com',
+            username='hola'
+        )
         test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
         self.view.kwargs = {'username': test_user.username}
         self.assertEqual(
