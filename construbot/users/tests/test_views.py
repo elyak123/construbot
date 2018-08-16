@@ -80,6 +80,18 @@ class TestUserUpdateView(BaseUserTestCase):
 
     def test_get_form_kwargs(self):
         test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        self.view.kwargs = {'username': self.user.username}
+        self.assertEqual(
+            self.view.get_form_kwargs(),
+            test_kwargs
+        )
+
+    def test_get_form_kwargs_different_user(self):
+        admin, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(admin)
+        test_user = self.user_factory(company=self.user.company.first(), customer=self.user.customer, email='hola@hola.com')
+        test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
+        self.view.kwargs = {'username': test_user.username}
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
@@ -98,6 +110,7 @@ class TestUserUpdateView(BaseUserTestCase):
             self.view.get_form_class(),
             UsuarioEditNoAdmin
         )
+
 
 class TestListUserView(BaseUserTestCase):
     def setUp(self):

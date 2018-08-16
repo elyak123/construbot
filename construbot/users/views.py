@@ -88,7 +88,7 @@ class UserDetailView(UsersMenuMixin, DetailView):
         return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
 
     def get_tengo_que_ser_admin(self):
-        if self.kwargs['username'] == self.request.user.username:
+        if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
             return False
         else:
             return True
@@ -107,7 +107,10 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
+        if not self.get_tengo_que_ser_admin() and not self.auth_admin():
+            kwargs['user'] = self.request.user
+        else:
+            kwargs['user'] = User.objects.get(username=self.kwargs['username'])
         return kwargs
 
     def get_form_class(self, form_class=None):
