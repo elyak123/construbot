@@ -1,5 +1,4 @@
 from django.core.urlresolvers import reverse
-from django.db.models.functions import Lower
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from .auth import AuthenticationTestMixin
 from django.shortcuts import get_object_or_404
@@ -113,7 +112,10 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
         if self.auth_admin():
-            kwargs['user'] = User.objects.get(username=self.kwargs['username']) or self.request.user
+            try:
+                kwargs['user'] = User.objects.get(username=self.kwargs.get('username'))
+            except User.DoesNotExist:
+                kwargs['user'] = self.request.user
         else:
             kwargs['user'] = self.request.user
         return kwargs
@@ -149,6 +151,7 @@ class UserCreateView(UsersMenuMixin, CreateView):
         initial = super(UserCreateView, self).get_initial()
         initial['customer'] = self.request.user.customer
         return initial
+
 
 class CompanyCreateView(UsersMenuMixin, CreateView):
     form_class = CompanyForm
@@ -222,6 +225,7 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
             self.request.user.currently_at = new_company
             self.request.user.save()
             return http.HttpResponse(self.request.user.currently_at.company_name)
+
 
 class CompanyListView(UsersMenuMixin, ListView):
     paginate_by = 10

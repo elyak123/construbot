@@ -86,7 +86,6 @@ class TestUserUpdateView(BaseUserTestCase):
             test_kwargs
         )
 
-    @tag('current')
     def test_get_form_kwargs_different_user(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)
@@ -98,6 +97,26 @@ class TestUserUpdateView(BaseUserTestCase):
         )
         test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
         self.view.kwargs = {'username': test_user.username}
+        self.assertEqual(
+            self.view.get_form_kwargs(),
+            test_kwargs
+        )
+    @tag('current')
+    def test_get_form_kwargs_for_admin_self_user(self):
+        admin, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(admin)
+        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        self.view.kwargs = {'username': self.user.username}
+        self.assertEqual(
+            self.view.get_form_kwargs(),
+            test_kwargs
+        )
+    @tag('current')
+    def test_get_form_kwargs_no_username(self):
+        admin, created = Group.objects.get_or_create(name='Administrators')
+        self.user.groups.add(admin)
+        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        self.view.kwargs = {}
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
