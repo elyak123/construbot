@@ -18,4 +18,8 @@ urlpatterns = [
         regex=r'^create/$',
         view=views.create_customer_user_and_company, name='creation'
     ),
+    url(
+        regex=r'^change-usr-pwd/$',
+        view=views.change_user_password, name='change_pwd'
+    ),
 ]

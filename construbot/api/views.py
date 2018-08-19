@@ -65,3 +65,11 @@ def create_customer_user_and_company(request):
                 'usable': user.has_usable_password()
             }
         )
+
+
+@api_view(['POST'])
+def change_user_password(request):
+    user = User.objects.get(id=request.data['id_usr'])
+    user.set_password(request.data['pwd'])
+    user.save()
+    return Response({'pass': user.has_usable_password()})
