@@ -2,6 +2,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from construbot.core.context import ContextManager
+from django.shortcuts import redirect
+from django.urls import reverse
 
 
 class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
@@ -11,17 +13,22 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
     change_company_ability = True
 
     def test_func(self):
-        if not self.request.user.is_authenticated:
+        actual_usr = self.request.user
+        UUID = settings.UUID
+        if not actual_usr.is_authenticated:
             return False
-        if self.request.user.company.exists():
-            if not self.request.user.currently_at:
-                self.request.user.currently_at = self.request.user.company.first()
-                self.request.user.save()
+        if actual_usr.company.exists():
+            if not actual_usr.currently_at:
+                actual_usr.currently_at = actual_usr.company.first()
+                actual_usr.save()
         else:
             raise AttributeError('Current User must have company')
-        self.user_groups = [x.name.lower() for x in self.request.user.groups.all()]
+        self.user_groups = [x.name.lower() for x in actual_usr.groups.all()]
         self.permiso_administracion = self.auth_admin()
         self.debo_ser_admin = self.get_tengo_que_ser_admin()
+        if UUID in actual_usr.username or UUID in actual_usr.currently_at.company_name:
+            import pdb; pdb.set_trace()
+            return redirect(reverse('users:create_username_and_company_name'))
         if self.debo_ser_admin and not self.permiso_administracion:
             raise PermissionDenied
         elif self.app_label_name.lower() in self.user_groups:

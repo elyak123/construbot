@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView, View
 from .auth import AuthenticationTestMixin
 from django.shortcuts import get_object_or_404
 from django import http
@@ -72,6 +72,10 @@ class UsersMenuMixin(AuthenticationTestMixin):
             }
         }
         return company_query[opcion]
+
+
+class IntroView(View):
+    template_name = 'users/introduccion.html'
 
 
 class UserDetailView(UsersMenuMixin, DetailView):
