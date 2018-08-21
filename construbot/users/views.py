@@ -1,8 +1,9 @@
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView, View
-from .auth import AuthenticationTestMixin
-from django.shortcuts import get_object_or_404
 from django import http
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
+from construbot.core.views import NewUserMixin
+from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
 from .models import User, Company
 from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm, CompanyEditForm
@@ -74,10 +75,6 @@ class UsersMenuMixin(AuthenticationTestMixin):
         return company_query[opcion]
 
 
-class IntroView(View):
-    template_name = 'users/introduccion.html'
-
-
 class UserDetailView(UsersMenuMixin, DetailView):
     model = User
     # These next two lines tell the view to index lookups by username
@@ -105,7 +102,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
         return reverse('proyectos:proyect_dashboard')
 
 
-class UserUpdateView(UsersMenuMixin, UpdateView):
+class UserUpdateView(UsersMenuMixin, NewUserMixin, UpdateView):
 
     def get_tengo_que_ser_admin(self):
         if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
@@ -175,7 +172,7 @@ class CompanyCreateView(UsersMenuMixin, CreateView):
         return initial
 
 
-class CompanyEditView(UsersMenuMixin, UpdateView):
+class CompanyEditView(UsersMenuMixin, NewUserMixin, UpdateView):
     form_class = CompanyEditForm
     template_name = 'proyectos/creation_form.html'
 

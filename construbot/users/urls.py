@@ -11,11 +11,6 @@ urlpatterns = [
         name='list'
     ),
     url(
-        regex=r'^introduccion/$',
-        view=views.IntroView.as_view(),
-        name='create_username_and_company_name'
-    ),
-    url(
         regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
         view=views.UserDeleteView.as_view(),
         name='delete_user'

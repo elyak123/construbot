@@ -8,6 +8,7 @@ from users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from construbot.users.models import User, Company
+from construbot.core.views import NewUserMixin
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 from .utils import contratosvigentes
@@ -95,7 +96,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         return company_query[opcion]
 
 
-class ProyectDashboardView(ProyectosMenuMixin, ListView):
+class ProyectDashboardView(ProyectosMenuMixin, NewUserMixin, ListView):
     tengo_que_ser_admin = False
     template_name = 'proyectos/index.html'
     model = Contrato
