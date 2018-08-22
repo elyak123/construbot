@@ -2,7 +2,6 @@ from django import http
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
-from construbot.core.views import NewUserMixin
 from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
 from .models import User, Company
@@ -102,7 +101,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
         return reverse('proyectos:proyect_dashboard')
 
 
-class UserUpdateView(UsersMenuMixin, NewUserMixin, UpdateView):
+class UserUpdateView(UsersMenuMixin, UpdateView):
 
     def get_tengo_que_ser_admin(self):
         if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
@@ -172,9 +171,9 @@ class CompanyCreateView(UsersMenuMixin, CreateView):
         return initial
 
 
-class CompanyEditView(UsersMenuMixin, NewUserMixin, UpdateView):
+class CompanyEditView(UsersMenuMixin, UpdateView):
     form_class = CompanyEditForm
-    template_name = 'proyectos/creation_form.html'
+    template_name = 'proyectos/company_edit_form.html'
 
     def get_success_url(self):
         return reverse('users:company_detail', kwargs={'pk': self.object.pk})

@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}{{ user.username }}{% endblock %}
+{% if is_new_user %}{% block title %}{{ user.username }}{% endblock %}{% endif %}
+
+{% block conditions %}
+  <script type="text/javascript">
+    history.pushState(null, '', '/tour/2');
+  </script>
+{% endblock conditions %}
+
+{% block conditions_2 %}
+  <script type="text/javascript">
+    document.getElementById("id_username").value = "";
+  </script>
+{% endblock conditions_2 %}
 
 {% block content %}
-  <h1>{{ user.username }}</h1>
+  {% if not is_new_user %} <h1>{{ user.username }}</h1>
   <form class="form-horizontal" method="post" action="">
     {% csrf_token %}
     {% bootstrap_form form %}
@@ -14,4 +26,25 @@
       </div>
     </div>
   </form>
+  {% else %}
+  <form class="form-horizontal" method="post" action="">
+    {% csrf_token %}
+    {% for field in form %}
+      {% if field.label == 'Nombre de Usuario' %}
+        {% bootstrap_field field %}
+      {% elif field.label == 'Nombres' %}
+        {% bootstrap_field field %}
+      {% elif field.label == 'Apellidos' %}
+        {% bootstrap_field field %}
+      {% else %}
+        {% bootstrap_field field form_group_class="d-none" %}
+      {% endif %}
+    {% endfor %}
+    <div class="control-group">
+      <div class="controls">
+        <button type="submit" class="btn">Update</button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
 {% endblock %}

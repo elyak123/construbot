@@ -4,6 +4,14 @@
 {% load humanize %}
 {% block title %} Proyectos {% endblock title %}
 
+{% block javascript %}
+{% if is_new_user %}
+	<script type="text/javascript">
+    history.pushState(null, '', '/tour/1');
+  </script>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="row" style="text-align:center;">
 	{% if is_administrador %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% block conditions %}
+  <script type="text/javascript">
+    history.pushState(null, '', '/tour/3');
+  </script>
+{% endblock conditions %}
+{% block conditions_2 %}
+  <script type="text/javascript">
+    document.getElementById("id_company_name").value = "";
+  </script>
+{% endblock conditions_2 %}
+{% block content %}
+  <h1></h1>
+  <form style="position:relative" class="form-horizontal" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <div class="control-group">
+      <div class="controls">
+        <button type="submit" class="btn">Enviar</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}
