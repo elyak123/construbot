@@ -55,10 +55,13 @@ class TestUserUpdateView(BaseUserTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
-
+    @tag('current')
     def test_get_success_url(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
-        self.view.object = self.view.get_object()
+        self.view.object = self.user
         self.assertEqual(
             self.view.get_success_url(),
             '/users/detalle/{}/'.format(self.user.username)
@@ -101,7 +104,7 @@ class TestUserUpdateView(BaseUserTestCase):
             self.view.get_form_kwargs(),
             test_kwargs
         )
-    @tag('current')
+
     def test_get_form_kwargs_for_admin_self_user(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)
@@ -111,7 +114,7 @@ class TestUserUpdateView(BaseUserTestCase):
             self.view.get_form_kwargs(),
             test_kwargs
         )
-    @tag('current')
+
     def test_get_form_kwargs_no_username(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)

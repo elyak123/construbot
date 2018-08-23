@@ -21,7 +21,14 @@
     {% endcompress %}
     {% block css_no_compress %}
     {% endblock css_no_compress %}
-
+    {% if is_new_user and request.path != '/proyectos/' %}
+      {% block conditions %}
+      <script type="text/javascript">
+        alert("Estimado usuario, para nosotros es importante que termines el tutorial, por favor, presiona aceptar.");
+        window.location.replace({% url 'proyectos:proyect_dashboard' %});
+      </script>
+      {% endblock conditions %}
+    {% endif %}
   </head>
 
   <body>
@@ -33,7 +40,7 @@
         <a class="anchor_brand" href="{% url 'home' %}"> Construbot </a>
         <div class="cont_list_menu_nav">
           <ul class="list_menu_nav">
-            {% if request.user.is_authenticated %}
+            {% if request.user.is_authenticated and not is_new_user %}
               <li class="li_menu_nav">
                 <div class="dropdown menu_nav">
                   ¡Hola {{ request.user.username }}!
@@ -41,6 +48,16 @@
                   <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                     <a class="dropdown-item" href="{% url 'users:detail' request.user.username %}"><span style="margin:0;" class="oi oi-cog"></span> Mi usuario</a>
                     <a class="dropdown-item" href="{% url 'users:update' %}"><span style="margin:0;" class="oi oi-pencil"></span> Editar usuario</a>
+                    <a class="dropdown-item" href="{% url 'account_logout' %}"><span style="margin:0;" class="oi oi-account-logout"></span> Cerrar Sesión </a>
+                  </div>
+                </div>
+              </li>
+            {% elif is_new_user %}
+              <li class="li_menu_nav">
+                <div class="dropdown menu_nav">
+                  ¡Hola!
+                  <a id="dropdownMenu2" style="cursor:pointer;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="oi oi-caret-bottom"></span></a>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">                
                     <a class="dropdown-item" href="{% url 'account_logout' %}"><span style="margin:0;" class="oi oi-account-logout"></span> Cerrar Sesión </a>
                   </div>
                 </div>
@@ -66,7 +83,7 @@
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
-      {% if current_user.company.exists and puedo_cambiar %}
+      {% if current_user.company.exists and puedo_cambiar and not is_new_user %}
         <div class='div_miniform d-print-none'>
           <div class="dropdown show">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -96,7 +113,9 @@
     {% endcompress %}
     {% block javascript_no_compress %}
     {% endblock javascript_no_compress %}
-
+    {% if is_new_user and request.path != '/proyectos/' %}
+      {% block conditions_2 %}
+      {% endblock conditions_2 %}
+    {% endif %}
   </body>
 </html>
- 

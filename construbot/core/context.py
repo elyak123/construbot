@@ -2,9 +2,10 @@ import copy
 from django.views.generic.base import ContextMixin
 from django import urls
 from .menu import main_menu
+from construbot.core.views import NewUserMixin
 
 
-class ContextManager(ContextMixin):
+class ContextManager(ContextMixin, NewUserMixin):
     """This context manager allows us to get basic information about the
     the page being rendered to the template"""
     menu = main_menu
@@ -42,6 +43,7 @@ class ContextManager(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ContextManager, self).get_context_data(**kwargs)
+        context['is_new_user'] = self.check_for_uuid()
         context['menu'] = self.get_menu()
         context['app_label_name'] = self.app_label_name.lower()
         return context

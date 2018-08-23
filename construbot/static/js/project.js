@@ -177,7 +177,7 @@ $(document).ready(function(){
             ajustarContenido(1);
             menu_out.click();
             menu_in[0].style.display = "none";
-        } else if (window.innerWidth >= 600) {
+        } else if (window.innerWidth >= 600 && !little) {
             cont_contenedor.removeClass("blur");
             if(!out){
                 ham_button.click()

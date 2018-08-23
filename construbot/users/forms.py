@@ -181,7 +181,7 @@ class CompanyForm(forms.ModelForm):
         model = Company
         fields = '__all__'
         labels = {
-            'full_name': 'Nombre completo de la compañía',
+            'full_name': 'Nombre de la compañía',
             'company_name': 'Nombre corto'
         }
         widgets = {
@@ -199,6 +199,10 @@ class CompanyEditForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = '__all__'
+        labels = {
+            'full_name': 'Nombre de la compañía',
+            'company_name': 'Nombre corto'
+        }
         widgets = {
             'customer': forms.HiddenInput(),
         }

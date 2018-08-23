@@ -1,4 +1,8 @@
+{% if is_new_user %}
+<div id="cont_menu_lateral" class="d-print-none cont_menu_lateral" data-step="1" data-intro="Este es el menú principal, te dará acceso a toda las funcionalidades de Construbot.">
+{% else %}
 <div id="cont_menu_lateral" class="d-print-none cont_menu_lateral">
+{% endif %}
   <div class="menu_lateral">
     <ul class="list_menu">
       {% for item in menu %}

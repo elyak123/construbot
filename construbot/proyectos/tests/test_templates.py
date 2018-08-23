@@ -20,10 +20,6 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.company.add(company_test)
         self.user.currently_at = company_test
 
-    def test_use_base_without_login(self):
-        response = self.client.get('')
-        self.assertTemplateUsed(response, 'pages/home.html')
-
     def test_proyects_dashboard_uses_correct_template(self):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
