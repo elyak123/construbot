@@ -3,7 +3,7 @@ from time import strftime
 from django.db.models import Func, ImageField
 from factory.fuzzy import BaseFuzzyAttribute
 from dal import autocomplete
-from users.auth import AuthenticationTestMixin
+from construbot.users.auth import AuthenticationTestMixin
 
 
 class Round(Func):

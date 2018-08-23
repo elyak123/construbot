@@ -4,7 +4,7 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
-from users.auth import AuthenticationTestMixin
+from construbot.users.auth import AuthenticationTestMixin
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from construbot.users.models import User, Company

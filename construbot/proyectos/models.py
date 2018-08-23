@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
-from core.utils import Round, get_directory_path
+from construbot.core.utils import Round, get_directory_path
 from construbot.users.models import User, Company
 
 
