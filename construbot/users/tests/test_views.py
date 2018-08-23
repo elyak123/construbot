@@ -55,7 +55,7 @@ class TestUserUpdateView(BaseUserTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
-    @tag('current')
+
     def test_get_success_url(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)

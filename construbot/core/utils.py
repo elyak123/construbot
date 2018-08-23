@@ -1,7 +1,5 @@
-from unittest import mock
 from time import strftime
-from django.db.models import Func, ImageField
-from factory.fuzzy import BaseFuzzyAttribute
+from django.db.models import Func
 from dal import autocomplete
 from construbot.users.auth import AuthenticationTestMixin
 
@@ -20,17 +18,6 @@ def get_directory_path(instance, filename):
     return '{0}-{1}/{2}/{3}/{4}-{5}'.format(
         instance_consumer.id, instance_consumer.customer_name, instance_company, instance_model, date_str, filename
     )
-
-
-class FuzzyImage(BaseFuzzyAttribute):
-
-    def __init__(self, *args, **kwargs):
-        super(FuzzyImage, self).__init__(*args, **kwargs)
-
-    def fuzz(self):
-        file = mock.Mock(spec=ImageField)
-        file._committed = True
-        return file
 
 
 class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetView):

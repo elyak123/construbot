@@ -17,6 +17,8 @@ down:
 buildup:
 	@docker-compose -f docker-compose-dev.yml up --build
 
+buildprod:
+	@docker-compose -f docker-compose.yml up --build
 clean:
 	@docker rm $(shell docker ps -a -q) -f
 	@docker rmi $(shell docker images -q) -f

@@ -4,6 +4,7 @@ volumes:
   postgres_data_local: {}
   postgres_backup_local: {}
 
+
 services:
   django: &django
     build:
@@ -37,7 +38,6 @@ services:
     image: redis:3.0
 
   celeryworker:
-    # https://github.com/docker/compose/issues/3220
     <<: *django
     depends_on:
       - redis
@@ -47,7 +47,6 @@ services:
     command: /start-celeryworker.sh
 
   celerybeat:
-    # https://github.com/docker/compose/issues/3220
     <<: *django
     depends_on:
       - redis

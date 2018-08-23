@@ -1,8 +1,9 @@
 import string
 import datetime
+from unittest import mock
 import factory
 import factory.fuzzy
-from construbot.core.utils import FuzzyImage
+from django.db.models import ImageField
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
 
@@ -94,6 +95,17 @@ class EstimateConceptFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.EstimateConcept
+
+
+class FuzzyImage(factory.fuzzy.BaseFuzzyAttribute):
+
+    def __init__(self, *args, **kwargs):
+        super(FuzzyImage, self).__init__(*args, **kwargs)
+
+    def fuzz(self):
+        file = mock.Mock(spec=ImageField)
+        file._committed = True
+        return file
 
 
 class ImageEstimateConceptFactory(factory.django.DjangoModelFactory):

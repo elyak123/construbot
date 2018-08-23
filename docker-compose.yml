@@ -3,7 +3,7 @@ version: '2'
 volumes:
   postgres_data: {}
   postgres_backup: {}
-  caddy: {}
+  # caddy: {}
 
 services:
   django: &django
@@ -25,18 +25,18 @@ services:
       - postgres_backup:/backups
     env_file: .env
 
-  caddy:
-    build:
-      context: .
-      dockerfile: ./compose/production/caddy/Dockerfile
-    depends_on:
-      - django
-    volumes:
-      - caddy:/root/.caddy
-    env_file: .env
-    ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
+  # caddy:
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/production/caddy/Dockerfile
+  #   depends_on:
+  #     - django
+  #   volumes:
+  #     - caddy:/root/.caddy
+  #   env_file: .env
+  #   ports:
+  #     - "0.0.0.0:80:80"
+  #     - "0.0.0.0:443:443"
 
   redis:
     image: redis:3.0
