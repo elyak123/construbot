@@ -55,7 +55,7 @@ class TestUserUpdateView(BaseUserTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
-
+    @tag('current')
     def test_get_success_url(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
@@ -104,7 +104,7 @@ class TestUserUpdateView(BaseUserTestCase):
             self.view.get_form_kwargs(),
             test_kwargs
         )
-    @tag('current')
+
     def test_get_form_kwargs_for_admin_self_user(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)
@@ -114,7 +114,7 @@ class TestUserUpdateView(BaseUserTestCase):
             self.view.get_form_kwargs(),
             test_kwargs
         )
-    @tag('current')
+
     def test_get_form_kwargs_no_username(self):
         admin, created = Group.objects.get_or_create(name='Administrators')
         self.user.groups.add(admin)
