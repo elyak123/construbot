@@ -2,9 +2,6 @@
 {% load static %}
 {% load bootstrap4 %}
 {% block conditions %}
-  <script type="text/javascript">
-    history.pushState(null, '', '/tour/3');
-  </script>
 {% endblock conditions %}
 {% block conditions_2 %}
   <script type="text/javascript">
@@ -12,13 +9,22 @@
   </script>
 {% endblock conditions_2 %}
 {% block content %}
-  <h1></h1>
+  {% if is_new_user %}
+  <h3>Crea tu primer compañía</h3>
+  <p>Cada compañía que crees te permitirá tener sus propios contratos, catálogos de conceptos y estimaciones.</p>
+  <p>Con el nombre corto identificarás en que compañía te encuentras actualmente.</p>
+  <p>El nombre completo sirve para ser plasmado en cualquier estimación y generador que hagas.</p>
+  <p>Cuando termines se te llevará al detalle de la compañía, y ya serás capaz de utilizar Construbot por completo. ¡Muchas gracias por tu preferencia!</p>
+  <br>
+  {% else %}
+  <h1>{{ object.company_name }}</h1>
+  {% endif %}
   <form style="position:relative" class="form-horizontal" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
     <div class="control-group">
       <div class="controls">
-        <button type="submit" class="btn">Enviar</button>
+        <button type="submit" class="btn">{% if is_new_user %}Terminar{% else %}Enviar{% endif %}</button>
       </div>
     </div>
   </form>

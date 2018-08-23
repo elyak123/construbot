@@ -57,6 +57,9 @@ class TestUserUpdateView(BaseUserTestCase):
         self.view.request = request
 
     def test_get_success_url(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
         self.view.object = self.view.get_object()
         self.assertEqual(

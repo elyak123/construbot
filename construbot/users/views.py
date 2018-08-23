@@ -127,7 +127,10 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
             return UsuarioEditNoAdmin
 
     def get_success_url(self):
-        return reverse('users:detail', kwargs={'username': self.object.username})
+        if self.check_for_uuid():
+            return reverse('users:company_edit', kwargs={'pk': self.object.currently_at.id})
+        else:
+            return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('username', None):

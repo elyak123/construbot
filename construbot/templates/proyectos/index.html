@@ -7,12 +7,20 @@
 {% block javascript %}
 {% if is_new_user %}
 	<script type="text/javascript">
-    history.pushState(null, '', '/tour/1');
+    // history.pushState(null, '', '/tour/1');
+    // introJs().start();
   </script>
 {% endif %}
 {% endblock %}
+{% block css_no_compress %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
+{% endblock %}
+{% block javascript_no_compress %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
+{% endblock %}
 
 {% block content %}
+{% if not is_new_user %}
 <div class="row" style="text-align:center;">
 	{% if is_administrador %}
 		<div class="col-md-6">
@@ -104,4 +112,89 @@
 		<div class="col-2"></div>
 	{% endif %}
 </div>
+{% else %}
+<div class="text-center">
+	<h3>¡Bienvenido al tutorial!</h3>
+	<p>Este es el espacio de trabajo de Construbot, en este tutorial aprenderás lo básico del uso de la aplicación, además de asignarte un nombre de usuario y generar tu primer compañía.</p>
+	<a href="javascript:void(0);" onclick="javascript:introJs().start();"><button class="btn btn-large btn-success">Comienza</button></a>
+</div>
+<br>
+<br>
+<br>
+<div class="row" style="text-align:center;">
+	<div class="col-xl-6">
+		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.">
+			<p><strong>Contratos Vigentes</strong></p>
+			<table class="table_sample table_left">
+				<tr>
+					<th>Nombre</th>
+					<th>% Estimado</th>
+				</tr>
+				<tr>
+					<td><a href="#">Proyecto 1</a></td>
+					<td class="text-center">15</td>
+				</tr>
+				<tr>
+					<td><a href="#">Proyecto 2</a></td>
+					<td class="text-center">28</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="col-xl-6">
+		<div data-step="3" data-intro="Aquí se muestran las estimaciones que aún no han sido marcadas como facturadas. Útil para dar seguimiento.">
+			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
+			<table class="table_sample table_left">
+				<tr>
+					<th>Fecha</th>
+					<th>Proyecto</th>
+					<th>Estimacion</th>
+					<th>Monto</th>
+				</tr>
+				<tr>
+					<td>18/08/1999</td>
+					<td><a href="#">Proyecto 3</a></td>
+					<td><a href="#">Estimacion 1</a></td>
+					<td>$10,000.00</td>
+				</tr>
+				<tr>
+					<td>18/08/1875</td>
+					<td><a href="#">Proyecto 1</a></td>
+					<td><a href="#">Estimacion 10</a></td>
+					<td>$21,710.33</td>
+				</tr>
+			</table>
+		</div>
+		<div data-step="4" data-intro="Es posible indicar también cuando una estimación no ha sido pagada.">
+			<p><strong>Estimaciones Facturadas Pendientes de Pago</strong></p>
+			<table class="table_sample table_left">
+				<tr>
+					<th>Fecha</th>
+					<th>Proyecto</th>
+					<th>Estimacion</th>
+					<th>Monto</th>
+				</tr>
+				<tr>
+					<td>18/08/1999</td>
+					<td><a href="#">Proyecto 3</a></td>
+					<td><a href="#">Estimacion 1</a></td>
+					<td>$10,000.00</td>
+				</tr>
+				<tr>
+					<td>18/08/1875</td>
+					<td><a href="#">Proyecto 1</a></td>
+					<td><a href="#">Estimacion 10</a></td>
+					<td>$21,710.33</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+<br>
+<br>
+<br>
+<div class="text-center" data-step="5" data-intro="Presiona el vínculo, a continuación crearás tu nombre de usuario para acceder a la aplicación.">
+	<a href="{% url 'users:update' request.user.username %}"><button class="btn btn-primary">Continúa.</button></a>
+</div>
+{% endif %}
 {% endblock content %}

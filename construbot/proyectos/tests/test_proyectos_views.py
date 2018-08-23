@@ -48,6 +48,8 @@ class ProyectDashboardViewTest(BaseViewTest):
 class DynamicListTest(BaseViewTest):
 
     def test_context_contains_models_name(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
         view = self.get_instance(
             views.DynamicList,
             request=self.request
