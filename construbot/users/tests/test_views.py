@@ -61,7 +61,7 @@ class TestUserUpdateView(BaseUserTestCase):
         self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
-        self.view.object = self.view.get_object()
+        self.view.object = self.user
         self.assertEqual(
             self.view.get_success_url(),
             '/users/detalle/{}/'.format(self.user.username)
