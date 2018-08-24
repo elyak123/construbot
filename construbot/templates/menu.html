@@ -1,4 +1,4 @@
-{% if is_new_user %}
+{% if is_new_user and request.path == '/proyectos/' %}
 <div id="cont_menu_lateral" class="d-print-none cont_menu_lateral" data-step="1" data-intro="Este es el menú principal, te dará acceso a toda las funcionalidades de Construbot.">
 {% else %}
 <div id="cont_menu_lateral" class="d-print-none cont_menu_lateral">

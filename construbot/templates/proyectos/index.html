@@ -7,8 +7,11 @@
 {% block javascript %}
 {% if is_new_user %}
 	<script type="text/javascript">
-    // history.pushState(null, '', '/tour/1');
-    // introJs().start();
+		document.getElementById('startButton').onclick = function() {
+			introJs().setOptions({'doneLabel': 'Crea tu username', 'showBullets': false}).start().oncomplete(function() {
+				window.location.href = "{% url 'users:update' request.user.username %}";
+			});
+		};
   </script>
 {% endif %}
 {% endblock %}
@@ -116,7 +119,7 @@
 <div class="text-center">
 	<h3>¡Bienvenido al tutorial!</h3>
 	<p>Este es el espacio de trabajo de Construbot, en este tutorial aprenderás lo básico del uso de la aplicación, además de asignarte un nombre de usuario y generar tu primer compañía.</p>
-	<a href="javascript:void(0);" onclick="javascript:introJs().start();"><button class="btn btn-large btn-success">Comienza</button></a>
+	<a href="javascript:void(0);" id="startButton"><button class="btn btn-large btn-success">Comienza</button></a>
 </div>
 <br>
 <br>
@@ -189,12 +192,6 @@
 			</table>
 		</div>
 	</div>
-</div>
-<br>
-<br>
-<br>
-<div class="text-center" data-step="5" data-intro="Presiona el vínculo, a continuación crearás tu nombre de usuario para acceder a la aplicación.">
-	<a href="{% url 'users:update' request.user.username %}"><button class="btn btn-primary">Continúa.</button></a>
 </div>
 {% endif %}
 {% endblock content %}

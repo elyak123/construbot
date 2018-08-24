@@ -196,6 +196,13 @@ class CompanyForm(forms.ModelForm):
 
 class CompanyEditForm(forms.ModelForm):
 
+    def __init__(self, boolean, *args, **kwargs):
+        super(CompanyEditForm, self).__init__(*args, **kwargs)
+        self.fields['is_new'] = forms.BooleanField(
+            widget=forms.HiddenInput(),
+        )
+        self.fields['is_new'].initial = boolean
+
     class Meta:
         model = Company
         fields = '__all__'
