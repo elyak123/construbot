@@ -178,12 +178,13 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     form_class = CompanyEditForm
     template_name = 'proyectos/company_edit_form.html'
 
-    def get_form(self, form_class=None):
-        form_class = self.get_form_class()
-        return form_class(self.check_for_uuid(), **self.get_form_kwargs())
+    def get_initial(self):
+        initial = super(UserCreateView, self).get_initial()
+        initial['is_new'] = self.check_for_uuid()
+        return initial
 
     def get_success_url(self):
-        if self.request.POST['is_new'] == 'True':
+        if hasattr(self.request.POST, 'is_new') and self.request.POST['is_new'] == 'True':
             return reverse('proyectos:nuevo_contrato')
         else:
             return reverse('users:company_detail', kwargs={'pk': self.object.pk})
