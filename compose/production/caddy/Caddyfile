@@ -1,8 +1,9 @@
-www.{$DOMAIN_NAME} {
-    redir https://construbot.com
-}
+#www.{$DOMAIN_NAME} {
+#    redir https://construbot.com
+#}
 
-{$DOMAIN_NAME} {
+#{$DOMAIN_NAME} {
+0.0.0.0:80 {
     proxy / django:5000 {
         header_upstream Host {host}
         header_upstream X-Real-IP {remote}
