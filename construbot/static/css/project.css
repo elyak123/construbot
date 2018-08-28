@@ -21,6 +21,10 @@
 }
 
 /*ESTILOS GENERALES*/
+.introjs-skipbutton {
+    display: none;
+}
+
 body {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 14px;

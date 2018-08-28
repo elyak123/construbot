@@ -341,7 +341,7 @@ class TestCompanyEditView(BaseUserTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
-    
+
     def test_correct_success_url(self):
         self.view.object = factories.CompanyFactory(customer=self.user.customer)
         test_url = '/users/detalle/company/{}/'.format(self.view.object.pk)
@@ -355,6 +355,7 @@ class TestCompanyEditView(BaseUserTestCase):
         self.user.company.add(test_company)
         self.view.kwargs = {'pk': test_company.pk}
         self.assertEqual(
+
             self.view.get_object(),
             test_company
         )

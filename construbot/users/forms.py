@@ -195,6 +195,9 @@ class CompanyForm(forms.ModelForm):
 
 
 class CompanyEditForm(forms.ModelForm):
+    is_new = forms.BooleanField(
+        widget=forms.HiddenInput(),
+    )
 
     class Meta:
         model = Company

@@ -144,6 +144,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             'customer': self.user.customer.id,
             'full_name': 'Company Edit, S.A. de C.V.',
             'company_name': 'CE S.A. de C.V.',
+            'is_new': True,
         }
         form = forms.CompanyEditForm(data=data, instance=company)
         self.assertTrue(form.is_valid(), form.errors)

@@ -7,8 +7,17 @@
 {% endblock conditions %}
 
 {% block conditions_2 %}
+  {% block css_no_compress %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
+  {% endblock %}
+  {% block javascript_no_compress %}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
+  {% endblock %}
   <script type="text/javascript">
     document.getElementById("id_username").value = "";
+    window.onload = function() {
+      introJs().setOption('doneLabel', '¡Bien!').setOption('showBullets', false).start();
+    };
   </script>
 {% endblock conditions_2 %}
 
@@ -26,11 +35,9 @@
   </form>
   {% else %}
   <h3>Crea tu nombre de usuario.</h3>
-  <p>Crea tu nombre de usuario, además de introducir tus nombres y apellidos para cuando se generen las estimaciones puedan ser visibles en el área de firmas.</p>
-  <p>Cuando termines el formulario presiona el botón para el siguiente paso.</p>
   <br>
   <br>
-  <form class="form-horizontal" method="post" action="">
+  <form data-step="5" data-intro="<strong>Crea tu nombre de usuario. </strong> Tus nombres y apellidos sirven cuando se generen las estimaciones, así serán visibles en el área de firmas. Cuando termines el formulario presiona el botón para <strong>crear tu primer compañía</strong>." class="form-horizontal" method="post" action="">
     {% csrf_token %}
     {% for field in form %}
       {% if field.label == 'Nombre de Usuario' %}
