@@ -1,6 +1,7 @@
 from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse, resolve
 from django.conf import settings
+from django.test import tag
 from construbot.proyectos.models import Estimate
 from . import factories
 from test_plus.test import TestCase
@@ -20,10 +21,13 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             self.user.groups.add(group)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
-
+    @tag('current')
     def test_proyects_dashboard_uses_correct_template_if_is_new(self):
+        company_test = factories.CompanyFactory(company_name=settings.UUID, customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
-        self.user.username = settings.UUID+"..."
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
@@ -36,6 +40,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         contrato_cliente = factories.ClienteFactory(company=company_test)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         for i in range(0, 15):
@@ -48,6 +53,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         for i in range(0, 15):
             factories.ClienteFactory(company=company_test)
@@ -58,6 +64,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         sitio_cliente = factories.ClienteFactory(company=company_test)
         for i in range(0, 15):
             factories.SitioFactory(cliente=sitio_cliente)
@@ -69,6 +76,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         destinatario_cliente = factories.ClienteFactory(company=company_test)
         for i in range(0, 15):
             factories.DestinatarioFactory(cliente=destinatario_cliente)
