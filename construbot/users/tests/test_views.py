@@ -56,6 +56,12 @@ class TestUserUpdateView(BaseUserTestCase):
         request.user = self.user
         self.view.request = request
 
+    def test_get_tengo_que_ser_admin(self):
+        self.view.kwargs = {'username': self.user.username}
+        self.assertFalse(self.view.get_tengo_que_ser_admin())
+        self.view.kwargs = {'username': 'otro_que_no_conozco'}
+        self.assertTrue(self.view.get_tengo_que_ser_admin())
+
     def test_get_success_url(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
@@ -355,10 +361,17 @@ class TestCompanyEditView(BaseUserTestCase):
         self.user.company.add(test_company)
         self.view.kwargs = {'pk': test_company.pk}
         self.assertEqual(
-
             self.view.get_object(),
             test_company
         )
+
+    def test_get_initial(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(test_company)
+        self.user.currently_at = test_company
+        self.user.save()
+        self.assertFalse(self.view.get_initial()['is_new'])
+
 
 class TestUserDeleteView(BaseUserTestCase):
 
