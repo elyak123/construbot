@@ -24,9 +24,15 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_proyects_dashboard_uses_correct_template_if_is_new(self):
         company_test = factories.CompanyFactory(company_name=settings.UUID, customer=self.user.customer)
+        self.user.username = settings.UUID + '...'
         self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:proyect_dashboard'))
+        self.assertTemplateUsed(response, 'proyectos/index.html')
+
+    def test_proyects_dashboard_uses_correct_template_if_isnt_new(self):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
@@ -55,9 +61,20 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.currently_at = company_test
         self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 50):
+        for i in range(0, 25):
             factories.ClienteFactory(company=company_test)
         response = self.client.get('/proyectos/listado/clientes/?page=2')
+        self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
+
+    def test_clientes_list_uses_correct_template(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        for i in range(0, 2):
+            factories.ClienteFactory(company=company_test)
+        response = self.client.get('/proyectos/listado/clientes/')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
