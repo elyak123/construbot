@@ -32,11 +32,6 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
-    def test_proyects_dashboard_uses_correct_template_if_isnt_new(self):
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        self.assertTemplateUsed(response, 'proyectos/index.html')
-
     def test_proyects_dashboard_uses_correct_template_if_not_is_new(self):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
@@ -61,7 +56,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.currently_at = company_test
         self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 25):
+        for i in range(0, 50):
             factories.ClienteFactory(company=company_test)
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
