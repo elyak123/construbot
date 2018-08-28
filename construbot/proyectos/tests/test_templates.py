@@ -114,6 +114,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        destinatario = factories.DestinatarioFactory(cliente=contrato_cliente)
         estimate = Estimate.objects.create(
             project=contrato_factory,
             consecutive=1,
@@ -122,8 +123,32 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             start_date='1999-08-15',
             finish_date='1999-08-15'
         )
+        concepto = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
+        estimate2 = Estimate.objects.create(
+            project=contrato_factory,
+            consecutive=2,
+            draft_by=self.user,
+            supervised_by=self.user,
+            start_date='1999-08-20',
+            finish_date='1999-08-20',
+        )
+        estimate2.auth_by.add(destinatario.id)
+        estimate2.auth_by_gen.add(destinatario.id)
+        concepto2 = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept2 = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
         self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate.pk}))
+        response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate2.pk}))
         self.assertTemplateUsed(response, 'proyectos/estimate_detail.html')
 
     def test_nuevo_contrato_uses_correct_template(self):
