@@ -1,5 +1,6 @@
 from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse, resolve
+from django.conf import settings
 from construbot.proyectos.models import Estimate
 from . import factories
 from test_plus.test import TestCase
@@ -20,7 +21,13 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.company.add(company_test)
         self.user.currently_at = company_test
 
-    def test_proyects_dashboard_uses_correct_template(self):
+    def test_proyects_dashboard_uses_correct_template_if_is_new(self):
+        self.client.login(username=self.user.username, password='password')
+        self.user.username = settings.UUID+"..."
+        response = self.client.get(reverse('proyectos:proyect_dashboard'))
+        self.assertTemplateUsed(response, 'proyectos/index.html')
+
+    def test_proyects_dashboard_uses_correct_template_if_not_is_new(self):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
