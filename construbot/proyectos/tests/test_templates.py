@@ -174,6 +174,8 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             estimate=estimate,
             concept=concepto
         )
+        estimate.save()
+        estimate2.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate2.pk}))
         self.assertTemplateUsed(response, 'proyectos/estimate_detail.html')
