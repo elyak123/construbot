@@ -53,15 +53,10 @@ def create_customer_user_and_company(request):
         user.company = [company.id]
         user.groups.add(*[group_a, group_p, group_u])
         user.set_unusable_password()
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
         return Response(
             {
                 'id': user.id,
                 'email': user.email,
-                'token': token,
                 'usable': user.has_usable_password()
             }
         )

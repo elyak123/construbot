@@ -21,7 +21,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             self.user.groups.add(group)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
-    @tag('current')
+
     def test_proyects_dashboard_uses_correct_template_if_is_new(self):
         company_test = factories.CompanyFactory(company_name=settings.UUID, customer=self.user.customer)
         self.user.company.add(company_test)
@@ -55,9 +55,9 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.currently_at = company_test
         self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 15):
+        for i in range(0, 50):
             factories.ClienteFactory(company=company_test)
-        response = self.client.get(reverse('proyectos:listado_de_clientes'))
+        response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
