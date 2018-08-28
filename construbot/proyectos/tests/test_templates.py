@@ -61,15 +61,15 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
-    def test_clientes_list_uses_correct_template(self):
+    def test_clientes_list_uses_correct_template_and_no_next_page(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 2):
+        for i in range(0, 20):
             factories.ClienteFactory(company=company_test)
-        response = self.client.get('/proyectos/listado/clientes/')
+        response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
