@@ -150,6 +150,8 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate2.pk}))
         self.assertTemplateUsed(response, 'proyectos/estimate_detail.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_estimate.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
 
     def test_nuevo_contrato_uses_correct_template(self):
         self.client.login(username=self.user.username, password='password')
