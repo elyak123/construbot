@@ -179,7 +179,7 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     template_name = 'proyectos/company_edit_form.html'
 
     def get_initial(self):
-        initial = super(UserCreateView, self).get_initial()
+        initial = super(CompanyEditView, self).get_initial()
         initial['is_new'] = self.check_for_uuid()
         return initial
 

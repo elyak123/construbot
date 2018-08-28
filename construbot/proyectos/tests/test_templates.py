@@ -1,5 +1,7 @@
 from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse, resolve
+from django.conf import settings
+from django.test import tag
 from construbot.proyectos.models import Estimate
 from . import factories
 from test_plus.test import TestCase
@@ -20,7 +22,17 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.user.company.add(company_test)
         self.user.currently_at = company_test
 
-    def test_proyects_dashboard_uses_correct_template(self):
+    def test_proyects_dashboard_uses_correct_template_if_is_new(self):
+        company_test = factories.CompanyFactory(company_name=settings.UUID, customer=self.user.customer)
+        self.user.username = settings.UUID + '...'
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:proyect_dashboard'))
+        self.assertTemplateUsed(response, 'proyectos/index.html')
+
+    def test_proyects_dashboard_uses_correct_template_if_not_is_new(self):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
@@ -29,6 +41,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         contrato_cliente = factories.ClienteFactory(company=company_test)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         for i in range(0, 15):
@@ -41,16 +54,29 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 15):
+        for i in range(0, 50):
             factories.ClienteFactory(company=company_test)
-        response = self.client.get(reverse('proyectos:listado_de_clientes'))
+        response = self.client.get('/proyectos/listado/clientes/?page=2')
+        self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
+
+    def test_clientes_list_uses_correct_template_and_no_next_page(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        for i in range(0, 20):
+            factories.ClienteFactory(company=company_test)
+        response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         sitio_cliente = factories.ClienteFactory(company=company_test)
         for i in range(0, 15):
             factories.SitioFactory(cliente=sitio_cliente)
@@ -62,6 +88,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
+        self.user.save()
         destinatario_cliente = factories.ClienteFactory(company=company_test)
         for i in range(0, 15):
             factories.DestinatarioFactory(cliente=destinatario_cliente)
@@ -114,6 +141,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        destinatario = factories.DestinatarioFactory(cliente=contrato_cliente)
         estimate = Estimate.objects.create(
             project=contrato_factory,
             consecutive=1,
@@ -122,9 +150,37 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             start_date='1999-08-15',
             finish_date='1999-08-15'
         )
+        concepto = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
+        estimate2 = Estimate.objects.create(
+            project=contrato_factory,
+            consecutive=2,
+            draft_by=self.user,
+            supervised_by=self.user,
+            start_date='1999-08-20',
+            finish_date='1999-08-20',
+        )
+        estimate2.auth_by.add(destinatario.id)
+        estimate2.auth_by_gen.add(destinatario.id)
+        concepto2 = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept2 = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
+        estimate.save()
+        estimate2.save()
         self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate.pk}))
+        response = self.client.get(reverse('proyectos:estimate_detail', kwargs={'pk': estimate2.pk}))
         self.assertTemplateUsed(response, 'proyectos/estimate_detail.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_estimate.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
 
     def test_nuevo_contrato_uses_correct_template(self):
         self.client.login(username=self.user.username, password='password')
