@@ -1,4 +1,4 @@
-FROM python:3.5
+FROM python:3.6-alpine
 
 ENV PYTHONUNBUFFERED 1
 
@@ -7,8 +7,24 @@ RUN groupadd -r django \
 
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements
-RUN pip install --no-cache-dir -r /requirements/production.txt \
-    && rm -rf /requirements
+##
+RUN apk add --no-cache --virtual .build-deps \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
+    && pip install -r /requirements/local.txt \
+    && find /usr/local \
+        \( -type d -a -name test -o -name tests \) \
+        -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+        -exec rm -rf '{}' + \
+    && runDeps="$( \
+        scanelf --needed --nobanner --recursive /usr/local \
+                | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+                | sort -u \
+                | xargs -r apk info --installed \
+                | sort -u \
+    )" \
+    && apk add --virtual .rundeps $runDeps \
+    && apk del .build-deps
+##
 
 COPY ./compose/production/django/gunicorn.sh /gunicorn.sh
 RUN sed -i 's/\r//' /gunicorn.sh

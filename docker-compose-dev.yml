@@ -37,20 +37,20 @@ services:
   redis:
     image: redis:3.0
 
-  celeryworker:
-    <<: *django
-    depends_on:
-      - redis
-      - postgres
-      - mailhog
-    ports: []
-    command: /start-celeryworker.sh
+  # celeryworker:
+  #   <<: *django
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #     - mailhog
+  #   ports: []
+  #   command: /start-celeryworker.sh
 
-  celerybeat:
-    <<: *django
-    depends_on:
-      - redis
-      - postgres
-      - mailhog
-    ports: []
-    command: /start-celerybeat.sh
+  # celerybeat:
+  #   <<: *django
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #     - mailhog
+  #   ports: []
+  #   command: /start-celerybeat.sh
