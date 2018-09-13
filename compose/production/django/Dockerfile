@@ -12,7 +12,7 @@ COPY ./requirements /requirements
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
-    && pip install -r /requirements/local.txt \
+    && pip install -r /requirements/production.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
