@@ -4,6 +4,9 @@ ENV PYTHONUNBUFFERED 1
 
 RUN addgroup -S django && adduser -S -G django django
 
+# Solo en caso de usar python alpine
+RUN apk add bash
+
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements
 ##
