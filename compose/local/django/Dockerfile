@@ -23,12 +23,6 @@ RUN apk add --no-cache --virtual .build-deps \
     )" \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
-
-
-
-
-
-
 ##
 
 COPY ./compose/production/django/entrypoint.sh /entrypoint.sh

@@ -14,10 +14,12 @@ up:
 down:
 	@docker-compose -f docker-compose-dev.yml down
 
-buildup:
+buildev:
+	@sed s/DJANGO_SETTINGS_MODULE=config.settings.production/DJANGO_SETTINGS_MODULE=config.settings.local/g .env | tee .env
 	@docker-compose -f docker-compose-dev.yml up --build
 
 buildprod:
+	@sed s/DJANGO_SETTINGS_MODULE=config.settings.local/DJANGO_SETTINGS_MODULE=config.settings.production/g .env | tee .env
 	@docker-compose -f docker-compose.yml up --build
 clean:
 	@docker rm $(shell docker ps -a -q) -f
