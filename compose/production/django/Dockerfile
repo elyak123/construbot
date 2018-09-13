@@ -2,8 +2,7 @@ FROM python:3.6-alpine
 
 ENV PYTHONUNBUFFERED 1
 
-RUN groupadd -r django \
-    && useradd -r -g django django
+RUN addgroup -S app && adduser -S -G app app 
 
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements
