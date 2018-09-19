@@ -57,6 +57,6 @@ django-compressor==2.2
 
 
 # Your custom requirements go here
-django-autocomplete-light==3.2.10
+django-autocomplete-light==3.3.2
 # django-bootstrap3==9.1.0
 django-bootstrap4==0.0.6
