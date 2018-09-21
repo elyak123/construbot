@@ -2,7 +2,7 @@
 {% for concepto in conceptos %}
 	<tr>
 		<td> {{ concepto.code }} </td>
-		<td> {{ concepto.concept_text }} </td>
+		<td> {{ concepto.concept_text }}</td>
 		<td> {{ concepto.unit.unit }} </td>
 		<td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
 		<td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
