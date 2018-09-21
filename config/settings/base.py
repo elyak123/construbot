@@ -284,7 +284,7 @@ AUTHENTICATION_BACKENDS = [
 # Some really nice defaults
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_SIGNUP_FORM_CLASS = 'construbot.users.forms.UserForm'
 ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
 ACCOUNT_ADAPTER = 'construbot.users.adapters.AccountAdapter'
@@ -322,3 +322,6 @@ ADMIN_URL = r'^admin/'
 # ------------------------------------------------------------------------------
 
 UUID = env('UUID', default='')
+
+USERNAME_TEST = env('USERNAME_TEST', default='')
+PWD_TEST = env('PWD_TEST', default='')
