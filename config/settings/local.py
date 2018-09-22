@@ -51,7 +51,7 @@ import os
 # tricks to have debug toolbar when developing with docker
 if os.environ.get('USE_DOCKER') == 'yes':
     ip = socket.gethostbyname(socket.gethostname())
-    INTERNAL_IPS += [ip[:-1] + '1']
+    INTERNAL_IPS = type(str('c'), (), {'__contains__': lambda *a: True})()
 
 DEBUG_TOOLBAR_CONFIG = {
     'DISABLE_PANELS': [
