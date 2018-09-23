@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements /requirements
 # Solo en caso de usar python alpine
 #RUN apk add bash
-RUN apk --update --upgrade add bash cairo-dev pango-dev gdk-pixbuf py3-cffi py3-pillow py-lxml libffi-dev build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev
+RUN apk --update --upgrade add bash cairo-dev pango-dev gdk-pixbuf py3-cffi py3-pillow py-lxml libffi-dev 
 ##
 RUN pip install -r /requirements/local.txt
 ##RUN apk add --no-cache --virtual .build-deps \
@@ -25,7 +25,8 @@ RUN pip install -r /requirements/local.txt
 ##    && apk add --virtual .rundeps $runDeps \
 ##    && apk del .build-deps
 ##
-COPY ./fonts/ /.fonts/
+RUN mkdir /root/.fonts
+ADD ./fonts/* /root/.fonts/
 COPY ./compose/production/django/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r//' /entrypoint.sh
 RUN chmod +x /entrypoint.sh
