@@ -4,29 +4,27 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements /requirements
 # Solo en caso de usar python alpine
-#RUN apk add bash
-RUN apk --update --upgrade add bash cairo-dev pango-dev gdk-pixbuf py3-cffi py3-pillow py-lxml libffi-dev 
+RUN apk add bash
+
 ##
-RUN pip install -r /requirements/local.txt
-##RUN apk add --no-cache --virtual .build-deps \
-##  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev \
-##    && pip install -r /requirements/local.txt \
-##    && find /usr/local \
-##        \( -type d -a -name test -o -name tests \) \
-##        -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-##        -exec rm -rf '{}' + \
-##    && runDeps="$( \
-##        scanelf --needed --nobanner --recursive /usr/local \
-##                | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-##                | sort -u \
-##                | xargs -r apk info --installed \
-##                | sort -u \
-##    )" \
-##    && apk add --virtual .rundeps $runDeps \
-##    && apk del .build-deps
+RUN apk add --no-cache --virtual .build-deps \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
+    && pip install -r /requirements/local.txt \
+    && find /usr/local \
+        \( -type d -a -name test -o -name tests \) \
+        -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+        -exec rm -rf '{}' + \
+    && runDeps="$( \
+        scanelf --needed --nobanner --recursive /usr/local \
+                | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+                | sort -u \
+                | xargs -r apk info --installed \
+                | sort -u \
+    )" \
+    && apk add --virtual .rundeps $runDeps \
+    && apk del .build-deps
 ##
-RUN mkdir /root/.fonts
-ADD ./fonts/* /root/.fonts/
+
 COPY ./compose/production/django/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r//' /entrypoint.sh
 RUN chmod +x /entrypoint.sh
