@@ -8,7 +8,7 @@ RUN apk add bash
 
 ##
 RUN apk add --no-cache --virtual .build-deps \
-  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
     && pip install -r /requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \

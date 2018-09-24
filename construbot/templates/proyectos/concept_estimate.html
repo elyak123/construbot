@@ -1,22 +1,133 @@
 {% load humanize %}
-{% for concepto in conceptos %}
-	<tr>
-		<td> {{ concepto.code }} </td>
-		<td> {{ concepto.concept_text }}</td>
-		<td> {{ concepto.unit.unit }} </td>
-		<td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
-		<td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
-		<td class="right"> $ {{ concepto.importe_contratado|floatformat:"2"|intcomma }}</td>
-		{% if concepto.cantidad_estimado_anterior %}
-			<td class="right"> {{ concepto.cantidad_estimado_anterior|floatformat:"2"|intcomma }} </td>
-			<td class="right">$ {{ concepto.anterior|floatformat:"2"|intcomma }}</td>
-		{% else %}
-			<td style="text-align: center;"> - </td>
-			<td style="text-align: center;"> - </td>
-		{% endif %}
-		<td class="right"> {{ concepto.cantidad_estimado_ala_fecha }} </td>
-		<td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
-		<td class="right"> {{ concepto.cantidad_esta_estimacion }} </td>
-		<td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
-	</tr>
-{% endfor %}
+{% load i18n %}
+<style>
+    @page {
+        size: letter landscape;
+        @frame header_content{
+          left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+/*
+          margin: 1cm;
+          left: 15pt;
+          top: 20pt;
+          height: 600pt;
+          width: 780pt;*/
+          -pdf-frame-border: 1; /*for debugging only*/
+        }
+    }
+</style>
+<table class="estimate">
+  <thead>
+      <tr>
+        <th colspan="5" style="border-style:none;">
+          <div class="cont_est_title">
+            <h4> {{ estimate.project.cliente.cliente_name }}</h4>
+            <p>{{ estimate.project.contrato_name }} </p>
+            <p> Estimación de obra </p>
+          </div>
+        </th>
+        <th colspan="7" style="border-style:none;">
+          <table class="informacion">
+            <thead>
+              <tr>
+                <th>Contratista:</th>
+                <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+              </tr>
+              <tr>
+                <th>Contrato:</th>
+                <td class="subrayado"> {{ estimate.project.code }} </td>
+              </tr>
+              <tr>
+                <th>Estimación N°:</th>
+                <td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
+              </tr>
+              <tr>
+                <th>Fecha:</th>
+                <td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+              </tr>
+              <tr>
+                <th>Período:</th>
+                <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+              </tr>
+            </thead>
+          </table>
+        </th>
+      </tr>   
+      <tr class="center">
+        <th rowspan="2">N°</th>
+        <th rowspan="2" style="width: 500px;">CONCEPTOS DE OBRA</th>
+        <th colspan="4">CONTRATADO</th>
+        <th colspan="2">ESTIMADO ANTERIOR</th>
+        <th colspan="2">ESTIMADO A LA FECHA</th>
+        <th colspan="2">ESTA ESTIMACIÓN</th>
+      </tr>
+      <tr class="center">
+        <th>UNIDAD</th>
+        <th>CANTIDAD</th>
+        <th>P.U.</th>
+        <th>IMPORTE</th>
+        <th>CANTIDAD</th>
+        <th>IMPORTE</th>
+        <th>CANTIDAD</th>
+        <th>IMPORTE</th>
+        <th>CANTIDAD</th>
+        <th>IMPORTE</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% language 'en' %}
+      {% for concepto in conceptos %}
+        <tr>
+          <td> {{ concepto.code }} </td>
+          <td> {{ concepto.concept_text }}</td>
+          <td> {{ concepto.unit.unit }} </td>
+          <td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
+          <td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
+          <td class="right"> $ {{ concepto.importe_contratado|floatformat:"2"|intcomma }}</td>
+          {% if concepto.cantidad_estimado_anterior %}
+            <td class="right"> {{ concepto.cantidad_estimado_anterior|floatformat:"2"|intcomma }} </td>
+            <td class="right">$ {{ concepto.anterior|floatformat:"2"|intcomma }}</td>
+          {% else %}
+            <td style="text-align: center;"> - </td>
+            <td style="text-align: center;"> - </td>
+          {% endif %}
+          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha }} </td>
+          <td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
+          <td class="right"> {{ concepto.cantidad_esta_estimacion }} </td>
+          <td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <td class="right" colspan="2"><strong>Totales: </strong></td>
+        <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
+      </tr>
+      {% endlanguage %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td class="cont_firmas" colspan="12">
+          <div class="cont_firma">
+            <div class="subrayado_f"></div>
+            <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+            <p> <strong>Supervisor de Obras </strong></p>
+            <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+          </div>
+          {% for firma in estimate.auth_by.all %}
+            <div class="cont_firma">
+              <div class="subrayado_f"></div>
+              <p><strong>{{ firma.destinatario_text }}</strong></p>
+              {% if firma.puesto %}
+                <p><strong>{{ firma.puesto }}</strong></p>
+                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+              {% else %}
+                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                <p style="color:white">-</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </td>
+      </tr>
+    </tfoot>
+</table>

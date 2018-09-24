@@ -4,12 +4,13 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
+from django_xhtml2pdf.views import PdfMixin
 from construbot.users.auth import AuthenticationTestMixin
-from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from construbot.users.models import User, Company
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
+from .apps import ProyectosConfig
+from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes
 
 
@@ -208,6 +209,20 @@ class EstimateDetailView(DynamicDetail):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
         context["conceptos"] = self.object.anotaciones_conceptos()
         return context
+
+
+class BasePDFGenerator(PdfMixin, EstimateDetailView):
+    def get_context_data(self, **kwargs):
+        context = super(BasePDFGenerator, self).get_context_data(**kwargs)
+        context['pdf'] = True
+        return context
+
+class EstimatePdfPrint(BasePDFGenerator):
+    template_name = 'proyectos/concept_estimate.html'
+
+
+class GeneratorPdfPrint(BasePDFGenerator):
+    template_name = 'proyectos/concept_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
