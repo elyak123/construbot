@@ -8,6 +8,9 @@ mkenv:
 shell:
 	@docker-compose -f docker-compose-dev.yml run django python manage.py shell
 
+poblar:
+	@docker-compose -f docker-compose-dev.yml run django python manage.py poblar	
+
 up:
 	@docker-compose -f docker-compose-dev.yml up -d
 

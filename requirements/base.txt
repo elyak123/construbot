@@ -56,7 +56,8 @@ rcssmin==1.0.6
 django-compressor==2.2
 
 #PDF Generation
-WeasyPrint
+WeasyPrint==0.42.3
+django-weasyprint==0.5.4
 
 # Your custom requirements go here
 django-autocomplete-light==3.2.10
