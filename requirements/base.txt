@@ -56,8 +56,7 @@ rcssmin==1.0.6
 django-compressor==2.2
 
 #PDF Generation
-xhtml2pdf==0.2.3
--e git+https://github.com/xhtml2pdf/django-xhtml2pdf.git@0.0.4#egg=django-xhtml2pdf
+WeasyPrint
 
 # Your custom requirements go here
 django-autocomplete-light==3.2.10
