@@ -214,7 +214,7 @@ class EstimateDetailView(DynamicDetail):
 
 class BasePDFGenerator(WeasyTemplateResponseMixin, EstimateDetailView):
     content_type = "application/pdf"
-    pdf_stylesheets = [settings.STATIC_ROOT + '/css/project.css']
+    pdf_stylesheets = [settings.STATIC_ROOT + '/css/pdf.css']
 
     def get_context_data(self, **kwargs):
         context = super(BasePDFGenerator, self).get_context_data(**kwargs)

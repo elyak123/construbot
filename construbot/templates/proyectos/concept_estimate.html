@@ -1,19 +1,10 @@
 {% load humanize %}
 {% load i18n %}
 <style>
-    @page {
-        size: letter landscape;
-        @frame header_content{
-          left: 50pt; width: 512pt; top: 50pt; height: 40pt;
-/*
-          margin: 1cm;
-          left: 15pt;
-          top: 20pt;
-          height: 600pt;
-          width: 780pt;*/
-          -pdf-frame-border: 1; /*for debugging only*/
-        }
-    }
+@page {
+    size: letter landscape;
+    margin: 1cm;
+}
 </style>
 <table class="estimate">
   <thead>
@@ -54,7 +45,7 @@
       </tr>   
       <tr class="center">
         <th rowspan="2">N°</th>
-        <th rowspan="2" style="width: 500px;">CONCEPTOS DE OBRA</th>
+        <th rowspan="2" {% if not pdf %}style="width: 500px;"{% endif %}>CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
         <th colspan="2">ESTIMADO ANTERIOR</th>
         <th colspan="2">ESTIMADO A LA FECHA</th>
@@ -78,7 +69,7 @@
       {% for concepto in conceptos %}
         <tr>
           <td> {{ concepto.code }} </td>
-          <td> {{ concepto.concept_text }}</td>
+          <td style="width: fit-content;"> {{ concepto.concept_text }}</td>
           <td> {{ concepto.unit.unit }} </td>
           <td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
           <td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
