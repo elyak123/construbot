@@ -4,7 +4,8 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
-from weasyprint import HTML
+from django.conf import settings
+from django_weasyprint import WeasyTemplateResponseMixin
 from construbot.users.auth import AuthenticationTestMixin
 from construbot.users.models import User, Company
 from construbot.proyectos import forms
@@ -211,14 +212,15 @@ class EstimateDetailView(DynamicDetail):
         return context
 
 
-class BasePDFGenerator(EstimateDetailView):
+class BasePDFGenerator(WeasyTemplateResponseMixin, EstimateDetailView):
     content_type = "application/pdf"
+    pdf_stylesheets = [settings.STATIC_ROOT + '/css/project.css']
 
-    @property
-    def rendered_content(self):
-        content = super().rendered_content()
-        pdf_file = HTML(string=content)
-        return pdf_file
+    # @property
+    # def rendered_content(self):
+    #     content = super().rendered_content()
+    #     pdf_file = HTML(string=content)
+    #     return pdf_file
 
     def get_context_data(self, **kwargs):
         context = super(BasePDFGenerator, self).get_context_data(**kwargs)
