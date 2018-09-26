@@ -216,12 +216,6 @@ class BasePDFGenerator(WeasyTemplateResponseMixin, EstimateDetailView):
     content_type = "application/pdf"
     pdf_stylesheets = [settings.STATIC_ROOT + '/css/project.css']
 
-    # @property
-    # def rendered_content(self):
-    #     content = super().rendered_content()
-    #     pdf_file = HTML(string=content)
-    #     return pdf_file
-
     def get_context_data(self, **kwargs):
         context = super(BasePDFGenerator, self).get_context_data(**kwargs)
         context['pdf'] = True
