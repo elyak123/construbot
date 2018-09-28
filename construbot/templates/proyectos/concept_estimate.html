@@ -18,34 +18,32 @@
         </th>
         <th colspan="7" style="border-style:none;">
           <table class="informacion">
-            <thead>
-              <tr>
-                <th>Contratista:</th>
-                <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
-              </tr>
-              <tr>
-                <th>Contrato:</th>
-                <td class="subrayado"> {{ estimate.project.code }} </td>
-              </tr>
-              <tr>
-                <th>Estimación N°:</th>
-                <td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
-              </tr>
-              <tr>
-                <th>Fecha:</th>
-                <td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
-              </tr>
-              <tr>
-                <th>Período:</th>
-                <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
-              </tr>
-            </thead>
+            <tr>
+              <th>Contratista:</th>
+              <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+            </tr>
+            <tr>
+              <th>Contrato:</th>
+              <td class="subrayado"> {{ estimate.project.code }} </td>
+            </tr>
+            <tr>
+              <th>Estimación N°:</th>
+              <td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
+            </tr>
+            <tr>
+              <th>Fecha:</th>
+              <td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+            </tr>
+            <tr>
+              <th>Período:</th>
+              <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+            </tr>
           </table>
         </th>
       </tr>   
       <tr class="center">
         <th rowspan="2">N°</th>
-        <th rowspan="2" {% if not pdf %}style="width: 500px;"{% endif %}>CONCEPTOS DE OBRA</th>
+        <th rowspan="2" style="width: 250px;" >CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
         <th colspan="2">ESTIMADO ANTERIOR</th>
         <th colspan="2">ESTIMADO A LA FECHA</th>

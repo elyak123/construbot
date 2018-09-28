@@ -1,29 +1,18 @@
 {% load humanize %}
 {% load i18n %}
+<style>
+@page {
+    size: letter landscape;
+    margin: 1cm;
+}
+</style>
 {% if pdf %}
-  <style>
-      @page {
-          size: letter landscape;
-          @frame header_generator{
-            left: 50pt; top: 200pt; height: 40pt; margin: 1cm;
-  /*
-            
-            left: 15pt;
-            top: 20pt;
-            height: 600pt;
-            width: 780pt;*/
-            -pdf-frame-content: header_content;
-          }
-          @frame content_frame{
-            left: 50pt;
-          }
-      }
-  </style>
+<div class="est_cont">
 {% endif %}
 <table class="generator">
   <thead {% if pdf %}id="header_frame"{% endif %}>
     <tr>
-      <th class="sin_borde" colspan="8">
+      <th class="sin_borde" colspan="9">
         <div class="cont_est_gen">
           <h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
           <h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
@@ -33,14 +22,14 @@
     </tr>
     <tr style="margin-bottom:25px;">
       <th class="sin_borde" colspan="4">
-        <table class="informacion" style="width: 100%;">
+        <table class="informacion">
           <tr>
             <td>PROYECTO:</td>
             <td class="subrayado"> {{ estimate.project.contrato_name }} </td>
           </tr>
           <tr>
             <td>CONTRATO:</td>
-            <td class="subrayado" style="width: 200%;"> {{ estimate.project.code }} </td>
+            <td class="subrayado"> {{ estimate.project.code }} </td>
           </tr>
           <tr>
             <td>ÁREA:</td>
@@ -49,7 +38,7 @@
         </table>
       </th>
       <th class="sin_borde" colspan="1"></th>
-      <th class="sin_borde" colspan="3">
+      <th class="sin_borde" colspan="4">
         <table class="informacion">
           <tr>
             <td>CONTRATISTA:</td>
@@ -68,12 +57,12 @@
     </tr>
     <tr class="center">
       <th rowspan="2">CÓDIGO</th>
-      <th rowspan="2" style="width: 600px;">DESCRIPCIÓN</th>
+      <th rowspan="2" style="min-width: 300px; max-width: 320px;">DESCRIPCIÓN</th>
       <th rowspan="2">LARGO</th>
       <th rowspan="2">ANCHO</th>
       <th rowspan="2">ALTO</th>
       <th colspan="2">VOLUMEN EJECUTADO</th>
-      <th rowspan="2" style="width: 600px;">OBSERVACIONES</th>
+      <th rowspan="2" style="min-width: 300px; max-width: 320px;">OBSERVACIONES</th>
     </tr>
     <tr class="center">
       <th>CANTIDAD</th>
@@ -150,3 +139,6 @@
     </tr>
   </tfoot>
 </table>
+{% if pdf %}
+</div>
+{% endif %}
