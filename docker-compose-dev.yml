@@ -19,6 +19,8 @@ services:
     ports:
       - "8343:8343"
     command: /start.sh
+    stdin_open: true
+    tty: true
 
   postgres:
     build:
