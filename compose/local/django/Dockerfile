@@ -31,6 +31,10 @@ COPY ./compose/production/django/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r//' /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+COPY .coveragerc /.coveragerc
+RUN sed -i 's/\r//' /.coveragerc
+RUN chmod +x /.coveragerc
+
 COPY ./compose/local/django/start.sh /start.sh
 RUN sed -i 's/\r//' /start.sh
 RUN chmod +x /start.sh
