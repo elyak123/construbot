@@ -1,13 +1,12 @@
 import time
-import random
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework_jwt.settings import api_settings
 from construbot.users.models import User, Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
 
@@ -45,11 +44,16 @@ def create_customer_user_and_company(request):
         group_u, c_created = Group.objects.get_or_create(name='Users')
         customer = Customer.objects.create(customer_name=request.data['customer'])
         company = Company.objects.create(customer=customer, company_name=name)
-        user = User.objects.create_user(
+        user = User(
             customer=customer,
             username=name,
             email=request.data['email'],
         )
+        try:
+            user.full_clean()
+        except ValidationError:
+            return Response({'success': False})
+        user.save()
         user.company = [company.id]
         user.groups.add(*[group_a, group_p, group_u])
         user.set_unusable_password()
