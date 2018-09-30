@@ -18,9 +18,15 @@ down:
 	@docker-compose -f docker-compose-dev.yml down
 
 buildev:
+	@docker-compose -f docker-compose-dev.yml up --build
+
+dev:
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.production/DJANGO_SETTINGS_MODULE=config.settings.local/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
-	@docker-compose -f docker-compose-dev.yml up --build
+	@docker-compose -f docker-compose-dev.yml up -d redis
+	@docker-compose -f docker-compose-dev.yml up -d postgres
+	@docker-compose -f docker-compose-dev.yml up -d mailhog
+	@docker-compose -f docker-compose-dev.yml run --service-ports django
 
 buildprod:
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.local/DJANGO_SETTINGS_MODULE=config.settings.production/g .env
@@ -28,9 +34,10 @@ buildprod:
 	@docker-compose -f docker-compose.yml up --build
 clean:
 	@docker rm $(shell docker ps -a -q) -f
-	@docker rmi $(shell docker images -q) -f
 
 test:
-	@coverage run --source='.' manage.py test && coverage report
+	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
+	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
 cleanhard: clean
+	@docker rmi $(shell docker images -q) -f
 	@docker volume prune -f
