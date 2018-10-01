@@ -18,6 +18,8 @@ down:
 	@docker-compose -f docker-compose-dev.yml down
 
 buildev:
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.production/DJANGO_SETTINGS_MODULE=config.settings.local/g .env
+	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml up --build
 
 dev:

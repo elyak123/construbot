@@ -106,12 +106,12 @@
           {% for firma in estimate.auth_by.all %}
             <div class="cont_firma">
               <div class="subrayado_f"></div>
-              <p><strong>{{ firma.destinatario_text }}</strong></p>
+              <strong>{{ firma.destinatario_text }}</strong><br>
               {% if firma.puesto %}
-                <p><strong>{{ firma.puesto }}</strong></p>
-                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                <strong>{{ firma.puesto }}</strong><br>
+                <strong>{{ firma.cliente.cliente_name }}</strong>
               {% else %}
-                <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                <strong>{{ firma.cliente.cliente_name }}</strong><br>
                 <p style="color:white">-</p>
               {% endif %}
             </div>
