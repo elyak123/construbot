@@ -19,7 +19,7 @@ class TestApiViews(BaseCoreTestCase):
         self.client.login(username=self.user.username, password='password')
         response = self.client.post(reverse('api:get_user'), data={'email': self.user.email})
         self.assertFalse(response.data['unique'])
-    @tag('current')
+
     def test_create_customer_user_and_company_raises_not_valid_email(self):
         self.client.login(username=self.user.username, password='password')
         email_test = 'Soy correo mal formado'
@@ -28,7 +28,6 @@ class TestApiViews(BaseCoreTestCase):
         )
         self.assertFalse(response.json()['success'])
 
-    @tag('current')
     def test_create_customer_user_and_company(self):
         self.client.login(username=self.user.username, password='password')
         email_test = 'me@gmail.com'

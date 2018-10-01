@@ -49,16 +49,17 @@ def create_customer_user_and_company(request):
             username=name,
             email=request.data['email'],
         )
+        user.set_unusable_password()
         try:
             user.full_clean()
-        except ValidationError:
-            return Response({'success': False})
+        except ValidationError as e:
+            return Response({'success': False, 'errors': e})
         user.save()
         user.company = [company.id]
         user.groups.add(*[group_a, group_p, group_u])
-        user.set_unusable_password()
         return Response(
             {
+                'success': True,
                 'id': user.id,
                 'email': user.email,
                 'usable': user.has_usable_password()
