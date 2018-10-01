@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import validate_email
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -81,7 +82,7 @@ class User(AbstractUser):
     last_updated = models.DateTimeField(auto_now=True)
     last_supervised = models.DateTimeField(default=timezone.now)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, validators=[validate_email])
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
