@@ -1,328 +1,14 @@
- /*These styles are generated from project.scss. */
-
-.alert-debug {
-  color: black;
-  background-color: white;
-  border-color: #d6e9c6;
-}
-
-.alert-error {
-  color: #b94a48;
-  background-color: #f2dede;
-  border-color: #eed3d7;
-}
-
-/* Display django-debug-toolbar.
-   See https://github.com/django-debug-toolbar/django-debug-toolbar/issues/742
-   and https://github.com/pydanny/cookiecutter-django/issues/317
-*/
-[hidden][style="display: block;"] {
-  display: block !important;
-}
-
-/*ESTILOS GENERALES*/
-.introjs-skipbutton {
-    display: none;
-}
-
-body {
-	font-family: 'Open Sans', sans-serif;
-	font-size: 14px;
-}
-a {
-	text-decoration: none;
-	color: #337ab7;
-}
-
-a:hover {
-	text-decoration: none;
-}
-
-.disp_none {
-	display: block !important;
-	box-shadow: 2px -4px 9px 1px;
-}
-
-.blur {
-	filter: blur(2px);
-}
-
-.content_with_sidebar {
-	margin: 60px 20px 50px 220px;
-}
-
-.content_with_little_sidebar {
-	margin: 60px 30px 0 65px;
-}
-
-.content_without_sidebar {
-	margin: 60px 10px 0 10px;
-}
-
-.content_without_auth_sidebar {
-	margin: 15px 50px 20px 50px
-}
-
-.title {
-	margin: 2% 5%;
-}
-
-.boton {
-	margin: 0 2.5%;
-}
-
-.boton > .btn {
-	height: 35px;
-    width: 50px;
-}
-
-.boton_edicion > .btn {
-	margin-top: .8em;
-	height: 35px;
-    width: 50px;
-    background-color: #086898;
-    color: white;
-}
-
-#event_menu_out {
-	display: none;
-}
-
-.form-horizontal .select2-container, .form .select2-container {
-	min-width: 100% !important;
-	width: 100% !important;
-}
-
-.dynamic-form .checkbox{
-	display: none;
-}
-
-.remove_span {
-	cursor: pointer;
-}
-
-.alert_text {
-	width: 100%;
-    margin-top: 0;
-    font-size: 80%;
-    color: #dc3545;
-    display: none;
-}
-
-.span_eliminar{
-	color: white;
-	background: red;
-}
-
-.appear {
-	display: block;
-}
-/*FIN DE ESTILOS GENERALES*/
-
-/*ESTILOS PARA LISTADOS AJAX*/
-.icon_right, .icon_right-up {
-	float: right;
-	cursor: pointer;
-	margin-right: 15px;
-}
-
-.icon_right-up {
-	display: none;
-}
-
-.cont_listado {
-	padding: 8px;
-	width: 90%;
-	margin-left: 5%;
-}
-
-.cont_message_no_result {
-	display: none;
-	text-align: center;
-	font-size: 16px;
-}
-/*FIN DE ESTILOS PARA LISTADOS AJAX*/
-
-/*ESTILOS PARA SELECTOR DE COMPAÑIA*/
-.div_miniform {
-	position: absolute;
-	right: 45px;
-	top: 80px;
-}
-
-.li_companies_list {
-	padding: 0;
-	margin: 0;
-}
-
-.li_companies_list > li {
-	display: inline-block;
-	list-style: none;
-}
-/*FIN DE ESTILOS PARA SELECTOR DE COMPAÑIA*/
-
-/*ESTILOS PARA NAV PERSONALIZADO*/
-.anchor_menu_nav {
-	display: inherit;
-    color: white;
-    padding: 1.3em .5em;
-}
-
-.anchor_menu_nav:hover {
-	text-decoration: none;
-	color: white;
-}
-
-.cont_nav_navegacion {
-	height: 60px;
-}
-
-.nav_navegacion {
-	position: fixed;
-	background-color: #086898;
-	height: 60px;
-	width: 100%;
-	z-index: 2;
-	top: 0;
-}
-
-.cont_list_menu_nav {
-	display: block;
-	float: right;
-}
-
-.list_menu_nav {
-	list-style: none;
-	padding: 0;
-}
-
-.li_menu_nav {
-	display: inline-block;
-	height: 60px;
-}
-
-.menu_nav, .anchor_brand{
-	color: white;
-	display: inline-block;
-	padding: 1.1em;
-	transition: .2s;
-}
-
-.menu_nav span {
-	margin-left: 10px;
-}
-
-.anchor_brand:hover {
-	color: #c4c4c4;
-}
-
-.li_menu_item, .li_menu_subitem, .li_submenu, .li_menu_item span, .li_menu_subitem span, .li_submenu span  {
-	transition: .15s;
-}
-
-.li_menu_item:hover, .li_submenu:hover, .li_menu_subitem:hover {
-	background-color: #086898;
-}
-
-.li_menu_item:hover .menuSign {
-	font-size: 15.3px;
-}
-
-.li_submenu .menuSign, .li_menu_subitem .submenuSign{
-	font-size: 12px;
-}
-
-.li_submenu:hover .menuSign, .li_menu_subitem:hover .submenuSign {
-	font-size: 13px;
-}
-
-/*FIN DE ESTILOS PARA NAV PERSONALIZADO*/
-
-/*ESTILOS PARA EL MENÚ LATERAL*/
-.cont_menu_lateral {
-	top: 60px;
-	position: fixed;
-	width: 200px;
-	z-index: 1;
-	background-color: #3c3e4a;
-	left: 0;
-	height: 100%;
-}
-
-.menu_lateral {
-	margin-top: 20px;
-	width: 100%;
-	height: 100%;
-}
-
-.list_menu {
-	list-style: none;
-	width: 100%;
-	padding: 0;
-}
-
-.anchor_menu_item, .anchor_menu_subitem, .anchor_subsubmenu_item {
-	color: #d9d5cd;
-	cursor: pointer;
-}
-
-.anchor_menu_item:hover, .anchor_menu_subitem:hover, .anchor_subsubmenu_item:hover {
-	color: #d9d5cd;
-}
-
-
-.anchor_menu_item {
-	display: block;
-	padding: 1em 0 1em 15px;
-}
-
-.anchor_menu_subitem {
-	display: block;
-	padding: .7em 0 .7em 2.2em;
-}
-
-.anchor_subsubmenu_item {
-	display: block;
-	font-size: 14px;
-	padding: 8px;
-}
-
-.li_submenu {
-	height: 3em;
-}
-
-.list_subsubmenu {
-	display: none;
-	width: 140px;
-	background-color: #3c3e4a;
-	list-style: none;
-	padding: 0;
-	margin-left: 200px;
-    margin-top: -2.93em;
-}
-
-.li_submenu:hover > .list_subsubmenu {
-	display: block;
-}
-
-.menu_subsubmenu > ul {
-	padding: 0;
-	list-style: none;
-}
-
-.icon_menu {
-	padding-right: 10px;
-}
-
-.page_content {
-	margin: 20px 20px 0 20px;
-}
-/*FIN DE ESTILOS PARA MENÚ LATERAL*/
-
 /*ESTILOS PATA TABLAS*/
+* {
+	font-size: 8px;
+}
+table {
+	border-collapse: collapse;
+}
+
 .table_left td {
 	text-align: left;
-	padding: 5px;
+	padding: 2.5px;
 }
 
 .table_left {
@@ -335,7 +21,7 @@ a:hover {
 
 .table_detalle tr>td {
 	text-align: left;
-    padding: .6em .6em .6em 11%;
+    padding: .3em .3em .3em 5.5%;
 }
 
 .table_sample {
@@ -351,12 +37,12 @@ a:hover {
 
 .table_normal tr>td {
 	text-align: center;
-	padding: 8px;
+	padding: 4px;
 }
 
 .table_sample tr>th {
 	text-align: center;
-	padding: 8px;	
+	padding: 4px;	
 	background-color: #086898;
 	color: white;
 	border-color: white;
@@ -374,74 +60,6 @@ a:hover {
 }*/
 /*FIN DE ESTILOS PARA TABLAS*/
 
-/*ESTILOS PARA LISTADOS DE DOCUMENTOS*/
-#cont_danger {
-	text-align: center;
-	color: white;
-	display: none;
-	width: 200px;
-	height: 110px;
-	position: absolute;
-}
-
-#button_confirm, #button_cancel {
-	display: inline-block;
-	float: right;
-	margin-left: 10px;
-	font-size: 10px;
-}
-
-#cont_danger {
-	padding: 10px;
-	font-weight: bold;
-}
-
-.border_normal {
-	border-color: #c9c9c9;
-	border-width: 1px 1px 1px 8px;
-}
-
-.border_danger {
-	border-width: 1px 1px 1px 210px;
-	border-color: red;
-}
-
-.div_list {
-	padding: 15px;
-	margin-bottom: 10px;
-	margin: 10px 2.5%;
-	min-height: 120px;
-	border-style: solid;
-	border-radius: 3px;
-	transition: .2s;
-}
-
-.border_normal:hover {
-	border-color: #c9c9c9 #c9c9c9 #c9c9c9 #086898;
-}
-
-.p_div_list {
-	margin: 0;
-}
-/*FIN DE ESTILOS PARA LISTADOS DE DOCUMENTOS*/
-/*ESTILOS PARA INLINE FORMSET*/
-.table_inline input, .table_inline textarea, .table_inline .select2-container {
-	padding: 3px;
-	width: 90%;
-    border-radius: 5px;
-    border-color: rgb(169, 169, 169);
-    border-width: 1px;
-}
-
-.table_inline .select2-container {
-	min-width: 10em;
-}
-
-.cont_buttons {
-	margin-right: 5%;
-	float: right;
-}
-/*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
 table.informacion * {
 	padding: 0 !important;
@@ -456,7 +74,7 @@ table.estimate, table.generator {
 }
 
 table.estimate * , table.generator * {
-	padding: 4px;
+	padding: 2px;
 }
 
 .cont_est_gen {
@@ -465,13 +83,13 @@ table.estimate * , table.generator * {
 
 .cont_est_title {
 	text-align: center;
-	font-size: 12px;
+	font-size: 8px;
     font-family: "Playfair Display", serif;
 }
 
 .cont_est_title > p{
 	margin: 5px 0;
-	font-size: 13px;
+	font-size: 8px;
 	padding: 0;
 }
 
@@ -485,13 +103,13 @@ table.estimate * , table.generator * {
 
 .subrayado {
     border-style: solid;
-    min-width: 400px;
+    min-width: 200px;
     border-width: 0 0 2px 0;
 }
 
 .subrayado_f {
     border-style: solid;
-    border-width: 0 0 1px 0;
+    border-width: 0 0 .5px 0;
 }
 
 .center {
@@ -535,56 +153,4 @@ table.estimate * , table.generator * {
 
 /*FIN DE ESTILOS PARA ESTIMACION*/
 /*FIN DE ESTILOS*/
-
-/*QUERYSETS*/
-/*PARA LA BARRA SUPERIOR*/
-.menu-icon {
-	font-size: 14px;
-    height: 36px;
-    width: 38px;
-    text-align: center;
-    margin-left: 10px;
-    cursor: pointer;
-    background-color: #d9d5cd;
-    padding: 10px;
-    border-radius: 4px;
-    display: none;
-}
-
-@media print {
-    #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
-        display: none;
-    }
-
-    #cont_content {
-        margin: 0 !important;
-    }
-
-    @page {
-	    size: auto;
-
-	 }
-}
-
-@media screen and (min-width: 600px){
-	.cont_menu_lateral, .anchor_brand {
-		display: inline-block !important;
-	}
-}
-
-@media screen and (max-width: 600px){
-	.anchor_menu_nav {
-		padding: 1.1em .4em;
-	}
-	.cont_menu_lateral, .anchor_brand {
-		display: none;
-	}
-	.menu-icon {
-		display: inline-block;
-		margin-top: 10px;
-	}
-}
-/*IMPRESIÓN DE ESTIMACIÓN*/
-
-/*FIN DE QUERYSETS*/
 
