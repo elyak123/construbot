@@ -2,20 +2,18 @@ from .functional_tests_base import FunctionalTest
 from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato
 from django.contrib.auth.models import Group
 from django.test import tag
+import time
 
 
 @tag("index")
 class TestCorrectIndex(FunctionalTest):
     def test_correct_view_index_admin(self):
         self.user_login(self.user.username, "password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
+        self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]")
 
     def test_index_when_empty_company(self):
         self.user_login(self.user.username, "password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//strong[contains(text(), 'Contratos Vigentes')]"))
         self.browser.find_element_by_xpath("//td[contains(text(), '¡No hay contratos vigentes!')]")
 
@@ -25,8 +23,6 @@ class TestCorrectListsViews(FunctionalTest):
     def test_correct_contrato_list(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 0, 15, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -42,8 +38,6 @@ class TestCorrectListsViews(FunctionalTest):
     def test_correct_cliente_list(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(15, 1, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -59,8 +53,6 @@ class TestCorrectListsViews(FunctionalTest):
     def test_correct_sitio_list(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(15, 1, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -76,8 +68,6 @@ class TestCorrectListsViews(FunctionalTest):
     def test_correct_destinatario_list(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(1, 12, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -96,8 +86,6 @@ class TestCreatingObjects(FunctionalTest):
     def test_create_contrato(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -112,14 +100,17 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_id("id_contrato_shortName").send_keys("PDC1")
         self.browser.find_element_by_xpath('//span[@aria-labelledby="select2-id_cliente-container"]').click()
         self.wait_for(lambda:self.browser.find_element_by_class_name('select2-search__field'))
-        self.browser.find_element_by_class_name('select2-search__field').send_keys("clie")
+        self.browser.find_elements_by_class_name('select2-search__field')[1].send_keys("clie")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'cliente_1')]"))
         self.browser.find_element_by_xpath("//*[contains(text(), 'cliente_1')]").click()
         self.browser.find_element_by_xpath('//span[@aria-labelledby="select2-id_sitio-container"]').click()
         self.wait_for(lambda:self.browser.find_element_by_class_name('select2-search__field'))
-        self.browser.find_element_by_class_name('select2-search__field').send_keys("sitio")
+        self.browser.find_elements_by_class_name('select2-search__field')[1].send_keys("sitio")
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'sitio_1')]"))
         self.browser.find_element_by_xpath("//*[contains(text(), 'sitio_1')]").click()
+        self.browser.find_element_by_class_name('select2-search__field').send_keys("user")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'user-1')]"))
+        self.browser.find_element_by_xpath("//*[contains(text(), 'user-1')]").click()
         self.browser.find_element_by_id("id_monto").send_keys("10000")
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Reporte de contrato ')]"))
@@ -128,8 +119,6 @@ class TestCreatingObjects(FunctionalTest):
     def test_create_catalogo_conceptos(self):
         self.user_login(self.user.username, "password")
         contratos = self.create_proyect_objects(1, 0, 2, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -139,6 +128,7 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)).click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
         self.browser.execute_script("arguments[0].scrollIntoView(true);", self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
+        time.sleep(1)
         self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]").click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_concept_set-0-code"))
         for i in range(0,4):
@@ -156,21 +146,18 @@ class TestCreatingObjects(FunctionalTest):
             if i != 3:
                 self.browser.find_element_by_class_name("add-form-row").click()
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
-        self.wait_for(lambda:self.browser.find_element_by_class_name("oi-chevron-left"))
-        self.browser.find_element_by_class_name("oi-chevron-left").click()
+        self.wait_for(lambda:self.browser.find_element_by_class_name("oi-chevron-bottom"))
+        time.sleep(1)
         for i in range(0,4):
             self.browser.find_element_by_xpath("//td[contains(text(), '{0}')]".format(i))
-            self.browser.find_element_by_xpath("//td[contains(text(), 'Concepto para probar la creación de conceptos')]")
+            self.browser.find_element_by_xpath("//td[contains(text(), 'Concepto {}')]".format(i))
             self.browser.find_element_by_xpath("//td[contains(text(), 'unit-{0}')]".format(i))
             self.browser.find_element_by_xpath("//td[contains(text(), '{0}.00')]".format(i))
             self.browser.find_element_by_xpath("//td[contains(text(), '$ 100.00')]")
 
-    @tag("estimate")
     def test_create_estimate(self):
         self.user_login(self.user.username, "password")
         contratos = self.create_proyect_objects(4, 4, 2, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -179,6 +166,7 @@ class TestCreatingObjects(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)))
         self.browser.find_element_by_xpath("//a[@href='/proyectos/contrato/detalle/{0}/']".format(contratos[0].id)).click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]"))
+        time.sleep(.5)
         self.browser.find_element_by_xpath("//a[contains(text(), 'aquí')]").click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_concept_set-0-code"))
         for i in range(0,4):
@@ -199,15 +187,17 @@ class TestCreatingObjects(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_class_name("oi-chevron-left"))
         self.browser.find_element_by_xpath("//a[@href='/proyectos/estimacion/nuevo/{0}/']".format(contratos[0].id)).click()
         self.wait_for(lambda:self.browser.find_element_by_id("id_consecutive"))
-        self.browser.find_element_by_id("id_supervised_by").click()
-        self.browser.find_element_by_xpath("//option[contains(text(), '{0}')]".format(self.user.username)).click()
+        self.browser.find_element_by_xpath("//*[@aria-labelledby='select2-id_supervised_by-container']").click()
+        self.browser.find_elements_by_class_name("select2-search__field")[2].send_keys('user')
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user2.username)))
+        self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user2.username)).click()
         self.browser.find_element_by_id("id_start_date").click()
         self.browser.find_element_by_id("id_finish_date").click()
         self.browser.find_element_by_id("id_consecutive").click()
         self.browser.find_elements_by_class_name("select2-search--inline")[0].click()
         self.browser.find_elements_by_class_name("select2-search__field")[0].send_keys("destinatario")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//li[contains(text(), 'destinatario_3')]"))
-        self.browser.find_element_by_class_name("select2-results__option--highlighted").click()
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Create \"destinatario\"')]"))
+        self.browser.find_element_by_xpath("//*[contains(text(), 'Create \"destinatario\"')]").click()
         self.browser.find_elements_by_class_name("select2-search--inline")[1].click()
         self.browser.find_elements_by_class_name("select2-search__field")[1].send_keys("destinatario")
         self.wait_for(lambda:self.browser.find_element_by_class_name("select2-results__option--highlighted"))
@@ -221,11 +211,9 @@ class TestCreatingObjects(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_class_name("title"))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del contrato {0}')]".format(contratos[0].contrato_name))
         self.browser.find_element_by_xpath("//a[contains(text(), 'Estimación 1')]")
-        
+      
     def test_cliente_creation(self):
         self.user_login(self.user.username, "password")
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -238,12 +226,10 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del cliente CLIENTE DE PRUEBA 1')]"))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del cliente CLIENTE DE PRUEBA 1')]")
-
+    
     def test_sitio_creation(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -262,12 +248,10 @@ class TestCreatingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio SITIO DE PRUEBA 1')]"))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio SITIO DE PRUEBA 1')]")
-
+    
     def test_destinatario_creation(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -293,8 +277,6 @@ class TestEditingObjects(FunctionalTest):
     def test_contrato_edit(self):
         self.user_login(self.user.username, "password")
         contratos = self.create_proyect_objects(5, 5, 3, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -305,6 +287,9 @@ class TestEditingObjects(FunctionalTest):
         self.wait_for(lambda:self.browser.find_element_by_id("id_contrato_name"))
         self.browser.find_element_by_id("id_contrato_name").clear()
         self.browser.find_element_by_id("id_contrato_name").send_keys("EDICION NUMERO 1 A CONTRATO")
+        self.browser.find_element_by_class_name('select2-search__field').send_keys("user")
+        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user.username)))
+        self.browser.find_element_by_xpath("//*[contains(text(), '{}')]".format(self.user2.username)).click()
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Reporte de contrato ')]"))
         self.browser.find_element_by_xpath("//th[contains(text(), '{0}. {1}')]".format(contratos[2].folio, contratos[2].contrato_shortName))
@@ -313,12 +298,11 @@ class TestEditingObjects(FunctionalTest):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         destinatario = Destinatario.objects.first()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
         hover.perform()
+        time.sleep(1)
         self.browser.find_element_by_class_name("oi-people").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//a[@href='/proyectos/editar/destinatario/{0}/']".format(destinatario.id)))
         self.browser.find_element_by_xpath("//a[@href='/proyectos/editar/destinatario/{0}/']".format(destinatario.id)).click()
@@ -327,13 +311,11 @@ class TestEditingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle de {0}')]".format(destinatario.destinatario_text)))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle de {0}')]".format(destinatario.destinatario_text))
-
+    
     def test_sitio_edition(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         sitio = Sitio.objects.first()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -346,13 +328,11 @@ class TestEditingObjects(FunctionalTest):
         self.browser.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio {0}')]".format(sitio.sitio_name)))
         self.browser.find_element_by_xpath("//h2[contains(text(), ' Detalle del sitio {0}')]".format(sitio.sitio_name))
-
+    
     def test_cliente_edit(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         cliente = Cliente.objects.first()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -372,8 +352,6 @@ class TestDeleteObjects(FunctionalTest):
     def test_contrato_delete(self):
         self.user_login(self.user.username, "password")
         contratos = self.create_proyect_objects(5, 5, 3, 0)
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -395,8 +373,6 @@ class TestDeleteObjects(FunctionalTest):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         clientes = Cliente.objects.all()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
@@ -418,9 +394,8 @@ class TestDeleteObjects(FunctionalTest):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         sitios = Sitio.objects.all()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
+        time.sleep(.5)
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
         hover.perform()
@@ -436,13 +411,11 @@ class TestDeleteObjects(FunctionalTest):
         self.assertEqual(len(sitios)-1, len(vinculos))
         for i in range(1, len(sitios)):
             self.browser.find_element_by_xpath("//a[contains(text(), '{0}')]".format(sitios[i].sitio_name))
-    
+
     def test_destinatario_delete(self):
         self.user_login(self.user.username, "password")
         self.create_proyect_objects(5, 5, 0, 0)
         destinatarios = Destinatario.objects.all()
-        self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]"))
-        self.browser.find_element_by_xpath("//*[contains(text(), 'Proyectos')]").click()
         self.wait_for(lambda:self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]"))
         catalogos = self.browser.find_element_by_xpath("//*[contains(text(), 'Catalogos')]")
         hover = self.actions.move_to_element(catalogos)
