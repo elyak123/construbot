@@ -38,6 +38,10 @@ clean:
 test:
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
+
+current:
+	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test --tag=current
+
 cleanhard: clean
 	@docker rmi $(shell docker images -q) -f
 	@docker volume prune -f
