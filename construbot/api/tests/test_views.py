@@ -35,7 +35,7 @@ class TestApiViews(BaseCoreTestCase):
             reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
         )
         print(response.json())
-        self.assertTrue(response.json()['success'], msg=response.json())
+        self.assertTrue(response.json()['success'])
         self.assertEqual(email_test, User.objects.get(id=response.json()['id']).email)
         self.assertFalse(response.data['usable'])
 
