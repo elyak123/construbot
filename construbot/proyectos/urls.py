@@ -65,16 +65,16 @@ urlpatterns = [
         view=views.EstimateDetailView.as_view(),
         name='estimate_detail'
     ),
-    url(
-        regex=r'^estimacion/pdf/(?P<pk>\d+)/$',
-        view=views.EstimatePdfPrint.as_view(),
-        name='estimate_detailpdf'
-    ),
-    url(
-        regex=r'^generador/pdf/(?P<pk>\d+)/$',
-        view=views.GeneratorPdfPrint.as_view(),
-        name='estimate_detailpdf'
-    ),
+    # url(
+    #     regex=r'^estimacion/pdf/(?P<pk>\d+)/$',
+    #     view=views.EstimatePdfPrint.as_view(),
+    #     name='estimate_detailpdf'
+    # ),
+    # url(
+    #     regex=r'^generador/pdf/(?P<pk>\d+)/$',
+    #     view=views.GeneratorPdfPrint.as_view(),
+    #     name='estimate_detailpdf'
+    # ),
     url(regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
         name='nuevo_contrato'
@@ -143,5 +143,9 @@ urlpatterns = [
      url(regex=r'^company-autocomplete/$',
         view=views.CompanyAutocomplete.as_view(),
         name='company-autocomplete'
+    ),
+     url(regex=r'^latex/$',
+        view=views.latex_pdf,
+        name='latex'
     ),
 ]

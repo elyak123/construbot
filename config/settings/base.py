@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'django_tex', # LaTex pdf generation
 ]
 
 # Apps specific for this project go here.
@@ -325,3 +326,4 @@ UUID = env('UUID', default='')
 
 USERNAME_TEST = env('USERNAME_TEST', default='')
 PWD_TEST = env('PWD_TEST', default='')
+LATEX_INTERPRETER = 'pdflatex'
