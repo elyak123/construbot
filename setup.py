@@ -13,7 +13,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     license='GNU Affero General Public License v3',
-    description='A simple Django app to conduct Web-based polls.',
+    description='Una Solucion operativa para constructoras.',
     long_description=README,
     url='https://www.construbot.org/',
     author='Javier Llamas Ramirez',
