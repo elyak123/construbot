@@ -3,9 +3,12 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[requires]
+python_version = "3.6.6"
+
 [packages]
 # Conservative Django
-django = "==1.11.9"
+django = "==1.11.16"
 # REST
 djangorestframework = "==3.8.2"
 djangorestframework-jwt = "==1.11.0"
@@ -40,6 +43,7 @@ django_tex = {editable = true, ref = "v0.4.0", git = "https://github.com/weinbus
 # Your custom requirements go here
 django-autocomplete-light = "==3.2.10"
 django-bootstrap4 = "==0.0.6"
+
 #### DEPLOYMENT
 # WSGI Handler
 # ------------------------------------------------
@@ -48,10 +52,10 @@ gunicorn = "==19.7.1"
 # Static and Media Storage
 # ------------------------------------------------
 boto3 = "==1.5.12"
-django-storages = "==1.6.5"
+django-storages = "==1.7"
 # Email backends for Mailgun, Postmark, SendGrid and more
 # -------------------------------------------------------
-django-anymail = "==1.2"
+django-anymail = "==1.4"
 # Raven is the Sentry client
 # --------------------------
 raven = "==6.4.0"
