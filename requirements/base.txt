@@ -1,5 +1,5 @@
 -i https://pypi.python.org/simple
--e git+https://github.com/weinbusch/django-tex.git@fe2b73717ca90cfc04776e823648802f6f60606b#egg=django-tex
+-e git+https://github.com/elyak123/django-tex.git@77c8b35caf84324f213d5904611f60d24e8b83d0#egg=django-tex
 amqp==1.4.9
 anyjson==0.3.3
 argon2-cffi==18.1.0
@@ -8,7 +8,7 @@ billiard==3.3.0.23
 boto3==1.5.12
 botocore==1.8.50
 celery==3.1.25
-certifi==2018.8.24
+certifi==2018.10.15
 cffi==1.11.5
 chardet==3.0.4
 defusedxml==0.5.0

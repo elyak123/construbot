@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "18f43647457afd39c99cc30f4db665f57ffc2cce9b40b3c5efd3550a191c0bdb"
+            "sha256": "0aac8e346939506f62899bf23e1e2ceb9c3df6ecfcaa2ef54dab3e7d577ddf4f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -103,10 +103,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:376690d6f16d32f9d1fe8932551d80b23e9d393a8578c5633a2ed39a64861638",
-                "sha256:456048c7e371c089d0a77a5212fb37a2c2dce1e24146e3b7e0261736aaeaa22a"
+                "sha256:339dc09518b07e2fa7eda5450740925974815557727d6bd35d319c1524a04a4c",
+                "sha256:6d58c986d22b038c8c0df30d639f23a3e6d172a05c3583e766f4c0b785c0986a"
             ],
-            "version": "==2018.8.24"
+            "version": "==2018.10.15"
         },
         "cffi": {
             "hashes": [
@@ -244,8 +244,8 @@
         },
         "django-tex": {
             "editable": true,
-            "git": "https://github.com/weinbusch/django-tex.git",
-            "ref": "fe2b73717ca90cfc04776e823648802f6f60606b"
+            "git": "https://github.com/elyak123/django-tex.git",
+            "ref": "77c8b35caf84324f213d5904611f60d24e8b83d0"
         },
         "djangorestframework": {
             "hashes": [
@@ -622,10 +622,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:376690d6f16d32f9d1fe8932551d80b23e9d393a8578c5633a2ed39a64861638",
-                "sha256:456048c7e371c089d0a77a5212fb37a2c2dce1e24146e3b7e0261736aaeaa22a"
+                "sha256:339dc09518b07e2fa7eda5450740925974815557727d6bd35d319c1524a04a4c",
+                "sha256:6d58c986d22b038c8c0df30d639f23a3e6d172a05c3583e766f4c0b785c0986a"
             ],
-            "version": "==2018.8.24"
+            "version": "==2018.10.15"
         },
         "chardet": {
             "hashes": [
@@ -903,10 +903,10 @@
         },
         "pluggy": {
             "hashes": [
-                "sha256:6e3836e39f4d36ae72840833db137f7b7d35105079aee6ec4a62d9f80d594dd1",
-                "sha256:95eb8364a4708392bae89035f45341871286a333f749c3141c20573d2b3876e1"
+                "sha256:447ba94990e8014ee25ec853339faf7b0fc8050cdc3289d4d71f7f410fb90095",
+                "sha256:bde19360a8ec4dfd8a20dcb811780a30998101f078fc7ded6162f0076f50508f"
             ],
-            "version": "==0.7.1"
+            "version": "==0.8.0"
         },
         "prompt-toolkit": {
             "hashes": [
