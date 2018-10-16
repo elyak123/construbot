@@ -1,32 +1,67 @@
-# Local development dependencies go here
--r base.txt
-
+-i https://pypi.python.org/simple
+alabaster==0.7.12
+appnope==0.1.0 ; sys_platform == 'darwin'
+atomicwrites==1.2.1
+attrs==18.2.0
+babel==2.6.0
+backcall==0.1.0
+certifi==2018.8.24
+chardet==3.0.4
+coreapi==2.3.3
+coreschema==0.0.4
 coverage==4.4.2
-django-coverage-plugin==1.5.0
-
-Sphinx==1.6.6
-django-extensions==1.9.8
-Werkzeug==0.14.1
-django-test-plus==1.0.22
-factory-boy==2.9.2
-
-django-debug-toolbar==1.9.1
-
-# improved REPL
-ipdb==0.10.3
-
-pytest-django==3.1.2
-pytest-sugar==0.9.0
-
-
-# Mine....
 coveralls==1.2.0
-selenium==3.12.0
+decorator==4.3.0
+django-coverage-plugin==1.5.0
+django-debug-toolbar==1.9.1
+django-extensions==1.9.8
+django-filter==2.0.0
+django-test-plus==1.0.22
+django==1.11.16
+docopt==0.6.2
+docutils==0.14
+factory-boy==2.9.2
+faker==0.9.2
+httpie==0.9.9
+idna==2.7
+imagesize==1.1.0
+ipdb==0.10.3
+ipython-genutils==0.2.0
+ipython==7.0.1 ; python_version >= '3.3'
+itypes==1.1.0
+jedi==0.13.1
+jinja2==2.10
+markdown==2.6.11
+markupsafe==1.0
+more-itertools==4.3.0
+parso==0.3.1
+pexpect==4.6.0 ; sys_platform != 'win32'
+pickleshare==0.7.5
 pip-autoremove==0.9.0
 pipdeptree==0.10.1
-
-# For djangorestframework
-coreapi>=1.32.0
-Markdown==2.6.11
-django-filter>=1.0.1
-httpie==0.9.9
+pluggy==0.7.1
+prompt-toolkit==2.0.6
+ptyprocess==0.6.0
+py==1.7.0
+pygments==2.2.0
+pytest-django==3.1.2
+pytest-sugar==0.9.0
+pytest==3.8.2
+python-dateutil==2.7.3
+pytz==2017.3
+requests==2.19.1
+selenium==3.12.0
+simplegeneric==0.8.1
+six==1.11.0
+snowballstemmer==1.2.1
+sphinx==1.6.6
+sphinxcontrib-websupport==1.1.0
+sqlparse==0.2.4
+termcolor==1.1.0
+text-unidecode==1.2
+traitlets==4.3.2
+typing==3.6.6
+uritemplate==3.0.0
+urllib3==1.23
+wcwidth==0.1.7
+werkzeug==0.14.1
