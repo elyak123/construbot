@@ -1,11 +1,32 @@
 {% load humanize %}
 {% load i18n %}
-<style>
-@page {
-    size: letter landscape;
-    margin: 1cm;
-}
-</style>
+{% if pdf %}
+  {% load static i18n compress %}
+  {% load bootstrap4 %}
+  <!DOCTYPE html>
+  <html lang="es">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      <title>{% block title %}Construbot{% endblock title %}</title>
+      <meta name="description" content="{% block metadescription %}{% endblock metadescription %}">
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+      <meta name="author" content="{% block author %}{% endblock author %}">
+      {# Bootstrap 4 #}
+      {% bootstrap_css %}
+      <!-- ICONOS Iconic para Bootstrap 4 -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+      {% compress css %}
+        <link href="{% static 'css/project.css' %}" rel="stylesheet">
+        {% block css %}
+        <style type="text/css">
+          tr { page-break-inside: avoid !important; }
+        </style>
+        {% endblock css %}
+      {% endcompress %}
+    </head>
+{% endif %}
 <table class="estimate">
   <thead>
       <tr>
@@ -120,3 +141,4 @@
       </tr>
     </tfoot>
 </table>
+{% if pdf %}</html>{% endif %}

@@ -1,13 +1,32 @@
 {% load humanize %}
 {% load i18n %}
-<style>
-@page {
-    size: letter landscape;
-    margin: 1cm;
-}
-</style>
 {% if pdf %}
-<div class="est_cont">
+  {% load static i18n compress %}
+  {% load bootstrap4 %}
+  <!DOCTYPE html>
+  <html lang="es">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      <title>{% block title %}Construbot{% endblock title %}</title>
+      <meta name="description" content="{% block metadescription %}{% endblock metadescription %}">
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+      <meta name="author" content="{% block author %}{% endblock author %}">
+      {# Bootstrap 4 #}
+      {% bootstrap_css %}
+      <!-- ICONOS Iconic para Bootstrap 4 -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+      {% compress css %}
+        <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
+        {% block css %}
+          <style type="text/css">
+            tr { page-break-inside: avoid !important; }
+          </style>
+        {% endblock css %}
+      {% endcompress %}
+    </head>
+  <div class="est_cont">
 {% endif %}
 <table class="generator">
   <thead {% if pdf %}id="header_frame"{% endif %}>
@@ -73,9 +92,9 @@
     {% language 'en' %}
   	{% for concepto in conceptos %}
   	  {% if concepto.cantidad_esta_estimacion %}
-  	    <tr>
+        <tr>
   	      <td> {{ concepto.code }} </td>
-  	      <td class="generatorDescription">
+  	      <td class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}>
   	        <p>{{ concepto.concept_text }}</p>
   	      </td>
   	      <td> {{ concepto.largo }} </td>
@@ -92,19 +111,18 @@
   	    </tr>
   	    {% if conceptos.total_imagenes_estimacion.total_images %}
   	      <tr>
-  	        <td colspan="8" style="height:600px; text-align: center;">
+  	        <td colspan="8" style="{% if not pdf %}height:600px; {% endif %}text-align: center;">
   	            {% if concepto.image_count %}
   	              {% for image in concepto.anotar_imagenes %}
   	                {% if concepto.image_count == 1 %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;{% if pdf %} max-width: 49%;{% endif %}" src="{{ image.image.url }}">
   	                {% elif concepto.image_count == 2 %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 49%;" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 45%;" src="{{ image.image.url }}">
   	                {% else %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 49%; max-width: 49%;" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="{% if pdf %}max-height: 30%; max-width: 30%;{% else %}max-height: 49%; max-width: 49%;{% endif %}" src="{{ image.image.url }}">
   	                {% endif %}
   	              {% endfor %}
   	            {% else %}
-  	              <img src="">
   	            {% endif %}
   	        </td>
   	      </tr>
@@ -140,5 +158,6 @@
   </tfoot>
 </table>
 {% if pdf %}
-</div>
+  </div>
+  </html>
 {% endif %}

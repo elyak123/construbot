@@ -1,4 +1,5 @@
 /*ESTILOS PATA TABLAS*/
+tr { page-break-inside: avoid !important; }
 * {
 	font-size: 8px;
 }

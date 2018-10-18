@@ -4,8 +4,7 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
-# from django.conf import settings
-# from django_weasyprint import WeasyTemplateResponseMixin
+from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.auth import AuthenticationTestMixin
 from construbot.users.models import User, Company
 from construbot.proyectos import forms
@@ -212,33 +211,29 @@ class EstimateDetailView(DynamicDetail):
         return context
 
 
-# class BasePDFGenerator(WeasyTemplateResponseMixin, EstimateDetailView):
-#     content_type = "application/pdf"
-#     pdf_stylesheets = [settings.STATIC_ROOT + '/css/pdf.css']
+class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
+    filename = None
 
-#     def get_context_data(self, **kwargs):
-#         context = super(BasePDFGenerator, self).get_context_data(**kwargs)
-#         context['pdf'] = True
-#         return context
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.get_context_data(object=self.object)
+        return super(BasePDFGenerator, self).get(self.request, *args, **kwargs)
 
+    def get_cmd_options(self):
+        return {'orientation': 'Landscape'}
 
-def latex_pdf(request):
-    from django.http import HttpResponse
-    from django_tex.core import compile_template_to_pdf
-    template_name = 'proyectos/test.tex'
-    context = {'foo': 'Bar'}
-    PDF = compile_template_to_pdf(template_name, context)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
-    response.write(PDF)
-    return response
-
-# class EstimatePdfPrint(BasePDFGenerator):
-#     template_name = 'proyectos/concept_estimate.html'
+    def get_context_data(self, **kwargs):
+        context = super(BasePDFGenerator, self).get_context_data(**kwargs)
+        context['pdf'] = True
+        return context
 
 
-# class GeneratorPdfPrint(BasePDFGenerator):
-#     template_name = 'proyectos/concept_generator.html'
+class EstimatePdfPrint(BasePDFGenerator):
+    template_name = 'proyectos/concept_estimate.html'
+
+
+class GeneratorPdfPrint(BasePDFGenerator):
+    template_name = 'proyectos/concept_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):

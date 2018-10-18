@@ -56,7 +56,7 @@ rcssmin==1.0.6
 django-compressor==2.2
 
 #PDF Generation
--e git+https://github.com/weinbusch/django-tex.git@v0.4.0#egg=django_tex
+django-wkhtmltopdf
 
 # Your custom requirements go here
 django-autocomplete-light==3.2.10
