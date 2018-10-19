@@ -4,11 +4,11 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements /requirements
 # Solo en caso de usar python alpine
-RUN apk --update --upgrade add bash
+RUN apk add bash
 
 ##
 RUN apk add --no-cache --virtual .build-deps \
-  build-base git postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
     && pip install -r /requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
@@ -24,18 +24,15 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
 ##
-# dependencies for texlive
-RUN apk add -U --repository http://dl-3.alpinelinux.org/alpine/edge/main \
-    poppler harfbuzz-icu
 
-# zziplib (found in edge/community repository) is a dependency to texlive-luatex
-RUN apk add -U --repository http://dl-3.alpinelinux.org/alpine/edge/community \
-    zziplib
+RUN apk add --update --no-cache \
+    libgcc libstdc++ libx11 glib libxrender libxext libintl \
+    libcrypto1.0 libssl1.0 \
+    ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family wget
 
-RUN apk add -U --repository http://dl-3.alpinelinux.org/alpine/edge/testing \
-    texlive-full
 
-RUN ln -s /usr/bin/mktexlsr /usr/bin/mktexlsr.pl
+RUN wget -O /bin/wkhtmltopdf https://s3-us-west-2.amazonaws.com/elyak123-wkhtmltopdf/wkhtmltopdf
+RUN chmod +x /bin/wkhtmltopdf
 
 COPY ./compose/production/django/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r//' /entrypoint.sh

@@ -59,13 +59,13 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
-    #'crispy_forms',  # Form layouts
+    # 'crispy_forms',  # Form layouts
     'rest_framework',
     'bootstrap4',
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
-    'django_tex', # LaTex pdf generation
+    'wkhtmltopdf',  # pdf generation
 ]
 
 # Apps specific for this project go here.
@@ -300,7 +300,7 @@ LOGIN_URL = 'account_login'
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
-########## CELERY
+# ######### CELERY
 INSTALLED_APPS += ['construbot.taskapp.celery.CeleryConfig']
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='django://')
 if CELERY_BROKER_URL == 'django://':
@@ -310,7 +310,7 @@ else:
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-########## END CELERY
+# ######### END CELERY
 # django-compressor
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += ['compressor']
