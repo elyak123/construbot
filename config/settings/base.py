@@ -65,6 +65,8 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    # Security
+    'pyup-django',
     'wkhtmltopdf',  # pdf generation
 ]
 
