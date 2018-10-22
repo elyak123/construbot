@@ -7,24 +7,27 @@ pipcompile:
 	 @pip-compile --generate-hashes --output-file requirements/base.txt
 	 @pip-compile --generate-hashes requirements/local.in --output-file requirements/local.txt
 
-shell:
+dockerenv:
+	@sed -i.bak s/USE_DOCKER=no/USE_DOCKER=yes/g .env
+
+shell: dockerenv
 	@docker-compose -f docker-compose-dev.yml run django python manage.py shell
 
-poblar:
+poblar: dockerenv
 	@docker-compose -f docker-compose-dev.yml run django python manage.py poblar	
 
-up:
+up: dockerenv
 	@docker-compose -f docker-compose-dev.yml up -d
 
-down:
+down: dockerenv
 	@docker-compose -f docker-compose-dev.yml down
 
-buildev:
+buildev: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.production/DJANGO_SETTINGS_MODULE=config.settings.local/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml up --build
 
-dev:
+dev: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.production/DJANGO_SETTINGS_MODULE=config.settings.local/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml up -d redis
@@ -32,20 +35,29 @@ dev:
 	@docker-compose -f docker-compose-dev.yml up -d mailhog
 	@docker-compose -f docker-compose-dev.yml run --service-ports django
 
-buildprod:
+buildprod: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=config.settings.local/DJANGO_SETTINGS_MODULE=config.settings.production/g .env
 	@sed -i.bak s/DJANGO_DEBUG=True/DJANGO_DEBUG=False/g .env
 	@docker-compose -f docker-compose.yml up --build
-clean:
-	@docker rm $(shell docker ps -a -q) -f
 
-test:
+test: dockerenv
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
 
-current:
+current: dockerenv
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test --tag=current
+
+clean:
+	@docker rm $(shell docker ps -a -q) -f
 
 cleanhard: clean
 	@docker rmi $(shell docker images -q) -f
 	@docker volume prune -f
+
+runserver:
+	@sed -i.bak s/USE_DOCKER=yes/USE_DOCKER=no/g .env
+	@python manage.py runserver
+
+localtest:
+	@sed -i.bak s/USE_DOCKER=yes/USE_DOCKER=no/g .env
+	@python manage.py test
