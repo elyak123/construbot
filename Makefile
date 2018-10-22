@@ -1,9 +1,11 @@
 mkenv:
-	@export WORKON_HOME=$HOME/.virtualenvs
-	@export PROJECT_HOME=$HOME/WebDev
-	@export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
-	@export VIRTUALENVWRAPPER_VIRTUALENV=/usr/local/bin/virtualenv
-	@python3 scripts/devinstall.py
+	@pip-compile --help > /dev/null
+	@pip-sync requirements/base.txt requirements/local.txt
+
+pipcompile:
+	 @pip-compile --help > /dev/null
+	 @pip-compile --generate-hashes --output-file requirements/base.txt
+	 @pip-compile --generate-hashes requirements/local.in --output-file requirements/local.txt
 
 shell:
 	@docker-compose -f docker-compose-dev.yml run django python manage.py shell
