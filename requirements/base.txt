@@ -61,3 +61,6 @@ django-wkhtmltopdf
 # Your custom requirements go here
 django-autocomplete-light==3.2.10
 django-bootstrap4==0.0.6
+
+# Security
+pyup-django==0.4.0
