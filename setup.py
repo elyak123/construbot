@@ -63,16 +63,16 @@ setup(
 
         # Static and Media Storage
         # ------------------------------------------------
-        'boto3==1.5.12'
-        'django-storages==1.6.5'
+        'boto3>=1.9.28',
+        'django-storages>=1.7.1',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
-        'django-anymail==1.2.1'
+        'django-anymail==1.2.1',
         # Raven is the Sentry client
         # --------------------------
-        'raven==6.4.0'
+        'raven==6.4.0',
         # Security
-        'pyup-django==0.4.0'
+        'pyup-django==0.4.0',
     ],
     classifiers=[
         'Environment :: Web Environment',

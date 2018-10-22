@@ -54,7 +54,7 @@ DJANGO_APPS = [
     # http://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration
     'dal',
     'dal_select2',
-
+    'pyup_django',  # Security has to be before admin
     # Admin
     'django.contrib.admin',
 ]
@@ -65,8 +65,6 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
-    # Security
-    'pyup-django',
     'wkhtmltopdf',  # pdf generation
 ]
 
