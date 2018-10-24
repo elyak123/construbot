@@ -18,7 +18,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
       <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
       {% compress css %}
-        <link href="{% static 'css/project.css' %}" rel="stylesheet">
+        <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
         {% block css %}
         <style type="text/css">
           tr { page-break-inside: avoid !important; }
@@ -41,23 +41,23 @@
           <table class="informacion">
             <tr>
               <th>Contratista:</th>
-              <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+              <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
             </tr>
             <tr>
               <th>Contrato:</th>
-              <td class="subrayado"> {{ estimate.project.code }} </td>
+              <td class="bc subrayado"> {{ estimate.project.code }} </td>
             </tr>
             <tr>
               <th>Estimación N°:</th>
-              <td class="subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
+              <td class="bc subrayado"> {{ estimate.consecutive|stringformat:"02d" }} </td>
             </tr>
             <tr>
               <th>Fecha:</th>
-              <td class="subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+              <td class="bc subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
             </tr>
             <tr>
               <th>Período:</th>
-              <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+              <td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
             </tr>
           </table>
         </th>
@@ -119,14 +119,14 @@
       <tr>
         <td class="cont_firmas" colspan="12">
           <div class="cont_firma">
-            <div class="subrayado_f"></div>
+            <div class="bc subrayado_f"></div>
             <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
             <p> <strong>Supervisor de Obras </strong></p>
             <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
           </div>
           {% for firma in estimate.auth_by.all %}
             <div class="cont_firma">
-              <div class="subrayado_f"></div>
+              <div class="bc subrayado_f"></div>
               <strong>{{ firma.destinatario_text }}</strong><br>
               {% if firma.puesto %}
                 <strong>{{ firma.puesto }}</strong><br>
