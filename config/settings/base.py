@@ -75,6 +75,7 @@ LOCAL_APPS = [
     # Your stuff: custom apps go here
     'construbot.proyectos.apps.ProyectosConfig',
     'construbot.api.apps.ApiConfig',
+    'construbot.account_config.apps.AccountConfigConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -296,7 +297,9 @@ SOCIALACCOUNT_ADAPTER = 'construbot.users.adapters.SocialAccountAdapter'
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = 'users:redirect'
 LOGIN_URL = 'account_login'
-
+ACCOUNT_FORMS = {
+   'login': 'construbot.account_config.forms.AccLoginForm'
+}
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 

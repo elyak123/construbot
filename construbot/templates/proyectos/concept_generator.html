@@ -31,7 +31,7 @@
 <table class="generator">
   <thead {% if pdf %}id="header_frame"{% endif %}>
     <tr>
-      <th class="sin_borde" colspan="9">
+      <th class="sin_borde" colspan="8">
         <div class="cont_est_gen">
           <h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
           <h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
@@ -44,32 +44,32 @@
         <table class="informacion">
           <tr>
             <td>PROYECTO:</td>
-            <td class="subrayado"> {{ estimate.project.contrato_name }} </td>
+            <td class="bc subrayado"> {{ estimate.project.contrato_name }} </td>
           </tr>
           <tr>
             <td>CONTRATO:</td>
-            <td class="subrayado"> {{ estimate.project.code }} </td>
+            <td class="bc subrayado"> {{ estimate.project.code }} </td>
           </tr>
           <tr>
             <td>ÁREA:</td>
-            <td class="subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
+            <td class="bc subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
           </tr>
         </table>
       </th>
       <th class="sin_borde" colspan="1"></th>
-      <th class="sin_borde" colspan="4">
+      <th class="sin_borde" colspan="3">
         <table class="informacion">
           <tr>
             <td>CONTRATISTA:</td>
-            <td class="subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+            <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
           </tr>
           <tr>
             <td>PERIODO:</td>
-            <td class="subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+            <td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
           </tr>
           <tr>
             <td>PLANOS:</td>
-            <td class="subrayado"> - </td>
+            <td class="bc subrayado"> - </td>
           </tr>
         </table>
       </th>     
@@ -111,15 +111,15 @@
   	    </tr>
   	    {% if conceptos.total_imagenes_estimacion.total_images %}
   	      <tr>
-  	        <td colspan="8" style="{% if not pdf %}height:600px; {% endif %}text-align: center;">
+  	        <td colspan="8" style="height:400px; text-align: center;">
   	            {% if concepto.image_count %}
   	              {% for image in concepto.anotar_imagenes %}
   	                {% if concepto.image_count == 1 %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;{% if pdf %} max-width: 49%;{% endif %}" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%;" src="{{ image.image.url }}">
   	                {% elif concepto.image_count == 2 %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-height: 99%; max-width: 45%;" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-width: 45%;" src="{{ image.image.url }}">
   	                {% else %}
-  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="{% if pdf %}max-height: 30%; max-width: 30%;{% else %}max-height: 49%; max-width: 49%;{% endif %}" src="{{ image.image.url }}">
+  	                  <img class="estimateImage{{forloop.parentloop.counter}}" style="max-width: 30%;" src="{{ image.image.url }}">
   	                {% endif %}
   	              {% endfor %}
   	            {% else %}
@@ -135,14 +135,14 @@
     <tr>
       <td class="cont_firmas" colspan="8">
         <div class="cont_firma">
-          <div class="subrayado_f"></div>
+          <div class="bc subrayado_f"></div>
           <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
           <p> <strong>Supervisor de Obras </strong></p>
           <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
         </div>
         {% for firma in estimate.auth_by_gen.all %}
           <div class="cont_firma">
-            <div class="subrayado_f"></div>
+            <div class="bc subrayado_f"></div>
             <p><strong>{{ firma.destinatario_text }}</strong></p>
             {% if firma.puesto %}
               <p><strong>{{ firma.puesto }}</strong></p>
