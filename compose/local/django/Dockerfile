@@ -9,7 +9,8 @@ RUN apk add bash
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
-    && pip install -r /requirements/local.txt \
+    && pip install pip-tools==3.1.0 \
+    && pip-sync requirements/base.txt requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \

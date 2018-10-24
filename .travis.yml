@@ -12,7 +12,8 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install -r requirements/test.txt
+  - pip install pip-tools==3.1.0
+  - pip-sync requirements/test.txt
 script:
   - DJANGO_SETTINGS_MODULE=config.settings.test coverage run --source='.' manage.py test
 after_success:
