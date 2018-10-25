@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
 
-ROOT_DIR = environ.Path(__file__) - 3  # (construbot/config/settings/base.py - 3 = construbot/)
+ROOT_DIR = environ.Path(__file__) - 4  # (construbot/construbot/config/settings/base.py - 3 = construbot/)
 APPS_DIR = ROOT_DIR.path('construbot')
 
 # Load operating system environment variables and then prepare to use them
@@ -241,10 +241,10 @@ MEDIA_URL = '/media/'
 
 # URL Configuration
 # ------------------------------------------------------------------------------
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'construbot.config.urls'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'construbot.config.wsgi.application'
 
 # PASSWORD STORAGE SETTINGS
 # ------------------------------------------------------------------------------
