@@ -35,3 +35,27 @@
     </div>
   {% endlanguage %}
 {% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript">
+  var list = $(".image");
+  var ch_list;
+    if (list.length>0) {
+      for(var i=0; i<list.length; i++){
+        $("#img-"+i).css("height", '400px');
+      }
+      for(i=0; i<list.length; i++){
+        ch_list = $("#img-"+i).children();
+        if(ch_list.length>0){
+          if(ch_list.length>1){
+            ch_list.css("max-width", (100/ch_list.length)-1+'%');
+            ch_list.css("max-height", 99+'%');
+          } else {
+            ch_list.css("max-height", 99+'%');
+          }
+        }
+      }
+    }
+</script>
+{% endblock %}
+

@@ -220,7 +220,10 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return super(BasePDFGenerator, self).get(self.request, *args, **kwargs)
 
     def get_cmd_options(self):
-        return {'orientation': 'Landscape'}
+        return {
+            'orientation': 'Landscape',
+            'javascript-delay': 1000
+        }
 
     def get_context_data(self, **kwargs):
         context = super(BasePDFGenerator, self).get_context_data(**kwargs)
