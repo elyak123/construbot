@@ -10,9 +10,6 @@ urlpatterns = [
     url(r'^$', UserRedirectView.as_view(), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
 
-    # Django Admin, use {% url 'admin:index' %}
-    url(settings.ADMIN_URL, admin.site.urls),
-
     # User management
     url(r'^users/', include('construbot.users.urls', namespace='users')),
     url(r'^proyectos/', include('construbot.proyectos.urls', namespace='proyectos')),
@@ -24,7 +21,13 @@ urlpatterns = [
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG:  # pragma: no cover
+if not settings.CONSTRUBOT_AS_LIBRARY:
+    urlpatterns += [
+        # Django Admin, use {% url 'admin:index' %}
+        url(settings.ADMIN_URL, admin.site.urls),
+    ]
+
+if settings.DEBUG and not settings.CONSTRUBOT_AS_LIBRARY:  # pragma: no cover
     # This allows the error pages to be debugged during development, just visit
     # these url in browser to see how these error pages look like.
     urlpatterns += [

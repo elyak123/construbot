@@ -328,5 +328,4 @@ ADMIN_URL = r'^admin/'
 UUID = env('UUID', default='')
 
 USERNAME_TEST = env('USERNAME_TEST', default='')
-PWD_TEST = env('PWD_TEST', default='')
-LATEX_INTERPRETER = 'pdflatex'
+CONSTRUBOT_AS_LIBRARY = env.bool('CONSTRUBOT_AS_LIBRARY', False)
