@@ -4,14 +4,17 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F
 from django.db.models.functions import Lower
 from django.http import JsonResponse
+from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.auth import AuthenticationTestMixin
-from construbot.users.models import User, Company
+from construbot.users.models import Company
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes
+
+User = get_user_model()
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):

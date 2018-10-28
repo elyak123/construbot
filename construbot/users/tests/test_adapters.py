@@ -1,10 +1,13 @@
 # from unittest import skip
-from django.test import tag
+# from django.test import tag
 from test_plus.test import TestCase
 from django.urls import reverse
-from construbot.users.models import User, Company
+from construbot.users.models import Company
 from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 from . import factories
+
+User = get_user_model()
 
 
 class AccountAdapterTest(TestCase):

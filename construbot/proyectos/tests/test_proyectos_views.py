@@ -2,15 +2,12 @@ import json
 import decimal
 from unittest import mock
 from django.shortcuts import reverse
-from django.core.management import call_command
-from django.utils.six import StringIO
-from django.test import RequestFactory, tag
+from django.test import RequestFactory  #, tag
 from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
 from construbot.proyectos import views
-from construbot.proyectos.models import Destinatario, Sitio, Cliente, Contrato, Estimate
-from construbot.users.models import User, Company, Customer
+from construbot.proyectos.models import Destinatario, Contrato, Estimate
 from . import factories
 
 

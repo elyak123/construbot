@@ -1,6 +1,9 @@
 import factory
-from construbot.users.models import Customer, Company, User
+from django.contrib.auth import get_user_model
+from construbot.users.models import Customer, Company
 from django.contrib.auth.models import Group
+
+User = get_user_model()
 
 
 class CustomerFactory(factory.django.DjangoModelFactory):

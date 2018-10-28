@@ -1,7 +1,10 @@
 from . import factories
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from test_plus.test import TestCase
-from construbot.users.models import User, Customer
+from construbot.users.models import Customer
+
+User = get_user_model()
 
 
 class TestUser(TestCase):

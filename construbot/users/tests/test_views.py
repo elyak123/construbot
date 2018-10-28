@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory, override_settings, tag
+from django.test import RequestFactory, override_settings  # , tag
 from django.urls import reverse
 from django.contrib.auth.models import Group
 from construbot.users.models import Company
@@ -18,6 +18,7 @@ from ..forms import (
     UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
     CompanyForm
 )
+
 
 class BaseUserTestCase(utils.BaseTestCase):
 
@@ -200,7 +201,7 @@ class TestDetailUserView(BaseUserTestCase):
         with self.assertRaises(PermissionDenied):
             view.test_func()
 
-    def test_detail_view_another_user_requires_admin_perms(self):
+    def test_detail_view_another_company_returns_user_obj(self):
         group, created = Group.objects.get_or_create(name='Users')
         self.user.groups.add(group)
         group, created = Group.objects.get_or_create(name='Administrators')
@@ -218,6 +219,7 @@ class TestDetailUserView(BaseUserTestCase):
         view.kwargs['username'] = None
         obj = view.get_object()
         self.assertEqual(obj, self.user)
+
 
 class TestUserCreateView(BaseUserTestCase):
     def test_user_creation_form_query_involves_requests_user_companies(self):
@@ -246,7 +248,7 @@ class TestUserCreateView(BaseUserTestCase):
         query = [repr(x) for x in self.user.company.all()]
         self.assertNotEqual(other_user.customer, self.user.customer)
         self.assertIsInstance(form, UsuarioInterno)
-        self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)    
+        self.assertQuerysetEqual(form.fields['company'].queryset, query, ordered=False)
 
     def test_user_creation_correct_success_url(self):
         view = self.get_instance(
@@ -381,7 +383,7 @@ class TestUserDeleteView(BaseUserTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
-    
+
     def test_get_correct_object(self):
         test_company = factories.CompanyFactory(customer=self.user.customer)
         self.view.kwargs = {'pk': test_company.pk, 'model': 'Company'}
@@ -394,6 +396,7 @@ class TestUserDeleteView(BaseUserTestCase):
         test_company = factories.CompanyFactory(customer=self.user.customer)
         self.view.kwargs = {'pk': test_company.pk, 'model': 'Company'}
         self.assertEqual(self.view.delete(request=self.request).status_code, 200)
+
 
 class TestCompanyChangeView(BaseUserTestCase):
 
@@ -452,6 +455,7 @@ class TestCompanyListView(BaseUserTestCase):
             'Company'
         )
 
+
 class TestCompanyDetailView(BaseUserTestCase):
 
     def setUp(self):
@@ -463,7 +467,7 @@ class TestCompanyDetailView(BaseUserTestCase):
         company = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company)
         self.user.currently_at = company
-    
+
     def test_get_correct_context_object_name(self):
         test_company = factories.CompanyFactory(customer=self.user.customer)
         self.assertEqual(

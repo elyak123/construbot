@@ -7,8 +7,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from construbot.users.models import User, Company, Customer
+from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
+
+User = get_user_model()
 
 
 class CustomerList(generics.ListCreateAPIView):

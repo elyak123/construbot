@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from construbot.users.models import Customer, Company, User
+from construbot.users.models import Customer
+
+User = get_user_model()
 
 
 class CustomerSerializer(serializers.ModelSerializer):

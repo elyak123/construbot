@@ -1,8 +1,9 @@
-from users.tests import factories, utils
-from construbot.users.models import User
-from construbot.api.views import email_uniqueness
-from django.test import RequestFactory, tag
+from django.test import RequestFactory  # , tag
 from django.urls import reverse
+from django.contrib.auth import get_user_model
+from users.tests import factories, utils
+
+User = get_user_model()
 
 
 class BaseCoreTestCase(utils.BaseTestCase):
