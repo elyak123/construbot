@@ -38,13 +38,13 @@
 
 {% block javascript %}
 <script type="text/javascript">
-  var list = $(".image");
+  var list = {{ cantidad_de_conceptos }};
   var ch_list;
-    if (list.length>0) {
-      for(var i=0; i<list.length; i++){
+    if (list>0) {
+      for(var i=0; i<list; i++){
         $("#img-"+i).css("height", '400px');
       }
-      for(i=0; i<list.length; i++){
+      for(i=0; i<list; i++){
         ch_list = $("#img-"+i).children();
         if(ch_list.length>0){
           if(ch_list.length>1){
