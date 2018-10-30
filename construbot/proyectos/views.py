@@ -314,7 +314,8 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  generator_inline_concept=zip(generator_inline_concept, codes),
+                                  generator_zip=zip(generator_inline_concept, codes),
+                                  generator_inline_concept=generator_inline_concept,
                                   image_formset_prefix=image_formset_prefix,
                                   )
         )
