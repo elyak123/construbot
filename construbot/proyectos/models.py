@@ -1,11 +1,9 @@
+from django.conf import settings
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
-from django.contrib.auth import get_user_model
 from construbot.core.utils import Round, get_directory_path
 from construbot.users.models import Company
-
-User = get_user_model()
 
 
 # Create your models here.
@@ -76,7 +74,7 @@ class Contrato(models.Model):
     status = models.BooleanField(default=True)
     file = models.FileField(upload_to=get_directory_path, blank=True, null=True)
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
@@ -103,8 +101,8 @@ class Units(models.Model):
 class Estimate(models.Model):
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
-    draft_by = models.ForeignKey(User, related_name='draft_by', on_delete=models.CASCADE)
-    supervised_by = models.ForeignKey(User, related_name='supervised_by', on_delete=models.CASCADE)
+    draft_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='draft_by', on_delete=models.CASCADE)
+    supervised_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='supervised_by', on_delete=models.CASCADE)
     start_date = models.DateField('start_date')
     finish_date = models.DateField('finish_date')
     draft_date = models.DateField('draft_date', auto_now=True)
