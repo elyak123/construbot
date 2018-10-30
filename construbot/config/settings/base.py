@@ -54,7 +54,6 @@ DJANGO_APPS = [
     # http://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration
     'dal',
     'dal_select2',
-    'pyup_django',  # Security has to be before admin
     # Admin
     'django.contrib.admin',
 ]
