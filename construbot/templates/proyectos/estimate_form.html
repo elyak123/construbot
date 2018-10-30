@@ -65,9 +65,9 @@
                 {% bootstrap_form form %}
             </div>
         {{ generator_inline_concept.management_form }}
-        {% for frm in generator_inline_concept %}
+        {% for frm, code in generator_inline_concept %}
             <div class="{% cycle 'fila_impar' 'fila_par' %}">
-                <div style="text-align: center;"><h4>Concepto: {{ frm.concept.value }}</h4></div>
+                <div style="text-align: center;"><h4>Concepto: {{ code }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.observations %}

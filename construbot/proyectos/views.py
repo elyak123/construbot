@@ -310,10 +310,11 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         fill_data = self.fill_concept_formset()
         inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(initial=fill_data)
+        codes = [x['concept'].code for x in fill_data]
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
             self.get_context_data(form=form,
-                                  generator_inline_concept=generator_inline_concept,
+                                  generator_inline_concept=zip(generator_inline_concept, codes),
                                   image_formset_prefix=image_formset_prefix,
                                   )
         )
@@ -493,12 +494,22 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
             formset = self.conceptForm
         return formset
 
+    def get_concept_codes(self):
+        self.project_instance = shortcuts.get_object_or_404(
+            Contrato,
+            pk=self.object.project.pk,
+            cliente__company=self.request.user.currently_at
+        )
+        concepts = [x.code for x in Concept.objects.filter(project=self.project_instance).order_by('id')]
+        return concepts
+
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
         project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
         formset = self.get_formset_for_context()
+        concept_codes = self.get_concept_codes()
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
-        context['generator_inline_concept'] = formset
+        context['generator_inline_concept'] = zip(formset, concept_codes)
         context['image_formset_prefix'] = image_formset_prefix
         context['project_instance'] = project_instance
         return context
