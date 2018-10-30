@@ -67,7 +67,7 @@ setup(
         'django-storages>=1.7.1',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
-        'django-anymail==1.2.1',
+        'django-anymail==1.4',
         # Raven is the Sentry client
         # --------------------------
         'raven==6.4.0',

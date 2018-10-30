@@ -4,11 +4,9 @@ from django.core.validators import validate_email
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 
-@python_2_unicode_compatible
 class Customer(models.Model):
     customer_name = models.CharField(max_length=120, blank=True, null=True)
 
@@ -23,7 +21,6 @@ class Customer(models.Model):
             return str(self.id)
 
 
-@python_2_unicode_compatible
 class Company(models.Model):
     full_name = models.CharField(max_length=250, blank=True, null=True)
     company_name = models.CharField(max_length=120)
@@ -70,17 +67,14 @@ class ExtendUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-@python_2_unicode_compatible
-class User(AbstractUser):
+class AbstractConstrubotUser(AbstractUser):
 
     company = models.ManyToManyField(Company)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     currently_at = models.ForeignKey(
         Company, on_delete=models.SET_NULL, blank=True, null=True, related_name='currently_at'
     )
-    user_creation = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
-    last_supervised = models.DateTimeField(default=timezone.now)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     email = models.EmailField(unique=True, validators=[validate_email])
 
@@ -88,6 +82,11 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
 
     objects = ExtendUserManager()
+
+    class Meta:
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
+        abstract = True
 
     def __str__(self):
         return self.email
@@ -101,3 +100,9 @@ class User(AbstractUser):
             return True
         except ObjectDoesNotExist:
             return False
+
+
+class User(AbstractConstrubotUser):
+
+    class Meta(AbstractConstrubotUser.Meta):
+        swappable = 'AUTH_USER_MODEL'
