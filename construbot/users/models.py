@@ -74,9 +74,7 @@ class AbstractConstrubotUser(AbstractUser):
     currently_at = models.ForeignKey(
         Company, on_delete=models.SET_NULL, blank=True, null=True, related_name='currently_at'
     )
-    user_creation = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
-    last_supervised = models.DateTimeField(default=timezone.now)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     email = models.EmailField(unique=True, validators=[validate_email])
 
