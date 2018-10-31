@@ -1,11 +1,14 @@
 # from django import forms
 from django import forms
 from django.forms import ValidationError
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
-from .models import User, Company
+from .models import Company
 from dal import autocomplete
+
+User = get_user_model()
 
 
 class UserForm(UserCreationForm):
