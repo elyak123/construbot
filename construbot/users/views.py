@@ -1,11 +1,14 @@
 from django import http
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
-from .models import User, Company
+from .models import Company
 from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm, CompanyEditForm
+
+User = get_user_model()
 
 
 class UsersMenuMixin(AuthenticationTestMixin):
@@ -102,6 +105,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
+    template_name = 'users/user_form.html'
 
     def get_tengo_que_ser_admin(self):
         if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
@@ -178,9 +182,6 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     form_class = CompanyEditForm
     template_name = 'proyectos/company_edit_form.html'
 
-    def post(self, request, *args, **kwargs):
-        return super(CompanyEditView, self).post(request, *args, **kwargs)
-
     def get_initial(self):
         initial = super(CompanyEditView, self).get_initial()
         initial['is_new'] = self.check_for_uuid()
@@ -218,6 +219,7 @@ class UserDeleteView(UsersMenuMixin, DeleteView):
 
 
 class UserListView(UsersMenuMixin, ListView):
+    template_name = 'users/user_list.html'
     change_company_ability = True
     app_label_name = UsersConfig.verbose_name
     model = User
