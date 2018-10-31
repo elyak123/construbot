@@ -646,7 +646,6 @@ class UserAutocomplete(AutocompletePoryectos):
 
     def get_queryset(self):
         if self.request.user and self.q:
-            import pdb; pdb.set_trace()
             qs = self.model.objects.filter(
                 (Q(username__unaccent__icontains=self.q) | Q(email__unaccent__icontains=self.q)),
                 company=self.request.user.currently_at

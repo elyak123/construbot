@@ -14,7 +14,7 @@ from . import factories
 class BaseViewTest(utils.BaseTestCase):
     def setUp(self):
         self.user_factory = factories.UserFactory
-        self.user = self.make_user()
+        self.user = self.user_factory()
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
@@ -1307,11 +1307,20 @@ class UnitAutocompleteTest(BaseViewTest):
 
 
 class UserAutocompleteTest(BaseViewTest):
+
+    def setUp(self):
+        self.user_factory = factories.UserFactory
+        self.user = self.user_factory(username='testuser')
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
     @tag('current')
     def test_user_username_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
         instance.q = 'test'
-        self.request.user.currently_at = self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        company_test = factories.CompanyFactory(customer=self.request.user.customer)
+        self.request.user.company.add(company_test)
+        self.request.user.currently_at = company_test
         instance.request = self.request
         qs = instance.get_queryset()
         qs_test = [repr(a) for a in sorted([self.user])]
@@ -1320,8 +1329,10 @@ class UserAutocompleteTest(BaseViewTest):
     @tag('current')
     def test_user_email_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
-        instance.q = 'user'
-        self.request.user.currently_at = self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.q = '@example'
+        company_test = factories.CompanyFactory(customer=self.request.user.customer)
+        self.request.user.company.add(company_test)
+        self.request.user.currently_at = company_test
         instance.request = self.request
         qs = instance.get_queryset()
         qs_test = [repr(a) for a in sorted([self.request.user])]
