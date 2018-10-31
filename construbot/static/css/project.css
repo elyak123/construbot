@@ -443,6 +443,20 @@ a:hover {
 }
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.fila_par, .fila_impar {
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.fila_par {
+	background-color: hsl(210, 14%, 83%);
+}
+
+.fila_impar {
+	background-color: hsla(200, 90%, 31%, 0.43);
+}
+
 table.informacion * {
 	padding: 0 !important;
 }

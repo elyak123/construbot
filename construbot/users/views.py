@@ -182,9 +182,6 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     form_class = CompanyEditForm
     template_name = 'proyectos/company_edit_form.html'
 
-    def post(self, request, *args, **kwargs):
-        return super(CompanyEditView, self).post(request, *args, **kwargs)
-
     def get_initial(self):
         initial = super(CompanyEditView, self).get_initial()
         initial['is_new'] = self.check_for_uuid()
