@@ -1,11 +1,14 @@
 from django import http
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
-from .models import User, Company
+from .models import Company
 from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm, CompanyEditForm
+
+User = get_user_model()
 
 
 class UsersMenuMixin(AuthenticationTestMixin):
@@ -102,6 +105,7 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
+    template_name = 'users/user_form.html'
 
     def get_tengo_que_ser_admin(self):
         if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
