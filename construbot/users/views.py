@@ -219,6 +219,7 @@ class UserDeleteView(UsersMenuMixin, DeleteView):
 
 
 class UserListView(UsersMenuMixin, ListView):
+    template_name = 'users/user_list.html'
     change_company_ability = True
     app_label_name = UsersConfig.verbose_name
     model = User

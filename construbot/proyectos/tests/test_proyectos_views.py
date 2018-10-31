@@ -2,7 +2,7 @@ import json
 import decimal
 from unittest import mock
 from django.shortcuts import reverse
-from django.test import RequestFactory  #, tag
+from django.test import RequestFactory, tag
 from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
@@ -1307,14 +1307,22 @@ class UnitAutocompleteTest(BaseViewTest):
 
 
 class UserAutocompleteTest(BaseViewTest):
-
-    def test_user_autocomplete_get_key_words(self):
+    @tag('current')
+    def test_user_username_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
-        instance.q = 'Fulano'
-        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.q = 'test'
+        self.request.user.currently_at = self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
         instance.request = self.request
-        dict_control = {
-            'username__unaccent__icontains': 'Fulano',
-            'company': self.request.user.currently_at
-        }
-        self.assertDictEqual(instance.get_key_words(), dict_control)
+        qs = instance.get_queryset()
+        qs_test = [repr(a) for a in sorted([self.user])]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    @tag('current')
+    def test_user_email_autocomplete_get_queryset(self):
+        instance = views.UserAutocomplete()
+        instance.q = 'user'
+        self.request.user.currently_at = self.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.request = self.request
+        qs = instance.get_queryset()
+        qs_test = [repr(a) for a in sorted([self.request.user])]
+        self.assertQuerysetEqual(qs, qs_test)

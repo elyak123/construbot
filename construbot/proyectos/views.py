@@ -1,7 +1,7 @@
 from django import shortcuts
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
-from django.db.models import Max, F
+from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
@@ -644,12 +644,16 @@ class UserAutocomplete(AutocompletePoryectos):
     model = User
     ordering = 'username'
 
-    def get_key_words(self):
-        key_words = {
-            'username__unaccent__icontains': self.q,
-            'company': self.request.user.currently_at
-        }
-        return key_words
+    def get_queryset(self):
+        if self.request.user and self.q:
+            import pdb; pdb.set_trace()
+            qs = self.model.objects.filter(
+                (Q(username__unaccent__icontains=self.q) | Q(email__unaccent__icontains=self.q)),
+                company=self.request.user.currently_at
+            )
+            return qs
+        elif self.request.user and self.request.POST:
+            return self.model.objects
 
 
 class CompanyAutocomplete(AutocompletePoryectos):
