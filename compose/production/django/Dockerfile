@@ -11,8 +11,9 @@ RUN apk add bash
 COPY ./requirements /requirements
 ##
 RUN apk add --no-cache --virtual .build-deps \
-  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
-    && pip install -r /requirements/production.txt \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
+    && pip install pip-tools==3.1.0 \
+    && pip-sync requirements/base.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
@@ -27,6 +28,15 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
 ##
+
+RUN apk add --update --no-cache \
+    libgcc libstdc++ libx11 glib libxrender libxext libintl \
+    libcrypto1.0 libssl1.0 \
+    ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family wget
+
+
+RUN wget -O /bin/wkhtmltopdf https://s3-us-west-2.amazonaws.com/elyak123-wkhtmltopdf/wkhtmltopdf
+RUN chmod +x /bin/wkhtmltopdf
 
 COPY ./compose/production/django/gunicorn.sh /gunicorn.sh
 RUN sed -i 's/\r//' /gunicorn.sh
