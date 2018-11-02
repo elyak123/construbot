@@ -79,6 +79,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
 
 class UserDetailView(UsersMenuMixin, DetailView):
     model = User
+    template_name = 'users/user_detail.html'
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
