@@ -79,6 +79,7 @@ class UsersMenuMixin(AuthenticationTestMixin):
 
 class UserDetailView(UsersMenuMixin, DetailView):
     model = User
+    template_name = 'users/user_detail.html'
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
@@ -182,9 +183,6 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
     form_class = CompanyEditForm
     template_name = 'proyectos/company_edit_form.html'
 
-    def post(self, request, *args, **kwargs):
-        return super(CompanyEditView, self).post(request, *args, **kwargs)
-
     def get_initial(self):
         initial = super(CompanyEditView, self).get_initial()
         initial['is_new'] = self.check_for_uuid()
@@ -222,6 +220,7 @@ class UserDeleteView(UsersMenuMixin, DeleteView):
 
 
 class UserListView(UsersMenuMixin, ListView):
+    template_name = 'users/user_list.html'
     change_company_ability = True
     app_label_name = UsersConfig.verbose_name
     model = User

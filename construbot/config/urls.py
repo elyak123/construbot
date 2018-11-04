@@ -8,7 +8,6 @@ from construbot.users.views import UserRedirectView
 
 urlpatterns = [
     url(r'^$', UserRedirectView.as_view(), name='home'),
-    url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
 
     # User management
     url(r'^users/', include('construbot.users.urls', namespace='users')),

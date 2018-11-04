@@ -2,7 +2,7 @@ import json
 import decimal
 from unittest import mock
 from django.shortcuts import reverse
-from django.test import RequestFactory  #, tag
+from django.test import RequestFactory, tag
 from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
@@ -14,7 +14,7 @@ from . import factories
 class BaseViewTest(utils.BaseTestCase):
     def setUp(self):
         self.user_factory = factories.UserFactory
-        self.user = self.make_user()
+        self.user = self.user_factory()
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
@@ -1308,13 +1308,32 @@ class UnitAutocompleteTest(BaseViewTest):
 
 class UserAutocompleteTest(BaseViewTest):
 
-    def test_user_autocomplete_get_key_words(self):
+    def setUp(self):
+        self.user_factory = factories.UserFactory
+        self.user = self.user_factory(username='testuser')
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
+    @tag('current')
+    def test_user_username_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
-        instance.q = 'Fulano'
-        self.request.user.currently_at = factories.CompanyFactory(customer=self.user.customer)
+        instance.q = 'test'
+        company_test = factories.CompanyFactory(customer=self.request.user.customer)
+        self.request.user.company.add(company_test)
+        self.request.user.currently_at = company_test
         instance.request = self.request
-        dict_control = {
-            'username__unaccent__icontains': 'Fulano',
-            'company': self.request.user.currently_at
-        }
-        self.assertDictEqual(instance.get_key_words(), dict_control)
+        qs = instance.get_queryset()
+        qs_test = [repr(a) for a in sorted([self.user])]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    @tag('current')
+    def test_user_email_autocomplete_get_queryset(self):
+        instance = views.UserAutocomplete()
+        instance.q = '@example'
+        company_test = factories.CompanyFactory(customer=self.request.user.customer)
+        self.request.user.company.add(company_test)
+        self.request.user.currently_at = company_test
+        instance.request = self.request
+        qs = instance.get_queryset()
+        qs_test = [repr(a) for a in sorted([self.request.user])]
+        self.assertQuerysetEqual(qs, qs_test)
