@@ -12,6 +12,10 @@
 				window.location.href = "{% url 'users:update' request.user.username %}";
 			});
 		};
+		$("#tutorialModal").modal();
+		$('#tutorialModal').on('hidden.bs.modal', function (e) {
+			document.getElementById('startButton').click();
+		});
   </script>
 {% endif %}
 {% endblock %}
@@ -116,14 +120,21 @@
 	{% endif %}
 </div>
 {% else %}
-<div class="text-center tut-div">
-	<h3>¡Bienvenido al tutorial!</h3>
-	<p>Este es el espacio de trabajo de Construbot, en este tutorial aprenderás lo básico del uso de la aplicación, además de asignarte un nombre de usuario y generar tu primer compañía.</p>
-	<a href="javascript:void(0);" id="startButton"><button class="btn btn-large btn-success">Comienza</button></a>
+<div class="modal fade" id="tutorialModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">¡Bienvenido al tutorial!</h5>
+			</div>
+			<div class="modal-body">
+				<p>Este es el espacio de trabajo de Construbot, en este tutorial aprenderás lo básico del uso de la aplicación, además de asignarte un nombre de usuario y generar tu primer compañía.</p>
+			</div>
+			<div class="modal-footer">
+				<button href="javascript:void(0);" id="startButton" type="button" class="btn btn-primary" data-dismiss="modal">Iniciar tutorial</button>
+			</div>
+		</div>
+	</div>
 </div>
-<br>
-<br>
-<br>
 <div class="row" style="text-align:center;">
 	<div class="col-xl-6">
 		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.">

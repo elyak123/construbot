@@ -56,9 +56,11 @@
                 </div>
               </li>
             {% else %}
+              {% if allow_register %}
               <li class="li_menu_nav">
                 <a class="anchor_menu_nav" href="{% url 'account_signup' %}"> Regístrate </a>
               </li>
+              {% endif %}
               <li class="li_menu_nav">
                 <a class="anchor_menu_nav" href="{% url 'account_login' %}"> Iniciar Sesión </a>
               </li>
