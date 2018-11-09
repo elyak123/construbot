@@ -3,6 +3,7 @@ from django.views.generic.base import ContextMixin
 from django import urls
 from .menu import main_menu
 from construbot.core.views import NewUserMixin
+from django.conf import settings
 
 
 class ContextManager(ContextMixin, NewUserMixin):
@@ -45,5 +46,6 @@ class ContextManager(ContextMixin, NewUserMixin):
         context = super(ContextManager, self).get_context_data(**kwargs)
         context['is_new_user'] = self.check_for_uuid()
         context['menu'] = self.get_menu()
+        context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
         context['app_label_name'] = self.app_label_name.lower()
         return context

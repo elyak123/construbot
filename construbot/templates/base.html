@@ -21,14 +21,7 @@
     {% endcompress %}
     {% block css_no_compress %}
     {% endblock css_no_compress %}
-    {% if is_new_user and request.path != '/proyectos/' %}
-      {% block conditions %}
-      <script type="text/javascript">
-        alert("Estimado usuario, para nosotros es importante que termines el tutorial, por favor, presiona aceptar.");
-        window.location.replace({% url 'proyectos:proyect_dashboard' %});
-      </script>
-      {% endblock conditions %}
-    {% endif %}
+    
   </head>
 
   <body>
@@ -63,9 +56,11 @@
                 </div>
               </li>
             {% else %}
+              {% if allow_register %}
               <li class="li_menu_nav">
                 <a class="anchor_menu_nav" href="{% url 'account_signup' %}"> Regístrate </a>
               </li>
+              {% endif %}
               <li class="li_menu_nav">
                 <a class="anchor_menu_nav" href="{% url 'account_login' %}"> Iniciar Sesión </a>
               </li>
@@ -78,7 +73,7 @@
       {% include "menu.html" %}
     {% endif %}
     <div id="cont_content" class="content_with{% if not request.user.is_authenticated %}out_auth{% elif not menu %}_little{% endif %}_sidebar">
-      {% if messages %}
+      {% if messages and not is_new_user %}
         {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
@@ -113,6 +108,14 @@
     {% endcompress %}
     {% block javascript_no_compress %}
     {% endblock javascript_no_compress %}
+    {% if is_new_user and request.path != '/proyectos/' %}
+      {% block conditions %}
+      <script type="text/javascript">
+        alert("Estimado usuario, para nosotros es importante que termines el tutorial, por favor, presiona aceptar.");
+        window.location.replace({% url 'proyectos:proyect_dashboard' %});
+      </script>
+      {% endblock conditions %}
+    {% endif %}
     {% if is_new_user and request.path != '/proyectos/' %}
       {% block conditions_2 %}
       {% endblock conditions_2 %}

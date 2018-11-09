@@ -23,8 +23,10 @@ $(document).ready(function(){
         var estimacion = $(".cont_estimacion")[0]
         var generador = $(".cont_generator")[0]
         var print = $("#print_es");
+        var ctrl = 1;
 
         boton_es.on("click", function(){
+            ctrl=0;
             estimacion.style.display = "block";
             generador.style.display = "none";
             boton_es[0].classList.add("active");
@@ -32,6 +34,7 @@ $(document).ready(function(){
         });
 
         boton_gen.on("click", function(){
+            ctrl=1;
             estimacion.style.display = "none";
             generador.style.display = "block";
             boton_es[0].classList.remove("active");
@@ -39,7 +42,17 @@ $(document).ready(function(){
         });
 
         print.on("click", function(){
-            window.print();
+            var win;
+            var url = window.location.href
+            url = url.replace('detalle', 'pdf');
+            url = url.replace('#', '');
+            if(ctrl!=0){
+                url = url.replace('estimacion', 'generador');
+            } else {
+                url = url.replace('generador', 'estimacion');
+            }
+            win = window.open(url, '_blank');
+            win.focus();
         });
     }
 
