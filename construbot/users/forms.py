@@ -30,6 +30,7 @@ class UserForm(UserCreationForm):
     class Meta:
         model = User
         exclude = [
+            'openpay',
             'password',
             'customer',
             'company',
@@ -60,6 +61,7 @@ class UsuarioInterno(UserCreationForm):
     class Meta:
         model = User
         exclude = [
+            'openpay',
             'password',
             'last_login',
             'is_superuser',
@@ -104,6 +106,7 @@ class UsuarioEdit(UserChangeForm):
     class Meta:
         model = User
         exclude = [
+            'openpay',
             'last_login',
             'is_superuser',
             'user_permissions',
@@ -149,6 +152,7 @@ class UsuarioEditNoAdmin(UserChangeForm):
     class Meta:
         model = User
         exclude = [
+            'openpay',
             'groups',
             'company',
             'last_login',
