@@ -347,7 +347,7 @@ class EstimateConcept(models.Model):
 
 
 class ImageEstimateConcept(models.Model):
-    image = models.ImageField(upload_to='hola/bla/')
+    image = models.ImageField(upload_to=get_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
 
     def __str__(self):
