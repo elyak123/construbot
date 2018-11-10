@@ -4,6 +4,7 @@
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 {% block javascript %}
 	<script type="text/javascript">
+	$(document).ready(function(){
 	    if($(".icon_right").length){
 	        function lanzar_catalogo_conceptos(){
 	            var data_id = $("#dato")[0].getAttribute("data-id")
@@ -47,6 +48,7 @@
 	        });
 	        lanzar_catalogo_conceptos();
 	    }
+	});
 	</script>
 {% endblock javascript %}
 {% block content %}
