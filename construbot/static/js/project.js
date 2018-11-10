@@ -56,50 +56,6 @@ $(document).ready(function(){
         });
     }
 
-    if($(".icon_right").length){
-        function lanzar_catalogo_conceptos(){
-            var data_id = $("#dato")[0].getAttribute("data-id")
-            $(".icon_right-up")[0].style.display = "initial";
-            $(".icon_right")[0].style.display = "none";
-            $.ajax({
-                url: "/proyectos/contrato/catalogo-list/" + data_id + "/",
-                success: function(result){
-                    result = result.conceptos;
-                    len = result.length;
-                    if(len>0){
-                        $(".table_results")[0].style.display = "block";
-                        $(".table_results")[0].style.display = "inline-table";
-                        for(i=1; i<=len; i++){
-                            var row = $(".table_results")[0].insertRow(i);
-                            var row_content = "<td>"+result[i-1]["code"]+"</td><td style='text-align:left;'>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+"$ "+intcomma(result[i-1]["unit_price"])+"</td>";
-                            row.innerHTML = row_content;
-                        }
-                    } else {
-                        $(".cont_message_no_result")[0].style.display = "block";
-                    }
-                }
-            });
-        }
-        $(".icon_right").on("click", function(){
-            lanzar_catalogo_conceptos();
-        });
-
-        $(".icon_right-up").on("click", function(){
-            $(".icon_right-up")[0].style.display = "none";
-            $(".icon_right")[0].style.display = "initial";
-            if(len>0){
-                $(".table_results")[0].style.display = "none";
-                $(".table_results")[0].style.display = "none";
-                for(i=0; i<len; i++){
-                    $(".table_results")[0].deleteRow(1);
-                }
-            } else {
-                $(".cont_message_no_result")[0].style.display = "none";
-            }
-        });
-        lanzar_catalogo_conceptos();
-    }
-
     var intcomma = function(value) {
         // inspired by django.contrib.humanize.intcomma, thanks to @banterabilitybanterability
         var origValue = String(value);
