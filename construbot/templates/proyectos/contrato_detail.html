@@ -13,7 +13,7 @@
             $(".icon_right-up")[0].style.display = "initial";
             $(".icon_right")[0].style.display = "none";
             $.ajax({
-                url: {% url 'construbot.proyectos.catalogo_conceptos_listado' contrato.id %},
+                url: {% url 'construbot.proyectos:catalogo_conceptos_listado' contrato.id %},
                 success: function(result){
                     result = result.conceptos;
                     len = result.length;
