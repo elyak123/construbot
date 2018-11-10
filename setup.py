@@ -54,7 +54,7 @@ setup(
         # PDF Generation
         'django-wkhtmltopdf>=3.2.0',
         # FrontEnd Libraries
-        'django-autocomplete-light>=3.2.10',
+        'django-autocomplete-light==3.2.10',
         'django-bootstrap4>=0.0.6',
         # WSGI Handler
         # ------------------------------------------------
