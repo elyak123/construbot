@@ -6,6 +6,16 @@
 	<script type="text/javascript">
 	$(document).ready(function(){
 	    if($(".icon_right").length){
+		    var intcomma = function(value) {
+		        // inspired by django.contrib.humanize.intcomma, thanks to @banterabilitybanterability
+		        var origValue = String(value);
+		        var newValue = origValue.replace(/^(-?\d+)(\d{3})/, '$1,$2');
+		        if (origValue == newValue){
+		            return newValue;
+		        } else {
+		            return intcomma(newValue);
+		        }
+		    };
 	        function lanzar_catalogo_conceptos(){
 	            var data_id = $("#dato")[0].getAttribute("data-id")
 	            $(".icon_right-up")[0].style.display = "initial";
