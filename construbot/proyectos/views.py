@@ -510,7 +510,8 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         formset = self.get_formset_for_context()
         concept_codes = self.get_concept_codes()
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
-        context['generator_inline_concept'] = zip(formset, concept_codes)
+        context['generator_inline_concept'] = formset
+        context['generator_zip'] = zip(formset, concept_codes)
         context['image_formset_prefix'] = image_formset_prefix
         context['project_instance'] = project_instance
         return context
