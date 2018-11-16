@@ -75,7 +75,8 @@ class AbstractConstrubotUser(AbstractUser):
     )
     last_updated = models.DateTimeField(auto_now=True)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
-    email = models.EmailField(unique=True, validators=[validate_email])
+    email = models.EmailField(unique=True, validators=[validate_email]) 
+    is_new = models.BooleanField(default=True)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
