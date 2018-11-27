@@ -2,7 +2,6 @@ import copy
 from django.views.generic.base import ContextMixin
 from django import urls
 from .menu import main_menu
-from construbot.core.views import NewUserMixin
 from django.conf import settings
 
 
