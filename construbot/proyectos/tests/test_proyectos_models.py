@@ -259,3 +259,12 @@ class ConceptTest(BaseModelTesCase):
         concept = factories.ConceptoFactory()
         with self.assertRaises(AttributeError):
             concept.anotar_imagenes()
+
+@tag('current')
+class ImageEstimateConceptTest(BaseModelTesCase):
+    @mock.patch('models.ImageEstimateConcept')
+    @mock.patch('models.get_directory_path')
+    def test_guardado_de_imagen(self, path_function, mock_image):
+        imagen = mock_image()
+        imagen.save()
+        assert path_function.called

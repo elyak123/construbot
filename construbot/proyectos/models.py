@@ -350,5 +350,9 @@ class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=get_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = 'Imagen_generador'
+        verbose_name_plural = 'Imagenes_generadores'
+
     def __str__(self):
         return '{} {}'.format(self.id, repr(self.estimateconcept))
