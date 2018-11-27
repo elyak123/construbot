@@ -8,7 +8,7 @@
 {% if is_new_user %}
 	<script type="text/javascript">
 		document.getElementById('startButton').onclick = function() {
-			introJs().setOptions({'doneLabel': 'Crea tu username', 'showBullets': false}).start().oncomplete(function() {
+			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
 				window.location.href = "{% url 'users:update' request.user.username %}";
 			});
 		};
@@ -40,7 +40,7 @@
 			<tr>
 				<th>Nombre</th>
 				{% if is_administrador %}
-					<th>% Estimado</th>
+					<th>Avance General</th>
 				{% endif %}
 			</tr>
 			{% for contrato in c_object %}
