@@ -1,9 +1,13 @@
+import tempfile
+import shutil
 from unittest import mock
-from django.test import RequestFactory, tag
+from django.test import RequestFactory, tag, override_settings
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
 from . import factories
+
+MOCK_MEDIA_ROOT = tempfile.mkdtemp()
 
 
 class BaseModelTesCase(utils.BaseTestCase):
@@ -260,11 +264,21 @@ class ConceptTest(BaseModelTesCase):
         with self.assertRaises(AttributeError):
             concept.anotar_imagenes()
 
-@tag('current')
+
+@override_settings(MEDIA_ROOT=MOCK_MEDIA_ROOT)
 class ImageEstimateConceptTest(BaseModelTesCase):
-    @mock.patch('models.ImageEstimateConcept')
-    @mock.patch('models.get_directory_path')
-    def test_guardado_de_imagen(self, path_function, mock_image):
-        imagen = mock_image()
-        imagen.save()
-        assert path_function.called
+
+    def tearDown(self):
+        shutil.rmtree(MOCK_MEDIA_ROOT, ignore_errors=True)
+
+    def get_test_image_file(self):
+        from django.core.files.images import ImageFile
+        file = tempfile.NamedTemporaryFile(suffix='.png')
+        return ImageFile(file, name='file.png')
+
+    def test_guardado_de_imagen(self):
+        concepto = factories.EstimateConceptFactory()
+        image = self.get_test_image_file()
+        imagen = models.ImageEstimateConcept.objects.create(image=image, estimateconcept=concepto)
+        self.assertTrue(models.ImageEstimateConcept.objects.filter(estimateconcept=concepto).exists())
+        self.assertTrue(isinstance(imagen.id, int))

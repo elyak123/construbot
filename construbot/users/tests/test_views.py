@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory, override_settings  # , tag
+from django.test import RequestFactory, override_settings , tag
 from django.urls import reverse
 from django.contrib.auth.models import Group
 from construbot.users.models import Company
@@ -24,7 +24,7 @@ class BaseUserTestCase(utils.BaseTestCase):
 
     def setUp(self):
         self.user_factory = factories.UserFactory
-        self.user = self.make_user()
+        self.user = self.user_factory()
         self.factory = RequestFactory()
 
 
@@ -63,9 +63,10 @@ class TestUserUpdateView(BaseUserTestCase):
         self.view.kwargs = {'username': 'otro_que_no_conozco'}
         self.assertTrue(self.view.get_tengo_que_ser_admin())
 
-    def test_get_success_url(self):
+    def test_get_success_url_on_user_not_new(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
+        self.user.is_new = False
         self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
         self.view.object = self.user
@@ -372,7 +373,8 @@ class TestCompanyEditView(BaseUserTestCase):
         self.user.company.add(test_company)
         self.user.currently_at = test_company
         self.user.save()
-        self.assertFalse(self.view.get_initial()['is_new'])
+        #self.assertFalse(self.view.get_initial()['is_new'])
+        self.assertEqual(self.view.get_initial()['is_new'], self.user.is_new)
 
 
 class TestUserDeleteView(BaseUserTestCase):

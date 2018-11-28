@@ -1314,7 +1314,6 @@ class UserAutocompleteTest(BaseViewTest):
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
-    @tag('current')
     def test_user_username_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
         instance.q = 'test'
@@ -1326,7 +1325,6 @@ class UserAutocompleteTest(BaseViewTest):
         qs_test = [repr(a) for a in sorted([self.user])]
         self.assertQuerysetEqual(qs, qs_test)
 
-    @tag('current')
     def test_user_email_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
         instance.q = '@example'
