@@ -108,7 +108,7 @@
     {% endcompress %}
     {% block javascript_no_compress %}
     {% endblock javascript_no_compress %}
-    {% if is_new_user and request.path != '/proyectos/' %}
+    <!--{% if is_new_user and request.path != '/proyectos/' %}
       {% block conditions %}
       <script type="text/javascript">
         alert("Estimado usuario, para nosotros es importante que termines el tutorial, por favor, presiona aceptar.");
@@ -119,6 +119,6 @@
     {% if is_new_user and request.path != '/proyectos/' %}
       {% block conditions_2 %}
       {% endblock conditions_2 %}
-    {% endif %}
+    {% endif %} -->
   </body>
 </html>
