@@ -5,30 +5,8 @@
 {% block conditions %}
 {% endblock conditions %}
 
-{% block conditions_2 %}
-  {% block css_no_compress %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
-  {% endblock %}
-  {% block javascript_no_compress %}
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
-  {% endblock %}
-  <script type="text/javascript">
-    document.getElementById("id_company_name").value = "";
-    window.onload = function() {
-      introJs().setOption('doneLabel', '¡Entendido!').setOption('showBullets', false).start();
-    };
-  </script>
-{% endblock conditions_2 %}
-
 {% block content %}
-  {% if is_new_user %}
-  <h3>Crea tu primer compañía</h3>
-  {% else %}
-  <h1>{{ object.company_name }}</h1>
-  {% endif %}
-  <form data-step="6" data-intro="<strong>Crea tu primer compañía</strong><p>Cada compañía que crees te permitirá tener sus propios contratos, catálogos de conceptos y estimaciones.</p>
-  <p>Con el nombre corto identificarás en que compañía te encuentras actualmente.</p>
-  <p>El nombre completo sirve para ser plasmado en cualquier estimación y generador que hagas.</p>" style="position:relative" class="form-horizontal" method="post">
+  <form style="position:relative" class="form-horizontal" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
     <div class="control-group">
