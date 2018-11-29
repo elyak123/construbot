@@ -21,7 +21,7 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django==1.11.16,<2.0',
+        'django==1.11.16',
         # REST
         'djangorestframework==3.8.2',
         'djangorestframework-jwt==1.11.0',
