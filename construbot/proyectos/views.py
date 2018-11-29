@@ -309,15 +309,8 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         form = self.get_form(form_class)
         fill_data = self.fill_concept_formset()
         inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
-        generator_inline_concept = inlineform(initial=fill_data)
-        codes = [x['concept'].code for x in fill_data]
-        image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         return self.render_to_response(
-            self.get_context_data(form=form,
-                                  generator_zip=zip(generator_inline_concept, codes),
-                                  generator_inline_concept=generator_inline_concept,
-                                  image_formset_prefix=image_formset_prefix,
-                                  )
+            self.get_context_data(**self.get_prepare_generator_context(form, inlineform, fill_data))
         )
 
     def post(self, request, *args, **kwargs):
@@ -326,11 +319,26 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         form = self.get_form(form_class)
         fill_data = self.fill_concept_formset()
         if form.is_valid():
-            return self.form_valid(form)
+            return self.form_valid(form, fill_data)
         else:
             inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
-            generator_inline_concept = inlineform(initial=fill_data)
-            return self.form_invalid(form, generator_inline_concept)
+            return self.form_invalid(form, inlineform, fill_data)
+
+    def get_prepare_generator_context(self, form, inlineform, fill_data):
+        if hasattr(inlineform, 'form') and callable(inlineform):
+            if not hasattr(inlineform, 'is_bound') or not inlineform.is_bound:
+                generator_inline_concept = inlineform(initial=fill_data)
+        else:
+            generator_inline_concept = inlineform
+        codes = [x['concept'].code for x in fill_data]
+        image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
+        return_dict = {
+            'form': form,
+            'generator_inline_concept': generator_inline_concept,
+            'generator_zip': zip(generator_inline_concept, codes),
+            'image_formset_prefix': image_formset_prefix
+        }
+        return return_dict
 
     def fill_concept_formset(self):
         self.project_instance = shortcuts.get_object_or_404(
@@ -361,7 +369,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         initial_dict['draft_by'] = self.request.user
         return initial_dict
 
-    def form_valid(self, form):
+    def form_valid(self, form, fill_data):
         inlineform = forms.estimateConceptInlineForm(count=self.concept_count)
         generator_inline_concept = inlineform(
             self.request.POST,
@@ -373,13 +381,11 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             generator_inline_concept.save()
             return response
         else:
-            return self.form_invalid(form, generator_inline_concept)
+            return self.form_invalid(form, generator_inline_concept, fill_data)
 
-    def form_invalid(self, form, generator_inline_concept):
+    def form_invalid(self, form, inlineform, fill_data):
         return self.render_to_response(
-            self.get_context_data(form=form,
-                                  generator_inline_concept=generator_inline_concept
-                                  )
+            self.get_context_data(**self.get_prepare_generator_context(form, inlineform, fill_data))
         )
 
     def get_success_url(self):

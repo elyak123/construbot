@@ -132,7 +132,7 @@ class UserUpdateView(UsersMenuMixin, UpdateView):
             return UsuarioEditNoAdmin
 
     def get_success_url(self):
-        if self.check_for_uuid():
+        if self.request.user.is_new:
             return reverse('users:company_edit', kwargs={'pk': self.object.currently_at.id})
         else:
             return reverse('users:detail', kwargs={'username': self.object.username})
@@ -185,7 +185,7 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
 
     def get_initial(self):
         initial = super(CompanyEditView, self).get_initial()
-        initial['is_new'] = self.check_for_uuid()
+        initial['is_new'] = self.request.user.is_new
         return initial
 
     def get_success_url(self):

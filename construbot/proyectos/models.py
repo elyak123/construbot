@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.db.models import Sum, F
-from construbot.core.utils import Round, get_directory_path
+from construbot.core import utils
 from construbot.users.models import Company
 
 
@@ -72,7 +72,7 @@ class Contrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
-    file = models.FileField(upload_to=get_directory_path, blank=True, null=True)
+    file = models.FileField(upload_to=utils.get_directory_path, blank=True, null=True)
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
@@ -118,7 +118,7 @@ class Estimate(models.Model):
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
-            total=Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
+            total=utils.Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
         return total
 
     def anotaciones_conceptos(self):
@@ -347,8 +347,12 @@ class EstimateConcept(models.Model):
 
 
 class ImageEstimateConcept(models.Model):
-    image = models.ImageField(upload_to=get_directory_path)
+    image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Imagen_generador'
+        verbose_name_plural = 'Imagenes_generadores'
 
     def __str__(self):
         return '{} {}'.format(self.id, repr(self.estimateconcept))
