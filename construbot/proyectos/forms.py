@@ -15,6 +15,9 @@ class ContratoForm(forms.ModelForm):
             raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
                                         'porfavor recarga y vuelve a intentarlo')
         if self.cleaned_data.get('currently_at') == self.request.user.currently_at.company_name:
+            if self.request.user.is_new:
+                self.request.user.is_new = False
+                self.request.user.save()
             return result
         else:
             raise forms.ValidationError(

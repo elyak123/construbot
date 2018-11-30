@@ -9,7 +9,7 @@
 	<script type="text/javascript">
 		document.getElementById('startButton').onclick = function() {
 			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
-				window.location.href = "{% url 'users:update' request.user.username %}";
+				window.location.href = "{% url 'proyectos:nuevo_contrato' %}";
 			});
 		};
 		$("#tutorialModal").modal();

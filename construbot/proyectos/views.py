@@ -268,7 +268,6 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         context['company'] = self.request.user.currently_at
         return context
 
-
 class DynamicCreation(ProyectosMenuMixin, CreateView):
     change_company_ability = False
     template_name = 'proyectos/creation_form.html'

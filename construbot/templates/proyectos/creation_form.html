@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+
 {% block css %}
   <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block css_no_compress %}
+  {% if is_new_user %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />{% endif %}
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
   <link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -26,9 +28,15 @@
         }
       }
     });
+    {% if is_new_user %}
+      window.onload = function() {
+        introJs().setOption('doneLabel', '¡Bien!').setOption('showBullets', false).start();
+      };
+    {% endif %}
   </script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
+  {% if is_new_user %}<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>{% endif %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.full.js"></script>
   <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
   <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
@@ -39,8 +47,11 @@
 {% bootstrap_messages %}
 
 {% block content %}
-  <h1></h1>
+  {% if is_new_user %}
+  <form data-step="5" data-intro="<strong>Crea tu primer contrato. </strong> Te servirá para iniciar tu primer catálogo de conceptos y posteriormente generar estimaciones. ¡Gracias por completar el tutorial!</strong>." style="position:relative" class="form-horizontal" method="post">
+  {% else %}
   <form style="position:relative" class="form-horizontal" method="post">
+  {% endif %}
     {% csrf_token %}
     {% bootstrap_form form %}
     <div class="control-group">
