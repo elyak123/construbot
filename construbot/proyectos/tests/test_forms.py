@@ -14,9 +14,11 @@ class ContratoFormTest(utils.BaseTestCase):
         self.factory = RequestFactory()
         self.request = self.get_request(self.user)
 
-    def test_contrato_form_creation_is_valid(self):
+    def test_contrato_form_creation_is_valid_when_is_new_user(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
+        self.user.is_new = True
+        self.user.save()
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',

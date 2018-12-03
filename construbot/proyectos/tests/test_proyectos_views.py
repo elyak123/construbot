@@ -6,6 +6,7 @@ from django.test import RequestFactory, tag
 from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
+from construbot.users.models import User, Company
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
 from . import factories
@@ -23,6 +24,35 @@ class BaseViewTest(utils.BaseTestCase):
             func()
         except exception:
             self.fail(message)
+
+
+class PDFViewTest(BaseViewTest):
+    view = views.BasePDFGenerator
+
+    def test_get_cmd_options(self):
+        test_obj = {
+            'orientation': 'Landscape',
+            'javascript-delay': 1000
+        }
+        result = self.view.get_cmd_options(self)
+        self.assertEqual(result, test_obj)
+
+    def test_get_context_data(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
+        cliente = factories.ClienteFactory(company=company_test)
+        contrato = factories.ContratoFactory(cliente=cliente)
+        estimacion = factories.EstimateFactory(project=contrato)
+        self.view.kwargs = {'pk': estimacion.pk}
+        vw = self.get_instance(
+            self.view,
+            request=self.request
+        )
+        vw.object = estimacion
+        vw.user_groups = ''
+        vw.permiso_administracion = None
+        result = vw.get_context_data()
+        self.assertTrue(result['pdf'])
 
 
 class ProyectDashboardViewTest(BaseViewTest):
