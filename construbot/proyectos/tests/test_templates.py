@@ -33,6 +33,8 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
     def test_proyects_dashboard_uses_correct_template_if_not_is_new(self):
+        self.user.is_new = False
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
@@ -183,6 +185,13 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
 
     def test_nuevo_contrato_uses_correct_template(self):
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:nuevo_contrato'))
+        self.assertTemplateUsed(response, 'proyectos/creation_form.html')
+
+    def test_nuevo_contrato_uses_correct_template_when_user_is_new(self):
+        self.user.is_new = False
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nuevo_contrato'))
         self.assertTemplateUsed(response, 'proyectos/creation_form.html')
