@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-
+{% block javascript %}
+	<script type="text/javascript">
+	  let url_for_list = '{% url "proyectos:proyect_dashboard" %}';
+	</script>
+{% endblock javascript %}
 {% load i18n %}
 {% block title %}Ubicaciones en {{ request.user.currently_at.company_name }}{% endblock title %}
 

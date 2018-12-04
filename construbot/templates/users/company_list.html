@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-
+{% block javascript %}
+	<script type="text/javascript">
+	  let url_for_list = '{% url "users:list" %}';
+	</script>
+{% endblock javascript %}
 {% load i18n %}
 {% block title %}Compañías{% endblock title %}
 

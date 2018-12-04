@@ -375,6 +375,10 @@ a:hover {
 /*FIN DE ESTILOS PARA TABLAS*/
 
 /*ESTILOS PARA LISTADOS DE DOCUMENTOS*/
+#cont_est_danger {
+	display: none;
+}
+
 #cont_danger {
 	text-align: center;
 	color: white;
@@ -386,7 +390,6 @@ a:hover {
 
 #button_confirm, #button_cancel {
 	display: inline-block;
-	float: right;
 	margin-left: 10px;
 	font-size: 10px;
 }

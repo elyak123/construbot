@@ -76,6 +76,9 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             'ordering': 'destinatario_text',
             'model': Destinatario,
         },
+        'Estimate': {
+            'model': Estimate,
+        }
     }
 
     def get_company_query(self, opcion):
@@ -571,7 +574,10 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
     def folio_handling(self):
         if hasattr(self.object, 'folio') or hasattr(self.object, 'consecutive'):
             kwargs, field = self.get_company_query(self.kwargs['model'])
-            self.model.objects.filter(**kwargs).update(folio=F(field) - 1)
+            if(hasattr(self.object, 'folio')):
+                self.model.objects.filter(**kwargs).update(folio=F(field) - 1)
+            else:
+                self.model.objects.filter(**kwargs).update(consecutive=F(field) - 1)
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()

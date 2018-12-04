@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block javascript %}
+	<script type="text/javascript">
+	  let url_for_list = '{% url "users:list" %}';
+	</script>
+{% endblock javascript %}
 {% load static i18n %}
 {% block title %} Usuarios en {{ request.user.currently_at.company_name }} {% endblock %}
 

@@ -4,6 +4,7 @@
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 {% block javascript %}
 	<script type="text/javascript">
+	let url_for_list = '{% url "proyectos:proyect_dashboard" %}'
 	$(document).ready(function(){
 	    if($(".icon_right").length){
 		    var intcomma = function(value) {
@@ -124,8 +125,14 @@
 	</tr>
 </table>
 {% endif %}
+<br>
+<br>
 {% if contrato.estimate_set.exists %}
-	<p><strong> Listado de estimaciones </strong></p>
+	<div class="cont_listado alert alert-danger" id="cont_est_danger">
+	</div>
+	<div class="cont_listado">
+		<strong> Listado de estimaciones </strong>
+	</div>
 	<table class="table_sample table_normal">
 		<tbody>
 			<tr>
@@ -143,7 +150,7 @@
 				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
 				<td>
 					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
-					<a href="">Eliminar</a>
+					<a class="anchor_est_delete" data-model="Estimate" data-id="{{ estimacion.id }}" href="#">Eliminar</a>
 				</td>
 			</tr>
 		{% endfor %}
