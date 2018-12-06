@@ -162,6 +162,39 @@ $(document).ready(function(){
         ajustarContenido(2);
     }
 
+    if($("#cont_est_danger")){
+        let delete_est = $(".anchor_est_delete");
+        let msj = $("#cont_est_danger")[0];
+        delete_est.on("click", function(target){
+            let element = target.target;
+            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response){
+                    msj.style.display = "block";
+                    msj.innerHTML = response;
+                    var f_data = $('#delete_form').serialize();
+                    $("#button_cancel").on("click", function(target){
+                        target.preventDefault();
+                        msj.style.display = "none";
+                    });
+                    $("#delete_form").submit(function(event){
+                        event.preventDefault()
+                        $.ajax({
+                            type:"POST",
+                            url: url,
+                            data: f_data,
+                            success: function(){
+                                window.location.reload() 
+                            }
+                        });
+                    });
+                },
+            });
+        });
+    }
+
     if($(".div_list")){
         var div_list = $(".div_list");
         var delete_link = $(".anchor_delete");
@@ -170,7 +203,7 @@ $(document).ready(function(){
         delete_link.on("click", function(target){
             target.preventDefault();
             var element = target.target;
-            var url = "/"+window.location.pathname.split('/')[1]+"/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
             var pos = element.parentElement.getBoundingClientRect()
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){

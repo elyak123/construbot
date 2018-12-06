@@ -1001,12 +1001,34 @@ class DynamicDeleteTest(BaseViewTest):
         self.assertEqual(contrato_object, view_obj)
 
     @mock.patch.object(views.DynamicDelete, 'get_object')
-    def test_delete_method_calls_functions(self, mock_object):
+    def test_delete_method_calls_functions_for_Contrato(self, mock_object):
         with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
             contrato_delete = mock.Mock()
             contrato_delete.pk = 1
+            contrato_delete.folio = 1
             request = RequestFactory().post(
                 reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_delete.pk}),
+                data={'value': 'confirm'}
+            )
+            view = self.get_instance(
+                views.DynamicDelete,
+                request=request,
+            )
+            response = view.delete(request)
+        try:
+            mock_object.assert_called_once()
+        except AttributeError:
+            self.assertEqual(mock_object.call_count, 1)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
+
+    @mock.patch.object(views.DynamicDelete, 'get_object')
+    def test_delete_method_calls_functions_for_Estimate(self, mock_object):
+        with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
+            estimate_delete = mock.Mock()
+            estimate_delete.pk = 1
+            estimate_delete.consecutive = 1
+            request = RequestFactory().post(
+                reverse('proyectos:eliminar', kwargs={'model': 'Estimate', 'pk': estimate_delete.pk}),
                 data={'value': 'confirm'}
             )
             view = self.get_instance(
