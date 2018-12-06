@@ -271,6 +271,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         context['company'] = self.request.user.currently_at
         return context
 
+
 class DynamicCreation(ProyectosMenuMixin, CreateView):
     change_company_ability = False
     template_name = 'proyectos/creation_form.html'
@@ -544,7 +545,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CatalogosView, self).get_context_data(**kwargs)
-        context['type'] = self.tipo
+        context['type'] = self.tipo if hasattr(self, 'tipo') else None
         return context
 
 

@@ -112,6 +112,9 @@
 			<td>¿Terminado?</td>
 			<td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
 		</tr>
+		<tr>
+			<td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
+		</tr>
 	</table>
 </div>
 <br>
@@ -172,8 +175,8 @@
 			</tr>
 		</tbody>
 	</table>
-{% else %}
-	<h3 class="title"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</h3>
+{% elif contrato.concept_set.exists %}
+	<div class="text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
 {% endif %}
 <br>
 <br>
