@@ -525,10 +525,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         return context
 
 
-class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
-    change_company_ability = False
-    form_class = forms.ContractConceptInlineForm
-    template_name = 'proyectos/catalogo-conceptos-inline.html'
+class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def get_object(self):
         self.model = self.form_class.fk.related_model._meta.model
@@ -544,6 +541,25 @@ class CatalogoConceptosInlineFormView(ProyectosMenuMixin, UpdateView):
             'construbot.proyectos:contrato_detail',
             kwargs={'pk': self.kwargs['pk']}
         )
+
+    def get_context_data(self, **kwargs):
+        context = super(CatalogosView, self).get_context_data(**kwargs)
+        context['type'] = self.tipo
+        return context
+
+
+class CatalogoRetencionesInlineFormView(CatalogosView):
+    change_company_ability = False
+    form_class = forms.ContractRetentionInlineForm
+    template_name = 'proyectos/catalogo-conceptos-inline.html'
+    tipo = 'retenciones'
+
+
+class CatalogoConceptosInlineFormView(CatalogosView):
+    change_company_ability = False
+    form_class = forms.ContractConceptInlineForm
+    template_name = 'proyectos/catalogo-conceptos-inline.html'
+    tipo = 'conceptos'
 
 
 class DynamicDelete(ProyectosMenuMixin, DeleteView):

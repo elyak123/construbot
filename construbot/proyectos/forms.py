@@ -1,6 +1,6 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept
+from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept, Retenciones
 from django.core.exceptions import ObjectDoesNotExist
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
@@ -62,6 +62,9 @@ class ContratoForm(forms.ModelForm):
                 attrs={
                     'data-minimum-input-length': 3,
                 }
+            ),
+            'anticipo': forms.TextInput(
+                attrs={'style': 'width:200px;'}
             ),
         }
 
@@ -346,4 +349,14 @@ ContractConceptInlineForm = forms.inlineformset_factory(
             'class': 'inlineCode'
         }),
     },
+)
+
+ContractRetentionInlineForm = forms.inlineformset_factory(
+    Contrato, Retenciones,
+    fields=(
+        'nombre',
+        'valor',
+        'tipo',
+    ),
+    extra=1,
 )

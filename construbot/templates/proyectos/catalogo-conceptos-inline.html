@@ -47,11 +47,17 @@
       {% if forloop.first %}
         <thead>
           <tr>
+            {% if type == 'retenciones' %}
+            <th> Nombre </th>
+            <th> Valor </th>
+            <th> Tipo </th>
+            {% else %}
             <th> Código </th>
             <th> Concepto </th>
             <th> Unidad </th>
             <th> Cantidad </th>
             <th> Precio unitario </th>
+            {% endif %}
             <th> ¿Eliminar? </th>
           </tr>
         </thead>
