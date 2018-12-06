@@ -25,7 +25,8 @@ class ContratoFormTest(utils.BaseTestCase):
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
-                     'users': [self.user.id]
+                     'users': [self.user.id],
+                     'anticipo': 0.0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
@@ -41,6 +42,7 @@ class ContratoFormTest(utils.BaseTestCase):
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
+                     'anticipo': 0.0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
@@ -63,6 +65,7 @@ class ContratoFormTest(utils.BaseTestCase):
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
+                     'anticipo': 0.0,
                      }
         form = forms.ContratoForm(data=form_data, instance=contrato_factory)
         form.request = self.request

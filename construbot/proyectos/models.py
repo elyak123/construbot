@@ -75,6 +75,7 @@ class Contrato(models.Model):
     file = models.FileField(upload_to=utils.get_directory_path, blank=True, null=True)
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
@@ -85,6 +86,26 @@ class Contrato(models.Model):
 
     def __str__(self):
         return self.contrato_name
+
+
+class Retenciones(models.Model):
+    TYPES = (
+        ('AMOUNT', 'Monto'),
+        ('PERCENTAGE', 'Porcentaje'),
+    )
+    nombre = models.CharField(max_length=80)
+    valor = models.DecimalField('valor', max_digits=12, decimal_places=2, default=0.0)
+    tipo = models.CharField(
+        max_length=21, choices=TYPES, default='PERCENTAGE'
+    )
+    project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Retención'
+        verbose_name_plural = 'Retenciones'
+
+    def __str__(self):
+        return self.nombre
 
 
 class Units(models.Model):

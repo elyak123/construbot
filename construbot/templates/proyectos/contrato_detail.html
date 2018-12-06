@@ -58,6 +58,17 @@
 	            }
 	        });
 	        lanzar_catalogo_conceptos();
+	        let t1;
+	        $( "#toggle-button-2" ).click(function() {
+	        	$("#toggle-button-2").css('display', 'none');
+	        	$("#toggle-button-1").css('display', 'block');
+		        $( "#toggle-hide" ).css("display", "none");
+			});
+			$( "#toggle-button-1" ).click(function() {
+	        	$("#toggle-button-2").css('display', 'block');
+	        	$("#toggle-button-1").css('display', 'none');
+	        	$( "#toggle-hide" ).css("display", "inline-table");
+			});
 	    }
 	});
 	</script>
@@ -101,14 +112,17 @@
 			<td>¿Terminado?</td>
 			<td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
 		</tr>
+		<tr>
+			<td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
+		</tr>
 	</table>
 </div>
 <br>
 {% if is_administrador %}
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
-	<span class="oi oi-chevron-left icon_right"></span><span class="oi oi-chevron-bottom icon_right-up"></span>
-	<div class="cont_message_no_result">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.</div>
+	<span class="oi oi-plus icon_right"></span><span class="oi oi-minus icon_right-up"></span>
+	<div class="cont_message_no_result" style="background:white;">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.</div>
 </div>
 <table class="table_results table_sample">
 	<tr>
@@ -161,8 +175,37 @@
 			</tr>
 		</tbody>
 	</table>
+{% elif contrato.concept_set.exists %}
+	<div class="text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
+{% endif %}
+<br>
+<br>
+<div class="cont_listado">
+	<strong> Listado de retenciones </strong>
+	<div class="float-right"><span class="oi oi-plus" style="display:none" id="toggle-button-1"></span><span class="oi oi-minus" id="toggle-button-2"></span></div>
+</div>
+{% if contrato.retenciones_set.exists %}
+	<table class="table_sample table_normal" id="toggle-hide">
+		<tbody>
+			<tr>
+				<th> Nombre </th>
+				<th> Valor </th>
+			</tr>
+		{% for retencion in contrato.retenciones_set.all %}
+			<tr>
+				<td>{{ retencion.nombre }}</td>
+				<td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{% language 'en' %}{{ retencion.valor|intcomma }}{% endlanguage %}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
+			</tr>
+		{% endfor %}
+			<tr>
+				<td colspan="2">
+					<a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">Editar Retenciones</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 {% else %}
-	<h3 class="title"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</h3>
+	<div id="toggle-hide" class="text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
 {% endif %}
 {% endlanguage %}
 {% endblock %}
