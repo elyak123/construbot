@@ -1005,6 +1005,7 @@ class DynamicDeleteTest(BaseViewTest):
         with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
             contrato_delete = mock.Mock()
             contrato_delete.pk = 1
+            contrato_delete.folio = 1
             request = RequestFactory().post(
                 reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_delete.pk}),
                 data={'value': 'confirm'}
@@ -1025,6 +1026,7 @@ class DynamicDeleteTest(BaseViewTest):
         with mock.patch.object(views.DynamicDelete, 'folio_handling', return_value=None) as mock_folio:
             estimate_delete = mock.Mock()
             estimate_delete.pk = 1
+            estimate_delete.consecutive = 1
             request = RequestFactory().post(
                 reverse('proyectos:eliminar', kwargs={'model': 'Estimate', 'pk': estimate_delete.pk}),
                 data={'value': 'confirm'}
