@@ -109,8 +109,27 @@ class ContratoListTest(BaseViewTest):
         self.user.currently_at = company_test
         cliente_test = factories.ClienteFactory(company=company_test)
         contrato = factories.ContratoFactory(cliente=cliente_test)
-        contrato_2 = factories.ContratoFactory()
+        contrato.users.add(self.user)
+        factories.ContratoFactory()  # Contrato # 2
         contrato_3 = factories.ContratoFactory(cliente=cliente_test)
+        contrato_3.users.add(self.user)
+        view = self.get_instance(
+            views.ContratoListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(y) for y in sorted([contrato, contrato_3], key=lambda x: x.fecha, reverse=True)]
+        self.assertQuerysetEqual(qs, qs_test)
+    @tag('current')
+    def test_constrato_same_customer_not_assigned_to_user_doesnt_appear(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
+        cliente_test = factories.ClienteFactory(company=company_test)
+        contrato = factories.ContratoFactory(cliente=cliente_test)
+        contrato.users.add(self.user)
+        factories.ContratoFactory(cliente=cliente_test)  # Contrato # 2
+        contrato_3 = factories.ContratoFactory(cliente=cliente_test)
+        contrato_3.users.add(self.user)
         view = self.get_instance(
             views.ContratoListView,
             request=self.request
@@ -280,13 +299,18 @@ class DestinatarioDetailTest(BaseViewTest):
 
 
 class ContratoCreationTest(BaseViewTest):
+
     def test_get_initial_returns_1_when_no_contratos(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
-        dicc = {"currently_at": contrato_company.company_name, "folio": 1}
+        self.request.user.company.add(contrato_company)
+        admin_group = Group.objects.create(name='Administrators')
+        self.request.user.groups.add(admin_group)
+        #contrato_company.users.add(self.request.user)
+        dicc = {"currently_at": contrato_company.company_name, "folio": 1, 'users': [self.request.user.id]}
         view = self.get_instance(
             views.ContratoCreationView,
-            request=self.request
+            request=self.request,
         )
         dicc_test = view.get_initial()
         self.assertDictEqual(dicc_test, dicc)
@@ -296,7 +320,14 @@ class ContratoCreationTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         self.request.user.currently_at = contrato_company
-        dicc = {"currently_at": contrato_company.company_name, "folio": contrato.folio + 1}
+        self.request.user.company.add(contrato_company)
+        admin_group = Group.objects.create(name='Administrators')
+        self.request.user.groups.add(admin_group)
+        dicc = {
+            "currently_at": contrato_company.company_name,
+            "folio": contrato.folio + 1,
+            'users': [self.request.user.id]
+        }
         view = self.get_instance(
             views.ContratoCreationView,
             request=self.request
@@ -343,6 +374,30 @@ class ContratoCreationTest(BaseViewTest):
                                  'Actualmente te encuentras en otra compañia, '
                                  'es necesario recargar y repetir el proceso.'
                                  )
+
+    def test_contrato_creation_denied_user_not_admin(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company
+        self.user.save()
+        self.user.company.add(company)
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:nuevo_contrato'))
+        self.assertFalse(self.user.is_administrator())
+        self.assertEqual(response.status_code, 403)
+
+    def test_contrato_creation_granted_user_admin(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        admin_group = Group.objects.create(name='Administrators')
+        proyectos_group = Group.objects.create(name='Proyectos')
+        self.user.groups.add(admin_group)
+        self.user.groups.add(proyectos_group)
+        self.user.currently_at = company
+        self.user.save()
+        self.user.company.add(company)
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:nuevo_contrato'))
+        self.assertTrue(self.user.is_administrator())
+        self.assertEqual(response.status_code, 200)
 
 
 class ClienteCreationTest(BaseViewTest):
