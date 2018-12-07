@@ -544,7 +544,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CatalogosView, self).get_context_data(**kwargs)
-        context['type'] = self.tipo
+        context['type'] = self.tipo if hasattr(self, 'tipo') else None
         return context
 
 
