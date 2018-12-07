@@ -192,8 +192,8 @@ class CompanyForm(forms.ModelForm):
         model = Company
         fields = '__all__'
         labels = {
-            'full_name': 'Nombre de la compañía',
-            'company_name': 'Nombre corto'
+            'full_name': 'Razón Social',
+            'company_name': 'Nombre de la Compañía'
         }
         widgets = {
             'customer': forms.HiddenInput(),
