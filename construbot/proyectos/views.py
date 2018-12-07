@@ -139,8 +139,11 @@ class ContratoListView(DynamicList):
     ordering = '-fecha'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            **self.get_company_query(self.model.__name__))
+        if self.request.user.is_administrator():
+            self.queryset = self.model.objects.filter(
+                **self.get_company_query(self.model.__name__))
+        else:
+            self.queryset = self.model.objects.filter(users=self.request.user.pk)
         return super(ContratoListView, self).get_queryset()
 
 
@@ -264,6 +267,9 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         max_id += 1
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
+        initial_obj['users'] = [usr.pk for usr in User.objects.filter(
+            company=self.request.user.currently_at,
+            groups__name='Administrators')]
         return initial_obj
 
     def get_context_data(self, **kwargs):

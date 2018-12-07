@@ -10,7 +10,9 @@
 
 {% block content %}
 <h2 class="title"> Listado de Contratos en {{ request.user.currently_at.company_name }} </h2>
-<a class="boton" href="{% url 'proyectos:nuevo_contrato' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
+{% if current_user.is_administrator %}
+	<a class="boton" href="{% url 'proyectos:nuevo_contrato' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
+{% endif %}
 <br>
 <br>
 <div id="cont_danger">
