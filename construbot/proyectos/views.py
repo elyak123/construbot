@@ -84,7 +84,8 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
     def get_company_query(self, opcion):
         company_query = {
             'Contrato': {
-                'cliente__company': self.request.user.currently_at
+                'cliente__company': self.request.user.currently_at,
+                'users': self.request.user
             },
             'Cliente': {
                 'company': self.request.user.currently_at
@@ -143,7 +144,8 @@ class ContratoListView(DynamicList):
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__))
         else:
-            self.queryset = self.model.objects.filter(users=self.request.user.pk)
+            #self.queryset = self.model.objects.filter(users=self.request.user.pk)
+            self.queryset = self.model.objects.filter(**self.get_company_query(self.model.__name__))
         return super(ContratoListView, self).get_queryset()
 
 
@@ -446,7 +448,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         obj = shortcuts.get_object_or_404(
             Contrato,
             pk=self.kwargs['pk'],
-            cliente__company=self.request.user.currently_at
+            **self.get_company_query('Contrato')
         )
         return obj
 
