@@ -142,10 +142,11 @@ class ContratoListView(DynamicList):
     def get_queryset(self):
         if self.request.user.is_administrator():
             self.queryset = self.model.objects.filter(
-                **self.get_company_query(self.model.__name__))
+                cliente__company=self.request.user.currently_at)
         else:
-            #self.queryset = self.model.objects.filter(users=self.request.user.pk)
-            self.queryset = self.model.objects.filter(**self.get_company_query(self.model.__name__))
+            self.queryset = self.model.objects.filter(
+                **self.get_company_query(self.model.__name__)
+            )
         return super(ContratoListView, self).get_queryset()
 
 
@@ -198,6 +199,13 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
 class ContratoDetailView(DynamicDetail):
     tengo_que_ser_admin = False
     model = Contrato
+
+    def get_object(self, queryset=None):
+        query_kw = self.get_company_query(self.model.__name__)
+        query_kw.update({'pk': self.kwargs['pk']})
+        if self.request.user.is_administrator():
+            del query_kw['users']
+        return shortcuts.get_object_or_404(self.model, **query_kw)
 
 
 class ClienteDetailView(DynamicDetail):
@@ -445,11 +453,18 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         return form
 
     def get_object(self):
-        obj = shortcuts.get_object_or_404(
-            Contrato,
-            pk=self.kwargs['pk'],
-            **self.get_company_query('Contrato')
-        )
+        if self.request.user.is_administrator():
+            obj = shortcuts.get_object_or_404(
+                Contrato,
+                pk=self.kwargs['pk'],
+                cliente__company=self.request.user.currently_at
+            )
+        else:
+            obj = shortcuts.get_object_or_404(
+                Contrato,
+                pk=self.kwargs['pk'],
+                **self.get_company_query('Contrato')
+            )
         return obj
 
     def get_initial(self):
