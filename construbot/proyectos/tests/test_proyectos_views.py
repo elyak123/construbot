@@ -104,6 +104,7 @@ class DynamicDetailTest(BaseViewTest):
 
 
 class ContratoListTest(BaseViewTest):
+
     def test_contrato_different_customer_doesnt_appear(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
@@ -120,8 +121,8 @@ class ContratoListTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(y) for y in sorted([contrato, contrato_3], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(qs, qs_test)
-    @tag('current')
-    def test_constrato_same_customer_not_assigned_to_user_doesnt_appear(self):
+
+    def test_contrato_same_customer_not_assigned_to_user_doesnt_appear(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
         cliente_test = factories.ClienteFactory(company=company_test)
@@ -130,6 +131,42 @@ class ContratoListTest(BaseViewTest):
         factories.ContratoFactory(cliente=cliente_test)  # Contrato # 2
         contrato_3 = factories.ContratoFactory(cliente=cliente_test)
         contrato_3.users.add(self.user)
+        view = self.get_instance(
+            views.ContratoListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(y) for y in sorted([contrato, contrato_3], key=lambda x: x.fecha, reverse=True)]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_contrato_same_customer_same_company_not_assigned_to_admi_user_does_appear(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test
+        admin_group = Group.objects.create(name='Administrators')
+        self.request.user.groups.add(admin_group)
+        cliente_test = factories.ClienteFactory(company=company_test)
+        contrato = factories.ContratoFactory(cliente=cliente_test)
+        contrato_2 = factories.ContratoFactory(cliente=cliente_test)  # Contrato # 2
+        contrato_3 = factories.ContratoFactory(cliente=cliente_test)
+        view = self.get_instance(
+            views.ContratoListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(y) for y in sorted([contrato, contrato_2, contrato_3], key=lambda x: x.fecha, reverse=True)]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_contrato_same_customer_assigned_to_user_other_company_doesnt_appear(self):
+        company_test_1 = factories.CompanyFactory(customer=self.user.customer)
+        company_test_2 = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_test_1
+        cliente_test = factories.ClienteFactory(company=company_test_1)
+        contrato = factories.ContratoFactory(cliente=cliente_test)
+        contrato.users.add(self.user)
+        contrato_2 = factories.ContratoFactory(cliente__company=company_test_2)
+        contrato_3 = factories.ContratoFactory(cliente=cliente_test)
+        contrato_3.users.add(self.user)
+        contrato_2.users.add(self.user)
         view = self.get_instance(
             views.ContratoListView,
             request=self.request
@@ -193,11 +230,28 @@ class DestinatarioListTest(BaseViewTest):
 
 
 class ContratoDetailTest(BaseViewTest):
+
     def test_assert_request_returns_correct_contrato_object(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        contrato.users.add(self.request.user)
+        view = self.get_instance(
+            views.ContratoDetailView,
+            pk=contrato.pk,
+            request=self.request
+        )
+        obj = view.get_object()
+        self.assertEqual(obj, contrato)
+
+    def test_assert_request_returns_correct_contrato_object_not_assigned_admin_user(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = contrato_company
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        admin_group = Group.objects.create(name='Administrators')
+        self.request.user.groups.add(admin_group)
         view = self.get_instance(
             views.ContratoDetailView,
             pk=contrato.pk,
@@ -216,7 +270,7 @@ class ContratoDetailTest(BaseViewTest):
             request=self.request
         )
         with self.assertRaises(Http404):
-            obj = view.get_object()
+            view.get_object()
 
 
 class ClienteDetailTest(BaseViewTest):
@@ -488,6 +542,7 @@ class EstimateCreationTest(BaseViewTest):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        contrato.users.add(self.request.user)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
@@ -529,11 +584,58 @@ class EstimateCreationTest(BaseViewTest):
             response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
         )
 
-    def test_estimate_post_renders_errors(self):
+    def test_estimate_post_correctly_admin_user_not_assigned(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        admin_group = Group.objects.create(name='Administrators')
+        destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
+        concepto_1 = factories.ConceptoFactory(project=contrato)
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.user.groups.add(proyectos_group)
+        self.user.groups.add(admin_group)
+        self.client.login(username=self.user.username, password='password')
+        form_data = {
+            'consecutive': '3',
+            'supervised_by': str(self.user.id),
+            'start_date': '2018-04-29',
+            'finish_date': '2018-05-15',
+            'draft_by': str(self.user.id),
+            'project': str(contrato.id),
+            'auth_by': str(destinatario.id),
+            'auth_date': '2018-05-15',
+            'estimateconcept_set-TOTAL_FORMS': '1',
+            'estimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-MAX_NUM_FORMS': '5',
+            'estimateconcept_set-0-concept': concepto_1.concept_text,
+            'estimateconcept_set-0-largo': '10',
+            'estimateconcept_set-0-ancho': '10',
+            'estimateconcept_set-0-alto': '10',
+            'estimateconcept_set-0-cuantity_estimated': '2',
+            'estimateconcept_set-0-imageestimateconcept_set-TOTAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-INITIAL_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MIN_NUM_FORMS': '0',
+            'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
+        }
+        response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
+        self.assertNotRaises(
+            lambda: Estimate.objects.get(project=contrato),
+            Estimate.DoesNotExist,
+            'La estimacion no fue creada.'
+        )
+        self.assertRedirects(
+            response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
+        )
+
+    def test_estimate_post_renders_errors(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        factories.ClienteFactory(company=contrato_company)
         proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=factories.ClienteFactory())
         concepto_1 = factories.ConceptoFactory(project=contrato)
@@ -772,9 +874,11 @@ class EstimateEditTest(BaseViewTest):
 
 
 class ContratoEditViewTest(BaseViewTest):
+
     def test_obtiene_objeto_correctamente(self):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         self.user.currently_at = contrato.cliente.company
+        contrato.users.add(self.request.user)
         view = self.get_instance(
             views.ContratoEditView,
             request=self.request,
@@ -811,6 +915,7 @@ class ContratoEditViewTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        contrato_factory.users.add(self.request.user)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
                      'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
@@ -1040,6 +1145,7 @@ class DynamicDeleteTest(BaseViewTest):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
         cliente_delete = factories.ClienteFactory(company=company_delete)
         contrato_object = factories.ContratoFactory(folio=1, cliente=cliente_delete)
+        contrato_object.users.add(self.request.user)
         request = RequestFactory().post(
             reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_object.pk}),
             data={'value': 'confirm'}
@@ -1174,6 +1280,7 @@ class DynamicDeleteTest(BaseViewTest):
         view.object = view.get_object()
         control_dict = {
             'cliente__company': self.request.user.currently_at,
+            'users': self.request.user,
             'folio__gt': contrato.folio
         }
         kwargs, field = view.get_company_query('Contrato')

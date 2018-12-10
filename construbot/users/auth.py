@@ -22,6 +22,8 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
         else:
             raise AttributeError('Current User must have company')
         self.user_groups = [x.name.lower() for x in self.request.user.groups.all()]
+        redirect_label = ['redirect']
+        self.user_groups = self.user_groups + redirect_label
         self.permiso_administracion = self.auth_admin()
         self.debo_ser_admin = self.get_tengo_que_ser_admin()
         if self.debo_ser_admin and not self.permiso_administracion:
