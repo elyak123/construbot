@@ -11,6 +11,11 @@ urlpatterns = [
         name='list'
     ),
     url(
+        regex=r'^remove-is-new/(?P<pk>\d+)/$',
+        view=views.RemoveIsNewUserStatus.as_view(),
+        name='remove_is_new'
+    ),
+    url(
         regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
         view=views.UserDeleteView.as_view(),
         name='delete_user'

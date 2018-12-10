@@ -7,20 +7,37 @@
 {% block javascript %}
 {% if is_new_user %}
 	<script type="text/javascript">
+		let fuera = false;
 		document.getElementById('startButton').onclick = function() {
+			fuera = true;
+			{% if is_administrador %}
 			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
 				window.location.href = "{% url 'proyectos:nuevo_contrato' %}";
 			});
+			{% else %}
+			introJs().setOptions({'doneLabel': '¡Terminar!', 'showBullets': false}).start().oncomplete(function() {
+				let POST_token = $("#user_form").serialize();
+				$.ajax({
+		            type: 'POST',
+		            url: '{% url "users:remove_is_new" request.user.pk %}',
+		            data: POST_token,
+		            success: function(result){
+		            	window.location.reload();
+		            }
+		        });
+			});
+			{% endif %}
 		};
 		$("#tutorialModal").modal();
 		$('#tutorialModal').on('hidden.bs.modal', function (e) {
-			document.getElementById('startButton').click();
+			if(!fuera){document.getElementById('startButton').click();}
 		});
   </script>
 {% endif %}
 {% endblock %}
 {% block css_no_compress %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js@2.9.3/themes/introjs-modern.css" crossorigin="anonymous" />
 {% endblock %}
 {% block javascript_no_compress %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
@@ -72,7 +89,7 @@
 			<table class="table_sample table_left">
 				<tr>
 					<th>Fecha</th>
-					<th>Proyecto</th>
+					<th>Contrato</th>
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
@@ -120,6 +137,9 @@
 	{% endif %}
 </div>
 {% else %}
+<form style="display:none;" id="user_form" action="" method="post">
+    {% csrf_token %}
+</form>
 <div class="modal fade" id="tutorialModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">

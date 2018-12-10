@@ -2,7 +2,8 @@ from django import http
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
+from django.views.generic import View, DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
+from django.http import JsonResponse
 from .auth import AuthenticationTestMixin
 from .apps import UsersConfig
 from .models import Company
@@ -104,6 +105,14 @@ class UserRedirectView(UsersMenuMixin, RedirectView):
 
     def get_redirect_url(self):
         return reverse('proyectos:proyect_dashboard')
+
+
+class RemoveIsNewUserStatus(View):
+    def post(self, request, *args, **kwargs):
+        obj = User.objects.get(pk=self.kwargs['pk'])
+        obj.is_new = False
+        obj.save()
+        return JsonResponse({'exito': True})
 
 
 class UserUpdateView(UsersMenuMixin, UpdateView):
