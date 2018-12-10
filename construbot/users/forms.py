@@ -108,7 +108,7 @@ class UsuarioEdit(UserChangeForm):
     class Meta:
         model = User
         exclude = [
-            'is_new',
+            # 'is_new',
             'openpay',
             'last_login',
             'is_superuser',
