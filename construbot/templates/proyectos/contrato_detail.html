@@ -67,7 +67,7 @@
 			$( "#toggle-button-1" ).click(function() {
 	        	$("#toggle-button-2").css('display', 'block');
 	        	$("#toggle-button-1").css('display', 'none');
-	        	$( "#toggle-hide" ).css("display", "inline-table");
+	        	$( "#toggle-hide" ).css("display", "block");
 			});
 	    }
 	});
@@ -122,7 +122,7 @@
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-plus icon_right"></span><span class="oi oi-minus icon_right-up"></span>
-	<div class="cont_message_no_result" style="background:white;">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.</div>
+	<div class="cont_message cont_message_no_result" style="background:white;">¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.</div>
 </div>
 <table class="table_results table_sample">
 	<tr>
@@ -176,7 +176,7 @@
 		</tbody>
 	</table>
 {% elif contrato.concept_set.exists %}
-	<div class="text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
+	<div class="cont_message text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
 {% endif %}
 <br>
 <br>
@@ -205,7 +205,7 @@
 		</tbody>
 	</table>
 {% else %}
-	<div id="toggle-hide" class="text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
+	<div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
 {% endif %}
 {% endlanguage %}
 {% endblock %}

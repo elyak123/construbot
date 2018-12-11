@@ -13,6 +13,10 @@
 
 <div class="container">
   <h2>Listado de usuarios en {{ request.user.currently_at.company_name }} </h2>
+  <br>
+  	{% if current_user.is_administrator %}
+		<a class="boton" href="{% url 'users:new' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
+	{% endif %}
   	{% if user_list.exists %}
 	  <div class="list-group">
 	    {% for user in user_list %}

@@ -338,15 +338,22 @@ ContractConceptInlineForm = forms.inlineformset_factory(
     extra=1,
     widgets={
         'concept_text': forms.Textarea(attrs={
-            'cols': '35',
-            'rows': '3'
+            'cols': '20',
+            'rows': '4'
         }),
         'unit': autocomplete.ModelSelect2(
             url='proyectos:unit-autocomplete',
-            attrs={'data-minimum-input-length': 1}
+            attrs={'class': 'n-input', 'data-minimum-input-length': 1}
         ),
+        'total_cuantity': forms.NumberInput(attrs={
+            'class': 'n-input',
+        }),
+        'unit_price': forms.NumberInput(attrs={
+            'class': 'n-input',
+        }),
         'code': forms.TextInput(attrs={
-            'class': 'inlineCode'
+            'maxlength': '6',
+            'class': 'inlineCode',
         }),
     },
 )
