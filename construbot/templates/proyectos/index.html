@@ -156,8 +156,13 @@
 	</div>
 </div>
 <div class="row" style="text-align:center;">
-	<div class="col-xl-6">
-		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.">
+	{% if is_administrador %}
+	<div class="col-md-6">
+	{% else %}
+	<div class="col-2"></div>
+	<div class="col-8">
+	{% endif %}
+		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. {% if is_administrator %}El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.{% endif %}">
 			<p><strong>Contratos Vigentes</strong></p>
 			<table class="table_sample table_left">
 				<tr>
@@ -175,6 +180,7 @@
 			</table>
 		</div>
 	</div>
+	{% if is_administrador %}
 	<div class="col-xl-6">
 		<div data-step="3" data-intro="Aquí se muestran las estimaciones que aún no han sido marcadas como facturadas. Útil para dar seguimiento.">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
@@ -223,6 +229,9 @@
 			</table>
 		</div>
 	</div>
+	{% else %}
+		<div class="col-2"></div>
+	{% endif %}
 </div>
 {% endif %}
 {% endblock content %}

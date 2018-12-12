@@ -137,10 +137,13 @@ a:hover {
 	background: #d2d2d2;
 }
 
-.cont_message_no_result {
-	display: none;
+.cont_message {
 	text-align: center;
 	font-size: 16px;
+}
+
+.cont_message_no_result {
+	display: none;
 }
 /*FIN DE ESTILOS PARA LISTADOS AJAX*/
 
@@ -444,6 +447,10 @@ a:hover {
 .cont_buttons {
 	margin-right: 5%;
 	float: right;
+}
+
+.n-input {
+	width: 90% !important;
 }
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
