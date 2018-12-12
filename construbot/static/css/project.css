@@ -452,6 +452,14 @@ a:hover {
 .n-input {
 	width: 90% !important;
 }
+
+.del-msj {
+	display: none;
+	width: 200px;
+	position: fixed;
+	z-index: 2;
+}
+
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
 .fila_par, .fila_impar {

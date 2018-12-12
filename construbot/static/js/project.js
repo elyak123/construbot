@@ -264,18 +264,21 @@ $(document).ready(function(){
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
         }
-        $(document).on("click",".remove_span", function(event){
-            event.target.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
-            $(event.target).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
-            $(event.target).parent().prev()[0].classList.toggle("appear");
-            event.target.classList.toggle("span_eliminar");
-            if(event.target.innerText=="Cancelar"){
-                event.target.innerText = "Remover";
-            } else {
-                event.target.innerText = "Cancelar";
+        $(document).on("click", ".remove_span", function(event){
+            var ev;
+            ev = event.target;
+            try {
+                ev.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
+            } catch (err) {
+                if (err.constructor == TypeError){
+                    ev = event.target.parentElement;
+                    ev.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
+                }
             }
+            $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
+            $(ev).parent().prev()[0].classList.toggle("appear");
+            ev.classList.toggle("span_eliminar");
         });
-
         $(document).on('change', '.custom-file-input', function(){
             $(this).parent().find(".custom-file-label")[0].innerText = $(this).val().replace(/C:\\fakepath\\/i, '');
         });
