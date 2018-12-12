@@ -254,7 +254,7 @@ class Concept(models.Model):
     """
         Model that represents an estimate concept
     """
-    code = models.CharField(max_length=6)
+    code = models.CharField(max_length=50)
     concept_text = models.TextField()
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     estimate_concept = models.ManyToManyField(Estimate, through='EstimateConcept')
