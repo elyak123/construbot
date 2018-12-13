@@ -1,6 +1,8 @@
 import tempfile
 import shutil
 from unittest import mock
+from django.db import transaction
+from django.db.utils import IntegrityError
 from django.test import RequestFactory, tag, override_settings
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
@@ -223,6 +225,13 @@ class ConceptTest(BaseModelTesCase):
     def test_importe_contratado(self):
         concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)
         self.assertEqual(concepto.importe_contratado(), 600)
+
+    def test_concept_unique_together(self):
+        contrato = factories.ContratoFactory()
+        factories.ConceptoFactory(concept_text='hola', project=contrato)
+        with transaction.atomic():
+            with self.assertRaises(IntegrityError):
+                factories.ConceptoFactory(concept_text='hola', project=contrato)
 
     def test_unit_price_operations(self):
         concept = factories.ConceptoFactory(unit_price=2)

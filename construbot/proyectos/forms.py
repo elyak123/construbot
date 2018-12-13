@@ -252,7 +252,7 @@ class ConceptDummyWidget(forms.Textarea):
         """
         data_name = data.get(name)
         try:
-            value = str(Concept.objects.get(concept_text=data_name).id)
+            value = str(Concept.objects.get(concept_text=data_name, project=int(data['project'])).id)
             return value
         except ObjectDoesNotExist:
             if isinstance(data_name, int):

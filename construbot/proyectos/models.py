@@ -268,6 +268,7 @@ class Concept(models.Model):
     class Meta:
         verbose_name = 'Concepto'
         verbose_name_plural = 'Conceptos'
+        unique_together = ('concept_text', 'project')
 
     def __str__(self):
         return self.concept_text
