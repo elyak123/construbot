@@ -44,6 +44,7 @@
   <table id="formset" class="form table_sample table_inline table_normal">
     {{ form.management_form }}
     {% for frm in form.forms %}
+      {% bootstrap_form_errors frm %}
       {% if forloop.first %}
         <thead>
           <tr>
