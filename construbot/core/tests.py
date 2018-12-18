@@ -38,7 +38,7 @@ class ContextTests(utils.BaseTestCase):
             view.app_label_name = 'Documentos'
             menu = view.get_menu()
             self.assertIn(menu_specific_obj[0], menu)
-            self.assertEqual(menu.index(menu_specific_obj[0]), 2)
+            self.assertEqual(menu.index(menu_specific_obj[0]), 3)
 
 
 class BaseAutoCompleteTest(utils.BaseTestCase):
