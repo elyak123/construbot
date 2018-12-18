@@ -66,21 +66,6 @@ $(document).ready(function(){
             return intcomma(newValue);
         }
     };
-
-    function OnchangeEventHandler(event) {
-        if(event.target.getAttribute("value")){
-            $.ajax({
-                url:'/users/company-change/' + event.target.getAttribute("value") + '/',
-                type: 'GET',
-                success: function(response){
-                    window.location.reload();
-                },
-            });
-        } 
-    }
-    $(document).on("click",".drop-company", function(event){
-        OnchangeEventHandler(event);
-    });
     
     function ajustarContenido(arg){
         if(arg==1){
