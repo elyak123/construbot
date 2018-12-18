@@ -1,5 +1,7 @@
 import decimal
 from unittest import mock
+from django.contrib.auth.models import Group
+from django.shortcuts import reverse
 from django.test import RequestFactory, tag
 from construbot.users.tests import factories as user_factories
 from construbot.users.tests import utils
@@ -170,6 +172,67 @@ class DestinatarioFormTest(utils.BaseTestCase):
         sitio_obj = models.Destinatario.objects.get(pk=destinatario.pk)
         self.assertEqual(destinatario.destinatario_text, 'Ing. Rodrigo Cruz')
         self.assertEqual(sitio_obj.pk, destinatario.pk)
+
+
+class CatalogoConceptosFormsetTest(utils.BaseTestCase):
+
+    def setUp(self):
+        self.user_factory = user_factories.UserFactory
+        self.user = self.make_user()
+        self.factory = RequestFactory()
+        self.request = self.get_request(self.user)
+
+    def test_creacion_de_catalogo_conceptos(self):
+        contrato = factories.ContratoFactory()
+        estimate = factories.EstimateFactory(project=contrato)
+        unit = factories.UnitFactory()
+        formset = forms.ContractConceptInlineForm({
+            'concept_set-INITIAL_FORMS': '0',
+            'concept_set-TOTAL_FORMS': '1',
+            'concept_set-0-code': 'SOME',
+            'concept_set-0-concept_text': 'Concepto',
+            'concept_set-0-unit': str(unit.id),
+            'concept_set-0-total_cuantity': '100',
+            'concept_set-0-unit_price': '10',
+            'concept_set-0-DELETE': 'False',
+            'concept_set-0-project': str(contrato.id),
+        },
+        instance=contrato)
+        self.assertTrue(formset.is_valid(), formset.errors)
+
+    def test_creacion_de_catalogo_mismo_concepto_renders_errror(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        self.user.groups.add(proyectos_group)
+        proyectos_group = Group.objects.create(name='Administrators')
+        self.user.groups.add(proyectos_group)
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.client.login(username=self.user.username, password='password')
+        unit = factories.UnitFactory()
+        formset_data = {
+            'concept_set-INITIAL_FORMS': '0',
+            'concept_set-TOTAL_FORMS': '2',
+            'concept_set-0-code': 'SOME',
+            'concept_set-0-concept_text': 'Concepto',
+            'concept_set-0-unit': str(unit.id),
+            'concept_set-0-total_cuantity': '100',
+            'concept_set-0-unit_price': '10',
+            'concept_set-0-DELETE': 'False',
+            'concept_set-0-project': str(contrato.id),
+            'concept_set-1-code': 'SOME',
+            'concept_set-1-concept_text': 'Concepto',
+            'concept_set-1-unit': str(unit.id),
+            'concept_set-1-total_cuantity': '100',
+            'concept_set-1-unit_price': '10',
+            'concept_set-1-DELETE': 'False',
+            'concept_set-1-project': str(contrato.id),
+        }
+        response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
+        # self.assertFormsetError(response, 'form', 1, field='__all__', errors=['Please correct the duplicate values below.']) PENDIENTE
+        self.assertEqual(response.status_code, 200)
 
 
 class SitioFormTest(utils.BaseTestCase):

@@ -18,51 +18,21 @@ class UsersMenuMixin(AuthenticationTestMixin):
     tengo_que_ser_admin = True
     menu_specific = [
         {
-            'title': 'Listados',
-            'url': '',
+            'title': 'Usuarios',
+            'url': 'users:list',
             'always_appear': False,
-            'icon': 'list',
-            'parent': True,
+            'icon': 'person',
+            'parent': False,
             'type': 'submenu',
-            'submenu': [
-                {
-                    'title': 'Usuarios',
-                    'url': 'users:list',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'person',
-                },
-                {
-                    'title': 'Compañías',
-                    'url': 'users:company_list',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'briefcase',
-                },
-            ],
+            'submenu': [],
         }, {
-            'title': 'Crear',
-            'url': 'users:new',
+            'title': 'Empresas',
+            'url': 'users:company_list',
             'always_appear': False,
-            'icon': 'star',
-            'parent': True,
+            'icon': 'briefcase',
+            'parent': False,
             'type': 'submenu',
-            'submenu': [
-                {
-                    'title': 'Usuarios',
-                    'url': 'users:new',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'person',
-                },
-                {
-                    'title': 'Compañías',
-                    'url': 'users:new_company',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'briefcase',
-                },
-            ],
+            'submenu': [],
         }
     ]
 

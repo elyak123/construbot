@@ -22,43 +22,41 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
         {
-            'title': 'Catalogos',
-            'url': '',
+            'title': 'Contratos',
+            'url': 'construbot.proyectos:listado_de_contratos',
             'always_appear': True,
-            'icon': 'book',
-            'parent': True,
+            'icon': 'bookmark',
+            'parent': False,
             'type': 'submenu',
-            'submenu': [
-                {
-                    'title': 'Contratos',
-                    'url': 'construbot.proyectos:listado_de_contratos',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'bookmark',
-                },
-                {
-                    'title': 'Clientes',
-                    'url': 'construbot.proyectos:listado_de_clientes',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'person',
-                },
-                {
-                    'title': 'Ubicaciones',
-                    'url': 'construbot.proyectos:listado_de_sitios',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'map-marker',
-                },
-                {
-                    'title': 'Contactos',
-                    'url': 'construbot.proyectos:listado_de_destinatarios',
-                    'always_appear': False,
-                    'urlkwargs': '',
-                    'icon': 'people',
-                },
-            ],
-        }
+            'submenu': [],
+        },
+        {
+            'title': 'Clientes',
+            'url': 'construbot.proyectos:listado_de_clientes',
+            'always_appear': True,
+            'icon': 'person',
+            'parent': False,
+            'type': 'submenu',
+            'submenu': [],
+        },
+        {
+            'title': 'Ubicaciones',
+            'url': 'construbot.proyectos:listado_de_sitios',
+            'always_appear': True,
+            'icon': 'map-marker',
+            'parent': False,
+            'type': 'submenu',
+            'submenu': [],
+        },
+        {
+            'title': 'Contactos',
+            'url': 'construbot.proyectos:listado_de_destinatarios',
+            'always_appear': True,
+            'icon': 'people',
+            'parent': False,
+            'type': 'submenu',
+            'submenu': [],
+        },            
     ]
     model_options = {
         'Contrato': {
