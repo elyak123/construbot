@@ -9,6 +9,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
+from construbot.proyectos.models import Cliente
+from construbot.users.models import Company
 
 User = get_user_model()
 
@@ -75,3 +77,21 @@ def change_user_password(request):
     user.set_password(request.data['pwd'])
     user.save()
     return Response({'pass': user.has_usable_password()})
+
+
+class DataMigration(object):
+    @api_view(['POST'])
+    def cliente_migration(request):
+        pass
+
+    @api_view(['POST'])
+    def sitio_migration(request):
+        pass
+
+    @api_view(['POST'])
+    def destinatario_migration(request):
+        pass
+
+    @api_view(['POST'])
+    def contrato_migration(request):
+        pass
