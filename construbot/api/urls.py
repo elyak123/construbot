@@ -22,4 +22,20 @@ urlpatterns = [
         regex=r'^change-usr-pwd/$',
         view=views.change_user_password, name='change_pwd'
     ),
+    url(
+        regex=r'^migraciones/Cliente/$',
+        view=views.DataMigration.cliente_migration, name='migracion_de_clientes'
+    ),
+    url(
+        regex=r'^migraciones/Sitio/$',
+        view=views.DataMigration.sitio_migration, name='migracion_de_sitios'
+    ),
+    url(
+        regex=r'^migraciones/Destinatario/$',
+        view=views.DataMigration.destinatario_migration, name='migracion_de_sitios'
+    ),
+    url(
+        regex=r'^migraciones/Contrato/$',
+        view=views.DataMigration.contrato_migration, name='migracion_de_contratos'
+    ),
 ]

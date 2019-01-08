@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente
+from construbot.proyectos.models import Cliente, Sitio, Destinatario
 from construbot.users.models import Company
 
 User = get_user_model()
@@ -82,15 +82,58 @@ def change_user_password(request):
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
-        pass
+        customer, customer_created = Customer.objects.get_or_create(
+            customer_name=request.data['customer']
+        )
+        company, company_created = Company.objects.get_or_create(
+            company_name=request.data['company'],
+            customer=customer
+        )
+        cliente, cliente_created = Cliente.objects.get_or_create(
+            company=company,
+            cliente_name=request.data['cliente_name']
+        )
+        return Response({'creado': cliente_created})
 
     @api_view(['POST'])
     def sitio_migration(request):
-        pass
+        customer, customer_created = Customer.objects.get_or_create(
+            customer_name=request.data['customer']
+        )
+        company, company_created = Company.objects.get_or_create(
+            company_name=request.data['company'],
+            customer=customer
+        )
+        cliente, cliente_created = Cliente.objects.get_or_create(
+            company=company,
+            cliente_name='Migracion'
+        )
+        sitio, sitio_created = Sitio.objects.get_or_create(
+            cliente=cliente,
+            sitio_name=request.data['sitio_name'],
+            sitio_location=request.data['sitio_location']
+        )
+        return Response({'creado': sitio_created})
 
     @api_view(['POST'])
     def destinatario_migration(request):
-        pass
+        customer, customer_created = Customer.objects.get_or_create(
+            customer_name=request.data['customer']
+        )
+        company, company_created = Company.objects.get_or_create(
+            company_name=request.data['company'],
+            customer=customer
+        )
+        cliente, cliente_created = Cliente.objects.get_or_create(
+            company=company,
+            cliente_name=request.data['cliente']
+        )
+        destinatario, destinatario_created = Destinatario.objects.get_or_create(
+            cliente=cliente,
+            destinatario_text=request.data['destinatario_text'],
+            puesto=request.data['puesto']
+        )
+        return Response({'creado': destinatario_created})
 
     @api_view(['POST'])
     def contrato_migration(request):
