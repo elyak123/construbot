@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato
 from construbot.users.models import Company
 
 User = get_user_model()
@@ -137,4 +137,32 @@ class DataMigration(object):
 
     @api_view(['POST'])
     def contrato_migration(request):
-        pass
+        customer, customer_created = Customer.objects.get_or_create(
+            customer_name=request.data['customer']
+        )
+        company, company_created = Company.objects.get_or_create(
+            company_name=request.data['company'],
+            customer=customer
+        )
+        cliente, cliente_created = Cliente.objects.get_or_create(
+            company=company,
+            cliente_name=request.data['cliente']
+        )
+        sitio, sitio_created = Sitio.objects.get_or_create(
+            cliente=cliente,
+            sitio_name=request.data['sitio_name'],
+            sitio_location=request.data['sitio_location']
+        )
+        contrato, contrato_created = Contrato.objects.get_or_create(
+            folio=request.data['folio'],
+            code=request.data['code'],
+            fecha=request.data['fecha'],
+            contrato_name=request.data['contrato_name'],
+            contrato_shortName=request.data['contrato_shortName'],
+            cliente=cliente,
+            sitio=sitio,
+            status=request.data['status'],
+            monto=request.data['monto'],
+            anticipo=0,
+        )
+        return Response({'creado': destinatario_created})
