@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate
 from construbot.users.models import Company
 
 User = get_user_model()
@@ -136,7 +136,7 @@ class DataMigration(object):
         return Response({'creado': destinatario_created})
 
     @api_view(['POST'])
-    def contrato_migration(request):
+    def contrato_and_concept_migration(request):
         customer, customer_created = Customer.objects.get_or_create(
             customer_name=request.data['customer']
         )
@@ -165,4 +165,34 @@ class DataMigration(object):
             monto=request.data['monto'],
             anticipo=0,
         )
-        return Response({'creado': destinatario_created})
+        return Response({'creado': contrato_created})
+
+    @api_view(['POST'])
+    def estimate_migration(request):
+        customer, customer_created = Customer.objects.get_or_create(
+            customer_name=request.data['customer']
+        )
+        company, company_created = Company.objects.get_or_create(
+            company_name=request.data['company'],
+            customer=customer
+        )
+        cliente, cliente_created = Cliente.objects.get_or_create(
+            company=company,
+            cliente_name=request.data['cliente']
+        )
+        contrato, contrato_created = Contrato.objects.get_or_create(
+            contrato_name=request.data['project'],
+            cliente=cliente,
+        )
+        estimate, estimate_created = Estimate.objects.get_or_create(
+            project=contrato,
+            consecutive=request.data['consecutive'],
+            start_date=request.data['start_date'],
+            finish_date=request.data['finish_date'],
+            draft_date=request.data['draft_date'],
+            auth_date=request.data['auth_date'],
+            paid=request.data['paid'],
+            invoiced=request.data['invoiced'],
+            payment_date=request.data['payment_date'],
+        )
+        return Response({'creado': estimate_created})

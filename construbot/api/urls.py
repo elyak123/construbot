@@ -36,6 +36,6 @@ urlpatterns = [
     ),
     url(
         regex=r'^migraciones/Contrato/$',
-        view=views.DataMigration.contrato_migration, name='migracion_de_contratos'
+        view=views.DataMigration.contrato_and_concept_migration, name='migracion_de_contratos'
     ),
 ]
