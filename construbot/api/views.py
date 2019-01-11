@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept
 from construbot.users.models import Company
 
 User = get_user_model()
@@ -136,7 +136,7 @@ class DataMigration(object):
         return Response({'creado': destinatario_created})
 
     @api_view(['POST'])
-    def contrato_and_concept_migration(request):
+    def contrato_concept_and_estimate_migration(request):
         customer, customer_created = Customer.objects.get_or_create(
             customer_name=request.data['customer']
         )
@@ -165,34 +165,54 @@ class DataMigration(object):
             monto=request.data['monto'],
             anticipo=0,
         )
+        import pdb; pdb.set_trace()
+        get_concepts(contrato, request.data['concepts'])
+        get_estimates(contrato, request.data['estimates'])
         return Response({'creado': contrato_created})
 
-    @api_view(['POST'])
-    def estimate_migration(request):
-        customer, customer_created = Customer.objects.get_or_create(
-            customer_name=request.data['customer']
+
+def get_concepts(contrato, concept_data):
+    for concept in concept_data:
+        concepto, concepto_created = Concept.objects.get_or_create(
+            code=concept['concept_data'],
+            concept_text=concept['concept_text'],
+            project=contrato,
+            unit=Units.objects.get_or_create(
+                unit=concept['unit']
+            ),
+            total_cuantity=concept['total_cuantity'],
+            unit_price=concept['unit_price']
         )
-        company, company_created = Company.objects.get_or_create(
-            company_name=request.data['company'],
-            customer=customer
-        )
-        cliente, cliente_created = Cliente.objects.get_or_create(
-            company=company,
-            cliente_name=request.data['cliente']
-        )
-        contrato, contrato_created = Contrato.objects.get_or_create(
-            contrato_name=request.data['project'],
-            cliente=cliente,
-        )
+
+
+def get_estimates(contrato, estimate_data):
+    for estimacion in estimate_data:
         estimate, estimate_created = Estimate.objects.get_or_create(
             project=contrato,
-            consecutive=request.data['consecutive'],
-            start_date=request.data['start_date'],
-            finish_date=request.data['finish_date'],
-            draft_date=request.data['draft_date'],
-            auth_date=request.data['auth_date'],
-            paid=request.data['paid'],
-            invoiced=request.data['invoiced'],
-            payment_date=request.data['payment_date'],
+            consecutive=estimacion['consecutive'],
+            start_date=estimacion['start_date'],
+            finish_date=estimacion['finish_date'],
+            draft_date=estimacion['draft_date'],
+            auth_date=estimacion['auth_date'],
+            paid=estimacion['paid'],
+            invoiced=estimacion['invoiced'],
+            payment_date=estimacion['payment_date'],
         )
-        return Response({'creado': estimate_created})
+        get_auth_by(estimate, estimate_data['auth_by'], estimate_data['auth_by_gen'])
+
+
+def get_auth_by(estimate, auth_by_data, auth_by_gen_data):
+    for auth_by_d in auth_by_data:
+        auth_by, auth_by_created = Destinatario.objects.get_or_create(
+            destinatario_text=auth_by['destinatario_text'],
+            puesto=auth_by['puesto'],
+            cliente=estimate.project.cliente
+        )
+        estimate.auth_by.add(auth_by)
+    for auth_by_gen_d in auth_by_gen_data:
+        auth_by_gen, auth_by_gen_created = Destinatario.objects.get_or_create(
+            destinatario_text=auth_by['destinatario_text'],
+            puesto=auth_by['puesto'],
+            cliente=estimate.project.cliente
+        )
+        estimate.auth_by_gen.add(auth_by_gen)
