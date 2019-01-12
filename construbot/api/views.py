@@ -7,10 +7,11 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from construbot.users.models import Company, Customer
+from construbot.users.models import Company, Customer, User
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units
 from construbot.users.models import Company
+import json
 
 User = get_user_model()
 
@@ -137,49 +138,52 @@ class DataMigration(object):
 
     @api_view(['POST'])
     def contrato_concept_and_estimate_migration(request):
+        json_data = json.loads(request.data)
         customer, customer_created = Customer.objects.get_or_create(
-            customer_name=request.data['customer']
+            customer_name=json_data['customer']
         )
         company, company_created = Company.objects.get_or_create(
-            company_name=request.data['company'],
+            company_name=json_data['company'],
             customer=customer
         )
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
-            cliente_name=request.data['cliente']
+            cliente_name=json_data['cliente']
         )
         sitio, sitio_created = Sitio.objects.get_or_create(
             cliente=cliente,
-            sitio_name=request.data['sitio_name'],
-            sitio_location=request.data['sitio_location']
+            sitio_name=json_data['sitio_name'],
+            sitio_location=json_data['sitio_location']
         )
         contrato, contrato_created = Contrato.objects.get_or_create(
-            folio=request.data['folio'],
-            code=request.data['code'],
-            fecha=request.data['fecha'],
-            contrato_name=request.data['contrato_name'],
-            contrato_shortName=request.data['contrato_shortName'],
+            folio=json_data['folio'],
+            code=json_data['code'],
+            fecha=json_data['fecha'],
+            contrato_name=json_data['contrato_name'],
+            contrato_shortName=json_data['contrato_shortName'],
             cliente=cliente,
             sitio=sitio,
-            status=request.data['status'],
-            monto=request.data['monto'],
+            status=json_data['status'],
+            monto=json_data['monto'],
             anticipo=0,
         )
-        import pdb; pdb.set_trace()
-        get_concepts(contrato, request.data['concepts'])
-        get_estimates(contrato, request.data['estimates'])
+        contrato.users.add(User.objects.get(username=settings.USERNAME_FOR_MIGRATION).id)
+        contrato.save()
+        get_concepts(contrato, json_data['concepts'])
+        get_estimates(contrato, json_data['estimates'])
         return Response({'creado': contrato_created})
 
 
 def get_concepts(contrato, concept_data):
     for concept in concept_data:
+        unit, unit_created = Units.objects.get_or_create(
+           unit=concept['unit']
+        )
         concepto, concepto_created = Concept.objects.get_or_create(
-            code=concept['concept_data'],
+            code=concept['code'],
             concept_text=concept['concept_text'],
             project=contrato,
-            unit=Units.objects.get_or_create(
-                unit=concept['unit']
-            ),
+            unit=unit,
             total_cuantity=concept['total_cuantity'],
             unit_price=concept['unit_price']
         )
@@ -190,6 +194,8 @@ def get_estimates(contrato, estimate_data):
         estimate, estimate_created = Estimate.objects.get_or_create(
             project=contrato,
             consecutive=estimacion['consecutive'],
+            draft_by=User.objects.get(username=settings.USERNAME_FOR_MIGRATION),
+            supervised_by=User.objects.get(username=settings.USERNAME_FOR_MIGRATION),
             start_date=estimacion['start_date'],
             finish_date=estimacion['finish_date'],
             draft_date=estimacion['draft_date'],
@@ -198,21 +204,21 @@ def get_estimates(contrato, estimate_data):
             invoiced=estimacion['invoiced'],
             payment_date=estimacion['payment_date'],
         )
-        get_auth_by(estimate, estimate_data['auth_by'], estimate_data['auth_by_gen'])
+        get_auth_by(estimate, estimacion['auth_by'], estimacion['auth_by_gen'])
 
 
 def get_auth_by(estimate, auth_by_data, auth_by_gen_data):
     for auth_by_d in auth_by_data:
         auth_by, auth_by_created = Destinatario.objects.get_or_create(
-            destinatario_text=auth_by['destinatario_text'],
-            puesto=auth_by['puesto'],
+            destinatario_text=auth_by_d['destinatario_text'],
+            puesto=auth_by_d['puesto'],
             cliente=estimate.project.cliente
         )
         estimate.auth_by.add(auth_by)
     for auth_by_gen_d in auth_by_gen_data:
         auth_by_gen, auth_by_gen_created = Destinatario.objects.get_or_create(
-            destinatario_text=auth_by['destinatario_text'],
-            puesto=auth_by['puesto'],
+            destinatario_text=auth_by_gen_d['destinatario_text'],
+            puesto=auth_by_gen_d['puesto'],
             cliente=estimate.project.cliente
         )
         estimate.auth_by_gen.add(auth_by_gen)
