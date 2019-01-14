@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer, User
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units, EstimateConcept
 from construbot.users.models import Company
 import json
 
@@ -80,16 +80,26 @@ def change_user_password(request):
     return Response({'pass': user.has_usable_password()})
 
 
+def get_migration_user():
+    user = User.objects.get(
+        username=settings.USERNAME_FOR_MIGRATION
+    )
+    return user
+
+
+def get_migration_customer():
+    customer = get_migration_user().customer
+    return customer
+
+
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
-        customer, customer_created = Customer.objects.get_or_create(
-            customer_name=request.data['customer']
-        )
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=customer
+            customer=get_migration_customer()
         )
+        get_migration_user().company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=request.data['cliente_name']
@@ -98,13 +108,11 @@ class DataMigration(object):
 
     @api_view(['POST'])
     def sitio_migration(request):
-        customer, customer_created = Customer.objects.get_or_create(
-            customer_name=request.data['customer']
-        )
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=customer
+            customer=get_migration_customer()
         )
+        get_migration_user().company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name='Migracion'
@@ -118,13 +126,11 @@ class DataMigration(object):
 
     @api_view(['POST'])
     def destinatario_migration(request):
-        customer, customer_created = Customer.objects.get_or_create(
-            customer_name=request.data['customer']
-        )
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=customer
+            customer=get_migration_customer()
         )
+        get_migration_user().company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=request.data['cliente']
@@ -139,13 +145,11 @@ class DataMigration(object):
     @api_view(['POST'])
     def contrato_concept_and_estimate_migration(request):
         json_data = json.loads(request.data)
-        customer, customer_created = Customer.objects.get_or_create(
-            customer_name=json_data['customer']
-        )
         company, company_created = Company.objects.get_or_create(
             company_name=json_data['company'],
-            customer=customer
+            customer=get_migration_customer()
         )
+        get_migration_user().company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=json_data['cliente']
@@ -188,6 +192,18 @@ def get_concepts(contrato, concept_data):
             unit_price=concept['unit_price']
         )
 
+def get_estimate_concepts(estimate, estimate_concepts):
+    for estimate_concept_data in estimate_concepts:
+        concept, c_created = Concept.objects.get_or_create(
+            concept_text=estimate_concept_data['concept'],
+            project=estimate.project,
+        )
+        estimate_concept, ec_created = EstimateConcept.objects.get_or_create(
+            estimate=estimate,
+            concept=concept,
+            cuantity_estimated=estimate_concept_data['cuantity_estimated'],
+            observations=estimate_concept_data['observations']
+        )
 
 def get_estimates(contrato, estimate_data):
     for estimacion in estimate_data:
@@ -204,6 +220,7 @@ def get_estimates(contrato, estimate_data):
             invoiced=estimacion['invoiced'],
             payment_date=estimacion['payment_date'],
         )
+        get_estimate_concepts(estimate, estimacion['estimate_concepts'])
         get_auth_by(estimate, estimacion['auth_by'], estimacion['auth_by_gen'])
 
 
