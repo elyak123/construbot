@@ -18,6 +18,9 @@ shell: dockerenv
 poblar: dockerenv
 	@docker-compose -f docker-compose-dev.yml run django python manage.py poblar	
 
+superuser: dockerenv
+	@docker-compose -f docker-compose-dev.yml run django python manage.py createsuperuser	
+
 up: dockerenv
 	@docker-compose -f docker-compose-dev.yml up -d
 

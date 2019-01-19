@@ -364,8 +364,8 @@ ContractRetentionInlineForm = forms.inlineformset_factory(
     Contrato, Retenciones,
     fields=(
         'nombre',
-        'valor',
         'tipo',
+        'valor',
     ),
     extra=1,
 )
