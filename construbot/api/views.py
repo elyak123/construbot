@@ -34,7 +34,7 @@ def email_uniqueness(request):
     if request.method == 'POST':
         User = get_user_model()
         try:
-            user = User.objects.get(email=request.data['email'])
+            user = User.objects.get(email=request.data.get('email'))
         except User.DoesNotExist:
             user = None
         return Response({'unique': user is None})
@@ -47,12 +47,12 @@ def create_customer_user_and_company(request):
         group_a, a_created = Group.objects.get_or_create(name='Administrators')
         group_p, b_created = Group.objects.get_or_create(name='Proyectos')
         group_u, c_created = Group.objects.get_or_create(name='Users')
-        customer = Customer.objects.create(customer_name=request.data['customer'])
+        customer = Customer.objects.create(customer_name=request.data.get('customer'))
         company = Company.objects.create(customer=customer, company_name=name)
         user = User(
             customer=customer,
             username=name,
-            email=request.data['email'],
+            email=request.data.get('email'),
         )
         user.set_unusable_password()
         try:
@@ -74,8 +74,8 @@ def create_customer_user_and_company(request):
 
 @api_view(['POST'])
 def change_user_password(request):
-    user = User.objects.get(id=request.data['id_usr'])
-    user.set_password(request.data['pwd'])
+    user = User.objects.get(id=request.data.get('id_usr'))
+    user.set_password(request.data.get('pwd'))
     user.save()
     return Response({'pass': user.has_usable_password()})
 
@@ -84,20 +84,20 @@ class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
         company, company_created = Company.objects.get_or_create(
-            company_name=request.data['company'],
+            company_name=request.data.get('company'),
             customer=request.user.customer
         )
         request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
-            cliente_name=request.data['cliente_name']
+            cliente_name=request.data.get('cliente_name')
         )
         return Response({'creado': cliente_created})
 
     @api_view(['POST'])
     def sitio_migration(request):
         company, company_created = Company.objects.get_or_create(
-            company_name=request.data['company'],
+            company_name=request.data.get('company'),
             customer=request.user.customer
         )
         request.user.company.add(company)
@@ -107,26 +107,26 @@ class DataMigration(object):
         )
         sitio, sitio_created = Sitio.objects.get_or_create(
             cliente=cliente,
-            sitio_name=request.data['sitio_name'],
-            sitio_location=request.data['sitio_location']
+            sitio_name=request.data.get('sitio_name'),
+            sitio_location=request.data.get('sitio_location')
         )
         return Response({'creado': sitio_created})
 
     @api_view(['POST'])
     def destinatario_migration(request):
         company, company_created = Company.objects.get_or_create(
-            company_name=request.data['company'],
+            company_name=request.data.get('company'),
             customer=request.user.customer
         )
         request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
-            cliente_name=request.data['cliente']
+            cliente_name=request.data.get('cliente')
         )
         destinatario, destinatario_created = Destinatario.objects.get_or_create(
             cliente=cliente,
-            destinatario_text=request.data['destinatario_text'],
-            puesto=request.data['puesto']
+            destinatario_text=request.data.get('destinatario_text'),
+            puesto=request.data.get('puesto')
         )
         return Response({'creado': destinatario_created})
 
