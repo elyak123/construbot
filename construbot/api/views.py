@@ -159,10 +159,10 @@ class DataMigration(object):
             monto=json_data['monto'],
             anticipo=0,
         )
-        contrato.users.add(User.objects.get(username=settings.USERNAME_FOR_MIGRATION).id)
+        contrato.users.add(User.objects.get(username=request.user.username))
         contrato.save()
         get_concepts(contrato, json_data['concepts'])
-        get_estimates(contrato, json_data['estimates'])
+        get_estimates(contrato, json_data['estimates'], request.user.username)
         return Response({'creado': contrato_created})
 
 
@@ -193,13 +193,13 @@ def get_estimate_concepts(estimate, estimate_concepts):
             observations=estimate_concept_data['observations']
         )
 
-def get_estimates(contrato, estimate_data):
+def get_estimates(contrato, estimate_data, username):
     for estimacion in estimate_data:
         estimate, estimate_created = Estimate.objects.get_or_create(
             project=contrato,
             consecutive=estimacion['consecutive'],
-            draft_by=User.objects.get(username=settings.USERNAME_FOR_MIGRATION),
-            supervised_by=User.objects.get(username=settings.USERNAME_FOR_MIGRATION),
+            draft_by=User.objects.get(username=username),
+            supervised_by=User.objects.get(username=username),
             start_date=estimacion['start_date'],
             finish_date=estimacion['finish_date'],
             draft_date=estimacion['draft_date'],
