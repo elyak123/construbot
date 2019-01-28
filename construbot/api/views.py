@@ -80,26 +80,14 @@ def change_user_password(request):
     return Response({'pass': user.has_usable_password()})
 
 
-def get_migration_user():
-    user = User.objects.get(
-        username=settings.USERNAME_FOR_MIGRATION
-    )
-    return user
-
-
-def get_migration_customer():
-    customer = get_migration_user().customer
-    return customer
-
-
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=get_migration_customer()
+            customer=request.user.customer
         )
-        get_migration_user().company.add(company)
+        request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=request.data['cliente_name']
@@ -110,9 +98,9 @@ class DataMigration(object):
     def sitio_migration(request):
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=get_migration_customer()
+            customer=request.user.customer
         )
-        get_migration_user().company.add(company)
+        request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name='Migracion'
@@ -128,9 +116,9 @@ class DataMigration(object):
     def destinatario_migration(request):
         company, company_created = Company.objects.get_or_create(
             company_name=request.data['company'],
-            customer=get_migration_customer()
+            customer=request.user.customer
         )
-        get_migration_user().company.add(company)
+        request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=request.data['cliente']
@@ -147,9 +135,9 @@ class DataMigration(object):
         json_data = json.loads(request.data)
         company, company_created = Company.objects.get_or_create(
             company_name=json_data['company'],
-            customer=get_migration_customer()
+            customer=request.user.customer
         )
-        get_migration_user().company.add(company)
+        request.user.company.add(company)
         cliente, cliente_created = Cliente.objects.get_or_create(
             company=company,
             cliente_name=json_data['cliente']
