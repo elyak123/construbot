@@ -1,44 +1,44 @@
 from django.shortcuts import render
-from allauth.account.views import (LoginView, SignupView, EmailView, PasswordChangeView
-	PasswordSetView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView,
-	PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView)
+from allauth.account.views import (LoginView, SignupView, EmailView, PasswordChangeView,
+    PasswordSetView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView,
+    PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView)
 from django.conf import settings
 
 
 class _SignupView(SignupView):
-	pass
+    pass
 
 
 class _LoginView(LoginView):
-	def get_context_data(self, **kwargs):
-	    context = super(_LoginView, self).get_context_data(**kwargs)
-	    context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
-	    return context
+    def get_context_data(self, **kwargs):
+        context = super(_LoginView, self).get_context_data(**kwargs)
+        context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
+        return context
 
 
 class _LogoutView(LogoutView):
-	pass
+    pass
 
 
 class _PasswordChangeView(PasswordChangeView):
-	pass
+    pass
 
 
 class _PasswordSetView(PasswordSetView):
-	pass
+    pass
 
 
 class _PasswordResetView(PasswordResetView):
-	pass
+    pass
 
 
 class _PasswordResetDoneView(PasswordResetDoneView):
-	pass
+    pass
 
 
 class _PasswordResetFromKeyView(PasswordResetFromKeyView):
-	pass
+    pass
 
 
 class _PasswordResetFromKeyDoneView(PasswordResetFromKeyDoneView):
-	pass
+    pass
