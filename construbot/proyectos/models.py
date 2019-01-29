@@ -109,9 +109,11 @@ class Retenciones(models.Model):
 
 
 class Units(models.Model):
-    unit = models.CharField(max_length=50, unique=True)
+    unit = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ('unit', 'company')
         verbose_name = 'Unidad'
         verbose_name_plural = 'Unidades'
 
