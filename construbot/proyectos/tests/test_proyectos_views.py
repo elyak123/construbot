@@ -1580,6 +1580,24 @@ class UnitAutocompleteTest(BaseViewTest):
         dicc_test = view.get_key_words()
         self.assertDictEqual(dicc, dicc_test)
 
+    def test_unit_autocomplete_creates_instance_correctly(self):
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        request = RequestFactory().post(
+            reverse('proyectos:unit-autocomplete', kwargs={}),
+            data={'text': 'Kg'}
+        )
+        request.user = self.user
+        view = self.get_instance(
+            views.UnitAutocomplete,
+            request=request,
+        )
+        view.q = request.GET.get('q', '')
+        view.create_field = 'unit'
+        obj = view.create_object(request.POST.get('text'))
+        self.assertEqual(obj.unit, 'Kg')
+        self.assertTrue(isinstance(obj.pk, int))
+
 
 class UserAutocompleteTest(BaseViewTest):
 
