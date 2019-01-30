@@ -12,14 +12,14 @@ urlpatterns = [
         name='account_change_password'),
     url(r'^password/set/$', views._PasswordSetView.as_view(), name='account_set_password'),
 
-#PENDIENTE    url(r'^inactive/$', views.account_inactive, name='account_inactive'),
+    url(r'^inactive/$', views._AccountInactiveView.as_view(), name='account_inactive'),
 
     # E-mail
-    # url(r'^email/$', views.email, name='account_email'),
-    # url(r'^confirm-email/$', views.email_verification_sent,
-    #     name='account_email_verification_sent'),
-    # url(r'^confirm-email/(?P<key>[-:\w]+)/$', views.confirm_email,
-    #     name='account_confirm_email'),
+    url(r'^email/$', views._EmailView.as_view(), name='account_email'),
+    url(r'^confirm-email/$', views._EmailVerificationSentView.as_view(),
+        name='account_email_verification_sent'),
+    url(r'^confirm-email/(?P<key>[-:\w]+)/$', views._ConfirmEmailView.as_view(),
+        name='account_confirm_email'),
 
     # password reset
     url(r'^password/reset/$', views._PasswordResetView.as_view(),

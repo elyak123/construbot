@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from allauth.account.views import (LoginView, SignupView, EmailView, PasswordChangeView,
     PasswordSetView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView,
-    PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView)
+    PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView,
+    AccountInactiveView, EmailView, EmailVerificationSentView, ConfirmEmailView)
 from django.conf import settings
 
 
@@ -41,4 +42,20 @@ class _PasswordResetFromKeyView(PasswordResetFromKeyView):
 
 
 class _PasswordResetFromKeyDoneView(PasswordResetFromKeyDoneView):
+    pass
+
+
+class _AccountInactiveView(AccountInactiveView):
+    pass
+
+
+class _EmailView(EmailView):
+    pass
+
+
+class _EmailVerificationSentView(EmailVerificationSentView):
+    pass
+
+
+class _ConfirmEmailView(ConfirmEmailView):
     pass
