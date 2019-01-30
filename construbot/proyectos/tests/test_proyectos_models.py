@@ -281,6 +281,13 @@ class ConceptTest(BaseModelTesCase):
         with self.assertRaises(AttributeError):
             concept.anotar_imagenes()
 
+    def test_company_unit_and_company_concept_same_thing(self):
+        with self.assertRaises(ValidationError):
+            company = user_factories.CompanyFactory()
+            unit = factories.UnitFactory()
+            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=company)
+            concept.full_clean()
+
 
 @override_settings(MEDIA_ROOT=MOCK_MEDIA_ROOT)
 class ImageEstimateConceptTest(BaseModelTesCase):
