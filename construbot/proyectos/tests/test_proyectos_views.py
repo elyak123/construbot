@@ -1540,11 +1540,12 @@ class DestinatarioAutocompleteTest(BaseViewTest):
 
 
 class UnitAutocompleteTest(BaseViewTest):
+
     def test_unit_autocomplete_returns_the_correct_unit_object(self):
         company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
-        unit = factories.UnitFactory(unit="Kilo")
-        unit_2 = factories.UnitFactory(unit="Kilogramo")
+        unit = factories.UnitFactory(unit="Kilo", company=company_autocomplete)
+        unit_2 = factories.UnitFactory(unit="Kilogramo", company=company_autocomplete)
         view = self.get_instance(
             views.UnitAutocomplete,
             request=self.request,
@@ -1554,7 +1555,7 @@ class UnitAutocompleteTest(BaseViewTest):
         qs_test = [repr(a) for a in [unit, unit_2]]
         self.assertQuerysetEqual(qs, qs_test, ordered=False)
 
-    def test_unit_autocomplete_returns_the_correct_key_words(self):
+    def test_unit_autocomplete_returns_the_correct_key_words_no_create_field(self):
         company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_autocomplete
         view = self.get_instance(
@@ -1562,7 +1563,20 @@ class UnitAutocompleteTest(BaseViewTest):
             request=self.request,
         )
         view.q = "some search"
-        dicc = {'unit__unaccent__icontains': view.q}
+        dicc = {'unit__unaccent__icontains': view.q, 'company': company_autocomplete}
+        dicc_test = view.get_key_words()
+        self.assertDictEqual(dicc, dicc_test)
+
+    def test_unit_autocomplete_returns_the_correct_key_words_create_field(self):
+        company_autocomplete = factories.CompanyFactory(customer=self.user.customer)
+        self.user.currently_at = company_autocomplete
+        view = self.get_instance(
+            views.UnitAutocomplete,
+            request=self.request,
+        )
+        view.q = "some search"
+        view.create_field = 'unit'
+        dicc = {'unit__unaccent__icontains': view.q, 'company': company_autocomplete}
         dicc_test = view.get_key_words()
         self.assertDictEqual(dicc, dicc_test)
 

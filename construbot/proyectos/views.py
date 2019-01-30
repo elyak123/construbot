@@ -686,8 +686,14 @@ class UnitAutocomplete(AutocompletePoryectos):
     ordering = 'unit'
 
     def get_key_words(self):
-        key_words = super(UnitAutocomplete, self).get_key_words()
-        key_words.update({'company': self.request.user.currently_at})
+        if hasattr(self, 'create_field') and self.create_field is not None:
+            key_words = super(UnitAutocomplete, self).get_key_words()
+            key_words.update({'company': self.request.user.currently_at})
+        else:
+            key_words = {
+                'unit__unaccent__icontains': self.q,
+                'company': self.request.user.currently_at
+            }
         return key_words
 
     def get_post_key_words(self):
