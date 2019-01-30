@@ -70,6 +70,7 @@ class EstimateFactory(factory.django.DjangoModelFactory):
 
 class UnitFactory(factory.django.DjangoModelFactory):
     unit = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='unit_')
+    company = factory.SubFactory(CompanyFactory)
 
     class Meta:
         model = models.Units

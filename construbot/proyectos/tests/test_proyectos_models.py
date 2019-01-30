@@ -1,6 +1,7 @@
 import tempfile
 import shutil
 from unittest import mock
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import RequestFactory, tag, override_settings
@@ -221,6 +222,13 @@ class ConceptoSetTest(BaseModelTesCase):
 
 
 class ConceptTest(BaseModelTesCase):
+
+    def test_unit_different_company_from_concept_raises(self):
+        with self.assertRaises(ValidationError):
+            concept_company = user_factories.CompanyFactory()
+            unit = factories.UnitFactory()
+            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=concept_company)
+            concept.full_clean()
 
     def test_importe_contratado(self):
         concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)

@@ -185,7 +185,7 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
     def test_creacion_de_catalogo_conceptos(self):
         contrato = factories.ContratoFactory()
         estimate = factories.EstimateFactory(project=contrato)
-        unit = factories.UnitFactory()
+        unit = factories.UnitFactory(company=contrato.cliente.company)
         formset = forms.ContractConceptInlineForm({
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '1',
@@ -196,8 +196,7 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
             'concept_set-0-unit_price': '10',
             'concept_set-0-DELETE': 'False',
             'concept_set-0-project': str(contrato.id),
-        },
-        instance=contrato)
+        }, instance=contrato)
         self.assertTrue(formset.is_valid(), formset.errors)
 
     def test_creacion_de_catalogo_mismo_concepto_renders_errror(self):
