@@ -133,6 +133,8 @@ class Estimate(models.Model):
     paid = models.BooleanField(default=False)
     invoiced = models.BooleanField(default=False)
     payment_date = models.DateField(null=True, blank=True)
+    mostrar_anticipo = models.BooleanField(default=False)
+    mostrar_retenciones = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})
