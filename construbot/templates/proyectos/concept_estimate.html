@@ -118,27 +118,31 @@
         <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ total_estimacion|floatformat:"2"|intcomma }} </td>
       </tr>
-      <tr>
-        <td colspan="10" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
-        <td colspan="2" class="text-right"> ${% get_amortizacion_de_anticipo estimate.project.anticipo total_estimacion %} </td>
-      </tr>
-      <tr>
-        <td colspan="10" class="text-right"><strong>Subtotal de Estimación:</strong></td>
-        <td colspan="2" class="text-right"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
-      </tr>
-      <tr>
-        <td colspan="12" class="text-center"><strong>Retenciones</strong></td>
-      </tr>
-      {% for retencion in estimate.project.retenciones_set.all %}
+      {% if estimate.mostrar_anticipo %}
         <tr>
-          <td colspan="10" class="text-right">{{ retencion.nombre }}</td>
-          <td colspan="2" class="text-right"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
+          <td colspan="10" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
+          <td colspan="2" class="text-right"> ${% get_amortizacion_de_anticipo estimate.project.anticipo total_estimacion %} </td>
         </tr>
-      {% endfor %}
-      <tr>
-        <td colspan="10" class="text-right"><strong>Total de Retenciones:</strong></td>
-        <td colspan="2" class="text-right"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
-      </tr>
+        <tr>
+          <td colspan="10" class="text-right"><strong>Subtotal de Estimación:</strong></td>
+          <td colspan="2" class="text-right"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
+        </tr>
+      {% endif %}
+      {% if estimate.mostrar_retenciones %}
+        <tr>
+          <td colspan="12" class="text-center"><strong>Retenciones</strong></td>
+        </tr>
+        {% for retencion in estimate.project.retenciones_set.all %}
+          <tr>
+            <td colspan="10" class="text-right">{{ retencion.nombre }}</td>
+            <td colspan="2" class="text-right"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="10" class="text-right"><strong>Total de Retenciones:</strong></td>
+          <td colspan="2" class="text-right"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+        </tr>
+      {% endif %}
       <tr>
         <td colspan="10" class="text-right"><strong>TOTAL FINAL:</strong></td>
         <td colspan="2" class="text-right"> ${% get_total_final estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
