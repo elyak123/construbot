@@ -40,10 +40,10 @@
   <br>
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
-  {{ form.non_form_errors.as_ul }}
+  {{ formset.non_form_errors.as_ul }}
   <table id="formset" class="form table_sample table_inline table_normal">
-    {{ form.management_form }}
-    {% for frm in form.forms %}
+    {{ formset.management_form }}
+    {% for frm in formset.forms %}
       {% bootstrap_form_errors frm %}
       {% if forloop.first %}
         <thead>

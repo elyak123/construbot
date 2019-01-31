@@ -568,6 +568,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(CatalogosView, self).get_context_data(**kwargs)
         context['type'] = self.tipo if hasattr(self, 'tipo') else None
+        context['formset'] = context.pop('form')
         return context
 
 
@@ -687,8 +688,19 @@ class UnitAutocomplete(AutocompletePoryectos):
     ordering = 'unit'
 
     def get_key_words(self):
-        key_words = {'unit__unaccent__icontains': self.q}
+        if hasattr(self, 'create_field') and self.create_field is not None:
+            key_words = super(UnitAutocomplete, self).get_key_words()
+            key_words.update({'company': self.request.user.currently_at})
+        else:
+            key_words = {
+                'unit__unaccent__icontains': self.q,
+                'company': self.request.user.currently_at
+            }
         return key_words
+
+    def get_post_key_words(self):
+        kw = {'company': self.request.user.currently_at}
+        return kw
 
 
 class UserAutocomplete(AutocompletePoryectos):

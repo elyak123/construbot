@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.db.models import Sum, F
 from construbot.core import utils
 from construbot.users.models import Company
@@ -109,9 +110,11 @@ class Retenciones(models.Model):
 
 
 class Units(models.Model):
-    unit = models.CharField(max_length=50, unique=True)
+    unit = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ('unit', 'company')
         verbose_name = 'Unidad'
         verbose_name_plural = 'Unidades'
 
@@ -274,6 +277,14 @@ class Concept(models.Model):
 
     def __str__(self):
         return self.concept_text
+
+    def clean(self):
+        if not self.unit.company == self.project.cliente.company:
+            raise ValidationError(
+                {
+                    'unit': 'El concepto debe pertenecer a la misma compañia que su unidad.'
+                }
+            )
 
     def importe_contratado(self):
         return self.unit_price * self.total_cuantity

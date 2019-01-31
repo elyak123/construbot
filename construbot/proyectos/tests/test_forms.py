@@ -185,7 +185,7 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
     def test_creacion_de_catalogo_conceptos(self):
         contrato = factories.ContratoFactory()
         estimate = factories.EstimateFactory(project=contrato)
-        unit = factories.UnitFactory()
+        unit = factories.UnitFactory(company=contrato.cliente.company)
         formset = forms.ContractConceptInlineForm({
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '1',
@@ -196,11 +196,10 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
             'concept_set-0-unit_price': '10',
             'concept_set-0-DELETE': 'False',
             'concept_set-0-project': str(contrato.id),
-        },
-        instance=contrato)
+        }, instance=contrato)
         self.assertTrue(formset.is_valid(), formset.errors)
 
-    def test_creacion_de_catalogo_mismo_concepto_renders_errror(self):
+    def test_creacion_de_catalogo_mismo_concepto_renders_error(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
@@ -211,7 +210,7 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
         self.client.login(username=self.user.username, password='password')
-        unit = factories.UnitFactory()
+        unit = factories.UnitFactory(company=contrato_company)
         formset_data = {
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '2',
@@ -231,7 +230,42 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
             'concept_set-1-project': str(contrato.id),
         }
         response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
-        # self.assertFormsetError(response, 'form', 1, field='__all__', errors=['Please correct the duplicate values below.']) PENDIENTE
+        self.assertFormsetError(response, 'formset', None, field=None, errors=['Please correct the duplicate data for concept_text.'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_creacion_de_catalogo_unidad_differente_company_renders_error(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        proyectos_group = Group.objects.create(name='Proyectos')
+        self.user.groups.add(proyectos_group)
+        proyectos_group = Group.objects.create(name='Administrators')
+        self.user.groups.add(proyectos_group)
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.client.login(username=self.user.username, password='password')
+        unit = factories.UnitFactory()
+        unit_2 = factories.UnitFactory(company=contrato_company)
+        formset_data = {
+            'concept_set-INITIAL_FORMS': '0',
+            'concept_set-TOTAL_FORMS': '2',
+            'concept_set-0-code': 'SOME',
+            'concept_set-0-concept_text': 'Concepto',
+            'concept_set-0-unit': str(unit_2.id),
+            'concept_set-0-total_cuantity': '100',
+            'concept_set-0-unit_price': '10',
+            'concept_set-0-DELETE': 'False',
+            'concept_set-0-project': str(contrato.id),
+            'concept_set-1-code': 'SOME',
+            'concept_set-1-concept_text': 'Concepto',
+            'concept_set-1-unit': str(unit.id),
+            'concept_set-1-total_cuantity': '100',
+            'concept_set-1-unit_price': '10',
+            'concept_set-1-DELETE': 'False',
+            'concept_set-1-project': str(contrato.id),
+        }
+        response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
+        self.assertFormsetError(response, 'formset', 1, field='unit', errors=['El concepto debe pertenecer a la misma compañia que su unidad.'])
         self.assertEqual(response.status_code, 200)
 
 

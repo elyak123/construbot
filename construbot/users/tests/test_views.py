@@ -425,6 +425,19 @@ class TestCompanyChangeView(BaseUserTestCase):
             test_company
         )
 
+    def test_get_and_change_method_two_companies_same_name(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        factories.CompanyFactory(company_name=test_company)
+        self.view.kwargs = {'company': test_company.company_name}
+        self.user.company.add(test_company)
+        self.assertEqual(
+            self.view.get(self.request).status_code,
+            200
+        )
+        self.assertEqual(
+            self.user.currently_at,
+            test_company
+        )
 
 class TestCompanyListView(BaseUserTestCase):
 
