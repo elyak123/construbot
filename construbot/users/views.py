@@ -217,7 +217,12 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
 
     def get(self, request, *args, **kwargs):
         # Agregar un apartado donde se responda con 403 el cambio de compañía en 'else'
-        new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
+        # new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
+        new_company = get_object_or_404(
+            Company,
+            company_name=self.kwargs['company'],
+            customer=self.request.user.customer
+        )
         if new_company in self.request.user.company.all():
             self.request.user.currently_at = new_company
             self.request.user.save()
