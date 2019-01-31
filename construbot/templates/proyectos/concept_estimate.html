@@ -120,11 +120,11 @@
       </tr>
       <tr>
         <td colspan="10" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
-        <td colspan="2"> ${% get_amortizacion_de_anticipo estimate.project.anticipo total_estimacion %} </td>
+        <td colspan="2" class="text-right"> ${% get_amortizacion_de_anticipo estimate.project.anticipo total_estimacion %} </td>
       </tr>
       <tr>
         <td colspan="10" class="text-right"><strong>Subtotal de Estimación:</strong></td>
-        <td colspan="2"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
+        <td colspan="2" class="text-right"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
       </tr>
       <tr>
         <td colspan="12" class="text-center"><strong>Retenciones</strong></td>
@@ -132,16 +132,16 @@
       {% for retencion in estimate.project.retenciones_set.all %}
         <tr>
           <td colspan="10" class="text-right">{{ retencion.nombre }}</td>
-          <td colspan="2"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
+          <td colspan="2" class="text-right"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
         </tr>
       {% endfor %}
       <tr>
         <td colspan="10" class="text-right"><strong>Total de Retenciones:</strong></td>
-        <td colspan="2"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+        <td colspan="2" class="text-right"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
       </tr>
       <tr>
         <td colspan="10" class="text-right"><strong>TOTAL FINAL:</strong></td>
-        <td colspan="2"> ${% get_total_final estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+        <td colspan="2" class="text-right"> ${% get_total_final estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
       </tr>
       {% endlanguage %}
     </tbody>
