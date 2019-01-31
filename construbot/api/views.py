@@ -83,34 +83,36 @@ def change_user_password(request):
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
-        company, company_created = Company.objects.get_or_create(
-            company_name=request.data.get('company'),
-            customer=request.user.customer
-        )
-        request.user.company.add(company)
-        cliente, cliente_created = Cliente.objects.get_or_create(
-            company=company,
-            cliente_name=request.data.get('cliente_name')
-        )
-        return Response({'creado': cliente_created})
+        for json_cliente in request.data:
+            company, company_created = Company.objects.get_or_create(
+                company_name=json_cliente['company'],
+                customer=request.user.customer
+            )
+            request.user.company.add(company)
+            cliente, cliente_created = Cliente.objects.get_or_create(
+                company=company,
+                cliente_name=json_cliente['cliente_name']
+            )
+        return Response({'exito': True})
 
     @api_view(['POST'])
     def sitio_migration(request):
-        company, company_created = Company.objects.get_or_create(
-            company_name=request.data.get('company'),
-            customer=request.user.customer
-        )
-        request.user.company.add(company)
-        cliente, cliente_created = Cliente.objects.get_or_create(
-            company=company,
-            cliente_name='Migracion'
-        )
-        sitio, sitio_created = Sitio.objects.get_or_create(
-            cliente=cliente,
-            sitio_name=request.data.get('sitio_name'),
-            sitio_location=request.data.get('sitio_location')
-        )
-        return Response({'creado': sitio_created})
+        for json_sitio in request.data:
+            company, company_created = Company.objects.get_or_create(
+                company_name=json_sitio['company'],
+                customer=request.user.customer
+            )
+            request.user.company.add(company)
+            cliente, cliente_created = Cliente.objects.get_or_create(
+                company=company,
+                cliente_name='Migracion'
+            )
+            sitio, sitio_created = Sitio.objects.get_or_create(
+                cliente=cliente,
+                sitio_name=json_sitio['sitio_name'],
+                sitio_location=json_sitio['sitio_location']
+            )
+        return Response({'exito': True})
 
     @api_view(['POST'])
     def destinatario_migration(request):
@@ -133,37 +135,38 @@ class DataMigration(object):
     @api_view(['POST'])
     def contrato_concept_and_estimate_migration(request):
         json_data = json.loads(request.data)
-        company, company_created = Company.objects.get_or_create(
-            company_name=json_data['company'],
-            customer=request.user.customer
-        )
-        request.user.company.add(company)
-        cliente, cliente_created = Cliente.objects.get_or_create(
-            company=company,
-            cliente_name=json_data['cliente']
-        )
-        sitio, sitio_created = Sitio.objects.get_or_create(
-            cliente=cliente,
-            sitio_name=json_data['sitio_name'],
-            sitio_location=json_data['sitio_location']
-        )
-        contrato, contrato_created = Contrato.objects.get_or_create(
-            folio=json_data['folio'],
-            code=json_data['code'],
-            fecha=json_data['fecha'],
-            contrato_name=json_data['contrato_name'],
-            contrato_shortName=json_data['contrato_shortName'],
-            cliente=cliente,
-            sitio=sitio,
-            status=json_data['status'],
-            monto=json_data['monto'],
-            anticipo=0,
-        )
-        contrato.users.add(User.objects.get(username=request.user.username))
-        contrato.save()
-        get_concepts(contrato, json_data['concepts'])
-        get_estimates(contrato, json_data['estimates'], request.user.username)
-        return Response({'creado': contrato_created})
+        for json_contrato in json_data:
+            company, company_created = Company.objects.get_or_create(
+                company_name=json_contrato['company'],
+                customer=request.user.customer
+            )
+            request.user.company.add(company)
+            cliente, cliente_created = Cliente.objects.get_or_create(
+                company=company,
+                cliente_name=json_contrato['cliente']
+            )
+            sitio, sitio_created = Sitio.objects.get_or_create(
+                cliente=cliente,
+                sitio_name=json_contrato['sitio_name'],
+                sitio_location=json_contrato['sitio_location']
+            )
+            contrato, contrato_created = Contrato.objects.get_or_create(
+                folio=json_contrato['folio'],
+                code=json_contrato['code'],
+                fecha=json_contrato['fecha'],
+                contrato_name=json_contrato['contrato_name'],
+                contrato_shortName=json_contrato['contrato_shortName'],
+                cliente=cliente,
+                sitio=sitio,
+                status=json_contrato['status'],
+                monto=json_contrato['monto'],
+                anticipo=0,
+            )
+            contrato.users.add(User.objects.get(username=request.user.username))
+            contrato.save()
+            get_concepts(contrato, json_contrato['concepts'])
+            get_estimates(contrato, json_contrato['estimates'], request.user.username)
+        return Response({'exito': True})
 
 
 def get_concepts(contrato, concept_data):
