@@ -1,9 +1,9 @@
-from django.shortcuts import render
-from allauth.account.views import (LoginView, SignupView, EmailView, PasswordChangeView,
+from django.conf import settings
+from allauth.account.views import (
+    LoginView, SignupView, PasswordChangeView,
     PasswordSetView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView,
     PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView,
-    AccountInactiveView, EmailView, EmailVerificationSentView, ConfirmEmailView)
-from django.conf import settings
+    AccountInactiveView, EmailView, ConfirmEmailView)
 
 
 class _SignupView(SignupView):
