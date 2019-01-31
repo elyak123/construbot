@@ -1,6 +1,7 @@
 import tempfile
 import shutil
 from unittest import mock
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import RequestFactory, tag, override_settings
@@ -222,6 +223,13 @@ class ConceptoSetTest(BaseModelTesCase):
 
 class ConceptTest(BaseModelTesCase):
 
+    def test_unit_different_company_from_concept_raises(self):
+        with self.assertRaises(ValidationError):
+            concept_company = user_factories.CompanyFactory()
+            unit = factories.UnitFactory()
+            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=concept_company)
+            concept.full_clean()
+
     def test_importe_contratado(self):
         concepto = factories.ConceptoFactory(total_cuantity=50, unit_price=12)
         self.assertEqual(concepto.importe_contratado(), 600)
@@ -272,6 +280,13 @@ class ConceptTest(BaseModelTesCase):
         concept = factories.ConceptoFactory()
         with self.assertRaises(AttributeError):
             concept.anotar_imagenes()
+
+    def test_company_unit_and_company_concept_same_thing(self):
+        with self.assertRaises(ValidationError):
+            company = user_factories.CompanyFactory()
+            unit = factories.UnitFactory()
+            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=company)
+            concept.full_clean()
 
 
 @override_settings(MEDIA_ROOT=MOCK_MEDIA_ROOT)
