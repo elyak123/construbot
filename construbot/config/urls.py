@@ -2,29 +2,30 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
 from construbot.users.views import UserRedirectView
 
 urlpatterns = [
     url(r'^$', UserRedirectView.as_view(), name='home'),
+]
+if not settings.CONSTRUBOT_AS_LIBRARY:
+    urlpatterns += [
+        # Standalone allauth configuration
+        # User management
+        url(r'^accounts/', include('construbot.account_config.urls')),
+        # Django Admin, use {% url 'admin:index' %}
+        url(settings.ADMIN_URL, admin.site.urls),
+    ]
 
-    # User management
-    url(r'^users/', include('construbot.users.urls', namespace='users')),
-    url(r'^proyectos/', include('construbot.proyectos.urls', namespace='proyectos')),
-    url(r'^accounts/', include('construbot.account_config.urls')),
-
+urlpatterns += [
     # Your stuff: custom urls includes go here
+    url(r'^proyectos/', include('construbot.proyectos.urls', namespace='proyectos')),
+    # In-app user management
+    url(r'^users/', include('construbot.users.urls', namespace='users')),
     # REST API
     url(r'^api/v1/', include('construbot.api.urls', namespace='api')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-if not settings.CONSTRUBOT_AS_LIBRARY:
-    urlpatterns += [
-        # Django Admin, use {% url 'admin:index' %}
-        url(settings.ADMIN_URL, admin.site.urls),
-    ]
 
 if settings.DEBUG and not settings.CONSTRUBOT_AS_LIBRARY:  # pragma: no cover
     # This allows the error pages to be debugged during development, just visit
