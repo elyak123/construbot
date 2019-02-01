@@ -2,8 +2,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from construbot.core.context import ContextManager
-from django.shortcuts import redirect
-from django.urls import reverse
 
 
 class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
