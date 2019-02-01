@@ -12,7 +12,7 @@ urlpatterns = [
     # User management
     url(r'^users/', include('construbot.users.urls', namespace='users')),
     url(r'^proyectos/', include('construbot.proyectos.urls', namespace='proyectos')),
-    url(r'^accounts/', include('allauth.urls')),
+    url(r'^accounts/', include('construbot.account_config.urls')),
 
     # Your stuff: custom urls includes go here
     # REST API
