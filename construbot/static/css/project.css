@@ -512,6 +512,14 @@ table.estimate * , table.generator * {
 	font-size: 18px;
 }
 
+.border-w {
+	border-color: white black white white;
+}
+
+.border-w-sp {
+	border-color: white black black white;
+}
+
 .cont_est_data {
 	border-style: none;
 }

@@ -14,30 +14,32 @@ class AccountAdapterTest(TestCase):
 
     def test_singup_correct_requirements(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):
-            self.client.post(reverse('account_signup'), data={
-                'email': 'bla@example.com',
-                'username': 'Joe',
-                'password1': 'super_secret',
-                'password2': 'super_secret',
-                'first_name': 'Joe',
-                'last_name': 'Doe',
-                'company': 'My own company',
-            }, follow=True)
-            user = User.objects.get(username='Joe')
-            self.assertIn('My own company', [x.company_name for x in user.company.all()])
+            with self.settings(ACCOUNT_ALLOW_REGISTRATION=True):
+                self.client.post(reverse('account_signup'), data={
+                    'email': 'bla@example.com',
+                    'username': 'Joe',
+                    'password1': 'super_secret',
+                    'password2': 'super_secret',
+                    'first_name': 'Joe',
+                    'last_name': 'Doe',
+                    'company': 'My own company',
+                }, follow=True)
+                user = User.objects.get(username='Joe')
+                self.assertIn('My own company', [x.company_name for x in user.company.all()])
 
     def test_singup_correct_and_redirects(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):
-            response = self.client.post(reverse('account_signup'), data={
-                'email': 'bla@example.com',
-                'username': 'Joe',
-                'password1': 'super_secret',
-                'password2': 'super_secret',
-                'first_name': 'Joe',
-                'last_name': 'Doe',
-                'company': 'My own company',
-            }, follow=True)
-            self.assertRedirects(response, reverse('proyectos:proyect_dashboard'))
+            with self.settings(ACCOUNT_ALLOW_REGISTRATION=True):
+                response = self.client.post(reverse('account_signup'), data={
+                    'email': 'bla@example.com',
+                    'username': 'Joe',
+                    'password1': 'super_secret',
+                    'password2': 'super_secret',
+                    'first_name': 'Joe',
+                    'last_name': 'Doe',
+                    'company': 'My own company',
+                }, follow=True)
+                self.assertRedirects(response, reverse('proyectos:proyect_dashboard'))
 
 
 class LoginAccountTest(TestCase):

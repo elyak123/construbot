@@ -8,8 +8,6 @@
 
 {% block inner %}
 
-<h1>{% trans "Iniciar Sesión" %}</h1>
-
 {% get_providers as socialaccount_providers %}
 
 {% if socialaccount_providers %}
@@ -30,19 +28,32 @@ for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 {% include "socialaccount/snippets/login_extra.html" %}
 
 {% else %}
-<p>{% blocktrans %}If you have not created an account yet, then please
-<a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
 {% endif %}
-
-<form class="login" method="POST" action="{% url 'account_login' %}">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  {% if redirect_field_value %}
-  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-  {% endif %}
-  <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "¿Olvidaste tu contraseña?" %}</a>
-  <button class="primaryAction btn btn-primary" type="submit">{% trans "Entra" %}</button>
-</form>
-
+<div class="row">
+  <div class="col-1"></div>
+  <div class="col-sm-1"></div>
+  <div class="col-sm-8 card">
+    <div class="card-body">
+      <div class="card-header">
+        <h2>Iniciar Sesión</h2>
+      </div>
+      <br>
+      {% if allow_register %}
+        <p>{% blocktrans %}Si tu aún no tienes una cuenta, por favor 
+        <a href="{{ signup_url }}">regístrate</a> primero.{% endblocktrans %}</p>
+      {% endif %}
+      <form method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <div class="w-100"><a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "¿Olvidaste tu contraseña?" %}</a></div>
+      <br>
+      <br>
+      <button class="primaryAction btn btn-primary" type="submit">{% trans "Entra" %}</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-sm-1"></div>
+  <div class="col-1"></div>
+</div>
 {% endblock %}
 
