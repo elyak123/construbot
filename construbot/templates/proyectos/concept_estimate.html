@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load i18n %}
+{% load projecttags %}
 {% if pdf %}
   {% load static i18n compress %}
   {% load bootstrap4 %}
@@ -27,6 +28,10 @@
       {% endcompress %}
     </head>
 {% endif %}
+<!--<span class="badge badge-pill badge-primary">¿Imprimir con anticipo?</span>
+<span class="badge badge-pill badge-primary">¿Imprimir con retenciones?</span>
+<br>
+<br>-->
 <table class="estimate">
   <thead>
       <tr>
@@ -62,7 +67,7 @@
           </table>
         </th>
       </tr>   
-      <tr class="center">
+      <tr class="center" style="background:#e4e4e4;">
         <th rowspan="2">N°</th>
         <th rowspan="2" style="width: 250px;" >CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
@@ -70,7 +75,7 @@
         <th colspan="2">ESTIMADO A LA FECHA</th>
         <th colspan="2">ESTA ESTIMACIÓN</th>
       </tr>
-      <tr class="center">
+      <tr class="center" style="background:beige;">
         <th>UNIDAD</th>
         <th>CANTIDAD</th>
         <th>P.U.</th>
@@ -107,11 +112,54 @@
         </tr>
       {% endfor %}
       <tr>
-        <td class="right" colspan="2"><strong>Totales: </strong></td>
+        <td class="right" colspan="2"><strong>Totales Estimación: </strong></td>
         <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ total_estimacion|floatformat:"2"|intcomma }} </td>
+      </tr>
+      <tr>
+      </tr>
+      {% if estimate.mostrar_anticipo %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Anticipos</strong></td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
+          <td colspan="2" class="text-right"> ${% get_amortizacion_de_anticipo estimate.project.anticipo %} </td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Subtotal de Estimación:</strong></td>
+          <td colspan="2" class="text-right"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
+        </tr>
+      {% endif %}
+      <tr>
+      </tr>
+      {% if estimate.mostrar_retenciones %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Retenciones</strong></td>
+        </tr>
+        {% for retencion in estimate.project.retenciones_set.all %}
+          <tr>
+            <td colspan="6" class="border-w"></td>
+            <td colspan="4" class="text-right">{{ retencion.nombre }}</td>
+            <td colspan="2" class="text-right"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Total de Retenciones:</strong></td>
+          <td colspan="2" class="text-right"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td colspan="6" class="border-w-sp"></td>
+        <td colspan="4" class="text-right"><strong>TOTAL FINAL:</strong></td>
+        <td colspan="2" class="text-right"> ${% get_total_final estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
       </tr>
       {% endlanguage %}
     </tbody>
