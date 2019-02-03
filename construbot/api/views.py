@@ -83,23 +83,25 @@ def change_user_password(request):
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
-        for json_cliente in request.data:
+        json_data = json.loads(request.data)
+        for nombre, obj in json_data.items():
             company, company_created = Company.objects.get_or_create(
-                company_name=json_cliente['company'],
+                company_name=obj['company'],
                 customer=request.user.customer
             )
             request.user.company.add(company)
             cliente, cliente_created = Cliente.objects.get_or_create(
                 company=company,
-                cliente_name=json_cliente['cliente_name']
+                cliente_name=obj['cliente_name']
             )
         return Response({'exito': True})
 
     @api_view(['POST'])
     def sitio_migration(request):
-        for json_sitio in request.data:
+        json_data = json.loads(request.data)
+        for nombre, obj in json_data.items():
             company, company_created = Company.objects.get_or_create(
-                company_name=json_sitio['company'],
+                company_name=obj['company'],
                 customer=request.user.customer
             )
             request.user.company.add(company)
@@ -109,8 +111,8 @@ class DataMigration(object):
             )
             sitio, sitio_created = Sitio.objects.get_or_create(
                 cliente=cliente,
-                sitio_name=json_sitio['sitio_name'],
-                sitio_location=json_sitio['sitio_location']
+                sitio_name=obj['sitio_name'],
+                sitio_location=obj['sitio_location']
             )
         return Response({'exito': True})
 
