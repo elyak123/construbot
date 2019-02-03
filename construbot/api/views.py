@@ -83,8 +83,7 @@ def change_user_password(request):
 class DataMigration(object):
     @api_view(['POST'])
     def cliente_migration(request):
-        json_data = json.loads(request.data)
-        for nombre, obj in json_data.items():
+        for nombre, obj in request.data:
             company, company_created = Company.objects.get_or_create(
                 company_name=obj['company'],
                 customer=request.user.customer
@@ -98,8 +97,7 @@ class DataMigration(object):
 
     @api_view(['POST'])
     def sitio_migration(request):
-        json_data = json.loads(request.data)
-        for nombre, obj in json_data.items():
+        for nombre, obj in request.data:
             company, company_created = Company.objects.get_or_create(
                 company_name=obj['company'],
                 customer=request.user.customer
