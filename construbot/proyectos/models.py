@@ -81,6 +81,9 @@ class Contrato(models.Model):
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
 
+    def get_estimaciones(self):
+        return self.estimate_set.all().order_by('consecutive')
+
     class Meta:
         verbose_name = "Contrato"
         verbose_name_plural = "Contratos"
