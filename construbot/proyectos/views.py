@@ -168,7 +168,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
         contrato = shortcuts.get_object_or_404(
             Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
         )
-        queryset = self.model.objects.filter(project=contrato).order_by('consecutive')
+        queryset = self.model.objects.filter(project=contrato).order_by('pk')
         json = {}
         json['conceptos'] = []
         for concepto in queryset:
