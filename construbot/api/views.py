@@ -147,11 +147,14 @@ class DataMigration(object):
                 company=company,
                 cliente_name=obj['cliente']
             )
-            sitio, sitio_created = Sitio.objects.get_or_create(
-                cliente=cliente,
-                sitio_name=obj['sitio_name'],
-                sitio_location=obj['sitio_location']
-            )
+            try:
+                sitio = Sitio.objects.get(sitio_name=obj['sitio_name'])
+            except Sitio.DoesNotExist:
+                sitio = Sitio.objects.create(
+                    cliente=cliente,
+                    sitio_name=obj['sitio_name'],
+                    sitio_location=obj['sitio_location']
+                )
             contrato, contrato_created = Contrato.objects.get_or_create(
                 folio=obj['folio'],
                 code=obj['code'],
