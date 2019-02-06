@@ -462,6 +462,14 @@ a:hover {
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.color-g {
+	background: #e4e4e4;
+}
+
+.color-b {
+	background: beige;
+}
+
 .fila_par, .fila_impar {
     padding: 15px;
     border-radius: 5px;

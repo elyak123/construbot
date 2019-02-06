@@ -67,7 +67,7 @@
           </table>
         </th>
       </tr>   
-      <tr class="center" style="background:#e4e4e4;">
+      <tr class="center color-g">
         <th rowspan="2">N°</th>
         <th rowspan="2" style="width: 250px;" >CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
@@ -75,7 +75,7 @@
         <th colspan="2">ESTIMADO A LA FECHA</th>
         <th colspan="2">ESTA ESTIMACIÓN</th>
       </tr>
-      <tr class="center" style="background:beige;">
+      <tr class="center color-b">
         <th>UNIDAD</th>
         <th>CANTIDAD</th>
         <th>P.U.</th>
@@ -189,4 +189,14 @@
       </tr>
     </tfoot>
 </table>
-{% if pdf %}</html>{% endif %}
+{% if pdf %}
+  <script
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+        crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    $(".color-b").css("background", "beige");
+    $(".color-g").css("background", "#e4e4e4");
+  </script>
+  </html>
+{% endif %}
