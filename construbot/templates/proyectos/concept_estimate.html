@@ -28,10 +28,6 @@
       {% endcompress %}
     </head>
 {% endif %}
-<!--<span class="badge badge-pill badge-primary">¿Imprimir con anticipo?</span>
-<span class="badge badge-pill badge-primary">¿Imprimir con retenciones?</span>
-<br>
-<br>-->
 <table class="estimate">
   <thead>
       <tr>
@@ -128,12 +124,12 @@
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
-          <td colspan="2" class="text-right"> ${% get_amortizacion_de_anticipo estimate.project.anticipo %} </td>
+          <td colspan="2" class="text-right"> ${{ estimate.amortizacion_anticipo|floatformat:"2"|intcomma }} </td>
         </tr>
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Subtotal de Estimación:</strong></td>
-          <td colspan="2" class="text-right"> ${% get_subtotal estimate.project.anticipo total_estimacion %} </td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_subtotal|floatformat:"2"|intcomma }} </td>
         </tr>
       {% endif %}
       <tr>
@@ -143,23 +139,27 @@
           <td colspan="6" class="border-w"></td>
           <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Retenciones</strong></td>
         </tr>
-        {% for retencion in estimate.project.retenciones_set.all %}
+        {% for retencion in estimate.get_retenciones %}
           <tr>
             <td colspan="6" class="border-w"></td>
-            <td colspan="4" class="text-right">{{ retencion.nombre }}</td>
-            <td colspan="2" class="text-right"> {% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %} </td>
+            {% if retencion.valor == retencion.monto %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }}</td>
+            {% else %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }} ({{ retencion.valor }}%)</td>
+            {% endif %}
+            <td colspan="2" class="text-right"> ${{ retencion.monto|floatformat:"2"|intcomma }} </td>
           </tr>
         {% endfor %}
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Total de Retenciones:</strong></td>
-          <td colspan="2" class="text-right"> ${% get_total_retenciones estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_total_retenciones|floatformat:"2"|intcomma }} </td>
         </tr>
       {% endif %}
       <tr>
         <td colspan="6" class="border-w-sp"></td>
         <td colspan="4" class="text-right"><strong>TOTAL FINAL:</strong></td>
-        <td colspan="2" class="text-right"> ${% get_total_final estimate.project.retenciones_set.all estimate.project.anticipo total_estimacion %} </td>
+        <td colspan="2" class="text-right"> ${{ estimate.get_total_final|floatformat:"2"|intcomma }} </td>
       </tr>
       {% endlanguage %}
     </tbody>

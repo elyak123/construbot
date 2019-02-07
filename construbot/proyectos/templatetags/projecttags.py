@@ -5,9 +5,9 @@ from decimal import Decimal
 register = template.Library()
 
 @register.simple_tag
-def get_amortizacion_de_anticipo(porcentaje):
+def get_amortizacion_de_anticipo(porcentaje, estimate_amount):
     if porcentaje is not None:
-        return porcentaje * (porcentaje / 100)
+        return estimate_amount['total'] * (porcentaje / 100)
     else:
         return Decimal(0)
 

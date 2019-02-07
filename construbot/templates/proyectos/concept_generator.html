@@ -21,7 +21,7 @@
         <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
         {% block css %}
           <style type="text/css">
-            tr { page-break-inside: avoid !important; }
+            
           </style>
         {% endblock css %}
       {% endcompress %}
@@ -185,12 +185,6 @@
               lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
             }
           }
-        }
-      }
-    } else {
-      for(var i=0; i<conceptos; i++){
-        if($("#conc-"+i).length>0){
-          $('#conc-'+i).css("height", $("#conc-"+i).height()+"px");
         }
       }
     }
