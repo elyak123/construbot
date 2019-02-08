@@ -92,11 +92,11 @@
 		</tr>
 		<tr>
 			<td>Cliente</td>
-			<td>{{ contrato.cliente.cliente_name }}</td>
+			<td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.cliente.id %}">{{ contrato.cliente.cliente_name }}</a></td>
 		</tr>
 		<tr>
 			<td>Sitio</td>
-			<td>{{ contrato.sitio.sitio_name }}</td>
+			<td><a href="{% url 'construbot.proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
 		</tr>
 		{% if is_administrador %}
 		<tr>

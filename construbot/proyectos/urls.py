@@ -41,7 +41,12 @@ urlpatterns = [
         name='catalogo_retenciones'
     ),
     url(
-        regex=r'^contrato/catalogo-list/(?P<pk>\d+)/$',
+        regex=r'^contrato/catalogo-unidades/$',
+        view=views.CatalogoUnitsInlineFormView.as_view(),
+        name='catalogo_de_unidades'
+    ),
+    url(
+        regex=r'^contrato/catalogo-conceptos/(?P<pk>\d+)/$',
         view=views.CatalogoConceptos.as_view(),
         name='catalogo_conceptos_listado'
     ),

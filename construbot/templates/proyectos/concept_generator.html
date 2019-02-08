@@ -21,7 +21,7 @@
         <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
         {% block css %}
           <style type="text/css">
-            tr { page-break-inside: avoid !important; }
+            
           </style>
         {% endblock css %}
       {% endcompress %}
@@ -74,7 +74,7 @@
         </table>
       </th>     
     </tr>
-    <tr class="center">
+    <tr class="center color-g">
       <th rowspan="2">CÓDIGO</th>
       <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
       <th rowspan="2">LARGO</th>
@@ -83,7 +83,7 @@
       <th colspan="2">VOLUMEN EJECUTADO</th>
       <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
     </tr>
-    <tr class="center">
+    <tr class="center color-b">
       <th>CANTIDAD</th>
       <th>UNIDAD</th>
     </tr>
@@ -188,6 +188,8 @@
         }
       }
     }
+    $(".color-b").css("background", "beige");
+    $(".color-g").css("background", "#e4e4e4");
   </script>
   </html>
 {% endif %}

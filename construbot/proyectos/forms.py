@@ -1,6 +1,8 @@
 from django import forms
 from dal import autocomplete
-from .models import Contrato, Cliente, Sitio, Concept, Destinatario, Estimate, EstimateConcept, ImageEstimateConcept, Retenciones
+from .models import (Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
+    EstimateConcept, ImageEstimateConcept, Retenciones, Units)
+from construbot.users.models import Company
 from django.core.exceptions import ObjectDoesNotExist
 
 MY_DATE_FORMATS = ['%Y-%m-%d']
@@ -366,6 +368,14 @@ ContractRetentionInlineForm = forms.inlineformset_factory(
         'nombre',
         'tipo',
         'valor',
+    ),
+    extra=1,
+)
+
+UnitsInlineForm = forms.inlineformset_factory(
+    Company, Units,
+    fields=(
+        'unit',
     ),
     extra=1,
 )

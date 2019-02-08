@@ -1,7 +1,7 @@
 from django import http
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View, DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from django.http import JsonResponse
 from .auth import AuthenticationTestMixin
@@ -229,6 +229,20 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
             return http.HttpResponse(self.request.user.currently_at.company_name)
 
 
+class CompanyChangeViewFromList(CompanyChangeView):
+
+    def get(self, request, *args, **kwargs):
+        new_company = get_object_or_404(
+            Company,
+            pk=self.kwargs['pk'],
+            customer=self.request.user.customer
+        )
+        if new_company in self.request.user.company.all():
+            self.request.user.currently_at = new_company
+            self.request.user.save()
+            return redirect('proyectos:proyect_dashboard')
+
+
 class CompanyListView(UsersMenuMixin, ListView):
     paginate_by = 10
     model = Company
@@ -243,15 +257,3 @@ class CompanyListView(UsersMenuMixin, ListView):
         context = super(CompanyListView, self).get_context_data(**kwargs)
         context['model'] = self.model.__name__
         return context
-
-
-class CompanyDetailView(UsersMenuMixin, DetailView):
-    model = Company
-
-    def get_context_object_name(self, obj):
-        return obj.__class__.__name__.lower()
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(
-            self.model, pk=self.kwargs['pk'], customer=self.request.user.customer
-        )
