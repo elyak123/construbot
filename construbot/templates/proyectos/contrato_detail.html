@@ -156,7 +156,7 @@
 				<th> F. de Pago </th>
 				<th> Editar </th>
 			</tr>
-		{% for estimacion in contrato.estimate_set.all %}
+		{% for estimacion in contrato.get_estimaciones %}
 			<tr>
 				<td>{{ estimacion.consecutive }}</td>
 				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>

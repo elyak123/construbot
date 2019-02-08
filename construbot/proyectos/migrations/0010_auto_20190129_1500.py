@@ -10,6 +10,7 @@ import django.db.models.deletion
 def poblar_unidades(apps, schema_editor):
     Concept = apps.get_model('proyectos', 'Concept')
     Units = apps.get_model('proyectos', 'Units')
+    Company = apps.get_model('users', 'Company')
     for concepto in Concept.objects.all():
         company = concepto.project.cliente.company
         try:
@@ -19,7 +20,9 @@ def poblar_unidades(apps, schema_editor):
             unidad.company = company
         except Units.DoesNotExist as e:
             raise e
-            # Units.objects.create(unit=concepto.unit.unit, company=company)
+    left_over = Units.objects.filter(company__isnull=True)
+    company = Company.objects.first()
+    left_over.update(company=company)
 
 
 class Migration(migrations.Migration):
@@ -44,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='units',
             name='company',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='users.Company'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.Company'),
             preserve_default=False
         ),
         migrations.AlterUniqueTogether(
