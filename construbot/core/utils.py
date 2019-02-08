@@ -4,10 +4,6 @@ from dal import autocomplete
 from construbot.users.auth import AuthenticationTestMixin
 
 
-def get_key(item):
-    return item['monto']
-
-
 class Round(Func):
     function = 'ROUND'
     template = '%(function)s(%(expressions)s, 2)'

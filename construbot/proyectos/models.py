@@ -3,6 +3,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.db.models import Sum, F
+from decimal import Decimal
 from construbot.core import utils
 from construbot.users.models import Company
 
@@ -148,6 +149,8 @@ class Estimate(models.Model):
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
             total=utils.Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
+        if not total['total']:
+            total['total'] = Decimal(0)
         return total
 
     def amortizacion_anticipo(self):
@@ -155,8 +158,6 @@ class Estimate(models.Model):
         return amortizacion
 
     def get_subtotal(self):
-        if not self.project.anticipo:
-            self.project.anticipo = Decimal(0)
         monto_total = self.total_estimate()['total']
         return monto_total - (monto_total * (self.project.anticipo / 100))
 
@@ -183,7 +184,6 @@ class Estimate(models.Model):
             else:
                 aux['monto'] = subtotal * (retencion.valor/100)
             retenciones.append(aux.copy())
-        retenciones = sorted(retenciones, key=utils.get_key, reverse=True)
         return retenciones
 
     def get_total_final(self):
@@ -345,7 +345,6 @@ class Concept(models.Model):
         if new_attr is not None:
             return new_attr / self.unit_price
         else:
-            from decimal import Decimal
             return Decimal('0.00')
 
     def cantidad_estimado_anterior(self):
