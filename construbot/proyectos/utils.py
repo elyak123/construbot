@@ -1,7 +1,6 @@
 from django.db.models import Sum, F
 from construbot.core.utils import Round
-from .models import Contrato
-
+from .models import Contrato, Estimate
 
 
 def contratosvigentes(user, permiso):
@@ -17,3 +16,25 @@ def contratosvigentes(user, permiso):
             status=True, cliente__company=user.currently_at, users=user
             ).order_by('-folio')
     return contratos
+
+
+def sumatoria_query(queryset, campo):
+    return queryset.aggregate(total=Sum(campo))
+
+
+def estimacionespendientes_facturacion(company):
+    return Estimate.objects.select_related('project').filter(project__cliente__company=company, invoiced=False)
+
+
+def estimacionespendientes_pago(company):
+    return Estimate.objects.select_related('project').filter(project__cliente__company=company, invoiced=True, paid=False)
+
+
+def total_sinpago(estimaciones):
+    return estimaciones.aggregate(total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price'))))['total']
+
+
+def totalsinfacturar(estimaciones):
+    return estimaciones.aggregate(
+        total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
+    )['total']

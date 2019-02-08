@@ -12,7 +12,8 @@ from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
-from .utils import contratosvigentes
+from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
+    totalsinfacturar, total_sinpago
 
 User = get_user_model()
 
@@ -113,6 +114,10 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         context['c_object'] = contratosvigentes(
             self.request.user, self.permiso_administracion
         )
+        context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
+        context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
+        context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
+        context['total_sinpago'] = total_sinpago(context['estimacionespendientes_pago'])
         return context
 
 

@@ -76,6 +76,9 @@
 					</td>
 					{% endif %}
 				</tr>
+				{% if forloop.last and is_administrador%}
+				<tr><td>Total Contratos Vigentes</td><td>{{ c_object|totalvigentes|intcomma }}</td></tr>
+				{% endif %}
 			{% empty%}
 				<tr>
 					<td colspan="2">¡No hay contratos vigentes!</td>
@@ -93,7 +96,7 @@
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionespendientes %}
+				{% for estimacion in estimacionespendientes_facturacion %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -102,6 +105,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and is_administrador%}
+					<tr><td colspan="3">Total</td><td>{{ total_sin_facturar|intcomma }}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
@@ -116,7 +122,7 @@
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionesfacturadas %}
+				{% for estimacion in estimacionespendientes_pago %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -125,6 +131,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and is_administrador%}
+					<tr><td colspan="3">Total</td><td>{{ total_sinpago|intcomma }}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
