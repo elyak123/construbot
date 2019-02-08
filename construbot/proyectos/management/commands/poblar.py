@@ -148,7 +148,16 @@ class Command(BaseCommand):
     def create_units(self, number):
         self.units = []
         for i in range(0, number):
-            self.units.append(factories.UnitFactory(unit='unit{0}'.format(i)))
+            if self.company:
+                rand = round(random() * len(self.company)-1)
+                self.units.append(
+                    factories.UnitFactory(
+                        unit='unit{0}'.format(i),
+                        company=self.company[rand]
+                    )
+                )
+            else:
+                raise ImproperlyConfigured('¡No existen compañías para asignarles a las unidades!')
 
     def create_concepts(self, number):
         self.concepts = []
