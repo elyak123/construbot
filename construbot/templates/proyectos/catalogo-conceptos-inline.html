@@ -7,7 +7,7 @@
 {% endblock css %}
 {% block javascript %}
   <script type="text/javascript">
-    var setPrefix = '{{ form.prefix }}';
+    var setPrefix = '{{ formset.prefix }}';
   </script>
   <script src="{% static 'js/inlineform.js' %}"></script>
   <script type="text/javascript">
