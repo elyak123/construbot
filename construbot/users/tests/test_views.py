@@ -11,8 +11,7 @@ from ..views import (
     UserUpdateView, UserDetailView,
     UserCreateView, CompanyCreateView,
     CompanyEditView, UserDeleteView,
-    CompanyChangeView, CompanyListView,
-    CompanyDetailView
+    CompanyChangeView, CompanyListView
 )
 from ..forms import (
     UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
@@ -470,30 +469,30 @@ class TestCompanyListView(BaseUserTestCase):
             'Company'
         )
 
+# PENDIENTE, SE ELIMINÓ CompanyDetailView
+# class TestCompanyDetailView(BaseUserTestCase):
 
-class TestCompanyDetailView(BaseUserTestCase):
+#     def setUp(self):
+#         super(TestCompanyDetailView, self).setUp()
+#         self.view = CompanyDetailView()
+#         request = self.factory.get('/fake-url')
+#         request.user = self.user
+#         self.view.request = request
+#         company = factories.CompanyFactory(customer=self.user.customer)
+#         self.user.company.add(company)
+#         self.user.currently_at = company
 
-    def setUp(self):
-        super(TestCompanyDetailView, self).setUp()
-        self.view = CompanyDetailView()
-        request = self.factory.get('/fake-url')
-        request.user = self.user
-        self.view.request = request
-        company = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company)
-        self.user.currently_at = company
+#     def test_get_correct_context_object_name(self):
+#         test_company = factories.CompanyFactory(customer=self.user.customer)
+#         self.assertEqual(
+#             self.view.get_context_object_name(test_company),
+#             'company'
+#         )
 
-    def test_get_correct_context_object_name(self):
-        test_company = factories.CompanyFactory(customer=self.user.customer)
-        self.assertEqual(
-            self.view.get_context_object_name(test_company),
-            'company'
-        )
-
-    def test_get_correct_object(self):
-        test_company = factories.CompanyFactory(customer=self.user.customer)
-        self.view.kwargs = {'pk': test_company.pk}
-        self.assertEqual(
-            self.view.get_object(),
-            test_company
-        )
+#     def test_get_correct_object(self):
+#         test_company = factories.CompanyFactory(customer=self.user.customer)
+#         self.view.kwargs = {'pk': test_company.pk}
+#         self.assertEqual(
+#             self.view.get_object(),
+#             test_company
+#         )

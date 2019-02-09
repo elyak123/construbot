@@ -29,7 +29,7 @@ class TestProyectsURLs(TestCase):
         self.assertEqual(reverse('proyectos:catalogo_conceptos', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-edit/1/')
 
     def test_catalogo_list_reverse(self):
-        self.assertEqual(reverse('proyectos:catalogo_conceptos_listado', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-list/1/')
+        self.assertEqual(reverse('proyectos:catalogo_conceptos_listado', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-conceptos/1/')
 
     def test_contrato_detail_reverse(self):
         self.assertEqual(reverse('proyectos:contrato_detail', kwargs={'pk': 1}), '/proyectos/contrato/detalle/1/')

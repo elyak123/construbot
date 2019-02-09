@@ -57,7 +57,16 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
             'parent': False,
             'type': 'submenu',
             'submenu': [],
-        },            
+        },
+        {
+            'title': 'Unidades',
+            'url': 'construbot.proyectos:catalogo_de_unidades',
+            'always_appear': True,
+            'icon': 'eyedropper',
+            'parent': False,
+            'type': 'submenu',
+            'submenu': [],
+        },
     ]
     model_options = {
         'Contrato': {
@@ -590,6 +599,20 @@ class CatalogoConceptosInlineFormView(CatalogosView):
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'conceptos'
 
+
+class CatalogoUnitsInlineFormView(CatalogosView):
+    form_class = forms.UnitsInlineForm
+    template_name = 'proyectos/catalogo-conceptos-inline.html'
+    tipo = 'unidades'
+
+    def get_object(self):
+        obj = self.request.user.currently_at
+        return obj
+
+    def get_success_url(self):
+        return reverse(
+            'construbot.proyectos:proyect_dashboard'
+        )
 
 class DynamicDelete(ProyectosMenuMixin, DeleteView):
     template_name = 'core/delete.html'

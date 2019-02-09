@@ -19,10 +19,12 @@
 			<td class="td_table_sample">Locación del sitio</td>
 			<td class="td_table_sample">{{ sitio.sitio_location }}</td>
 		</tr>
+		{% if sitio.company.exists %}
 		<tr>
 			<td class="td_table_sample">Compañía</td>
-			<td class="td_table_sample">{{ sitio.company.company_name }}</td>
+			<td class="td_table_sample"><a href="{% url 'users:sitio_detail' sitio.company.id %}">{{ sitio.company.company_name }}</td>
 		</tr>
+		{% endif %}
 	</table>
 </div>
 <br>

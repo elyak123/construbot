@@ -3,6 +3,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.db.models import Sum, F
+from decimal import Decimal
 from construbot.core import utils
 from construbot.users.models import Company
 
@@ -148,7 +149,47 @@ class Estimate(models.Model):
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
             total=utils.Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
+        if not total['total']:
+            total['total'] = Decimal(0)
         return total
+
+    def amortizacion_anticipo(self):
+        amortizacion = self.total_estimate()['total'] * self.project.anticipo / 100
+        return amortizacion
+
+    def get_subtotal(self):
+        monto_total = self.total_estimate()['total']
+        return monto_total - (monto_total * (self.project.anticipo / 100))
+
+    def get_total_retenciones(self):
+        total_retenciones = 0
+        subtotal = self.get_subtotal()
+        for retencion in self.project.retenciones_set.all():
+            if retencion.tipo == 'AMOUNT':
+                aux = retencion.valor
+            else:
+                aux = subtotal * (retencion.valor/100)
+            total_retenciones = total_retenciones+aux
+        return total_retenciones
+
+    def get_retenciones(self):
+        retenciones = []
+        aux = {}
+        subtotal = self.get_subtotal()
+        for retencion in self.project.retenciones_set.all():
+            aux['descripcion'] = retencion.nombre
+            aux['valor'] = retencion.valor
+            if retencion.tipo == 'AMOUNT':
+                aux['monto'] = retencion.valor
+            else:
+                aux['monto'] = subtotal * (retencion.valor/100)
+            retenciones.append(aux.copy())
+        return retenciones
+
+    def get_total_final(self):
+        subtotal = self.get_subtotal()
+        total_retenciones = self.get_total_retenciones()
+        return subtotal - total_retenciones
 
     def anotaciones_conceptos(self):
         conceptos = Concept.especial.filter(estimate_concept=self).order_by('pk')
@@ -304,7 +345,6 @@ class Concept(models.Model):
         if new_attr is not None:
             return new_attr / self.unit_price
         else:
-            from decimal import Decimal
             return Decimal('0.00')
 
     def cantidad_estimado_anterior(self):

@@ -52,12 +52,14 @@
             <th> Nombre </th>
             <th> Tipo </th>
             <th> Valor </th>
-            {% else %}
+            {% elif type == 'conceptos' %}
             <th> Código </th>
             <th> Concepto </th>
             <th> Unidad </th>
             <th> Cantidad </th>
             <th> Precio unitario </th>
+            {% else %}
+            <th> Nombre de la Unidad </th>
             {% endif %}
             <th> ¿Eliminar? </th>
           </tr>
