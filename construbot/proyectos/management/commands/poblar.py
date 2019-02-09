@@ -23,7 +23,6 @@ class Command(BaseCommand):
             self.create_sitios(200)
             self.create_destinatarios(200)
             self.create_contratos(1500)
-            self.create_units(200)
             self.create_concepts(5000)
             self.stdout.write(self.style.SUCCESS(
             "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
@@ -33,7 +32,7 @@ class Command(BaseCommand):
                 len(self.company),
                 len(self.clientes)) +
             " Clientes\n- {0} Sitios\n- {1} Contratos\n".format(len(self.sitios), len(self.contratos)) +
-            "- {0} Unidades\n- {1} Conceptos.".format(len(self.units), len(self.concepts))
+            "- {0} Conceptos.".format(len(self.concepts))
             ))
         else:
             raise ImproperlyConfigured('No tienes settings.DEBUG activado, la operación no se puede completar.')
@@ -145,29 +144,18 @@ class Command(BaseCommand):
         else:
             raise ImproperlyConfigured('¡No existen clientes y/o sitios para asignarles a los contratos!')
 
-    def create_units(self, number):
-        self.units = []
-        for i in range(0, number):
-            if self.company:
-                rand = round(random() * len(self.company)-1)
-                self.units.append(
-                    factories.UnitFactory(
-                        unit='unit{0}'.format(i),
-                        company=self.company[rand]
-                    )
-                )
-            else:
-                raise ImproperlyConfigured('¡No existen compañías para asignarles a las unidades!')
-
     def create_concepts(self, number):
         self.concepts = []
         for i in range(0, number):
-            if self.contratos and self.units:
+            if self.contratos:
+                contrato = self.contratos[round(random() * len(self.contratos)-1)]
                 self.concepts.append(factories.ConceptoFactory(
                     code=i,
                     concept_text="Concepto{0}".format(i),
-                    project=self.contratos[round(random() * len(self.contratos)-1)],
-                    unit=self.units[round(random() * len(self.units)-1)],
+                    project=contrato,
+                    unit=factories.UnitFactory(
+                        unit='unit{0}'.format(i),
+                        company=contrato.cliente.company)
                 ))
             else:
                 raise ImproperlyConfigured('¡No existen contratos y/o unidades para asignarles a los conceptos!')
