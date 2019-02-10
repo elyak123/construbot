@@ -9,6 +9,7 @@ before_install:
  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
  - chmod +x docker-compose
  - sudo mv docker-compose /usr/local/bin
+ - export DJANGO_READ_DOT_ENV_FILE=True
  - echo ${DJANGO_SECRET_KEY} > ${TRAVIS_BUILD_DIR}/.env
 
 script:
