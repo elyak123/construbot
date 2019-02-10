@@ -1,22 +1,18 @@
 sudo: required
-dist: trusty
+services:
+  - docker
+
+env:
+  COMPOSE_VERSION: 1.23.1
+  DJANGO_SETTINGS_MODULE: config.settings.test
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
-  - sudo apt-get install -qq libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev
-  - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
-  - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
-  - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
-  - sudo apt-get install apache2-dev
-  - sudo wget -O /bin/wkhtmltopdf https://s3-us-west-2.amazonaws.com/elyak123-wkhtmltopdf/wkhtmltopdf
-  - sudo chmod +x /bin/wkhtmltopdf
-language: python
-python:
-  - "3.6"
-install:
-  - pip install pip-tools==3.1.0
-  - pip-sync requirements/test.txt
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+
 script:
-  - DJANGO_SETTINGS_MODULE=config.settings.test coverage run --source='.' manage.py test
+  - docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
+
 after_success:
   - coveralls
