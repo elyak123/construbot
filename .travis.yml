@@ -10,6 +10,7 @@ before_install:
  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
  - chmod +x docker-compose
  - sudo mv docker-compose /usr/local/bin
+ - touch construbot/.env
 
 script:
   - docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
