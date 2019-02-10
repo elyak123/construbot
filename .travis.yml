@@ -4,17 +4,14 @@ services:
 
 env:
   COMPOSE_VERSION: 1.23.1
-  DJANGO_SETTINGS_MODULE: config.settings.test
-  DJANGO_READ_DOT_ENV_FILE: True
 
 before_install:
  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
  - chmod +x docker-compose
  - sudo mv docker-compose /usr/local/bin
- - touch ${TRAVIS_BUILD_DIR}/.env
 
 script:
-  - docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
+  - DJANGO_SETTINGS_MODULE=config.settings.test docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 
 after_success:
   - coveralls
