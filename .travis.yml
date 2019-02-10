@@ -14,7 +14,7 @@ before_install:
 
 language: python
 python:
-  - "3.6.8"
+  - "3.6"
 
 script:
   - docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
