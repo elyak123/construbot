@@ -5,7 +5,7 @@ services:
 env:
   COMPOSE_VERSION: 1.23.1
   DJANGO_SETTINGS_MODULE: config.settings.test
-  DJANGO_READ_DOT_ENV_FILE: False
+  DJANGO_READ_DOT_ENV_FILE: True
 
 before_install:
  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
