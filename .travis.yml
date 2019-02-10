@@ -9,7 +9,7 @@ before_install:
  - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
  - chmod +x docker-compose
  - sudo mv docker-compose /usr/local/bin
- - touch ${TRAVIS_BUILD_DIR}/.env
+ - echo ${DJANGO_SECRET_KEY} > ${TRAVIS_BUILD_DIR}/.env
 
 script:
   - DJANGO_SETTINGS_MODULE=config.settings.test docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
