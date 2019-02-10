@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
   - sudo apt-get install apache2-dev
   - sudo wget -O /bin/wkhtmltopdf https://s3-us-west-2.amazonaws.com/elyak123-wkhtmltopdf/wkhtmltopdf
-  - chmod +x /bin/wkhtmltopdf
+  - sudo chmod +x /bin/wkhtmltopdf
 language: python
 python:
   - "3.6"
