@@ -614,6 +614,7 @@ class CatalogoUnitsInlineFormView(CatalogosView):
             'construbot.proyectos:proyect_dashboard'
         )
 
+
 class DynamicDelete(ProyectosMenuMixin, DeleteView):
     template_name = 'core/delete.html'
 
