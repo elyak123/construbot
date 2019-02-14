@@ -83,7 +83,7 @@ urlpatterns = [
     url(
         regex=r'^generador/pdf/(?P<pk>\d+)/$',
         view=views.GeneratorPdfPrint.as_view(),
-        name='estimate_detailpdf'
+        name='generator_detailpdf'
     ),
     url(
         regex=r'^contrato/nuevo/$',
