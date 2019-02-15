@@ -1,5 +1,5 @@
 from construbot.users.tests import factories as user_factories
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import tag
 from construbot.proyectos.models import Estimate
@@ -275,6 +275,54 @@ class TestProyectsURLsCorrectTemplates(TestCase):
             reverse('proyectos:eliminar', kwargs={'model': 'Contrato', 'pk': contrato_factory.pk})
         )
         self.assertTemplateUsed(response, 'core/delete.html')
+
+    def test_estimate_pdf_print_uses_correct_template(self):
+        contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
+        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
+        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        destinatario = factories.DestinatarioFactory(cliente=contrato_cliente)
+        estimate = Estimate.objects.create(
+            project=contrato_factory,
+            consecutive=1,
+            draft_by=self.user,
+            supervised_by=self.user,
+            start_date='1999-08-15',
+            finish_date='1999-08-15'
+        )
+        concepto = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
+        estimate2 = Estimate.objects.create(
+            project=contrato_factory,
+            consecutive=2,
+            draft_by=self.user,
+            supervised_by=self.user,
+            start_date='1999-08-20',
+            finish_date='1999-08-20',
+        )
+        estimate2.auth_by.add(destinatario.id)
+        estimate2.auth_by_gen.add(destinatario.id)
+        concepto2 = factories.ConceptoFactory(
+            project=contrato_factory
+        )
+        estimate_concept2 = factories.EstimateConceptFactory(
+            estimate=estimate,
+            concept=concepto
+        )
+        estimate.save()
+        estimate2.save()
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(
+            reverse('proyectos:generator_detailpdf', kwargs={'pk': estimate2.pk}),
+            {'as': 'html'}
+        )
+        self.assertTemplateNotUsed(response, 'proyectos/estimate_detail.html')
+        self.assertTemplateNotUsed(response, 'proyectos/concept_estimate.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
 
 
 class TestProyectsURLsCorrectStatusCode(TestCase):
