@@ -66,6 +66,18 @@ class ExtendUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+class NivelAcceso(models.Model):
+    nivel = models.IntegerField(unique=True)
+    nombre = models.CharField(_('Nivel de Acceso'), max_length=80)
+
+    class Meta:
+        verbose_name = "NivelAcceso"
+        verbose_name_plural = "NivelAccesos"
+
+    def __str__(self):
+        return '{} Nivel:{}'.format(self.nombre, self.nivel)
+
+
 class AbstractConstrubotUser(AbstractUser):
 
     company = models.ManyToManyField(Company)
@@ -75,8 +87,9 @@ class AbstractConstrubotUser(AbstractUser):
     )
     last_updated = models.DateTimeField(auto_now=True)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
-    email = models.EmailField(unique=True, validators=[validate_email]) 
+    email = models.EmailField(unique=True, validators=[validate_email])
     is_new = models.BooleanField(default=True)
+    # nivel_acceso = models.ForeignKey(NivelAcceso, null=True)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
