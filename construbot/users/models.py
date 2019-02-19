@@ -89,7 +89,7 @@ class AbstractConstrubotUser(AbstractUser):
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     email = models.EmailField(unique=True, validators=[validate_email])
     is_new = models.BooleanField(default=True)
-    # nivel_acceso = models.ForeignKey(NivelAcceso, null=True)
+    nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.PROTECT)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
