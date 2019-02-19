@@ -48,6 +48,7 @@ class Command(BaseCommand):
     def create_core_groups(self):
         self.groups = [
             user_factories.GroupFactory(name="Proyectos"),
+            user_factories.GroupFactory(name="Administrators"),
             user_factories.GroupFactory(name="Users"),
         ]
 
