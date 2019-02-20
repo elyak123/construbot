@@ -79,7 +79,7 @@ class TestUser(utils.BaseTestCase):
             is_staff=True,
             is_superuser=True
         )
-        self.assertIsInstance(superuser.nivel_acceso, 6)
+        self.assertEqual(superuser.nivel_acceso.nivel, 6)
 
     def test_super_usuario_tiene_nivel_acceso(self):
         superuser = User.objects.create_superuser(

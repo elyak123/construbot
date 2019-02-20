@@ -20,15 +20,16 @@ class TestApiViews(utils.BaseTestCase):
             reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
         )
         self.assertFalse(response.json()['success'])
-
+    @tag('current')
     def test_create_customer_user_and_company(self):
         self.client.login(username=self.user.username, password='password')
         email_test = 'me@gmail.com'
         response = self.client.post(
             reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
         )
-        self.assertTrue(response.json()['success'])
-        self.assertEqual(email_test, User.objects.get(id=response.json()['id']).email)
+        json_response = response.json()
+        self.assertTrue(json_response['success'], json_response)
+        self.assertEqual(email_test, User.objects.get(id=json_response['id']).email)
         self.assertFalse(response.data['usable'])
 
     def test_change_user_password(self):

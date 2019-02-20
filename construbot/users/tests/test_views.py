@@ -144,7 +144,10 @@ class TestListUserView(utils.BaseTestCase):
         self.user.groups.add(self.user_group)
 
     def additional_users_different_customer(self):
-        self.user1_different_customer = self.make_user(username='foreign_user', nivel_acceso=self.auxiliar_permission)
+        self.user1_different_customer = self.user_factory(
+            username='foreign_user',
+            nivel_acceso=self.auxiliar_permission
+        )
         company = Company.objects.create(company_name='another_company', customer=self.user.customer)
         self.user.company.add(company)
         self.user.groups.add(self.user_group)
@@ -170,13 +173,12 @@ class TestListUserView(utils.BaseTestCase):
 
 class TestDetailUserView(utils.BaseTestCase):
     def test_detail_view_another_user_requires_admin_perms(self):
-        group, created = Group.objects.get_or_create(name='Users')
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
         )
         self.user.company.add(company)
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
         view = self.get_instance(
             UserDetailView,
             request=self.get_request(self.user),
@@ -186,10 +188,8 @@ class TestDetailUserView(utils.BaseTestCase):
             view.test_func()
 
     def test_detail_view_another_company_returns_user_obj(self):
-        group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
@@ -206,6 +206,7 @@ class TestDetailUserView(utils.BaseTestCase):
 
 
 class TestUserCreateView(utils.BaseTestCase):
+
     def test_user_creation_form_query_involves_requests_user_companies(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -222,11 +223,10 @@ class TestUserCreateView(utils.BaseTestCase):
             request=self.get_request(self.user)
         )
         view.permiso_administracion = True
-        other_user = self.make_user(username='bla', nivel_acceso=self.auxiliar_permission)
+        other_user = self.user_factory(username='bla', nivel_acceso=self.auxiliar_permission)
         other_user_company = Company.objects.create(
             company_name='other_user_company',
             customer=other_user.customer,
-            nivel_acceso=self.auxiliar_permission
         )
         other_user.company.add(other_user_company)
         form = view.get_form()
@@ -240,7 +240,7 @@ class TestUserCreateView(utils.BaseTestCase):
             UserCreateView,
             request=self.get_request(self.user)
         )
-        view.object = self.make_user(username='some_user', nivel_acceso=self.auxiliar_permission)
+        view.object = self.user_factory(username='some_user', nivel_acceso=self.auxiliar_permission)
         success_url = view.get_success_url()
         self.assertEqual('/users/detalle/{}/'.format(view.object.username), success_url)
 
@@ -272,6 +272,7 @@ class TestUserCreateView(utils.BaseTestCase):
                 'first_name': 'John',
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
+                'nivel_acceso': self.auxiliar_permission.id,
                 'groups': [str(self.user_group.id)],
                 'company': [str(company.id)],
                 'password1': 'esteesunpsslargo',
