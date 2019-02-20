@@ -1,4 +1,5 @@
 import time
+import json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -7,11 +8,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from construbot.users.models import Company, Customer, User
+from construbot.users.models import Company, Customer
 from construbot.api.serializers import CustomerSerializer, UserSerializer
 from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units, EstimateConcept
-from construbot.users.models import Company
-import json
 
 User = get_user_model()
 
@@ -189,6 +188,7 @@ def get_concepts(contrato, concept_data):
             unit_price=concept['unit_price']
         )
 
+
 def get_estimate_concepts(estimate, estimate_concepts):
     for estimate_concept_data in estimate_concepts:
         concept, c_created = Concept.objects.get_or_create(
@@ -201,6 +201,7 @@ def get_estimate_concepts(estimate, estimate_concepts):
             cuantity_estimated=estimate_concept_data['cuantity_estimated'],
             observations=estimate_concept_data['observations']
         )
+
 
 def get_estimates(contrato, estimate_data, username):
     for estimacion in estimate_data:

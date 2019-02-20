@@ -35,10 +35,8 @@ class UsuarioInternoTest(utils.BaseTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
         data = {
             'customer': str(self.user.customer.id),
@@ -46,7 +44,8 @@ class UsuarioInternoTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'groups': [str(users_group.id)],
+            'nivel_acceso': self.auxiliar_permission.id,
+            'groups': [str(self.user_group.id)],
             'company': [str(company.id)],
             'password1': 'esteesunpsslargo',
             'password2': 'esteesunpsslargo'
@@ -65,19 +64,18 @@ class UsuarioEditTest(utils.BaseTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
-        qdict = QueryDict('groups={}'.format(users_group.id), mutable=True)
+        qdict = QueryDict('groups={}'.format(self.user_group.id), mutable=True)
         data = {
             'customer': str(self.user.customer.id),
             'username': 'nuevo_test',
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'groups': str(group.id),
+            'nivel_acceso': self.auxiliar_permission.id,
+            'groups': str(self.admin_group.id),
             'company': str(company.id),
         }
         qdict.update(data)
@@ -91,10 +89,8 @@ class UsuarioEditTest(utils.BaseTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
         qdict = QueryDict('', mutable=True)
         data = {
@@ -103,7 +99,8 @@ class UsuarioEditTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'groups': str(users_group.id),
+            'nivel_acceso': self.auxiliar_permission.id,
+            'groups': str(self.user_group.id),
             'company': str(company.id),
         }
         qdict.update(data)

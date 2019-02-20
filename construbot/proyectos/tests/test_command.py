@@ -41,9 +41,9 @@ class PoblarCommandTesting(BaseCommandTest):
         instance = Command()
         instance.create_core_groups()
         calls = [
-            mock.call(name='proyectos'),
+            mock.call(name='Proyectos'),
             mock.call(name='Administrators'),
-            mock.call(name='users')
+            mock.call(name='Users')
         ]
         self.assertEqual(mock_group_factory.call_count, 3)
         self.assertEqual(len(instance.groups), 3)
