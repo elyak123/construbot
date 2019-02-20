@@ -243,9 +243,14 @@ class ListUserViewTest(utils.BaseTestCase):
         self.assertNotContains(response, 'foreign_user')
 
 
+<<<<<<< HEAD
 class DetailUserViewTest(utils.BaseTestCase):
 
     def test_detail_view_another_user_requires_director_perms(self):
+=======
+class TestDetailUserView(utils.BaseTestCase):
+    def test_detail_view_another_user_requires_admin_perms(self):
+>>>>>>> Adecuacion en tests formularios de users
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
@@ -278,7 +283,11 @@ class DetailUserViewTest(utils.BaseTestCase):
         self.assertEqual(obj, self.user)
 
 
+<<<<<<< HEAD
 class UserCreateViewTest(utils.BaseTestCase):
+=======
+class TestUserCreateView(utils.BaseTestCase):
+>>>>>>> Adecuacion en tests formularios de users
 
     def test_user_creation_form_query_involves_requests_user_companies(self):
         company = Company.objects.create(
@@ -295,6 +304,10 @@ class UserCreateViewTest(utils.BaseTestCase):
             UserCreateView,
             request=self.get_request(self.user)
         )
+<<<<<<< HEAD
+=======
+        view.permiso_administracion = True
+>>>>>>> Adecuacion en tests formularios de users
         other_user = self.user_factory(username='bla', nivel_acceso=self.auxiliar_permission)
         other_user_company = Company.objects.create(
             company_name='other_user_company',
@@ -347,6 +360,10 @@ class UserCreateViewTest(utils.BaseTestCase):
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
                 'nivel_acceso': self.auxiliar_permission.id,
+<<<<<<< HEAD
+=======
+                'groups': [str(self.user_group.id)],
+>>>>>>> Adecuacion en tests formularios de users
                 'company': [str(company.id)],
                 'password1': 'esteesunpsslargo',
                 'password2': 'esteesunpsslargo'
