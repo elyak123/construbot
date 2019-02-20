@@ -1,14 +1,9 @@
-from . import factories
-from test_plus.test import TestCase
-
+from django.test import tag
+from . import utils
 from ..admin import MyUserCreationForm
 
 
-class TestMyUserCreationForm(TestCase):
-
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user('notalamode', 'notalamodespassword')
+class TestMyUserCreationForm(utils.BaseTestCase):
 
     def test_clean_username_success(self):
         # Instantiate the form with a new username

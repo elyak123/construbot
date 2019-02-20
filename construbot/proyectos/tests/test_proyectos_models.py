@@ -4,7 +4,7 @@ from unittest import mock
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.test import RequestFactory, tag, override_settings
+from django.test import override_settings, tag
 from construbot.users.tests import utils
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
@@ -16,9 +16,7 @@ MOCK_MEDIA_ROOT = tempfile.mkdtemp()
 class BaseModelTesCase(utils.BaseTestCase):
 
     def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
+        super(BaseModelTesCase, self).setUp()
         self.request = self.get_request(self.user)
 
 
@@ -77,14 +75,21 @@ class ContratoModelTest(BaseModelTesCase):
 class EstimateModelTest(BaseModelTesCase):
 
     def test_estimacion_absolute_url(self):
-        estimacion = factories.EstimateFactory()
+        estimacion = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user,
+        )
         self.assertEqual(
             estimacion.get_absolute_url(), '/proyectos/contrato/detalle/{}/'.format(estimacion.project.pk)
         )
 
     def test_total_estimate_method(self):
         contrato = factories.ContratoFactory()
-        estimacion = factories.EstimateFactory(project=contrato)
+        estimacion = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user,
+            project=contrato
+        )
         conceptos = [
             factories.EstimateConceptFactory(
                 estimate=estimacion,
@@ -97,8 +102,11 @@ class EstimateModelTest(BaseModelTesCase):
         self.assertEqual(aggregation['total'], 285)
 
     @mock.patch.object(models.ConceptSet, 'add_estimateconcept_properties')
-    def test_anotaciones_conceotos(self, mock_properties):
-        estimacion = factories.EstimateFactory()
+    def test_anotaciones_conceptos(self, mock_properties):
+        estimacion = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user,
+        )
         estimacion.anotaciones_conceptos()
         try:
             mock_properties.assert_called_once()
@@ -123,8 +131,16 @@ class ConceptoSetTest(BaseModelTesCase):
             {'estimate_cons': 2, 'code': 'OTRO', 'cuantity_estimated': 3490},
         ]
         contrato = factories.ContratoFactory()
-        estimacion_1 = factories.EstimateFactory(project=contrato, consecutive=1)
-        estimacion_2 = factories.EstimateFactory(project=contrato, consecutive=2)
+        estimacion_1 = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user,
+            project=contrato, consecutive=1
+        )
+        estimacion_2 = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user,
+            project=contrato, consecutive=2
+        )
         for element in conceptos_list:
             factories.ConceptoFactory(
                 code=element['code'],
@@ -301,7 +317,10 @@ class ImageEstimateConceptTest(BaseModelTesCase):
         return ImageFile(file, name='file.png')
 
     def test_guardado_de_imagen(self):
-        concepto = factories.EstimateConceptFactory()
+        concepto = factories.EstimateConceptFactory(
+            estimate__draft_by=self.user,  # se ocupa porque si no truena
+            estimate__supervised_by=self.user
+        )
         image = self.get_test_image_file()
         imagen = models.ImageEstimateConcept.objects.create(image=image, estimateconcept=concepto)
         self.assertTrue(models.ImageEstimateConcept.objects.filter(estimateconcept=concepto).exists())

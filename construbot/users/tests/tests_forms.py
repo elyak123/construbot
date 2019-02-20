@@ -29,10 +29,6 @@ class UserFormTest(TestCase):
 
 class UsuarioInternoTest(utils.BaseTestCase):
 
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-
     @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
     def test_UsuarioInterno_post(self):
         company = Company.objects.create(
@@ -61,11 +57,9 @@ class UsuarioInternoTest(utils.BaseTestCase):
         self.assertTrue(user.check_password('esteesunpsslargo'))
         self.assertTrue(authenticate(username='test_user_dos', password='esteesunpsslargo'))
 
+
 class UsuarioEditTest(utils.BaseTestCase):
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-    
+
     def test_UsusarioEdit_post(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -90,9 +84,9 @@ class UsuarioEditTest(utils.BaseTestCase):
         form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertTrue(form.is_valid(), form.errors)
         user = form.save()
-        self.assertTrue(authenticate(username='nuevo_test', password='password'))        
+        self.assertTrue(authenticate(username='nuevo_test', password='password'))
 
-    def test_UsusarioEdit_group_error(self):
+    def test_UsuarioEdit_group_error(self):
         company = Company.objects.create(
             company_name='some_company',
             customer=self.user.customer

@@ -1,20 +1,12 @@
-from django.test import RequestFactory  # , tag
+from django.test import tag
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from users.tests import factories, utils
+from users.tests import utils
 
 User = get_user_model()
 
 
-class BaseCoreTestCase(utils.BaseTestCase):
-
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-
-
-class TestApiViews(BaseCoreTestCase):
+class TestApiViews(utils.BaseTestCase):
 
     def test_email_uniqueness(self):
         self.client.login(username=self.user.username, password='password')
