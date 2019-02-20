@@ -1,22 +1,18 @@
 from construbot.users.tests import factories as user_factories
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import tag
+from . import utils
 from . import factories
 from test_plus.test import TestCase
 
 
-class TestProyectsURLsCorrectTemplates(TestCase):
+class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
     """Test URL patterns for users app."""
 
     def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
+        super(TestProyectsURLsCorrectTemplates, self).setUp()
         company_test = user_factories.CompanyFactory(customer=self.user.customer)
-        administrador = user_factories.GroupFactory(name="Administrators")
-        proyectos = user_factories.GroupFactory(name="Proyectos")
-        users = user_factories.GroupFactory(name="Users")
-        for group in administrador, proyectos, users:
+        for group in self.admin_group, self.proyectos_group, self.user_group:
             self.user.groups.add(group)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
@@ -24,7 +20,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
     def test_user_list(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
-        self.user2 = self.make_user(username="some")
+        self.user2 = self.user_factory(username="some", nivel_acceso=self.auxiliar_permission)
         self.user2.company.add(company_test)
         self.user.currently_at = company_test
         self.user.save()

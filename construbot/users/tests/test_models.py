@@ -1,17 +1,13 @@
 from . import factories
+from django.test import tag
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-from test_plus.test import TestCase
-from construbot.users.models import Customer
+from construbot.users.models import Customer, NivelAcceso
+from . import utils
 
 User = get_user_model()
 
 
-class TestUser(TestCase):
-
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
+class TestUser(utils.BaseTestCase):
 
     def test__str__(self):
         self.assertEqual(
@@ -30,8 +26,7 @@ class TestUser(TestCase):
         self.assertEqual(soy_admin, False)
 
     def test_si_soy_admin(self):
-        admin_group = Group.objects.create(name='Administrators')
-        self.user.groups.add(admin_group)
+        self.user.groups.add(self.admin_group)
         self.user.save()
         soy_admin = self.user.is_administrator()
         self.assertEqual(soy_admin, True)
@@ -76,8 +71,28 @@ class TestUser(TestCase):
         )
         self.assertIsInstance(superuser.customer, Customer)
 
+    def test_superusuario_tiene_nivel_6(self):
+        superuser = User.objects.create_superuser(
+            username='super_user',
+            email='bla@bla.com',
+            password='top_secret',
+            is_staff=True,
+            is_superuser=True
+        )
+        self.assertIsInstance(superuser.nivel_acceso, 6)
 
-class TestCustomer(TestCase):
+    def test_super_usuario_tiene_nivel_acceso(self):
+        superuser = User.objects.create_superuser(
+            username='super_user',
+            email='bla@bla.com',
+            password='top_secret',
+            is_staff=True,
+            is_superuser=True
+        )
+        self.assertIsInstance(superuser.nivel_acceso, NivelAcceso)
+
+
+class TestCustomer(utils.BaseTestCase):
     def test_customer_repr_dont_raises_error(self):
         customer = Customer.objects.create()
         customer_2 = factories.CustomerFactory()
@@ -85,10 +100,10 @@ class TestCustomer(TestCase):
         self.assertEqual(repr(customer_2), '<Customer: %s>' % customer_2.customer_name)
 
 
-class TestFactories(TestCase):
+class TestFactories(utils.BaseTestCase):
 
     def test_UserFactory_saved_to_db(self):
-        user = factories.UserFactory()
+        user = factories.UserFactory(nivel_acceso=self.auxiliar_permission)
         user.full_clean()
         user.save()
         # Just checking it was saved to db

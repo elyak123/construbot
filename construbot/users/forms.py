@@ -45,6 +45,7 @@ class UserForm(UserCreationForm):
             'last_supervised',
             'currently_at',
             'name',
+            'nivel_acceso',
         ]
 
 

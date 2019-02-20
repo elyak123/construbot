@@ -59,6 +59,11 @@ class ExtendUserManager(UserManager):
         except ObjectDoesNotExist:
             customer = Customer.objects.create()
         extra_fields.setdefault('customer', customer)
+        try:
+            nivel = NivelAcceso.objects.get(nivel=6)
+        except ObjectDoesNotExist:
+            nivel = NivelAcceso.objects.create(nombre='Superuser', nivel=6)
+        extra_fields.setdefault('nivel_acceso', nivel)
         if extra_fields.get('is_staff') is not True:
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:

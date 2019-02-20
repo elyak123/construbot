@@ -1,18 +1,12 @@
-from django.test import RequestFactory
+from django.test import tag
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Group, AnonymousUser
-# from test_plus.test import TestCase
 from construbot.users.models import Company
 from construbot.users.auth import AuthenticationTestMixin
-from . import factories
 from . import utils
 
 
 class AuthTest(utils.BaseTestCase):
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
 
     def test_user_no_company_raises_error(self):
         view = self.get_instance(
@@ -86,8 +80,7 @@ class AuthTest(utils.BaseTestCase):
             company_name='this company',
             customer=view.request.user.customer
         )
-        admin_group = Group.objects.create(name='Administrators')
-        view.request.user.groups.add(admin_group)
+        view.request.user.groups.add(self.admin_group)
         view.request.user.company.add(company)
         view.app_label_name = 'bla'
         with self.assertRaises(PermissionDenied):

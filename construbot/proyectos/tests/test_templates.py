@@ -2,23 +2,20 @@ from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import tag
+from test_plus.test import TestCase
+from construbot.users.tests import utils
 from construbot.proyectos.models import Estimate
 from . import factories
-from test_plus.test import TestCase
 
 
-class TestProyectsURLsCorrectTemplates(TestCase):
+class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
     """Test URL patterns for users app."""
 
     def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        company_test = user_factories.CompanyFactory(customer=self.user.customer)
-        administrador = user_factories.GroupFactory(name="Administrators")
-        proyectos = user_factories.GroupFactory(name="Proyectos")
-        users = user_factories.GroupFactory(name="Users")
-        for group in administrador, proyectos, users:
+        super(TestProyectsURLsCorrectTemplates, self).setUp()
+        for group in self.admin_group, self.proyectos_group, self.user_group:
             self.user.groups.add(group)
+        company_test = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
 
@@ -40,60 +37,33 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
     def test_contrato_list_uses_correct_template(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.save()
-        contrato_cliente = factories.ClienteFactory(company=company_test)
-        contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
-        for i in range(0, 15):
-            factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_contratos'))
         self.assertTemplateUsed(response, 'proyectos/contrato_list.html')
 
     def test_clientes_list_uses_correct_template(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 50):
-            factories.ClienteFactory(company=company_test)
+        for i in range(0, 11):
+            factories.ClienteFactory(company=self.user.currently_at)
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_clientes_list_uses_correct_template_and_no_next_page(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.save()
         self.client.login(username=self.user.username, password='password')
-        for i in range(0, 20):
-            factories.ClienteFactory(company=company_test)
+        for i in range(0, 11):
+            factories.ClienteFactory(company=self.user.currently_at)
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.save()
-        sitio_cliente = factories.ClienteFactory(company=company_test)
-        for i in range(0, 15):
+        sitio_cliente = factories.ClienteFactory(company=self.user.currently_at)
+        for i in range(0, 11):
             factories.SitioFactory(cliente=sitio_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_sitios'))
         self.assertTemplateUsed(response, 'proyectos/sitio_list.html')
 
     def test_destinatarios_list_uses_correct_template(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.save()
-        destinatario_cliente = factories.ClienteFactory(company=company_test)
-        for i in range(0, 15):
-            factories.DestinatarioFactory(cliente=destinatario_cliente)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_destinatarios'))
         self.assertTemplateUsed(response, 'proyectos/destinatario_list.html')
@@ -117,9 +87,6 @@ class TestProyectsURLsCorrectTemplates(TestCase):
 
     def test_cliente_detail_uses_correct_template(self):
         cliente = factories.ClienteFactory(company=self.user.company.first())
-        contrato_sitio = factories.SitioFactory(cliente=cliente)
-        for i in range(0, 15):
-            factories.ContratoFactory(cliente=cliente, sitio=contrato_sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:cliente_detail', kwargs={'pk': cliente.pk}))
         self.assertTemplateUsed(response, 'proyectos/cliente_detail.html')
@@ -127,15 +94,12 @@ class TestProyectsURLsCorrectTemplates(TestCase):
     def test_sitio_detail_uses_correct_template(self):
         sitio_cliente = factories.ClienteFactory(company=self.user.company.first())
         sitio = factories.SitioFactory(cliente=sitio_cliente)
-        for i in range(0, 15):
-            factories.ContratoFactory(cliente=sitio_cliente, sitio=sitio, monto=90.00)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:sitio_detail', kwargs={'pk': sitio.pk}))
         self.assertTemplateUsed(response, 'proyectos/sitio_detail.html')
 
     def test_destinatario_detail_uses_correct_template(self):
-        destinatario_cliente = factories.ClienteFactory(company=self.user.company.first())
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario = factories.DestinatarioFactory(cliente__company=self.user.company.first())
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:destinatario_detail', kwargs={'pk': destinatario.pk}))
         self.assertTemplateUsed(response, 'proyectos/destinatario_detail.html')
@@ -325,19 +289,7 @@ class TestProyectsURLsCorrectTemplates(TestCase):
         self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
 
 
-class TestProyectsURLsCorrectStatusCode(TestCase):
-
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        company_test = user_factories.CompanyFactory(customer=self.user.customer)
-        administrador = user_factories.GroupFactory(name="Administrators")
-        proyectos = user_factories.GroupFactory(name="Proyectos")
-        users = user_factories.GroupFactory(name="Users")
-        for group in administrador, proyectos, users:
-            self.user.groups.add(group)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
+class TestProyectsURLsCorrectStatusCode(TestProyectsURLsCorrectTemplates):
 
     def test_proyects_dashboard_has_correct_status_code(self):
         self.client.login(username=self.user.username, password='password')
