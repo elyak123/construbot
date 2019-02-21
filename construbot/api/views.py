@@ -8,9 +8,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from construbot.users.models import Company, Customer
+from construbot.users.models import Company, Customer, NivelAcceso
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units, EstimateConcept
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, \
+    Contrato, Estimate, Concept, Units, EstimateConcept
 
 User = get_user_model()
 
@@ -48,10 +49,12 @@ def create_customer_user_and_company(request):
         group_u, c_created = Group.objects.get_or_create(name='Users')
         customer = Customer.objects.create(customer_name=request.data.get('customer'))
         company = Company.objects.create(customer=customer, company_name=name)
+        nivel, nivel_created = NivelAcceso.objects.get_or_create(nivel=request.data.get('permission_level', 1))
         user = User(
             customer=customer,
             username=name,
             email=request.data.get('email'),
+            nivel_acceso=nivel
         )
         user.set_unusable_password()
         try:

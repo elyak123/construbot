@@ -20,12 +20,16 @@ class TestApiViews(utils.BaseTestCase):
             reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
         )
         self.assertFalse(response.json()['success'])
-    @tag('current')
+
     def test_create_customer_user_and_company(self):
         self.client.login(username=self.user.username, password='password')
         email_test = 'me@gmail.com'
         response = self.client.post(
-            reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
+            reverse('api:creation'), data={
+                'customer': 'nuevo_customer',
+                'email': email_test,
+                'permission_level': 3
+            }
         )
         json_response = response.json()
         self.assertTrue(json_response['success'], json_response)
