@@ -112,13 +112,6 @@ class AbstractConstrubotUser(AbstractUser):
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
 
-    def is_administrator(self):
-        try:
-            self.groups.get(name='Administrators')
-            return True
-        except ObjectDoesNotExist:
-            return False
-
 
 class User(AbstractConstrubotUser):
 

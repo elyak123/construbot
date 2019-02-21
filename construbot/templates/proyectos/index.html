@@ -10,7 +10,7 @@
 		let fuera = false;
 		document.getElementById('startButton').onclick = function() {
 			fuera = true;
-			{% if is_administrador %}
+			{% if almenos_coordinador %}
 			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
 				window.location.href = "{% url 'proyectos:nuevo_contrato' %}";
 			});
@@ -46,7 +46,7 @@
 {% block content %}
 {% if not is_new_user %}
 <div class="row" style="text-align:center;">
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 	{% else %}
 		<div class="col-2"></div>
@@ -56,7 +56,7 @@
 		<table class="table_sample table_left">
 			<tr>
 				<th>Nombre</th>
-				{% if is_administrador %}
+				{% if almenos_coordinador %}
 					<th>Avance General</th>
 				{% endif %}
 			</tr>
@@ -66,7 +66,7 @@
 						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</a><br>
 						Cliente: {{ contrato.cliente.cliente_name }}
 					</td>
-					{% if is_administrador %}
+					{% if almenos_coordinador %}
 						<td style="text-align:center;">
 						{% if contrato.total_estimado %}
 							{{ contrato.total_estimado }} %
@@ -76,7 +76,7 @@
 					</td>
 					{% endif %}
 				</tr>
-				{% if forloop.last and is_administrador%}
+				{% if forloop.last and almenos_coordinador%}
 				<tr><td>Total Contratos Vigentes</td><td>{{ c_object|totalvigentes|intcomma }}</td></tr>
 				{% endif %}
 			{% empty%}
@@ -86,7 +86,7 @@
 			{% endfor %}
 		</table>
 	</div>
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
 			<table class="table_sample table_left">
@@ -105,7 +105,7 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
-					{% if forloop.last and is_administrador%}
+					{% if forloop.last and almenos_coordinador%}
 					<tr><td colspan="3">Total</td><td>{{ total_sin_facturar|intcomma }}</td></tr>
 					{% endif %}
 				{% empty %}
@@ -131,7 +131,7 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
-					{% if forloop.last and is_administrador%}
+					{% if forloop.last and almenos_coordinador%}
 					<tr><td colspan="3">Total</td><td>{{ total_sinpago|intcomma }}</td></tr>
 					{% endif %}
 				{% empty %}
@@ -165,7 +165,7 @@
 	</div>
 </div>
 <div class="row" style="text-align:center;">
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 	<div class="col-md-6">
 	{% else %}
 	<div class="col-2"></div>
@@ -189,7 +189,7 @@
 			</table>
 		</div>
 	</div>
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 	<div class="col-xl-6">
 		<div data-step="3" data-intro="Aquí se muestran las estimaciones que aún no han sido marcadas como facturadas. Útil para dar seguimiento.">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>

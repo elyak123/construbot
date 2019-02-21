@@ -98,7 +98,7 @@
 			<td>Sitio</td>
 			<td><a href="{% url 'construbot.proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
 		</tr>
-		{% if is_administrador %}
+		{% if almenos_coordinador %}
 		<tr>
 			<td>Monto sin IVA</td>
 			<td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
@@ -118,7 +118,7 @@
 	</table>
 </div>
 <br>
-{% if is_administrador %}
+{% if almenos_coordinador %}
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-plus icon_right"></span><span class="oi oi-minus icon_right-up"></span>
@@ -152,7 +152,7 @@
 			<tr>
 				<th> No. </th>
 				<th> Nombre </th>
-				{% if is_administrador %} <th> Monto </th>{% endif %}
+				{% if almenos_coordinador %} <th> Monto </th>{% endif %}
 				<th> F. de Pago </th>
 				<th> Editar </th>
 			</tr>
@@ -160,7 +160,7 @@
 			<tr>
 				<td>{{ estimacion.consecutive }}</td>
 				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-				{% if is_administrador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>{% endif %}
+				{% if almenos_coordinador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>{% endif %}
 				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
 				<td>
 					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
