@@ -152,7 +152,7 @@ class ContratoListView(DynamicList):
     ordering = '-fecha'
 
     def get_queryset(self):
-        if self.request.user.is_administrator():
+        if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
                 cliente__company=self.request.user.currently_at)
         else:
