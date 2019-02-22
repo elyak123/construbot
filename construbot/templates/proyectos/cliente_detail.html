@@ -32,11 +32,11 @@
 			<th class="th_table_sample"> Monto </th>
 			<th class="th_table_sample"> Sitio </th>
 		</tr>
-	{% for contrato in cliente.get_contratos_ordenados %}
+	{% for contrato in contratos_ordenados %}
 		<tr>
 			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
 			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>
-			<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
+			{% if almenos_coordinador %}<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>{% endif %}
 			<td class="td_table_sample"><a href="{% url 'proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
 		</tr>
 	{% endfor %}

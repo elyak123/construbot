@@ -239,7 +239,19 @@ class ContratoDetailView(DynamicDetail):
 
 
 class ClienteDetailView(DynamicDetail):
+    permiso_requerido = 1
     model = Cliente
+
+    def contratos_ordenados(self):
+        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
+            return self.object.get_contratos_ordenados()
+        else:
+            return self.object.contrato_set.filter(users=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super(ClienteDetailView, self).get_context_data(**kwargs)
+        context['contratos_ordenados'] = self.contratos_ordenados()
+        return context
 
 
 class SitioDetailView(DynamicDetail):
