@@ -183,7 +183,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
     def get_assignment_args(self):
         self.contrato = self.get_contrato()
-        return self.contrato, self.request.user.contrato.all()
+        return self.contrato, self.request.user.contrato_set.all()
 
     def get_contrato(self):
         if not hasattr(self, 'contrato'):
@@ -228,12 +228,12 @@ class ContratoDetailView(DynamicDetail):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        return self.object, self.request.user.contrato.all()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-        if self.request.user.is_administrator():
+        if self.request.user.nivel_acceso.nivel >= 3:
             del query_kw['users']
         return shortcuts.get_object_or_404(self.model, **query_kw)
 
@@ -269,7 +269,7 @@ class EstimateDetailView(DynamicDetail):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        return self.object.project, self.request.user.contrato.all()
+        return self.object.project, self.request.user.contrato_set.all()
 
     def get_context_data(self, **kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
@@ -374,16 +374,16 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
 
     def get_assignment_args(self):
         self.project_instance = self.get_project_instance()
-        return self.project_instance, self.request.user.contrato.all()
+        return self.project_instance, self.request.user.contrato_set.all()
 
     def get_project_instance(self):
         if not hasattr(self, 'project_instance'):
-            project_instance = shortcuts.get_object_or_404(
+            self.project_instance = shortcuts.get_object_or_404(
                 Contrato,
                 pk=self.kwargs.get('pk'),
                 cliente__company=self.request.user.currently_at
             )
-        return project_instance
+        return self.project_instance
 
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -511,7 +511,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        return self.object, self.request.user.contrato.all()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_form(self, *args, **kwargs):
         form = super(ContratoEditView, self).get_form(form_class=None)
@@ -556,7 +556,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        return self.object.project, self.request.user.contrato.all()
+        return self.object.project, self.request.user.contrato_set.all()
 
     def get_object(self, queryset=None):
         if not hasattr(self, 'object'):
@@ -617,7 +617,9 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        return self.object.project, self.request.user.contrato.all()
+        if hasattr(self.object, 'project'):
+            return self.object.project, self.request.user.contrato_set.all()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_object(self):
         if not hasattr(self, 'object'):
@@ -689,8 +691,8 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
 
     def get_assignment_args(self):
         if isinstance(self.object, Contrato):
-            return self.object, self.request.user.contrato.all()
-        return self.object.project, self.request.user.contrato.all()
+            return self.object, self.request.user.contrato_set.all()
+        return self.object.project, self.request.user.contrato_set.all()
 
     def get_object(self):
         if not hasattr(self, 'object'):
