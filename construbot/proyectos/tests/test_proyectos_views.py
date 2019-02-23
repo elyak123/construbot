@@ -2,12 +2,13 @@ import json
 import decimal
 from unittest import mock
 from django.shortcuts import reverse
+from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory, tag
-from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
+from construbot.users.tests import factories as user_factories
 from . import factories
 
 
@@ -1106,6 +1107,15 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         )
         test_url = '/proyectos/contrato/detalle/%i/' % contrato_inline.pk
         self.assertEqual(view.get_success_url(), test_url)
+
+    def test_catalogo_edit_raises_permission_denied(self):
+        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        contrato_factory = factories.ContratoFactory(cliente__company=self.user.company.first())
+        self.client.login(username=self.user.username, password='password')
+        request = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
+        self.assertEqual(request.status_code, 403)
 
 
 class CatalogoConceptosTest(BaseViewTest):

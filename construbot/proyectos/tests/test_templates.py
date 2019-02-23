@@ -1,9 +1,7 @@
-from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import tag
-from test_plus.test import TestCase
-from construbot.users.tests import utils
+from construbot.users.tests import utils, factories as user_factories
 from construbot.proyectos.models import Estimate
 from . import factories
 
@@ -56,9 +54,8 @@ class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
     def test_sitios_list_uses_correct_template(self):
-        sitio_cliente = factories.ClienteFactory(company=self.user.currently_at)
-        for i in range(0, 11):
-            factories.SitioFactory(cliente=sitio_cliente)
+        self.user.nivel_acceso = self.coordinador_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:listado_de_sitios'))
         self.assertTemplateUsed(response, 'proyectos/sitio_list.html')
@@ -69,6 +66,8 @@ class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
         self.assertTemplateUsed(response, 'proyectos/destinatario_list.html')
 
     def test_catalogo_edit_uses_correct_template(self):
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)

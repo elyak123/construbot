@@ -28,7 +28,9 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
         if self.app_label_name.lower() in self.user_groups and self.nivel_permiso_usuario >= self.nivel_permiso_vista:
             return True
         else:
-            raise PermissionDenied
+            raise PermissionDenied(
+                'El usuario {} no tiene permiso para ver esta página.'.format(self.request.user.username)
+            )
 
     def auth_access(self):
         return self.request.user.nivel_acceso.nivel
