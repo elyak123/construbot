@@ -187,9 +187,10 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato = factories.ContratoFactory(cliente__company=contrato_company)
         self.user.groups.add(self.proyectos_group)
-        self.user.groups.add(self.admin_group)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         unit = factories.UnitFactory(company=contrato_company)
         formset_data = {
@@ -219,9 +220,10 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         self.user.groups.add(self.proyectos_group)
-        self.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         unit = factories.UnitFactory()
         unit_2 = factories.UnitFactory(company=contrato_company)

@@ -120,9 +120,7 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         self.object_list = self.get_queryset()
         context = super(ProyectDashboardView, self).get_context_data(**kwargs)
         context['object'] = self.request.user.currently_at
-        context['c_object'] = contratosvigentes(
-            self.request.user, self.permiso_administracion
-        )
+        context['c_object'] = contratosvigentes(self.request.user)
         context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
         context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
         context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
@@ -233,8 +231,7 @@ class ContratoDetailView(DynamicDetail):
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-        if self.request.user.nivel_acceso.nivel >= 3:
-            del query_kw['users']
+        del query_kw['users']
         return shortcuts.get_object_or_404(self.model, **query_kw)
 
 

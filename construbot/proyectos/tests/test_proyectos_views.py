@@ -51,7 +51,7 @@ class PDFViewTest(BaseViewTest):
         )
         vw.object = estimacion
         vw.user_groups = ''
-        vw.permiso_administracion = None
+        vw.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         result = vw.get_context_data()
         self.assertTrue(result['pdf'])
 
@@ -59,15 +59,14 @@ class PDFViewTest(BaseViewTest):
 class ProyectDashboardViewTest(BaseViewTest):
 
     def test_view_gets_correct_object(self):
-        pdv = views.ProyectDashboardView
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
-        pdv.user_groups = [self.proyectos_group]
-        pdv.permiso_administracion = True
         view = self.get_instance(
             views.ProyectDashboardView,
             request=self.request
         )
+        view.user_groups = [self.proyectos_group]
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         obj = view.get_context_data()
         self.assertEqual(obj['object'], company_test)
 
@@ -85,7 +84,7 @@ class DynamicListTest(BaseViewTest):
         view.model.__name__ = 'Foo'
         view.get_menu = lambda: {}
         view.app_label_name = 'proyectos'
-        view.permiso_administracion = True
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         view.object_list = []
         context = view.get_context_data()
         self.assertIn('model', context)
@@ -139,10 +138,11 @@ class ContratoListTest(BaseViewTest):
         qs_test = [repr(y) for y in sorted([contrato, contrato_3], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(qs, qs_test)
 
-    def test_contrato_same_customer_same_company_not_assigned_to_admi_user_does_appear(self):
+    def test_contrato_same_customer_same_company_not_assigned_to_direccion_user_does_appear(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
-        self.request.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         contrato = factories.ContratoFactory(cliente__company=company_test)
         contrato_2 = factories.ContratoFactory(cliente__company=company_test)  # Contrato # 2
         contrato_3 = factories.ContratoFactory(cliente__company=company_test)
@@ -390,7 +390,7 @@ class ContratoCreationTest(BaseViewTest):
             request=self.request
         )
         view.get_menu = lambda: []
-        view.permiso_administracion = True
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         view.object = None
         dicc_test = view.get_context_data()
         self.assertEqual(dicc_test['company'], contrato_company)
@@ -422,26 +422,24 @@ class ContratoCreationTest(BaseViewTest):
                                  'es necesario recargar y repetir el proceso.'
                                  )
 
-    def test_contrato_creation_denied_user_not_admin(self):
+    def test_contrato_creation_denied_user_auxiliar(self):
         company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company
         self.user.save()
         self.user.company.add(company)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nuevo_contrato'))
-        self.assertFalse(self.user.is_administrator())
         self.assertEqual(response.status_code, 403)
 
-    def test_contrato_creation_granted_user_admin(self):
+    def test_contrato_creation_granted_user_coordinador(self):
         company = factories.CompanyFactory(customer=self.user.customer)
-        self.user.groups.add(self.admin_group)
         self.user.groups.add(self.proyectos_group)
         self.user.currently_at = company
+        self.user.nivel_acceso = self.coordinador_permission
         self.user.save()
         self.user.company.add(company)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nuevo_contrato'))
-        self.assertTrue(self.user.is_administrator())
         self.assertEqual(response.status_code, 200)
 
 
@@ -630,7 +628,8 @@ class EstimateCreationTest(BaseViewTest):
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
         self.user.groups.add(self.proyectos_group)
-        self.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',

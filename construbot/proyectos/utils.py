@@ -3,8 +3,8 @@ from construbot.core.utils import Round
 from .models import Contrato, Estimate
 
 
-def contratosvigentes(user, permiso):
-    if permiso:
+def contratosvigentes(user):
+    if user.nivel_acceso.nivel >= 3:
         contratos = Contrato.objects.select_related('cliente').filter(
             status=True, cliente__company=user.currently_at).annotate(total_estimado=Round(Sum(
                 F('estimate__estimateconcept__cuantity_estimated') *
