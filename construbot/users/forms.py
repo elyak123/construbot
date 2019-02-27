@@ -21,11 +21,9 @@ class UserForm(UserCreationForm):
         empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
         user_group, created = Group.objects.get_or_create(name='Users')
         proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
-        admin_group, admin_created = Group.objects.get_or_create(name='Administrators')
         user.company.add(empresa)
         user.groups.add(user_group)
         user.groups.add(proyectos_groups)
-        user.groups.add(admin_group)
 
     class Meta:
         model = User
@@ -88,7 +86,6 @@ class UsuarioInterno(UserCreationForm):
             'password2': 'Confirme Contraseña'
         }
 
-
         widgets = {
             'customer': forms.HiddenInput(),
             'company': autocomplete.ModelSelect2Multiple(
@@ -143,13 +140,12 @@ class UsuarioEdit(UserChangeForm):
         }
 
     def clean_groups(self):
-        l_groups = self.data.getlist('groups')
+        n_acceso = self.data['nivel_acceso']
         customer = self.user.customer
-        numero_admins = User.objects.filter(customer=customer, groups__name='Administrators').count()
-        group = Group.objects.get(name='Administrators').id
-        if numero_admins == 1 and (str(group) not in l_groups and self.user.is_administrator()):
+        numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
+        if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
             raise ValidationError('¡No puedes quedarte sin administradores!')
-        return l_groups
+        return n_acceso
 
 
 class UsuarioEditNoAdmin(UserChangeForm):

@@ -46,17 +46,20 @@ class TestUserUpdateView(utils.BaseTestCase):
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
+        self.view.nivel_permiso_usuario = 3
+        self.view.nivel_permiso_vista = self.view.permiso_requerido
 
-    def test_get_tengo_que_ser_admin(self):
-        self.view.kwargs = {'username': self.user.username}
-        self.assertFalse(self.view.get_tengo_que_ser_admin())
+    def test_get_nivel_permiso(self):
+        self.view.nivel_permiso_usuario = 1
+        self.view.permiso_requerido = 3
+        self.view.kwargs = {'username': None}
+        self.assertEqual(self.view.get_nivel_permiso(), self.view.nivel_permiso_usuario)
         self.view.kwargs = {'username': 'otro_que_no_conozco'}
-        self.assertTrue(self.view.get_tengo_que_ser_admin())
+        self.assertEqual(self.view.get_nivel_permiso(), self.view.permiso_requerido)
 
-    def test_get_success_url_on_user_not_new(self):
+    def test_get_success_url(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
-        self.user.is_new = False
         self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
         self.view.object = self.user
@@ -113,7 +116,6 @@ class TestUserUpdateView(utils.BaseTestCase):
         )
 
     def test_get_form_kwargs_no_username(self):
-        self.user.groups.add(self.admin_group)
         test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
         self.view.kwargs = {}
         self.assertEqual(
@@ -122,18 +124,14 @@ class TestUserUpdateView(utils.BaseTestCase):
         )
 
     def test_returns_admin_form(self):
-        self.view.permiso_administracion = True
         self.assertEqual(
             self.view.get_form_class(),
             UsuarioEdit
         )
 
-    def test_returns_no_admin_form(self):
-        self.view.permiso_administracion = False
-        self.assertEqual(
-            self.view.get_form_class(),
-            UsuarioEditNoAdmin
-        )
+    def test_get_form_class(self):
+        self.view.nivel_permiso_usuario = 1
+        self.assertEqual(self.view.get_form_class(), UsuarioEditNoAdmin)
 
 
 class TestListUserView(utils.BaseTestCase):
@@ -154,7 +152,8 @@ class TestListUserView(utils.BaseTestCase):
 
     def test_list_users_renders_correctly(self):
         self.client.login(username=self.user.username, password='password')
-        self.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 200)
 
@@ -165,14 +164,16 @@ class TestListUserView(utils.BaseTestCase):
 
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()
-        self.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertNotContains(response, 'foreign_user')
 
 
 class TestDetailUserView(utils.BaseTestCase):
-    def test_detail_view_another_user_requires_admin_perms(self):
+
+    def test_detail_view_another_user_requires_director_perms(self):
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
@@ -222,7 +223,6 @@ class TestUserCreateView(utils.BaseTestCase):
             UserCreateView,
             request=self.get_request(self.user)
         )
-        view.permiso_administracion = True
         other_user = self.user_factory(username='bla', nivel_acceso=self.auxiliar_permission)
         other_user_company = Company.objects.create(
             company_name='other_user_company',
@@ -250,8 +250,9 @@ class TestUserCreateView(utils.BaseTestCase):
             customer=self.user.customer
         )
         self.user.groups.add(self.user_group)
-        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         with self.login(username=self.user.username, password='password'):
             response = self.get_check_200('users:new')
             self.assertEqual(response.status_code, 200)
@@ -263,8 +264,9 @@ class TestUserCreateView(utils.BaseTestCase):
             customer=self.user.customer
         )
         self.user.groups.add(self.user_group)
-        self.user.groups.add(self.admin_group)
+        self.user.nivel_acceso = self.director_permission
         self.user.company.add(company)
+        self.user.save()
         with self.login(username=self.user.username, password='password'):
             data = {
                 'customer': str(self.user.customer.id),
@@ -273,7 +275,7 @@ class TestUserCreateView(utils.BaseTestCase):
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
                 'nivel_acceso': self.auxiliar_permission.id,
-                'groups': [str(self.user_group.id)],
+                'groups': [str(self.proyectos_group.id)],
                 'company': [str(company.id)],
                 'password1': 'esteesunpsslargo',
                 'password2': 'esteesunpsslargo'
@@ -289,6 +291,40 @@ class TestUserCreateView(utils.BaseTestCase):
         with self.login(username='test_user_tres', password='esteesunpsslargo'):
             response = self.client.get(reverse('users:detail', kwargs={'username': 'test_user_tres'}))
             self.assertEqual(response.status_code, 200)
+
+    @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_user_created_can_login_different_company(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        company_1 = Company.objects.create(
+            company_name='some_company',
+            customer=self.user.customer
+        )
+        self.user.groups.add(self.user_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.company.add(company_1, company)
+        self.user.currently_at = company
+        self.user.save()
+        with self.login(username=self.user.username, password='password'):
+            data = {
+                'customer': str(self.user.customer.id),
+                'username': 'test_user_tres',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'email': 'lkjas@hola.com',
+                'nivel_acceso': self.auxiliar_permission.id,
+                'groups': [str(self.proyectos_group.id)],
+                'company': [str(company_1.id)],
+                'password1': 'esteesunpsslargo',
+                'password2': 'esteesunpsslargo'
+            }
+            response = self.client.post(reverse('users:new'), data)
+            self.assertRedirects(
+                response,
+                reverse('users:detail', kwargs={'username': 'test_user_tres'}),
+                msg_prefix='\n{}\n'.format(
+                    str(response.context_data['form'].errors) if hasattr(response, 'context_data') else ''
+                )
+            )
 
 
 class TestCompanyCreateView(utils.BaseTestCase):
@@ -420,6 +456,7 @@ class TestCompanyChangeView(utils.BaseTestCase):
             test_company
         )
 
+
 class TestCompanyListView(utils.BaseTestCase):
 
     def setUp(self):
@@ -443,9 +480,10 @@ class TestCompanyListView(utils.BaseTestCase):
 
     def test_get_context_data_has_model_name_attr(self):
         self.view.object_list = [repr(a) for a in self.user.company.order_by('-company_name')]
-        self.view.kwargs={}
+        self.view.kwargs = {}
         self.view.user_groups = self.user.groups.all()
-        self.view.permiso_administracion = True
+        self.view.nivel_permiso_usuario = self.view.request.user.nivel_acceso.nivel
+        self.view.nivel_permiso_vista = self.view.permiso_requerido
         self.assertEqual(
             self.view.get_context_data()['model'],
             'Company'

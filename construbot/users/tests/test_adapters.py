@@ -53,7 +53,7 @@ class LoginAccountTest(utils.BaseTestCase):
         super(LoginAccountTest, self).setUp()
         company = Company.objects.create(company_name='my_company', customer=self.user.customer)
         self.user.company.add(company)
-        self.user.groups.add(self.user_group, self.admin_group, self.proyectos_group)
+        self.user.groups.add(self.user_group, self.proyectos_group)
 
     def test_login_successful(self):
         with self.settings(ACCOUNT_EMAIL_VERIFICATION='none'):

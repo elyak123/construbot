@@ -42,36 +42,34 @@ def email_uniqueness(request):
 
 @api_view(['POST'])
 def create_customer_user_and_company(request):
-    name = settings.UUID+'+'+str(time.time())
-    if request.method == 'POST':
-        group_a, a_created = Group.objects.get_or_create(name='Administrators')
-        group_p, b_created = Group.objects.get_or_create(name='Proyectos')
-        group_u, c_created = Group.objects.get_or_create(name='Users')
-        customer = Customer.objects.create(customer_name=request.data.get('customer'))
-        company = Company.objects.create(customer=customer, company_name=name)
-        nivel, nivel_created = NivelAcceso.objects.get_or_create(nivel=request.data.get('permission_level', 1))
-        user = User(
-            customer=customer,
-            username=name,
-            email=request.data.get('email'),
-            nivel_acceso=nivel
-        )
-        user.set_unusable_password()
-        try:
-            user.full_clean()
-        except ValidationError as e:
-            return Response({'success': False, 'errors': e})
-        user.save()
-        user.company = [company.id]
-        user.groups.add(*[group_a, group_p, group_u])
-        return Response(
-            {
-                'success': True,
-                'id': user.id,
-                'email': user.email,
-                'usable': user.has_usable_password()
-            }
-        )
+    group_a, a_created = Group.objects.get_or_create(name='Administrators')
+    group_p, b_created = Group.objects.get_or_create(name='Proyectos')
+    group_u, c_created = Group.objects.get_or_create(name='Users')
+    customer = Customer.objects.create(customer_name=request.data.get('customer'))
+    company = Company.objects.create(customer=customer, company_name=request.data.get('company'))
+    nivel, nivel_created = NivelAcceso.objects.get_or_create(nivel=request.data.get('permission_level', 1))
+    user = User(
+        customer=customer,
+        username=request.data.get('name'),
+        email=request.data.get('email'),
+        nivel_acceso=nivel
+    )
+    user.set_unusable_password()
+    try:
+        user.full_clean()
+    except ValidationError as e:
+        return Response({'success': False, 'errors': e})
+    user.save()
+    user.company = [company.id]
+    user.groups.add(*[group_a, group_p, group_u])
+    return Response(
+        {
+            'success': True,
+            'id': user.id,
+            'email': user.email,
+            'usable': user.has_usable_password()
+        }
+    )
 
 
 @api_view(['POST'])

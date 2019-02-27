@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
 from construbot.users.tests import factories as user_factories
+from construbot.users.utils import establish_access_levels
+from construbot.users.models import NivelAcceso
 from construbot.proyectos.tests import factories
 from construbot.proyectos.models import Contrato
 
@@ -17,6 +19,7 @@ class Command(BaseCommand):
             self.user_factory = user_factories.UserFactory
             self.create_customer(5)
             self.create_core_groups()
+            establish_access_levels()
             self.create_user(20)
             self.create_companies(30)
             self.create_clientes(100)
@@ -25,14 +28,14 @@ class Command(BaseCommand):
             self.create_contratos(1500)
             self.create_concepts(5000)
             self.stdout.write(self.style.SUCCESS(
-            "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
-            "- {0} Customer\n- {1} Usuarios\n- {2} Compañías\n- {3}".format(
-                len(self.customer),
-                len(self.users),
-                len(self.company),
-                len(self.clientes)) +
-            " Clientes\n- {0} Sitios\n- {1} Contratos\n".format(len(self.sitios), len(self.contratos)) +
-            "- {0} Conceptos.".format(len(self.concepts))
+                "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
+                "- {0} Customer\n- {1} Usuarios\n- {2} Compañías\n- {3}".format(
+                    len(self.customer),
+                    len(self.users),
+                    len(self.company),
+                    len(self.clientes)) +
+                " Clientes\n- {0} Sitios\n- {1} Contratos\n".format(len(self.sitios), len(self.contratos)) +
+                "- {0} Conceptos.".format(len(self.concepts))
             ))
         else:
             raise ImproperlyConfigured('No tienes settings.DEBUG activado, la operación no se puede completar.')
@@ -45,7 +48,6 @@ class Command(BaseCommand):
     def create_core_groups(self):
         self.groups = [
             user_factories.GroupFactory(name="Proyectos"),
-            user_factories.GroupFactory(name="Administrators"),
             user_factories.GroupFactory(name="Users"),
         ]
 
@@ -57,7 +59,8 @@ class Command(BaseCommand):
                     username="user_{0}".format(i),
                     password="password",
                     customer=self.customer[round(random()*len(self.customer)-1)],
-                    groups=self.groups
+                    groups=self.groups,
+                    nivel_acceso=NivelAcceso.objects.get(nivel=4)
                 ))
         else:
             raise ImproperlyConfigured('¡No hay customer para asignar a usuario!')

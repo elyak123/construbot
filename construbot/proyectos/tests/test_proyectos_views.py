@@ -2,7 +2,6 @@ import json
 import decimal
 from unittest import mock
 from django.shortcuts import reverse
-from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory, tag
 from django.http import Http404
 from construbot.users.tests import utils
