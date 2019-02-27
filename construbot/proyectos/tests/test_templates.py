@@ -1,4 +1,5 @@
-from unittest import mock, skip
+import os
+from unittest import skipIf
 from django.core.urlresolvers import reverse
 from django.test import tag
 from construbot.users.tests import utils, factories as user_factories
@@ -304,6 +305,7 @@ class TestProyectDashboardContains(TestProyectsURLsCorrectTemplates):
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
+    @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
     def test_proyects_dashboard_correct_html_if_is_new_and_coordinador(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.is_new = True
@@ -327,37 +329,52 @@ class TestProyectDashboardContains(TestProyectsURLsCorrectTemplates):
                 $('#tutorialModal').on('hidden.bs.modal', function (e) {{
                     if(!fuera){{document.getElementById('startButton').click();}}
                 }});
-          </script>
+            </script>
         """
-        self.assertContains(response, text, html=True)
-    @skip
-    @mock.patch('construbot.proyectos.views.ProyectDashboardView.get_context_data')
-    def test_proyects_dashboard_correct_html_if_not_new_and_coordinador(self, mock_context):
+        self.assertContains(response, text, html=True, msg_prefix=response.content.decode().strip('\n'))
+
+    def test_proyects_dashboard_correct_html_if_not_new_and_director(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
-        contrato = factories.ContratoFactory(cliente__company=company_test)
-        contrato.total_estimado = 500
-        self.user.is_new = False
+        contrato = factories.ContratoFactory(cliente__company=company_test, monto=150000)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
-        self.user.nivel_acceso = self.coordinador_permission
+        self.user.nivel_acceso = self.director_permission
+        self.user.is_new = False
         self.user.save()
         contrato_url = reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
-        mock_context.return_value = {
-            'is_new_user': True,
-            'almenos_coordinador': True,
-            'c_object': [contrato]
-        }
         text = f"""
         <div class="col-md-6"><p><strong>Contratos Vigentes</strong></p>
         <table class="table_sample table_left"><tr><th>Nombre</th><th>Avance General</th></tr><tr><td>
         <a href="{contrato_url}">{contrato.folio}. {contrato.contrato_shortName}</a><br>
-        Cliente: {contrato.cliente.cliente_name}</td><td style="text-align:center;">{contrato.total_estimado} %</td></tr>
-        <tr><td>Total Contratos Vigentes</td><td>{{ c_object|totalvigentes|intcomma }}</td></tr></table></div>
+        Cliente: {contrato.cliente.cliente_name}</td><td style="text-align:center;">0.00 %</td></tr>
+        <tr><td>Total Contratos Vigentes</td><td>150,000.00</td></tr></table></div>
         """
-        with mock.path('construbot.users.templatetags.usertags.totalvigentes') as mock_tag:
-            mock_tag.return_value = 50000
         self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:proyect_dashboard'))
+        error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
+        self.assertContains(response, text, html=True, msg_prefix=error_message)
 
+    def test_proyects_dashboard_correct_html_if_not_new_and_auxiliar(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        contrato = factories.ContratoFactory(cliente__company=company_test, monto=150000)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        self.user.is_new = False
+        self.user.save()
+        contrato_url = reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
+        text = f"""
+        <div class="col-md-6"><p><strong>Contratos Vigentes</strong></p>
+        <table class="table_sample table_left"><tr><th>Nombre</th><th>Avance General</th></tr><tr><td>
+        <a href="{contrato_url}">{contrato.folio}. {contrato.contrato_shortName}</a><br>
+        Cliente: {contrato.cliente.cliente_name}</td><td style="text-align:center;">0.00 %</td></tr>
+        <tr><td>Total Contratos Vigentes</td><td>150,000.00</td></tr></table></div>
+        """
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('proyectos:proyect_dashboard'))
+        error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
+        self.assertNotContains(response, text, html=True, msg_prefix=error_message)
+
+    @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
     def test_proyects_dashboard_uses_correct_template_if_is_new_and_not_coordinador(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.is_new = True
@@ -387,7 +404,7 @@ class TestProyectDashboardContains(TestProyectsURLsCorrectTemplates):
                 $('#tutorialModal').on('hidden.bs.modal', function (e) {{
                     if(!fuera){{document.getElementById('startButton').click();}}
                 }});
-          </script>
+            </script>
         """
         self.assertContains(response, text, html=True)
 
