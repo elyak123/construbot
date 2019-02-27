@@ -20,4 +20,4 @@ script:
   - docker-compose -f docker-compose-dev.yml run -e TRAVIS_ENVIRON=${TRAVIS_ENVIRON} --rm django coverage run --source='.' manage.py test
 
 after_success:
-  - docker-compose -f docker-compose-dev.yml run -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} --rm django coveralls
+  - docker-compose -f docker-compose-dev.yml run -e TRAVIS_ENVIRON=True COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} --rm django coveralls
