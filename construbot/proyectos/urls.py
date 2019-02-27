@@ -170,5 +170,10 @@ urlpatterns = [
         view=views.CompanyAutocomplete.as_view(),
         name='company-autocomplete'
     ),
+    url(
+        regex=r'^nivelacceso-autocomplete/$',
+        view=views.NivelAccesoAutocomplete.as_view(),
+        name='nivelacceso-autocomplete'
+    ),
 
 ]

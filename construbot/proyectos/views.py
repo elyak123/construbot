@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.auth import AuthenticationTestMixin
-from construbot.users.models import Company
+from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete
 from .apps import ProyectosConfig
@@ -734,6 +734,7 @@ class AutocompletePoryectos(BasicAutocomplete):
     app_label_name = ProyectosConfig.verbose_name
 
     def get_key_words(self):
+        #import pdb; pdb.set_trace()
         base_string = '__unaccent__icontains'
         if self.create_field:
             search_string = self.create_field + base_string
@@ -838,3 +839,26 @@ class CompanyAutocomplete(AutocompletePoryectos):
             return qs
         elif self.request.user and self.request.POST:
             return self.model.objects
+
+
+class NivelAccesoAutocomplete(AutocompletePoryectos):
+    model = NivelAcceso
+    ordering = 'nivel'
+
+    def get_queryset(self):
+        qs = self.model.objects.filter(**self.get_key_words()).order_by(self.ordering)
+        return qs
+
+    def get_key_words(self):
+        nivel = self.request.user.nivel_acceso.nivel
+        if nivel >= 3:
+            key_words = {
+                'nivel__lte': nivel
+            }
+        else:
+            key_words = {
+                'nivel__lt': nivel
+            }
+        if self.q:
+            key_words['nombre__unaccent__icontains'] = self.q
+        return key_words
