@@ -21,16 +21,6 @@ class TestUser(utils.BaseTestCase):
             '/users/detalle/{}/'.format(self.user.username)
         )
 
-    def test_no_soy_administrador(self):
-        soy_admin = self.user.is_administrator()
-        self.assertEqual(soy_admin, False)
-
-    def test_si_soy_admin(self):
-        self.user.groups.add(self.admin_group)
-        self.user.save()
-        soy_admin = self.user.is_administrator()
-        self.assertEqual(soy_admin, True)
-
     def test_creacion_superusuario_no_es_staff(self):
         with self.assertRaises(ValueError):
             User.objects.create_superuser(

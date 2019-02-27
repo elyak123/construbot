@@ -1,11 +1,8 @@
 from django.test import TestCase, override_settings, tag
 from django.http import QueryDict
-from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate
 from construbot.users import forms
 from construbot.users.models import Company
-from . import factories
-from django.test import tag
 from . import utils
 
 
@@ -65,7 +62,6 @@ class UsuarioEditTest(utils.BaseTestCase):
             customer=self.user.customer
         )
         self.user.groups.add(self.user_group)
-        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
         qdict = QueryDict('groups={}'.format(self.user_group.id), mutable=True)
         data = {
@@ -74,14 +70,14 @@ class UsuarioEditTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'nivel_acceso': self.auxiliar_permission.id,
-            'groups': str(self.admin_group.id),
+            'nivel_acceso': str(self.auxiliar_permission.id),
+            'groups': str(self.proyectos_group.id),
             'company': str(company.id),
         }
         qdict.update(data)
         form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertTrue(form.is_valid(), form.errors)
-        user = form.save()
+        form.save()
         self.assertTrue(authenticate(username='nuevo_test', password='password'))
 
     def test_UsuarioEdit_group_error(self):
@@ -90,8 +86,8 @@ class UsuarioEditTest(utils.BaseTestCase):
             customer=self.user.customer
         )
         self.user.groups.add(self.user_group)
-        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
+        self.user.nivel_acceso = self.director_permission
         qdict = QueryDict('', mutable=True)
         data = {
             'customer': str(self.user.customer.id),

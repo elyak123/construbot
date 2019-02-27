@@ -2,8 +2,6 @@ from construbot.users.tests import factories as user_factories
 from django.core.urlresolvers import reverse
 from django.test import tag
 from . import utils
-from . import factories
-from test_plus.test import TestCase
 
 
 class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
@@ -18,21 +16,14 @@ class TestProyectsURLsCorrectTemplates(utils.BaseTestCase):
         self.user.currently_at = company_test
 
     def test_user_list(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user2 = self.user_factory(username="some", nivel_acceso=self.auxiliar_permission)
-        self.user2.company.add(company_test)
-        self.user.currently_at = company_test
+        self.user.nivel_acceso = self.director_permission
         self.user.save()
-        self.user2.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertTemplateUsed(response, 'users/user_list.html')
 
     def test_user_detail(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
+        self.user.nivel_acceso = self.director_permission
         self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:detail'))

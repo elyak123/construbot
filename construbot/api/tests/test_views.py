@@ -17,7 +17,12 @@ class TestApiViews(utils.BaseTestCase):
         self.client.login(username=self.user.username, password='password')
         email_test = 'Soy correo mal formado'
         response = self.client.post(
-            reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
+            reverse('api:creation'), data={
+                'customer': 'nuevo_customer',
+                'company': 'Company',
+                'name': 'username',
+                'email': email_test
+            }
         )
         self.assertFalse(response.json()['success'])
 
@@ -27,6 +32,8 @@ class TestApiViews(utils.BaseTestCase):
         response = self.client.post(
             reverse('api:creation'), data={
                 'customer': 'nuevo_customer',
+                'company': 'Company',
+                'name': 'username',
                 'email': email_test,
                 'permission_level': 3
             }
