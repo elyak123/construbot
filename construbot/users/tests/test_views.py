@@ -275,7 +275,6 @@ class TestUserCreateView(utils.BaseTestCase):
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
                 'nivel_acceso': self.auxiliar_permission.id,
-                'groups': [str(self.proyectos_group.id)],
                 'company': [str(company.id)],
                 'password1': 'esteesunpsslargo',
                 'password2': 'esteesunpsslargo'
@@ -312,7 +311,6 @@ class TestUserCreateView(utils.BaseTestCase):
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
                 'nivel_acceso': self.auxiliar_permission.id,
-                'groups': [str(self.proyectos_group.id)],
                 'company': [str(company_1.id)],
                 'password1': 'esteesunpsslargo',
                 'password2': 'esteesunpsslargo'

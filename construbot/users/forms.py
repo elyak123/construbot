@@ -58,6 +58,15 @@ class UsuarioInterno(UserCreationForm):
         self._save_m2m()
         return user
 
+    def clean_groups(self):
+        n_acceso = self.data['nivel_acceso']
+        user_group, created = Group.objects.get_or_create(name='Users')
+        proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
+        if int(n_acceso) >= 3:
+            return [user_group.id, proyectos_groups.id]
+        else:
+            return [proyectos_groups.id]
+
     class Meta:
         model = User
         exclude = [
@@ -87,7 +96,11 @@ class UsuarioInterno(UserCreationForm):
         }
 
         widgets = {
+            'groups': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
+            'nivel_acceso': autocomplete.ModelSelect2(
+                url='proyectos:nivelacceso-autocomplete'
+            ),
             'company': autocomplete.ModelSelect2Multiple(
                 url='proyectos:company-autocomplete',
                 attrs={
@@ -165,6 +178,7 @@ class UsuarioEditNoAdmin(UserChangeForm):
             'last_supervised',
             'currently_at',
             'name',
+            'nivel_acceso',
         ]
 
         widgets = {
