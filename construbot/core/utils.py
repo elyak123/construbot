@@ -41,8 +41,7 @@ def get_object_403_or_404(model, user, **kwargs):
             kwargs = get_rid_of_company_kw(kwargs)
             try:
                 obj = model.objects.filter(**kwargs)
-                raise PermissionDenied
-                # return object_or_403(user, obj)
+                return object_or_403(user, obj)
             except model.DoesNotExist as e:
                 raise e
         raise e
