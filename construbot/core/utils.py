@@ -44,9 +44,15 @@ def get_object_403_or_404(model, user, **kwargs):
         if any([n[-7:] == 'company' for n in kwargs.keys()]):
             kwargs = get_rid_of_company_kw(kwargs)
             try:
+<<<<<<< HEAD
                 obj = shortcuts.get_object_or_404(model, **kwargs)
                 return object_or_403(user, obj)
             except Http404 as e:
+=======
+                obj = model.objects.filter(**kwargs)
+                return object_or_403(user, obj)
+            except model.DoesNotExist as e:
+>>>>>>> Testing para permisos
                 raise e
         raise e
     return obj
