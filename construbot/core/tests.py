@@ -2,9 +2,10 @@ from unittest import mock
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.test import RequestFactory, tag
-from construbot.users.tests import utils
+from construbot.users.tests import utils, factories
 from .context import ContextManager
-from .utils import BasicAutocomplete, get_directory_path, get_object_403_or_404, get_rid_of_company_kw
+from .utils import BasicAutocomplete, get_directory_path, get_object_403_or_404, \
+    get_rid_of_company_kw, object_or_403
 # Create your tests here.
 
 
@@ -152,6 +153,20 @@ class Get_object_403_or_404Test(utils.BaseTestCase):
         with self.assertRaises(Http404):
             get_object_403_or_404(model, self.user, **kwargs)
         mock_404.assert_called_once()
+
+
+class Object_or_403(utils.BaseTestCase):
+
+    def test_object_or_403_return_obj(self):
+        obj = mock.Mock()
+        company_1 = factories.CompanyFactory(customer=self.user.customer)
+        company_2 = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_1, company_2)
+        self.user.currently_at = company_2
+        obj.company = company_1
+        test_obj = object_or_403(self.user, obj)
+        self.assertEqual(obj, test_obj)
+        self.assertEqual(company_1, self.user.currently_at)
 
 
 class Get_rid_of_company_kw(utils.BaseTestCase):
