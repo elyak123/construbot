@@ -291,7 +291,7 @@ class ClienteDetailTest(BaseViewTest):
             request=self.request
         )
         with self.assertRaises(Http404):
-            obj = view.get_object()
+            view.get_object()
 
 
 class SitioDetailTest(BaseViewTest):
