@@ -35,7 +35,7 @@ class PoblarCommandTesting(BaseCommandTest):
         mock_customer_factory.assert_has_calls(calls, any_order=False)
         self.assertEqual(len(instance.customer), 3)
         self.assertIsInstance(instance.customer, list)
-    @tag('current')
+
     @mock.patch('construbot.proyectos.management.commands.poblar.user_factories.GroupFactory')
     def test_create_core_groups(self, mock_group_factory):
         instance = poblar.Command()
