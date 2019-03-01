@@ -1080,6 +1080,7 @@ class DestinatarioEditTest(BaseViewTest):
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
+
     def test_get_correct_contract_object(self):
         company_inline = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_inline
@@ -1106,17 +1107,9 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         test_url = '/proyectos/contrato/detalle/%i/' % contrato_inline.pk
         self.assertEqual(view.get_success_url(), test_url)
 
-    def test_catalogo_edit_raises_permission_denied(self):
-        company_test = user_factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        contrato_factory = factories.ContratoFactory(cliente__company=self.user.company.first())
-        self.client.login(username=self.user.username, password='password')
-        request = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
-        self.assertEqual(request.status_code, 403)
-
 
 class CatalogoConceptosTest(BaseViewTest):
+
     def test_json_formed_correctly(self):
         company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = company
@@ -1132,11 +1125,12 @@ class CatalogoConceptosTest(BaseViewTest):
                 unit_price=2 + iterator,
                 project=contrato,
             )
-        response = self.get(
-                views.CatalogoConceptos,
-                pk=contrato.pk,
-                request=self.request,
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
         )
+        instance.contrato = contrato
+        response = instance.get(self.request)
         JSON_test = {
             'conceptos': [
                 {
@@ -1166,6 +1160,44 @@ class CatalogoConceptosTest(BaseViewTest):
         JSON_test = json.dumps(JSON_test)
         JSON_view = str(response.content, encoding='utf-8')
         self.assertJSONEqual(JSON_view, JSON_test)
+
+    def test_catalogo_edit_raises_permission_denied(self):
+        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        contrato_factory = factories.ContratoFactory(cliente__company=self.user.company.first())
+        self.client.login(username=self.user.username, password='password')
+        request = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
+        self.assertEqual(request.status_code, 403)
+
+    @mock.patch.object(views.CatalogoConceptos, 'get_contrato')
+    def test_get_assignment_args(self, mock_contrato):
+        _contrato = factories.ContratoFactory()
+        mock_contrato.return_value = _contrato
+        _contrato.users.add(self.request.user)
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
+        )
+
+        instance_contrato, instance_qs = instance.get_assignment_args()
+        mock_contrato.assert_called_once()
+        test_qs = [repr(_contrato)]
+        self.assertEqual(_contrato, instance_contrato)
+        self.assertQuerysetEqual(instance_qs, test_qs)
+
+    def test_get_contrato(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        contrato = factories.ContratoFactory(cliente__company=company)
+        self.user.currently_at = company
+        contrato.users.add(self.user)
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
+            pk=contrato.pk
+        )
+        instance_contrato = instance.get_contrato()
+        self.assertEqual(instance_contrato, contrato)
 
 
 class DynamicDeleteTest(BaseViewTest):

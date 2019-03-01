@@ -9,7 +9,7 @@ from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.auth import AuthenticationTestMixin
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
-from construbot.core.utils import BasicAutocomplete
+from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
@@ -184,14 +184,13 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
         return self.contrato, self.request.user.contrato_set.all()
 
     def get_contrato(self):
-        if not hasattr(self, 'contrato'):
-            return shortcuts.get_object_or_404(
-                Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
-            )
+        self.contrato = get_object_403_or_404(
+            Contrato, self.request.user, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+        )
         return self.contrato
 
     def get(self, request, *args, **kwargs):
-        queryset = self.model.objects.filter(project=self.get_contrato()).order_by('pk')
+        queryset = self.model.objects.filter(project=self.contrato).order_by('pk')
         json = {}
         json['conceptos'] = []
         for concepto in queryset:
@@ -213,8 +212,8 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
 
     def get_object(self, queryset=None):
         if not hasattr(self, 'object'):
-            self.object = shortcuts.get_object_or_404(
-                self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
+            self.object = get_object_403_or_404(
+                self.model, self.request.user, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
             )
         return self.object
 
@@ -232,7 +231,7 @@ class ContratoDetailView(DynamicDetail):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
         del query_kw['users']
-        return shortcuts.get_object_or_404(self.model, **query_kw)
+        return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 
 class ClienteDetailView(DynamicDetail):
@@ -375,8 +374,9 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
 
     def get_project_instance(self):
         if not hasattr(self, 'project_instance'):
-            self.project_instance = shortcuts.get_object_or_404(
+            self.project_instance = get_object_403_or_404(
                 Contrato,
+                self.request.user,
                 pk=self.kwargs.get('pk'),
                 cliente__company=self.request.user.currently_at
             )
@@ -480,8 +480,9 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
     template_name = 'proyectos/creation_form.html'
 
     def get_object(self):
-        obj = shortcuts.get_object_or_404(
+        obj = get_object_403_or_404(
             self.form_class.Meta.model,
+            self.request.user,
             pk=self.kwargs['pk'],
             **self.get_company_query(self.form_class.Meta.model.__name__)
         )
@@ -517,8 +518,9 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_object(self):
         if not hasattr(self, 'object'):
-            self.object = shortcuts.get_object_or_404(
+            self.object = get_object_403_or_404(
                 Contrato,
+                self.request.user,
                 pk=self.kwargs['pk'],
                 cliente__company=self.request.user.currently_at
             )
@@ -557,8 +559,9 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
 
     def get_object(self, queryset=None):
         if not hasattr(self, 'object'):
-            self.object = shortcuts.get_object_or_404(
+            self.object = get_object_403_or_404(
                 self.model,
+                self.request.user,
                 pk=self.kwargs['pk'],
                 project__cliente__company=self.request.user.currently_at
             )
@@ -621,8 +624,9 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
     def get_object(self):
         if not hasattr(self, 'object'):
             self.model = self.form_class.fk.related_model._meta.model
-            self.object = shortcuts.get_object_or_404(
+            self.object = get_object_403_or_404(
                 self.model,
+                self.request.user,
                 cliente__company=self.request.user.currently_at,
                 pk=self.kwargs['pk']
             )
@@ -694,8 +698,9 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
     def get_object(self):
         if not hasattr(self, 'object'):
             self.model = self.model_options[self.kwargs['model']]['model']
-            self.object = shortcuts.get_object_or_404(
+            self.object = get_object_403_or_404(
                 self.model,
+                self.request.user,
                 **self.get_company_query(self.kwargs['model']),
                 pk=self.kwargs['pk']
             )
@@ -734,7 +739,6 @@ class AutocompletePoryectos(BasicAutocomplete):
     app_label_name = ProyectosConfig.verbose_name
 
     def get_key_words(self):
-        #import pdb; pdb.set_trace()
         base_string = '__unaccent__icontains'
         if self.create_field:
             search_string = self.create_field + base_string
@@ -769,7 +773,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = shortcuts.get_object_or_404(Cliente, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Cliente, self.request.user, pk=int(self.forwarded.get('cliente')))
         kw = {'cliente': cliente}
         return kw
 

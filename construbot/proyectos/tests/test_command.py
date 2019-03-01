@@ -59,7 +59,7 @@ class PoblarCommandTesting(BaseCommandTest):
         instance.customer = None
         with self.assertRaises(poblar.ImproperlyConfigured):
             instance.create_companies(3)
-    @tag('current')
+
     @override_settings(DEBUG=True)
     @mock.patch('construbot.proyectos.management.commands.poblar.call_command')
     @mock.patch('construbot.proyectos.management.commands.poblar.establish_access_levels')

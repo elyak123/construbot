@@ -652,7 +652,7 @@ class ConceptGeneratorTemplateTest(TestBaseTemplates):
 
 
 class ConceptEstimateTemplateTest(TestBaseTemplates):
-    @tag('current')
+
     def test_estimate_pdf_print_uses_correct_template(self):
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)

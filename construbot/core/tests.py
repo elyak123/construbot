@@ -1,8 +1,10 @@
 from unittest import mock
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils
 from .context import ContextManager
-from .utils import BasicAutocomplete, get_directory_path
+from .utils import BasicAutocomplete, get_directory_path, get_object_403_or_404, get_rid_of_company_kw
 # Create your tests here.
 
 
@@ -102,6 +104,68 @@ class BaseAutoCompleteTest(utils.BaseTestCase):
         self.assertEqual(instance.post_key_words, {'hola': 'foo', 'key': 'value'})
         self.assertTrue(post_kw_mock.called)
         manager.create.assert_called_with(**{'hola': 'foo', 'key': 'value'})
+
+
+class Get_object_403_or_404Test(utils.BaseTestCase):
+
+    @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
+    def test_403_or_404_return_obj_instance(self, mock_404):
+        model = mock.MagicMock()
+        model_instance = mock.MagicMock()
+        mock_404.return_value = model_instance
+        obj = get_object_403_or_404(model, self.user)
+        mock_404.assert_called_once()
+        self.assertEqual(obj, model_instance)
+
+    @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
+    @mock.patch('construbot.core.utils.get_rid_of_company_kw')
+    def test_403_or_404_raises_permission_denied(self, mock_get_rid, mock_404):
+        model = mock.MagicMock()
+        model.DoesNotExist = Http404
+        mock_404.side_effect = Http404
+        kwargs = {'algo': 'algo', 'cliente__company': mock.MagicMock()}
+        with self.assertRaises(PermissionDenied):
+            get_object_403_or_404(model, self.user, **kwargs)
+        mock_404.assert_called_once()
+        mock_get_rid.assert_called_once_with(kwargs)
+
+    @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
+    def test_403_or_404_raises_404_no_company(self, mock_404):
+        model = mock.MagicMock()
+        model.DoesNotExist = Http404
+        mock_404.side_effect = Http404
+        kwargs = {'algo': 'algo', 'cliente__bla': mock.MagicMock()}
+        with self.assertRaises(Http404):
+            get_object_403_or_404(model, self.user, **kwargs)
+        mock_404.assert_called_once()
+
+    @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
+    def test_403_or_404_raises_404_no_obj(self, mock_404):
+        model = mock.MagicMock()
+        _filter = mock.MagicMock()
+        _filter.side_effect = Http404
+        model.DoesNotExist = Http404
+        model.objects = mock.MagicMock()
+        model.objects.filter = _filter
+        mock_404.side_effect = Http404
+        kwargs = {'algo': 'algo', 'cliente__company': mock.MagicMock()}
+        with self.assertRaises(Http404):
+            get_object_403_or_404(model, self.user, **kwargs)
+        mock_404.assert_called_once()
+
+
+class Get_rid_of_company_kw(utils.BaseTestCase):
+
+    def test_get_rid_gets_job_done(self):
+        # We assume only company appears only once in kw
+        bla_mock = mock.Mock()
+        kwargs = {
+            'cliente__bla__company': mock.Mock(),
+            'bla__hola': bla_mock
+        }
+        kw = get_rid_of_company_kw(kwargs)
+        kw_test = {'bla__hola': bla_mock}
+        self.assertDictEqual(kw, kw_test)
 
 
 class DirectoyPathTest(utils.BaseTestCase):
