@@ -276,12 +276,16 @@ class ContratoDetailTemplate(TestBaseTemplates):
 class ClienteDetailTemplate(TestBaseTemplates):
 
     def test_cliente_detail_uses_correct_template(self):
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         cliente = factories.ClienteFactory(company=self.user.company.first())
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:cliente_detail', kwargs={'pk': cliente.pk}))
         self.assertTemplateUsed(response, 'proyectos/cliente_detail.html')
 
     def test_cliente_detail_has_correct_status_code(self):
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         cliente = factories.ClienteFactory(company=self.user.company.first())
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:cliente_detail', kwargs={'pk': cliente.pk}))
@@ -291,7 +295,7 @@ class ClienteDetailTemplate(TestBaseTemplates):
 class TitioDetailTemplate(TestBaseTemplates):
 
     def test_sitio_detail_uses_correct_template(self):
-        self.user.nivel_acceso = self.coordinador_permission
+        self.user.nivel_acceso = self.director_permission
         self.user.save()
         sitio = factories.SitioFactory(cliente__company=self.user.company.first())
         self.client.login(username=self.user.username, password='password')
@@ -299,7 +303,7 @@ class TitioDetailTemplate(TestBaseTemplates):
         self.assertTemplateUsed(response, 'proyectos/sitio_detail.html')
 
     def test_sitio_detail_has_correct_status_code(self):
-        self.user.nivel_acceso = self.coordinador_permission
+        self.user.nivel_acceso = self.director_permission
         self.user.save()
         contrato_cliente = factories.ClienteFactory(company=self.user.company.first())
         sitio = factories.SitioFactory(cliente=contrato_cliente)

@@ -205,7 +205,13 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
 
 class DynamicDetail(ProyectosMenuMixin, DetailView):
+    permiso_requerido = 3
+    asignacion_requerida = True
     change_company_ability = False
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object, Contrato.especial.asignaciones(self.request.user, self.model)
 
     def get_context_object_name(self, obj):
         return obj.__class__.__name__.lower()
@@ -235,14 +241,14 @@ class ContratoDetailView(DynamicDetail):
 
 
 class ClienteDetailView(DynamicDetail):
-    permiso_requerido = 1
     model = Cliente
 
     def contratos_ordenados(self):
         if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
             return self.object.get_contratos_ordenados()
         else:
-            return self.object.contrato_set.filter(users=self.request.user)
+            return self.object.contrato_set.filter(
+                users=self.request.user).order_by('-fecha')
 
     def get_context_data(self, **kwargs):
         context = super(ClienteDetailView, self).get_context_data(**kwargs)
@@ -255,6 +261,9 @@ class SitioDetailView(DynamicDetail):
 
 
 class DestinatarioDetailView(DynamicDetail):
+    # no hay info confidencial comprometida
+    permiso_requerido = 1
+    asignacion_requerida = False
     model = Destinatario
 
 
