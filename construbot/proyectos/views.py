@@ -626,8 +626,6 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def get_assignment_args(self):
         self.object = self.get_object()
-        if hasattr(self.object, 'project'):
-            return self.object.project, self.request.user.contrato_set.all()
         return self.object, self.request.user.contrato_set.all()
 
     def get_object(self):
