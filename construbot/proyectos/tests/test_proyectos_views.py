@@ -270,6 +270,7 @@ class ContratoDetailTest(BaseViewTest):
 
 
 class ClienteDetailTest(BaseViewTest):
+
     def test_assert_request_returns_correct_cliente_object(self):
         cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = cliente_company
@@ -292,6 +293,25 @@ class ClienteDetailTest(BaseViewTest):
         )
         with self.assertRaises(Http404):
             view.get_object()
+
+    def test_assert_cliente_contratos_ordenados_only_assigned(self):
+        cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        factories.ContratoFactory(cliente=cliente)
+        contrato2 = factories.ContratoFactory(cliente=cliente)
+        contrato2.users.add(self.user)
+        contrato3 = factories.ContratoFactory(cliente=cliente)
+        contrato3.users.add(self.user)
+        view = self.get_instance(
+            views.ClienteDetailView,
+            pk=cliente.pk,
+            request=self.request
+        )
+        view.object = cliente
+        qs = view.contratos_ordenados()
+        qs_test = [repr(q) for q in sorted(
+            [contrato2, contrato3], key=lambda x: repr(x.fecha).lower(), reverse=True
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
 
 
 class SitioDetailTest(BaseViewTest):
@@ -322,6 +342,7 @@ class SitioDetailTest(BaseViewTest):
 
 
 class DestinatarioDetailTest(BaseViewTest):
+
     def test_assert_request_returns_correct_destinatario_object(self):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
