@@ -13,7 +13,8 @@ def crear_niveles_acceso(nivel):
         {'nombre': 'Coordinador', 'nivel': 2},
         {'nombre': 'Director', 'nivel': 3},
         {'nombre': 'Corporativo', 'nivel': 4},
-        {'nombre': 'Soporte', 'nivel': 5}
+        {'nombre': 'Soporte', 'nivel': 5},
+        {'nombre': 'Superuser', 'nivel': 6},
     ]
     return [Nivel.objects.create(**kwargs) for kwargs in args]
 
@@ -37,6 +38,8 @@ def nivelaccesso_datamigration(apps, schema_editor):
     directores.update(nivel_acceso=acceso_director)
     corporativos = User.objects.filter(Q(groups=admin_group) & Q(groups=users_group))
     corporativos.update(nivel_acceso=acceso_corporativo)
+    superusers = User.ojects.filter(is_superuser=True)
+    superusers.update(nivel_acceso=niveles[5])
 
 
 class Migration(migrations.Migration):
