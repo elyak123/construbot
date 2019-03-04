@@ -38,7 +38,7 @@ def nivelaccesso_datamigration(apps, schema_editor):
     directores.update(nivel_acceso=acceso_director)
     corporativos = User.objects.filter(Q(groups=admin_group) & Q(groups=users_group))
     corporativos.update(nivel_acceso=acceso_corporativo)
-    superusers = User.ojects.filter(is_superuser=True)
+    superusers = User.objects.filter(is_superuser=True)
     superusers.update(nivel_acceso=niveles[5])
 
 
