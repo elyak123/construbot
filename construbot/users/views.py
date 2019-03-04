@@ -111,13 +111,11 @@ class UserUpdateView(UserMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
-        if self.nivel_permiso_usuario >= self.nivel_permiso_vista:
+        if self.nivel_permiso_usuario >= self.permiso_requerido:
             try:
                 kwargs['user'] = User.objects.get(username=self.kwargs.get('username'))
             except User.DoesNotExist:
                 kwargs['user'] = self.request.user
-        else:
-            kwargs['user'] = self.request.user
         return kwargs
 
     def get_form_class(self, form_class=None):
@@ -178,10 +176,7 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
         return initial
 
     def get_success_url(self):
-        if hasattr(self.request.POST, 'is_new') and self.request.POST['is_new'] == 'True':
-            return reverse('proyectos:nuevo_contrato')
-        else:
-            return reverse('users:company_detail', kwargs={'pk': self.object.pk})
+        return reverse('users:company_detail', kwargs={'pk': self.object.pk})
 
     def get_object(self, queryset=None):
         return get_object_or_404(Company, pk=self.kwargs['pk'], user=self.request.user)
@@ -221,12 +216,10 @@ class UserListView(UsersMenuMixin, ListView):
         return qs
 
 
-class CompanyChangeView(TemplateView, AuthenticationTestMixin):
+class CompanyChangeView(AuthenticationTestMixin, TemplateView):
     app_label_name = UsersConfig.verbose_name
 
     def get(self, request, *args, **kwargs):
-        # Agregar un apartado donde se responda con 403 el cambio de compañía en 'else'
-        # new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
         new_company = get_object_or_404(
             Company,
             company_name=self.kwargs['company'],
@@ -236,6 +229,10 @@ class CompanyChangeView(TemplateView, AuthenticationTestMixin):
             self.request.user.currently_at = new_company
             self.request.user.save()
             return http.HttpResponse(self.request.user.currently_at.company_name)
+        else:
+            raise PermissionDenied(
+                f'El usuario {self.request.user.username} no tiene acceso a {new_company.company_name}'
+            )
 
 
 class CompanyChangeViewFromList(CompanyChangeView):
@@ -250,6 +247,10 @@ class CompanyChangeViewFromList(CompanyChangeView):
             self.request.user.currently_at = new_company
             self.request.user.save()
             return redirect('proyectos:proyect_dashboard')
+        else:
+            raise PermissionDenied(
+                f'El usuario {self.request.user.username} no tiene acceso a {new_company.company_name}'
+            )
 
 
 class CompanyListView(UsersMenuMixin, ListView):

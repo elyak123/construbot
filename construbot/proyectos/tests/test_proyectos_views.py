@@ -1129,6 +1129,12 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         self.assertEqual(view.get_success_url(), test_url)
 
 
+class CatalogoRetencionesInlineFormTest(BaseViewTest):
+
+    def test_get_assignment_returns_according_estimate_model(self):
+        pass
+
+
 class CatalogoConceptosTest(BaseViewTest):
 
     def test_json_formed_correctly(self):
