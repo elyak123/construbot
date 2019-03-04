@@ -111,13 +111,11 @@ class UserUpdateView(UserMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
-        if self.nivel_permiso_usuario >= self.nivel_permiso_vista:
+        if self.nivel_permiso_usuario >= self.permiso_requerido:
             try:
                 kwargs['user'] = User.objects.get(username=self.kwargs.get('username'))
             except User.DoesNotExist:
                 kwargs['user'] = self.request.user
-        else:
-            kwargs['user'] = self.request.user
         return kwargs
 
     def get_form_class(self, form_class=None):
