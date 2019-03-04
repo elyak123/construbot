@@ -1,4 +1,3 @@
-from django import shortcuts
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q

@@ -51,6 +51,7 @@ def get_object_403_or_404(model, user, **kwargs):
 def object_or_403(user, obj):
     if obj.company in user.company.all():
         user.currently_at = obj.company
+        user.save()
         return obj
     else:
         raise PermissionDenied
