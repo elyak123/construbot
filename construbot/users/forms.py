@@ -133,7 +133,12 @@ class UsuarioEdit(UserChangeForm):
             'groups': 'Grupos de trabajo',
             'company': 'Compañías de trabajo',
         }
-
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
         widgets = {
             'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -173,7 +178,12 @@ class UsuarioEditNoAdmin(UserChangeForm):
             'currently_at',
             'name',
         ]
-
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
         widgets = {
             'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -198,6 +208,10 @@ class CompanyForm(forms.ModelForm):
         labels = {
             'full_name': 'Razón Social',
             'company_name': 'Nombre de la Compañía'
+        }
+        help_texts = {
+            'full_name': 'Razón social de la empresa de trabajo, es necesaria para mostrarlo en los documentos impresos.',
+            'company_name': 'Nombre corto de la empresa, con la cual sea más sencillo identificarla.',
         }
         widgets = {
             'customer': forms.HiddenInput(),
