@@ -86,8 +86,12 @@ class UsuarioInterno(UserCreationForm):
             'password1': 'Contraseña',
             'password2': 'Confirme Contraseña'
         }
-
-
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
         widgets = {
             'customer': forms.HiddenInput(),
             'company': autocomplete.ModelSelect2Multiple(

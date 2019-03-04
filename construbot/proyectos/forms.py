@@ -35,7 +35,8 @@ class ContratoForm(forms.ModelForm):
             'contrato_name': 'Nombre del contrato',
             'contrato_shortName': 'Nombre corto',
             'file': 'Archivo',
-            'users': '¿A qué usuarios desea asignarlo?'
+            'users': '¿A qué usuarios desea asignarlo?',
+            'status': '¿El proyecto ya terminó?'
         }
         widgets = {
             'fecha': forms.DateInput(
@@ -68,6 +69,18 @@ class ContratoForm(forms.ModelForm):
             'anticipo': forms.TextInput(
                 attrs={'style': 'width:200px;'}
             ),
+        }
+        help_texts = {
+            'code': 'Código del contrato, este código debe coincidir con el código del contrato firmado.',
+            'folio': 'ID consecutivo de contrato en la compañía.',
+            'contrato_name': 'Nombre completo del proyecto, se utilizará para generar la estimación.',
+            'contrato_shortName': 'Identificador corto del contrato para control en listados.',
+            'cliente': '¿Con qué empresa/persona física firmé el contrato?',
+            'sitio': '¿En qué predio será realizado el proyecto?',
+            'status': 'Indique si el proyecto ya ha sido terminado.',
+            'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
+            'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
+            'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
         }
 
 
