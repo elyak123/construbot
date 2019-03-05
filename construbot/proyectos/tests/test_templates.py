@@ -174,16 +174,9 @@ class ClienteListTemplate(TestBaseTemplates):
         self.user.save()
         self.client.login(username=self.user.username, password='password')
         for i in range(0, 11):
-            factories.ClienteFactory(company=self.user.currently_at)
-        response = self.client.get('/proyectos/listado/clientes/?page=2')
-        self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
-
-    def test_clientes_list_uses_correct_template_and_no_next_page(self):
-        self.user.nivel_acceso = self.coordinador_permission
-        self.user.save()
-        self.client.login(username=self.user.username, password='password')
-        for i in range(0, 11):
-            factories.ClienteFactory(company=self.user.currently_at)
+            cliente = factories.ClienteFactory(company=self.user.currently_at)
+            contrato = factories.ContratoFactory(cliente=cliente)
+            self.user.contrato_set.add(contrato)
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 

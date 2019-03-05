@@ -131,11 +131,13 @@ class DynamicList(ProyectosMenuMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        if self.queryset is None:
+        if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
+        self.queryset = Contrato.especial.asignaciones(self.request.user, self.model).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering']))
         return super(DynamicList, self).get_queryset()
 
     def get_context_data(self, **kwargs):
@@ -151,12 +153,12 @@ class ContratoListView(DynamicList):
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
-                cliente__company=self.request.user.currently_at)
+                cliente__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)
-            )
-        return super(ContratoListView, self).get_queryset()
+            ).order_by(self.ordering)
+        return self.queryset
 
 
 class ClienteListView(DynamicList):
@@ -169,6 +171,15 @@ class SitioListView(DynamicList):
 
 class DestinatarioListView(DynamicList):
     model = Destinatario
+
+    def get_queryset(self):
+        if self.request.user.nivel_acceso.nivel <= 3:
+            clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
+            self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering'])
+            )
+            return self.queryset
+        return super(DestinatarioListView, self).get_queryset()
 
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
