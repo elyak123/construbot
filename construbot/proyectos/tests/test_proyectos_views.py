@@ -174,12 +174,16 @@ class ContratoListTest(BaseViewTest):
 
 
 class ClienteListTest(BaseViewTest):
+
     def test_cliente_query_only_same_client(self):
         cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_bLdYMUBC')
         cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
-        cliente_3 = factories.ClienteFactory()
+        factories.ClienteFactory()
+        contrato_1 = factories.ContratoFactory(cliente=cliente)
+        contrato_2 = factories.ContratoFactory(cliente=cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.ClienteListView,
             request=self.request
@@ -190,13 +194,17 @@ class ClienteListTest(BaseViewTest):
 
 
 class SitioListTest(BaseViewTest):
+
     def test_sitio_query_only_same_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
         sitio = factories.SitioFactory(cliente=sitio_cliente)
         sitio_2 = factories.SitioFactory(cliente__company=sitio_company)
-        sitio_3 = factories.SitioFactory()
+        factories.SitioFactory()
+        contrato_1 = factories.ContratoFactory(sitio=sitio)
+        contrato_2 = factories.ContratoFactory(sitio=sitio_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.SitioListView,
             request=self.request
@@ -207,6 +215,7 @@ class SitioListTest(BaseViewTest):
 
 
 class DestinatarioListTest(BaseViewTest):
+
     def test_destinatario_query_same_client_company(self):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
@@ -215,6 +224,9 @@ class DestinatarioListTest(BaseViewTest):
         destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
         destinatario_3 = factories.DestinatarioFactory()
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.DestinatarioListView,
             request=self.request
