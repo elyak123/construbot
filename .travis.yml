@@ -11,8 +11,6 @@ before_install:
  - sudo mv docker-compose /usr/local/bin
  - export DJANGO_READ_DOT_ENV_FILE=True
  - echo -e "DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}\nDJANGO_READ_DOT_ENV_FILE=True\nDJANGO_SETTINGS_MODULE=config.settings.test" > ${TRAVIS_BUILD_DIR}/.env
- - echo "Mostrando archivo .env"
- - cat ${TRAVIS_BUILD_DIR}/.env
 
 language: python
 python:
