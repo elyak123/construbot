@@ -28,7 +28,7 @@ class ContextTests(utils.BaseTestCase):
                     '%s is not in user_groups' % obj['title']
                 )
 
-    def test_context_includes_menu_specific_right_place(self):
+    def test_context_includes_menu_specific_right_place_al_least_coordinator(self):
         with mock.patch('django.urls.reverse') as reverse_mock:
             reverse_mock.return_value = '/fake/url/'
             reverse_mock.side_effect = 'fake/url/'
@@ -39,9 +39,25 @@ class ContextTests(utils.BaseTestCase):
             menu_specific_obj = [{'title': 'fake'}, {'title': 'foo'}]
             view.menu_specific = menu_specific_obj
             view.app_label_name = 'Documentos'
+            view.nivel_permiso_usuario = 2
             menu = view.get_menu()
             self.assertIn(menu_specific_obj[0], menu)
             self.assertEqual(menu.index(menu_specific_obj[0]), 3)
+
+    def test_context_includes_menu_specific_not_there(self):
+        with mock.patch('django.urls.reverse') as reverse_mock:
+            reverse_mock.return_value = '/fake/url/'
+            reverse_mock.side_effect = 'fake/url/'
+            view = ContextManager()
+            view.user_groups = [
+                'users', 'documentos', 'pendientes', 'proyectos'
+            ]
+            menu_specific_obj = [{'title': 'fake'}, {'title': 'foo'}]
+            view.menu_specific = menu_specific_obj
+            view.app_label_name = 'Documentos'
+            view.nivel_permiso_usuario = 1
+            menu = view.get_menu()
+            self.assertNotIn(menu_specific_obj[0], menu)
 
 
 class BaseAutoCompleteTest(utils.BaseTestCase):
