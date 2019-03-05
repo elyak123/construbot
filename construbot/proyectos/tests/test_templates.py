@@ -25,7 +25,7 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
-    @tag('current')
+
     @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
     def test_proyects_dashboard_correct_html_if_is_new_and_coordinador(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
@@ -106,7 +106,7 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
         self.assertNotContains(response, text, html=True, msg_prefix=error_message)
-    @tag('current')
+
     @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
     def test_proyects_dashboard_uses_correct_template_if_is_new_and_not_coordinador(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
