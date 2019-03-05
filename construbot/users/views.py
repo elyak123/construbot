@@ -217,7 +217,7 @@ class UserListView(UsersMenuMixin, ListView):
 
 
 class CompanyChangeView(AuthenticationTestMixin, TemplateView):
-    app_label_name = UsersConfig.verbose_name
+    app_label_name = 'redirect'
 
     def get(self, request, *args, **kwargs):
         new_company = get_object_or_404(
@@ -267,3 +267,12 @@ class CompanyListView(UsersMenuMixin, ListView):
         context = super(CompanyListView, self).get_context_data(**kwargs)
         context['model'] = self.model.__name__
         return context
+
+
+class PasswordRedirectView(UsersMenuMixin, RedirectView):
+    permanent = True
+    app_label_name = 'redirect'
+    permiso_requerido = 1
+
+    def get_redirect_url(self):
+        return reverse('account_change_password')
