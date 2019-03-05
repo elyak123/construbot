@@ -3,20 +3,18 @@ import decimal
 from unittest import mock
 from django.shortcuts import reverse
 from django.test import RequestFactory, tag
-from django.contrib.auth.models import Group
 from django.http import Http404
 from construbot.users.tests import utils
-from construbot.users.models import User, Company
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
+from construbot.users.tests import factories as user_factories
 from . import factories
 
 
 class BaseViewTest(utils.BaseTestCase):
+
     def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.user_factory()
-        self.factory = RequestFactory()
+        super(BaseViewTest, self).setUp()
         self.request = self.get_request(self.user)
 
     def assertNotRaises(self, func, exception, message):
@@ -40,9 +38,11 @@ class PDFViewTest(BaseViewTest):
     def test_get_context_data(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
-        cliente = factories.ClienteFactory(company=company_test)
-        contrato = factories.ContratoFactory(cliente=cliente)
-        estimacion = factories.EstimateFactory(project=contrato)
+        estimacion = factories.EstimateFactory(
+            project__cliente__company=company_test,
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user
+        )
         self.view.kwargs = {'pk': estimacion.pk}
         vw = self.get_instance(
             self.view,
@@ -50,7 +50,7 @@ class PDFViewTest(BaseViewTest):
         )
         vw.object = estimacion
         vw.user_groups = ''
-        vw.permiso_administracion = None
+        vw.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         result = vw.get_context_data()
         self.assertTrue(result['pdf'])
 
@@ -58,16 +58,14 @@ class PDFViewTest(BaseViewTest):
 class ProyectDashboardViewTest(BaseViewTest):
 
     def test_view_gets_correct_object(self):
-        pdv = views.ProyectDashboardView
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
-        proyectos_group = Group.objects.create(name='Proyectos')
-        pdv.user_groups = [proyectos_group]
-        pdv.permiso_administracion = True
         view = self.get_instance(
             views.ProyectDashboardView,
             request=self.request
         )
+        view.user_groups = [self.proyectos_group]
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         obj = view.get_context_data()
         self.assertEqual(obj['object'], company_test)
 
@@ -85,7 +83,7 @@ class DynamicListTest(BaseViewTest):
         view.model.__name__ = 'Foo'
         view.get_menu = lambda: {}
         view.app_label_name = 'proyectos'
-        view.permiso_administracion = True
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         view.object_list = []
         context = view.get_context_data()
         self.assertIn('model', context)
@@ -139,15 +137,14 @@ class ContratoListTest(BaseViewTest):
         qs_test = [repr(y) for y in sorted([contrato, contrato_3], key=lambda x: x.fecha, reverse=True)]
         self.assertQuerysetEqual(qs, qs_test)
 
-    def test_contrato_same_customer_same_company_not_assigned_to_admi_user_does_appear(self):
+    def test_contrato_same_customer_same_company_not_assigned_to_direccion_user_does_appear(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_test
-        admin_group = Group.objects.create(name='Administrators')
-        self.request.user.groups.add(admin_group)
-        cliente_test = factories.ClienteFactory(company=company_test)
-        contrato = factories.ContratoFactory(cliente=cliente_test)
-        contrato_2 = factories.ContratoFactory(cliente=cliente_test)  # Contrato # 2
-        contrato_3 = factories.ContratoFactory(cliente=cliente_test)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
+        contrato = factories.ContratoFactory(cliente__company=company_test)
+        contrato_2 = factories.ContratoFactory(cliente__company=company_test)  # Contrato # 2
+        contrato_3 = factories.ContratoFactory(cliente__company=company_test)
         view = self.get_instance(
             views.ContratoListView,
             request=self.request
@@ -177,12 +174,16 @@ class ContratoListTest(BaseViewTest):
 
 
 class ClienteListTest(BaseViewTest):
+
     def test_cliente_query_only_same_client(self):
         cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_bLdYMUBC')
         cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
-        cliente_3 = factories.ClienteFactory()
+        factories.ClienteFactory()
+        contrato_1 = factories.ContratoFactory(cliente=cliente)
+        contrato_2 = factories.ContratoFactory(cliente=cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.ClienteListView,
             request=self.request
@@ -193,13 +194,17 @@ class ClienteListTest(BaseViewTest):
 
 
 class SitioListTest(BaseViewTest):
+
     def test_sitio_query_only_same_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
         sitio = factories.SitioFactory(cliente=sitio_cliente)
         sitio_2 = factories.SitioFactory(cliente__company=sitio_company)
-        sitio_3 = factories.SitioFactory()
+        factories.SitioFactory()
+        contrato_1 = factories.ContratoFactory(sitio=sitio)
+        contrato_2 = factories.ContratoFactory(sitio=sitio_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.SitioListView,
             request=self.request
@@ -210,6 +215,7 @@ class SitioListTest(BaseViewTest):
 
 
 class DestinatarioListTest(BaseViewTest):
+
     def test_destinatario_query_same_client_company(self):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
@@ -218,6 +224,9 @@ class DestinatarioListTest(BaseViewTest):
         destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
         destinatario_3 = factories.DestinatarioFactory()
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.DestinatarioListView,
             request=self.request
@@ -250,8 +259,7 @@ class ContratoDetailTest(BaseViewTest):
         self.request.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
-        admin_group = Group.objects.create(name='Administrators')
-        self.request.user.groups.add(admin_group)
+        self.request.user.groups.add(self.admin_group)
         view = self.get_instance(
             views.ContratoDetailView,
             pk=contrato.pk,
@@ -274,6 +282,7 @@ class ContratoDetailTest(BaseViewTest):
 
 
 class ClienteDetailTest(BaseViewTest):
+
     def test_assert_request_returns_correct_cliente_object(self):
         cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = cliente_company
@@ -295,7 +304,26 @@ class ClienteDetailTest(BaseViewTest):
             request=self.request
         )
         with self.assertRaises(Http404):
-            obj = view.get_object()
+            view.get_object()
+
+    def test_assert_cliente_contratos_ordenados_only_assigned(self):
+        cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        factories.ContratoFactory(cliente=cliente)
+        contrato2 = factories.ContratoFactory(cliente=cliente)
+        contrato2.users.add(self.user)
+        contrato3 = factories.ContratoFactory(cliente=cliente)
+        contrato3.users.add(self.user)
+        view = self.get_instance(
+            views.ClienteDetailView,
+            pk=cliente.pk,
+            request=self.request
+        )
+        view.object = cliente
+        qs = view.contratos_ordenados()
+        qs_test = [repr(q) for q in sorted(
+            [contrato2, contrato3], key=lambda x: repr(x.fecha).lower(), reverse=True
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
 
 
 class SitioDetailTest(BaseViewTest):
@@ -326,6 +354,7 @@ class SitioDetailTest(BaseViewTest):
 
 
 class DestinatarioDetailTest(BaseViewTest):
+
     def test_assert_request_returns_correct_destinatario_object(self):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
@@ -358,9 +387,7 @@ class ContratoCreationTest(BaseViewTest):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = contrato_company
         self.request.user.company.add(contrato_company)
-        admin_group = Group.objects.create(name='Administrators')
-        self.request.user.groups.add(admin_group)
-        #contrato_company.users.add(self.request.user)
+        self.request.user.groups.add(self.admin_group)
         dicc = {"currently_at": contrato_company.company_name, "folio": 1, 'users': [self.request.user.id]}
         view = self.get_instance(
             views.ContratoCreationView,
@@ -371,12 +398,10 @@ class ContratoCreationTest(BaseViewTest):
 
     def test_get_initial_returns_the_next_id_when_contratos_exist(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        contrato = factories.ContratoFactory(cliente__company=contrato_company)
         self.request.user.currently_at = contrato_company
         self.request.user.company.add(contrato_company)
-        admin_group = Group.objects.create(name='Administrators')
-        self.request.user.groups.add(admin_group)
+        self.request.user.groups.add(self.admin_group)
         dicc = {
             "currently_at": contrato_company.company_name,
             "folio": contrato.folio + 1,
@@ -397,7 +422,7 @@ class ContratoCreationTest(BaseViewTest):
             request=self.request
         )
         view.get_menu = lambda: []
-        view.permiso_administracion = True
+        view.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
         view.object = None
         dicc_test = view.get_context_data()
         self.assertEqual(dicc_test['company'], contrato_company)
@@ -429,28 +454,24 @@ class ContratoCreationTest(BaseViewTest):
                                  'es necesario recargar y repetir el proceso.'
                                  )
 
-    def test_contrato_creation_denied_user_not_admin(self):
+    def test_contrato_creation_denied_user_auxiliar(self):
         company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company
         self.user.save()
         self.user.company.add(company)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nuevo_contrato'))
-        self.assertFalse(self.user.is_administrator())
         self.assertEqual(response.status_code, 403)
 
-    def test_contrato_creation_granted_user_admin(self):
+    def test_contrato_creation_granted_user_coordinador(self):
         company = factories.CompanyFactory(customer=self.user.customer)
-        admin_group = Group.objects.create(name='Administrators')
-        proyectos_group = Group.objects.create(name='Proyectos')
-        self.user.groups.add(admin_group)
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.user.currently_at = company
+        self.user.nivel_acceso = self.coordinador_permission
         self.user.save()
         self.user.company.add(company)
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('proyectos:nuevo_contrato'))
-        self.assertTrue(self.user.is_administrator())
         self.assertEqual(response.status_code, 200)
 
 
@@ -544,12 +565,11 @@ class EstimateCreationTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         contrato.users.add(self.request.user)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -590,13 +610,12 @@ class EstimateCreationTest(BaseViewTest):
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         contrato.users.add(self.request.user)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         concepto_2 = factories.ConceptoFactory(concept_text=concepto_1.concept_text)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -636,14 +655,13 @@ class EstimateCreationTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
-        admin_group = Group.objects.create(name='Administrators')
         destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
-        self.user.groups.add(admin_group)
+        self.user.groups.add(self.proyectos_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -680,15 +698,13 @@ class EstimateCreationTest(BaseViewTest):
 
     def test_estimate_post_renders_errors(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        contrato = factories.ContratoFactory(cliente__company=contrato_company)
         factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=factories.ClienteFactory())
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -715,12 +731,11 @@ class EstimateCreationTest(BaseViewTest):
 
     def test_estimate_post_pagada_sin_fecha_pago(self):
         contrato = factories.ContratoFactory()
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=contrato.cliente)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato.cliente.company)
         self.user.currently_at = contrato.cliente.company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -754,12 +769,11 @@ class EstimateCreationTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=cliente_contrato)
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -790,13 +804,12 @@ class EstimateCreationTest(BaseViewTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato = factories.ContratoFactory(cliente=contrato_cliente)
         cliente_contrato = factories.ClienteFactory(company=contrato_company)
-        proyectos_group = Group.objects.create(name='Proyectos')
         destinatario = factories.DestinatarioFactory(cliente=contrato_cliente)
         destinatario2 = factories.DestinatarioFactory(cliente=factories.ClienteFactory())
         concepto_1 = factories.ConceptoFactory(project=contrato)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
-        self.user.groups.add(proyectos_group)
+        self.user.groups.add(self.proyectos_group)
         self.client.login(username=self.user.username, password='password')
         form_data = {
             'consecutive': '3',
@@ -827,9 +840,12 @@ class EstimateEditTest(BaseViewTest):
 
     def test_estimate_edit_saves_forms_when_valid(self):
         company = factories.CompanyFactory(customer=self.user.customer)
-        cliente = factories.ClienteFactory(company=company)
-        contrato = factories.ContratoFactory(cliente=cliente)
-        estimacion = factories.EstimateFactory(project=contrato)
+        contrato = factories.ContratoFactory(cliente__company=company)
+        estimacion = factories.EstimateFactory(
+            project=contrato,
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user
+        )
         request = RequestFactory().post(
             reverse('proyectos:editar_estimacion', kwargs={'pk': estimacion.pk}),
             data={'dato': 'dato'}
@@ -856,7 +872,11 @@ class EstimateEditTest(BaseViewTest):
         company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
-        estimacion = factories.EstimateFactory(project=contrato)
+        estimacion = factories.EstimateFactory(
+            project=contrato,
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user
+        )
         request = RequestFactory().post(
             reverse('proyectos:editar_estimacion', kwargs={'pk': estimacion.pk}),
             data={'dato': 'dato'}
@@ -884,7 +904,11 @@ class EstimateEditTest(BaseViewTest):
         company = factories.CompanyFactory(customer=self.user.customer)
         cliente = factories.ClienteFactory(company=company)
         contrato = factories.ContratoFactory(cliente=cliente)
-        estimacion = factories.EstimateFactory(project=contrato)
+        estimacion = factories.EstimateFactory(
+            project=contrato,
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user
+        )
         view = self.get_instance(
             views.EstimateEditView,
             request=self.request,
@@ -1089,6 +1113,7 @@ class DestinatarioEditTest(BaseViewTest):
 
 
 class CatalogoConceptosInlineFormTest(BaseViewTest):
+
     def test_get_correct_contract_object(self):
         company_inline = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = company_inline
@@ -1116,7 +1141,14 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         self.assertEqual(view.get_success_url(), test_url)
 
 
+class CatalogoRetencionesInlineFormTest(BaseViewTest):
+
+    def test_get_assignment_returns_according_estimate_model(self):
+        pass
+
+
 class CatalogoConceptosTest(BaseViewTest):
+
     def test_json_formed_correctly(self):
         company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = company
@@ -1132,11 +1164,12 @@ class CatalogoConceptosTest(BaseViewTest):
                 unit_price=2 + iterator,
                 project=contrato,
             )
-        response = self.get(
-                views.CatalogoConceptos,
-                pk=contrato.pk,
-                request=self.request,
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
         )
+        instance.contrato = contrato
+        response = instance.get(self.request)
         JSON_test = {
             'conceptos': [
                 {
@@ -1166,6 +1199,44 @@ class CatalogoConceptosTest(BaseViewTest):
         JSON_test = json.dumps(JSON_test)
         JSON_view = str(response.content, encoding='utf-8')
         self.assertJSONEqual(JSON_view, JSON_test)
+
+    def test_catalogo_edit_raises_permission_denied(self):
+        company_test = user_factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
+        self.user.currently_at = company_test
+        contrato_factory = factories.ContratoFactory(cliente__company=self.user.company.first())
+        self.client.login(username=self.user.username, password='password')
+        request = self.client.get(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato_factory.pk}))
+        self.assertEqual(request.status_code, 403)
+
+    @mock.patch.object(views.CatalogoConceptos, 'get_contrato')
+    def test_get_assignment_args(self, mock_contrato):
+        _contrato = factories.ContratoFactory()
+        mock_contrato.return_value = _contrato
+        _contrato.users.add(self.request.user)
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
+        )
+
+        instance_contrato, instance_qs = instance.get_assignment_args()
+        mock_contrato.assert_called_once()
+        test_qs = [repr(_contrato)]
+        self.assertEqual(_contrato, instance_contrato)
+        self.assertQuerysetEqual(instance_qs, test_qs)
+
+    def test_get_contrato(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        contrato = factories.ContratoFactory(cliente__company=company)
+        self.user.currently_at = company
+        contrato.users.add(self.user)
+        instance = self.get_instance(
+            views.CatalogoConceptos,
+            request=self.request,
+            pk=contrato.pk
+        )
+        instance_contrato = instance.get_contrato()
+        self.assertEqual(instance_contrato, contrato)
 
 
 class DynamicDeleteTest(BaseViewTest):
@@ -1286,7 +1357,10 @@ class DynamicDeleteTest(BaseViewTest):
 
     @mock.patch.object(views.DynamicDelete, 'get_object')
     def test_get_company_query_with_estimate(self, mock_object):
-        estimate = factories.EstimateFactory()
+        estimate = factories.EstimateFactory(
+            draft_by=self.user,  # se ocupa porque si no truena
+            supervised_by=self.user
+        )
         mock_object.return_value = estimate
         request = RequestFactory().post(
             reverse('proyectos:eliminar', kwargs={'model': 'Estimate', 'pk': estimate.pk}),
@@ -1601,15 +1675,9 @@ class UnitAutocompleteTest(BaseViewTest):
 
 class UserAutocompleteTest(BaseViewTest):
 
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.user_factory(username='testuser')
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
-
     def test_user_username_autocomplete_get_queryset(self):
         instance = views.UserAutocomplete()
-        instance.q = 'test'
+        instance.q = 'user-'
         company_test = factories.CompanyFactory(customer=self.request.user.customer)
         self.request.user.company.add(company_test)
         self.request.user.currently_at = company_test

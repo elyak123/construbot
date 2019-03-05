@@ -6,13 +6,13 @@
   <div class="menu_lateral">
     <ul class="list_menu">
       {% for item in menu %}
-      {% if item.always_appear or is_administrador %}
+      {% if item.always_appear or almenos_coordinador %}
         <li class="{% if item.type == 'submenu' %}li_submenu{% else %}li_menu_item{% endif %}">
           <a class="{% if item.type == 'submenu' %}anchor_menu_subitem{% else %}anchor_menu_item{% endif %}" href="{{ item.url }}"><span class="icon_menu oi oi-{{ item.icon }}"></span><span class="menuSign">{{ item.title }}</span></a>
           {% if item.parent %}
             <ul class="list_subsubmenu">
               {% for subitem in item.submenu %}
-              {% if subitem.always_appear or is_administrador %}
+              {% if subitem.always_appear or almenos_coordinador %}
                 <li class="li_menu_subitem">
                   <a class="anchor_subsubmenu_item" href="{{ subitem.url }}"><span class="icon_menu oi oi-{{ subitem.icon }}"></span><span class="submenuSign">{{ subitem.title }}</span></a>
                 </li>

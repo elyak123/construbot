@@ -324,7 +324,14 @@ ADMIN_URL = r'^admin/'
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-UUID = env('UUID', default='')
-
 USERNAME_TEST = env('USERNAME_TEST', default='')
 CONSTRUBOT_AS_LIBRARY = env.bool('CONSTRUBOT_AS_LIBRARY', False)
+
+NIVELES_ACCESO = [
+    {'nombre': 'Auxiliar', 'nivel': 1},
+    {'nombre': 'Coordinador', 'nivel': 2},
+    {'nombre': 'Director', 'nivel': 3},
+    {'nombre': 'Corporativo', 'nivel': 4},
+    {'nombre': 'Soporte', 'nivel': 5},
+    {'nombre': 'Superusuario', 'nivel': 6}
+]

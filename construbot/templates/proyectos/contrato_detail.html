@@ -98,7 +98,7 @@
 			<td>Sitio</td>
 			<td><a href="{% url 'construbot.proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
 		</tr>
-		{% if is_administrador %}
+		{% if almenos_coordinador %}
 		<tr>
 			<td>Monto sin IVA</td>
 			<td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
@@ -112,13 +112,15 @@
 			<td>¿Terminado?</td>
 			<td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
 		</tr>
+		{% if almenos_coordinador %}
 		<tr>
 			<td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
 		</tr>
+		{% endif %}
 	</table>
 </div>
 <br>
-{% if is_administrador %}
+{% if almenos_coordinador %}
 <div class="cont_listado">
 	<strong>Catálogo de conceptos </strong>
 	<span class="oi oi-plus icon_right"></span><span class="oi oi-minus icon_right-up"></span>
@@ -152,19 +154,19 @@
 			<tr>
 				<th> No. </th>
 				<th> Nombre </th>
-				{% if is_administrador %} <th> Monto </th>{% endif %}
-				<th> F. de Pago </th>
+				{% if almenos_coordinador %} <th> Monto </th>
+				<th> F. de Pago </th>{% endif %}
 				<th> Editar </th>
 			</tr>
 		{% for estimacion in contrato.get_estimaciones %}
 			<tr>
 				<td>{{ estimacion.consecutive }}</td>
 				<td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-				{% if is_administrador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>{% endif %}
-				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>
+				{% if almenos_coordinador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
+				<td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>{% endif %}
 				<td>
-					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a> /
-					<a class="anchor_est_delete" data-model="Estimate" data-id="{{ estimacion.id }}" href="#">Eliminar</a>
+					<a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a>{% if almenos_coordinador %} /
+					<a class="anchor_est_delete" data-model="Estimate" data-id="{{ estimacion.id }}" href="#">Eliminar</a>{% endif %}
 				</td>
 			</tr>
 		{% endfor %}
@@ -180,32 +182,34 @@
 {% endif %}
 <br>
 <br>
-<div class="cont_listado">
-	<strong> Listado de retenciones </strong>
-	<div class="float-right"><span class="oi oi-plus" style="display:none" id="toggle-button-1"></span><span class="oi oi-minus" id="toggle-button-2"></span></div>
-</div>
-{% if contrato.retenciones_set.exists %}
-	<table class="table_sample table_normal" id="toggle-hide">
-		<tbody>
-			<tr>
-				<th> Nombre </th>
-				<th> Valor </th>
-			</tr>
-		{% for retencion in contrato.retenciones_set.all %}
-			<tr>
-				<td>{{ retencion.nombre }}</td>
-				<td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{% language 'en' %}{{ retencion.valor|intcomma }}{% endlanguage %}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
-			</tr>
-		{% endfor %}
-			<tr>
-				<td colspan="2">
-					<a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">Editar Retenciones</a>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-{% else %}
-	<div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
+{% if almenos_coordinador %}
+	<div class="cont_listado">
+		<strong> Listado de retenciones </strong>
+		<div class="float-right"><span class="oi oi-plus" style="display:none" id="toggle-button-1"></span><span class="oi oi-minus" id="toggle-button-2"></span></div>
+	</div>
+	{% if contrato.retenciones_set.exists %}
+		<table class="table_sample table_normal" id="toggle-hide">
+			<tbody>
+				<tr>
+					<th> Nombre </th>
+					<th> Valor </th>
+				</tr>
+			{% for retencion in contrato.retenciones_set.all %}
+				<tr>
+					<td>{{ retencion.nombre }}</td>
+					<td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{% language 'en' %}{{ retencion.valor|intcomma }}{% endlanguage %}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td colspan="2">
+						<a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">Editar Retenciones</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	{% else %}
+		<div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
+	{% endif %}
 {% endif %}
 {% endlanguage %}
 {% endblock %}

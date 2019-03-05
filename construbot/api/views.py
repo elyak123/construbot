@@ -1,4 +1,5 @@
 import time
+import json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -7,11 +8,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from construbot.users.models import Company, Customer, User
+from construbot.users.models import Company, Customer, NivelAcceso
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, Contrato, Estimate, Concept, Units, EstimateConcept
-from construbot.users.models import Company
-import json
+from construbot.proyectos.models import Cliente, Sitio, Destinatario, \
+    Contrato, Estimate, Concept, Units, EstimateConcept
 
 User = get_user_model()
 
@@ -42,34 +42,34 @@ def email_uniqueness(request):
 
 @api_view(['POST'])
 def create_customer_user_and_company(request):
-    name = settings.UUID+'+'+str(time.time())
-    if request.method == 'POST':
-        group_a, a_created = Group.objects.get_or_create(name='Administrators')
-        group_p, b_created = Group.objects.get_or_create(name='Proyectos')
-        group_u, c_created = Group.objects.get_or_create(name='Users')
-        customer = Customer.objects.create(customer_name=request.data.get('customer'))
-        company = Company.objects.create(customer=customer, company_name=name)
-        user = User(
-            customer=customer,
-            username=name,
-            email=request.data.get('email'),
-        )
-        user.set_unusable_password()
-        try:
-            user.full_clean()
-        except ValidationError as e:
-            return Response({'success': False, 'errors': e})
-        user.save()
-        user.company = [company.id]
-        user.groups.add(*[group_a, group_p, group_u])
-        return Response(
-            {
-                'success': True,
-                'id': user.id,
-                'email': user.email,
-                'usable': user.has_usable_password()
-            }
-        )
+    group_a, a_created = Group.objects.get_or_create(name='Administrators')
+    group_p, b_created = Group.objects.get_or_create(name='Proyectos')
+    group_u, c_created = Group.objects.get_or_create(name='Users')
+    customer = Customer.objects.create(customer_name=request.data.get('customer'))
+    company = Company.objects.create(customer=customer, company_name=request.data.get('company'))
+    nivel, nivel_created = NivelAcceso.objects.get_or_create(nivel=request.data.get('permission_level', 1))
+    user = User(
+        customer=customer,
+        username=request.data.get('name'),
+        email=request.data.get('email'),
+        nivel_acceso=nivel
+    )
+    user.set_unusable_password()
+    try:
+        user.full_clean()
+    except ValidationError as e:
+        return Response({'success': False, 'errors': e})
+    user.save()
+    user.company = [company.id]
+    user.groups.add(*[group_a, group_p, group_u])
+    return Response(
+        {
+            'success': True,
+            'id': user.id,
+            'email': user.email,
+            'usable': user.has_usable_password()
+        }
+    )
 
 
 @api_view(['POST'])
@@ -189,6 +189,7 @@ def get_concepts(contrato, concept_data):
             unit_price=concept['unit_price']
         )
 
+
 def get_estimate_concepts(estimate, estimate_concepts):
     for estimate_concept_data in estimate_concepts:
         concept, c_created = Concept.objects.get_or_create(
@@ -201,6 +202,7 @@ def get_estimate_concepts(estimate, estimate_concepts):
             cuantity_estimated=estimate_concept_data['cuantity_estimated'],
             observations=estimate_concept_data['observations']
         )
+
 
 def get_estimates(contrato, estimate_data, username):
     for estimacion in estimate_data:

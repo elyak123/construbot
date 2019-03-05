@@ -1,4 +1,3 @@
-from django import shortcuts
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -7,9 +6,9 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.auth import AuthenticationTestMixin
-from construbot.users.models import Company
+from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
-from construbot.core.utils import BasicAutocomplete
+from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
@@ -19,7 +18,7 @@ User = get_user_model()
 
 
 class ProyectosMenuMixin(AuthenticationTestMixin):
-    tengo_que_ser_admin = True
+    permiso_requerido = 2
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
         {
@@ -112,7 +111,7 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
 
 
 class ProyectDashboardView(ProyectosMenuMixin, ListView):
-    tengo_que_ser_admin = False
+    permiso_requerido = 1
     template_name = 'proyectos/index.html'
     model = Contrato
 
@@ -120,9 +119,7 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         self.object_list = self.get_queryset()
         context = super(ProyectDashboardView, self).get_context_data(**kwargs)
         context['object'] = self.request.user.currently_at
-        context['c_object'] = contratosvigentes(
-            self.request.user, self.permiso_administracion
-        )
+        context['c_object'] = contratosvigentes(self.request.user)
         context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
         context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
         context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
@@ -134,11 +131,13 @@ class DynamicList(ProyectosMenuMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        if self.queryset is None:
+        if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
+        self.queryset = Contrato.especial.asignaciones(self.request.user, self.model).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering']))
         return super(DynamicList, self).get_queryset()
 
     def get_context_data(self, **kwargs):
@@ -152,14 +151,14 @@ class ContratoListView(DynamicList):
     ordering = '-fecha'
 
     def get_queryset(self):
-        if self.request.user.is_administrator():
+        if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
-                cliente__company=self.request.user.currently_at)
+                cliente__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)
-            )
-        return super(ContratoListView, self).get_queryset()
+            ).order_by(self.ordering)
+        return self.queryset
 
 
 class ClienteListView(DynamicList):
@@ -173,16 +172,35 @@ class SitioListView(DynamicList):
 class DestinatarioListView(DynamicList):
     model = Destinatario
 
+    def get_queryset(self):
+        if self.request.user.nivel_acceso.nivel <= 3:
+            clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
+            self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering'])
+            )
+            return self.queryset
+        return super(DestinatarioListView, self).get_queryset()
+
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
     model = Concept
     ordering = 'code'
+    permiso_requerido = 3
+    nivel_permiso_asignado = 2
+    asignacion_requerida = True
+
+    def get_assignment_args(self):
+        self.contrato = self.get_contrato()
+        return self.contrato, self.request.user.contrato_set.all()
+
+    def get_contrato(self):
+        self.contrato = get_object_403_or_404(
+            Contrato, self.request.user, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+        )
+        return self.contrato
 
     def get(self, request, *args, **kwargs):
-        contrato = shortcuts.get_object_or_404(
-            Contrato, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
-        )
-        queryset = self.model.objects.filter(project=contrato).order_by('pk')
+        queryset = self.model.objects.filter(project=self.contrato).order_by('pk')
         json = {}
         json['conceptos'] = []
         for concepto in queryset:
@@ -197,31 +215,55 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
 
 class DynamicDetail(ProyectosMenuMixin, DetailView):
+    permiso_requerido = 3
+    asignacion_requerida = True
     change_company_ability = False
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object, Contrato.especial.asignaciones(self.request.user, self.model)
 
     def get_context_object_name(self, obj):
         return obj.__class__.__name__.lower()
 
     def get_object(self, queryset=None):
-        return shortcuts.get_object_or_404(
-            self.model, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
-        )
+        if not hasattr(self, 'object'):
+            self.object = get_object_403_or_404(
+                self.model, self.request.user, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
+            )
+        return self.object
 
 
 class ContratoDetailView(DynamicDetail):
-    tengo_que_ser_admin = False
+    permiso_requerido = 3
+    asignacion_requerida = True
     model = Contrato
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-        if self.request.user.is_administrator():
-            del query_kw['users']
-        return shortcuts.get_object_or_404(self.model, **query_kw)
+        del query_kw['users']
+        return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 
 class ClienteDetailView(DynamicDetail):
     model = Cliente
+
+    def contratos_ordenados(self):
+        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
+            return self.object.get_contratos_ordenados()
+        else:
+            return self.object.contrato_set.filter(
+                users=self.request.user).order_by('-fecha')
+
+    def get_context_data(self, **kwargs):
+        context = super(ClienteDetailView, self).get_context_data(**kwargs)
+        context['contratos_ordenados'] = self.contratos_ordenados()
+        return context
 
 
 class SitioDetailView(DynamicDetail):
@@ -229,12 +271,20 @@ class SitioDetailView(DynamicDetail):
 
 
 class DestinatarioDetailView(DynamicDetail):
+    # no hay info confidencial comprometida
+    permiso_requerido = 1
+    asignacion_requerida = False
     model = Destinatario
 
 
 class EstimateDetailView(DynamicDetail):
-    tengo_que_ser_admin = False
+    permiso_requerido = 3
+    asignacion_requerida = True
     model = Estimate
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object.project, self.request.user.contrato_set.all()
 
     def get_context_data(self, **kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
@@ -265,6 +315,7 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
 
 
 class EstimatePdfPrint(BasePDFGenerator):
+    nivel_permiso_asignado = 2
     template_name = 'proyectos/concept_estimate.html'
 
 
@@ -273,6 +324,7 @@ class GeneratorPdfPrint(BasePDFGenerator):
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
+    permiso_requerido = 2
     change_company_ability = False
     form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
@@ -290,9 +342,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         max_id += 1
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
-        initial_obj['users'] = [usr.pk for usr in User.objects.filter(
-            company=self.request.user.currently_at,
-            groups__name='Administrators')]
+        initial_obj['users'] = [self.request.user.pk]
         return initial_obj
 
     def get_context_data(self, **kwargs):
@@ -302,6 +352,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 
 
 class DynamicCreation(ProyectosMenuMixin, CreateView):
+    permiso_requerido = 1
     change_company_ability = False
     template_name = 'proyectos/creation_form.html'
 
@@ -330,10 +381,25 @@ class DestinatarioCreationView(DynamicCreation):
 
 class EstimateCreationView(ProyectosMenuMixin, CreateView):
     change_company_ability = False
-    tengo_que_ser_admin = False
+    permiso_requerido = 1
+    asignacion_requerida = True
     form_class = forms.EstimateForm
     model = Contrato
     template_name = 'proyectos/estimate_form.html'
+
+    def get_assignment_args(self):
+        self.project_instance = self.get_project_instance()
+        return self.project_instance, self.request.user.contrato_set.all()
+
+    def get_project_instance(self):
+        if not hasattr(self, 'project_instance'):
+            self.project_instance = get_object_403_or_404(
+                Contrato,
+                self.request.user,
+                pk=self.kwargs.get('pk'),
+                cliente__company=self.request.user.currently_at
+            )
+        return self.project_instance
 
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -373,12 +439,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         return return_dict
 
     def fill_concept_formset(self):
-        self.project_instance = shortcuts.get_object_or_404(
-            Contrato,
-            pk=self.kwargs.get('pk'),
-            cliente__company=self.request.user.currently_at
-        )
-        concepts = Concept.objects.filter(project=self.project_instance).order_by('id')
+        concepts = Concept.objects.filter(project=self.get_project_instance()).order_by('id')
         data = [
             {
                 'concept': x, 'cuantity_estimated': 0,
@@ -433,12 +494,14 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
 
 
 class DynamicEdition(ProyectosMenuMixin, UpdateView):
+    permiso_requerido = 1
     change_company_ability = False
     template_name = 'proyectos/creation_form.html'
 
     def get_object(self):
-        obj = shortcuts.get_object_or_404(
+        obj = get_object_403_or_404(
             self.form_class.Meta.model,
+            self.request.user,
             pk=self.kwargs['pk'],
             **self.get_company_query(self.form_class.Meta.model.__name__)
         )
@@ -456,9 +519,16 @@ class DynamicEdition(ProyectosMenuMixin, UpdateView):
 
 
 class ContratoEditView(ProyectosMenuMixin, UpdateView):
+    permiso_requerido = 2
+    nivel_permiso_asignado = 2
+    asignacion_requerida = True
     change_company_ability = False
     form_class = forms.ContratoForm
     template_name = 'proyectos/creation_form.html'
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_form(self, *args, **kwargs):
         form = super(ContratoEditView, self).get_form(form_class=None)
@@ -466,19 +536,14 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
         return form
 
     def get_object(self):
-        if self.request.user.is_administrator():
-            obj = shortcuts.get_object_or_404(
+        if not hasattr(self, 'object'):
+            self.object = get_object_403_or_404(
                 Contrato,
+                self.request.user,
                 pk=self.kwargs['pk'],
                 cliente__company=self.request.user.currently_at
             )
-        else:
-            obj = shortcuts.get_object_or_404(
-                Contrato,
-                pk=self.kwargs['pk'],
-                **self.get_company_query('Contrato')
-            )
-        return obj
+        return self.object
 
     def get_initial(self):
         initial_obj = super(ContratoEditView, self).get_initial()
@@ -499,18 +564,26 @@ class DestinatarioEditView(DynamicEdition):
 
 
 class EstimateEditView(ProyectosMenuMixin, UpdateView):
-    tengo_que_ser_admin = False
+    permiso_requerido = 3
+    asignacion_requerida = True
+    nivel_permiso_asignado = 1
     change_company_ability = False
     form_class = forms.EstimateForm
     template_name = 'proyectos/estimate_form.html'
     model = Estimate
 
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object.project, self.request.user.contrato_set.all()
+
     def get_object(self, queryset=None):
-        self.object = shortcuts.get_object_or_404(
-            self.model,
-            pk=self.kwargs['pk'],
-            project__cliente__company=self.request.user.currently_at
-        )
+        if not hasattr(self, 'object'):
+            self.object = get_object_403_or_404(
+                self.model,
+                self.request.user,
+                pk=self.kwargs['pk'],
+                project__cliente__company=self.request.user.currently_at
+            )
         return self.object
 
     def get_initial(self):
@@ -541,37 +614,40 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         return formset
 
     def get_concept_codes(self):
-        self.project_instance = shortcuts.get_object_or_404(
-            Contrato,
-            pk=self.object.project.pk,
-            cliente__company=self.request.user.currently_at
-        )
-        concepts = [x.code for x in Concept.objects.filter(project=self.project_instance).order_by('id')]
+        concepts = [x.code for x in Concept.objects.filter(project=self.object.project).order_by('id')]
         return concepts
 
     def get_context_data(self, **kwargs):
         context = super(EstimateEditView, self).get_context_data(**kwargs)
-        project_instance = Estimate.objects.get(pk=self.kwargs.get('pk')).project
         formset = self.get_formset_for_context()
         concept_codes = self.get_concept_codes()
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
         context['generator_inline_concept'] = formset
         context['generator_zip'] = zip(formset, concept_codes)
         context['image_formset_prefix'] = image_formset_prefix
-        context['project_instance'] = project_instance
+        context['project_instance'] = self.object.project
         return context
 
 
 class CatalogosView(ProyectosMenuMixin, UpdateView):
+    permiso_requerido = 3
+    asignacion_requerida = True
+    nivel_permiso_asignado = 2
+
+    def get_assignment_args(self):
+        self.object = self.get_object()
+        return self.object, self.request.user.contrato_set.all()
 
     def get_object(self):
-        self.model = self.form_class.fk.related_model._meta.model
-        obj = shortcuts.get_object_or_404(
-            self.model,
-            cliente__company=self.request.user.currently_at,
-            pk=self.kwargs['pk']
-        )
-        return obj
+        if not hasattr(self, 'object'):
+            self.model = self.form_class.fk.related_model._meta.model
+            self.object = get_object_403_or_404(
+                self.model,
+                self.request.user,
+                cliente__company=self.request.user.currently_at,
+                pk=self.kwargs['pk']
+            )
+        return self.object
 
     def get_success_url(self):
         return reverse(
@@ -601,6 +677,9 @@ class CatalogoConceptosInlineFormView(CatalogosView):
 
 
 class CatalogoUnitsInlineFormView(CatalogosView):
+    permiso_requerido = 1
+    asignacion_requerida = False
+    nivel_permiso_asignado = 1
     form_class = forms.UnitsInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'unidades'
@@ -616,16 +695,33 @@ class CatalogoUnitsInlineFormView(CatalogosView):
 
 
 class DynamicDelete(ProyectosMenuMixin, DeleteView):
+    permiso_requerido = 3
+    nivel_permiso_asignado = 2
     template_name = 'core/delete.html'
 
+    def get_nivel_permiso(self):
+        self.object = self.get_object()
+        if isinstance(self.object, (Contrato, Estimate)):
+            return self.enforce_assignment(*self.get_assignment_args())
+        elif isinstance(self.object, Cliente):
+            return self.permiso_requerido
+        return self.nivel_permiso_asignado
+
+    def get_assignment_args(self):
+        if isinstance(self.object, Contrato):
+            return self.object, self.request.user.contrato_set.all()
+        return self.object.project, self.request.user.contrato_set.all()
+
     def get_object(self):
-        self.model = self.model_options[self.kwargs['model']]['model']
-        obj = shortcuts.get_object_or_404(
-            self.model,
-            **self.get_company_query(self.kwargs['model']),
-            pk=self.kwargs['pk']
-        )
-        return obj
+        if not hasattr(self, 'object'):
+            self.model = self.model_options[self.kwargs['model']]['model']
+            self.object = get_object_403_or_404(
+                self.model,
+                self.request.user,
+                **self.get_company_query(self.kwargs['model']),
+                pk=self.kwargs['pk']
+            )
+        return self.object
 
     def get_company_query(self, opcion):
         kwargs = super(DynamicDelete, self).get_company_query(opcion)
@@ -656,6 +752,7 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
 
 
 class AutocompletePoryectos(BasicAutocomplete):
+    permiso_requerido = 1
     app_label_name = ProyectosConfig.verbose_name
 
     def get_key_words(self):
@@ -693,7 +790,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = shortcuts.get_object_or_404(Cliente, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Cliente, self.request.user, pk=int(self.forwarded.get('cliente')))
         kw = {'cliente': cliente}
         return kw
 
@@ -763,3 +860,26 @@ class CompanyAutocomplete(AutocompletePoryectos):
             return qs
         elif self.request.user and self.request.POST:
             return self.model.objects
+
+
+class NivelAccesoAutocomplete(AutocompletePoryectos):
+    model = NivelAcceso
+    ordering = 'nivel'
+
+    def get_queryset(self):
+        qs = self.model.objects.filter(**self.get_key_words()).order_by(self.ordering)
+        return qs
+
+    def get_key_words(self):
+        nivel = self.request.user.nivel_acceso.nivel
+        if nivel >= 3:
+            key_words = {
+                'nivel__lte': nivel
+            }
+        else:
+            key_words = {
+                'nivel__lt': nivel
+            }
+        if self.q:
+            key_words['nombre__unaccent__icontains'] = self.q
+        return key_words

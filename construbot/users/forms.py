@@ -21,11 +21,9 @@ class UserForm(UserCreationForm):
         empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
         user_group, created = Group.objects.get_or_create(name='Users')
         proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
-        admin_group, admin_created = Group.objects.get_or_create(name='Administrators')
         user.company.add(empresa)
         user.groups.add(user_group)
         user.groups.add(proyectos_groups)
-        user.groups.add(admin_group)
 
     class Meta:
         model = User
@@ -45,6 +43,7 @@ class UserForm(UserCreationForm):
             'last_supervised',
             'currently_at',
             'name',
+            'nivel_acceso',
         ]
 
 
@@ -58,6 +57,15 @@ class UsuarioInterno(UserCreationForm):
         user = super(UsuarioInterno, self).save(commit=True)
         self._save_m2m()
         return user
+
+    def clean_groups(self):
+        n_acceso = self.data['nivel_acceso']
+        user_group, created = Group.objects.get_or_create(name='Users')
+        proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
+        if int(n_acceso) >= 3:
+            return [user_group.id, proyectos_groups.id]
+        else:
+            return [proyectos_groups.id]
 
     class Meta:
         model = User
@@ -93,7 +101,11 @@ class UsuarioInterno(UserCreationForm):
             'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
         }
         widgets = {
+            'groups': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
+            'nivel_acceso': autocomplete.ModelSelect2(
+                url='proyectos:nivelacceso-autocomplete'
+            ),
             'company': autocomplete.ModelSelect2Multiple(
                 url='proyectos:company-autocomplete',
                 attrs={
@@ -151,13 +163,12 @@ class UsuarioEdit(UserChangeForm):
         }
 
     def clean_groups(self):
-        l_groups = self.data.getlist('groups')
+        n_acceso = self.data['nivel_acceso']
         customer = self.user.customer
-        numero_admins = User.objects.filter(customer=customer, groups__name='Administrators').count()
-        group = Group.objects.get(name='Administrators').id
-        if numero_admins == 1 and (str(group) not in l_groups and self.user.is_administrator()):
+        numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
+        if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
             raise ValidationError('¡No puedes quedarte sin administradores!')
-        return l_groups
+        return n_acceso
 
 
 class UsuarioEditNoAdmin(UserChangeForm):
@@ -177,6 +188,7 @@ class UsuarioEditNoAdmin(UserChangeForm):
             'last_supervised',
             'currently_at',
             'name',
+            'nivel_acceso',
         ]
         help_texts = {
             'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',

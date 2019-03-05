@@ -65,6 +65,16 @@ class Destinatario(models.Model):
         return self.destinatario_text
 
 
+class ContratoSet(models.QuerySet):
+
+    def asignaciones(self, user, model):
+        # asumimos que el atributo en el modelo Contrato
+        # se llama igual que el modelo pasado como parametro.
+        kw = {model.__name__.lower(): models.OuterRef('pk'), 'users': user}
+        contratos = self.filter(**kw)
+        return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
+
+
 class Contrato(models.Model):
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
@@ -78,6 +88,9 @@ class Contrato(models.Model):
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
+
+    objects = models.Manager()
+    especial = ContratoSet.as_manager()
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})

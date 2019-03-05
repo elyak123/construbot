@@ -12,7 +12,7 @@
       <li class="nav-item">
         <a id="generator_appear" class="nav-link active" href="#">Generador</a>
       </li>
-      {% if is_administrador %}
+      {% if almenos_coordinador %}
         <li class="nav-item">
           <a id="estimate_appear" class="nav-link" href="#">Estimación</a>
         </li>
@@ -23,7 +23,7 @@
     </ul>
     <br class="d-print-none">
     <div style="display:none;" class="cont_estimacion">
-      {% if is_administrador %}
+      {% if almenos_coordinador %}
         {% include "proyectos/concept_estimate.html" %}
       {% endif %}
     </div>

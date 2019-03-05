@@ -59,11 +59,28 @@ class ExtendUserManager(UserManager):
         except ObjectDoesNotExist:
             customer = Customer.objects.create()
         extra_fields.setdefault('customer', customer)
+        try:
+            nivel = NivelAcceso.objects.get(nivel=6)
+        except ObjectDoesNotExist:
+            nivel = NivelAcceso.objects.create(nombre='Superuser', nivel=6)
+        extra_fields.setdefault('nivel_acceso', nivel)
         if extra_fields.get('is_staff') is not True:
             raise ValueError(_('Superuser must have is_staff=True.'))
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self._create_user(email, password, **extra_fields)
+
+
+class NivelAcceso(models.Model):
+    nivel = models.IntegerField(unique=True)
+    nombre = models.CharField(_('Nivel de Acceso'), max_length=80)
+
+    class Meta:
+        verbose_name = "NivelAcceso"
+        verbose_name_plural = "NivelAccesos"
+
+    def __str__(self):
+        return '{} Nivel:{}'.format(self.nombre, self.nivel)
 
 
 class AbstractConstrubotUser(AbstractUser):
@@ -75,8 +92,9 @@ class AbstractConstrubotUser(AbstractUser):
     )
     last_updated = models.DateTimeField(auto_now=True)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
-    email = models.EmailField(unique=True, validators=[validate_email]) 
+    email = models.EmailField(unique=True, validators=[validate_email])
     is_new = models.BooleanField(default=True)
+    nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.PROTECT)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
@@ -93,13 +111,6 @@ class AbstractConstrubotUser(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
-
-    def is_administrator(self):
-        try:
-            self.groups.get(name='Administrators')
-            return True
-        except ObjectDoesNotExist:
-            return False
 
 
 class User(AbstractConstrubotUser):

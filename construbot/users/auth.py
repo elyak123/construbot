@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.conf import settings
 from construbot.core.context import ContextManager
 
@@ -7,7 +7,8 @@ from construbot.core.context import ContextManager
 class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
 
     login_url = settings.LOGIN_URL
-    tengo_que_ser_admin = False
+    permiso_requerido = 1
+    asignacion_requerida = False
     change_company_ability = True
 
     def test_func(self):
@@ -22,28 +23,41 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
         self.user_groups = [x.name.lower() for x in self.request.user.groups.all()]
         redirect_label = ['redirect']
         self.user_groups = self.user_groups + redirect_label
-        self.permiso_administracion = self.auth_admin()
-        self.debo_ser_admin = self.get_tengo_que_ser_admin()
-        if self.debo_ser_admin and not self.permiso_administracion:
-            raise PermissionDenied
-        elif self.app_label_name.lower() in self.user_groups:
+        self.nivel_permiso_usuario = self.auth_access()
+        self.nivel_permiso_vista = self.get_nivel_permiso()
+        if self.app_label_name.lower() in self.user_groups and self.nivel_permiso_usuario >= self.nivel_permiso_vista:
             return True
         else:
-            raise PermissionDenied
+            raise PermissionDenied(
+                'El usuario {} no tiene permiso para ver esta página.'.format(self.request.user.username)
+            )
 
-    def auth_admin(self):
-        return self.request.user.is_administrator()
+    def auth_access(self):
+        return self.request.user.nivel_acceso.nivel
 
     def get_context_data(self, **kwargs):
         context = super(AuthenticationTestMixin, self).get_context_data(**kwargs)
         context['current_user'] = self.request.user
         context['user_pass'] = self.request.user.is_authenticated
-        context['is_administrador'] = self.permiso_administracion
+        context['almenos_coordinador'] = self.nivel_permiso_usuario >= 2
+        context['almenos_director'] = self.nivel_permiso_usuario >= 3
+        context['almenos_corporativo'] = self.nivel_permiso_usuario >= 4
         context['puedo_cambiar'] = self.get_change_company_ability()
         return context
 
-    def get_tengo_que_ser_admin(self):
-        return self.tengo_que_ser_admin
+    def enforce_assignment(self, obj, qs):
+        if obj in qs:
+            return self.nivel_permiso_asignado if hasattr(self, 'nivel_permiso_asignado') else self.nivel_permiso_usuario
+        return self.permiso_requerido
+
+    def get_assignment_args(self):
+        raise ImproperlyConfigured('Es necesario sobre escribir el metodo para que pueda funcionar')
+
+    def get_nivel_permiso(self):
+        if self.asignacion_requerida:
+            return self.enforce_assignment(*self.get_assignment_args())
+        else:
+            return self.permiso_requerido
 
     def get_change_company_ability(self):
         return self.change_company_ability
