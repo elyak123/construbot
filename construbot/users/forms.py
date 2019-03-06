@@ -1,11 +1,13 @@
 # from django import forms
 from django import forms
 from django.forms import ValidationError
+from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
-from .models import Company
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from .models import Company, NivelAcceso
 from dal import autocomplete
 
 User = get_user_model()
@@ -111,25 +113,32 @@ class UsuarioInterno(UserCreationForm):
 
 
 class UsuarioEdit(UserChangeForm):
+    password = ReadOnlyPasswordHashField(
+        label=_("Password"),
+        help_text=_(
+            'Las contraseñas no se almacenan en texto plano, así '
+            'que no hay manera de ver la contraseña del usuario, pero se puede '
+            'cambiar la contraseña mediante este '
+            '<a href="{}">formulario</a>.'
+        ),
+    )
 
     def __init__(self, user, *args, **kwargs):
         super(UsuarioEdit, self).__init__(*args, **kwargs)
+        pass_change = reverse('account_change_password', kwargs={'username': user.username})
+        self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
         self.user = user
 
     class Meta:
         model = User
-        exclude = [
-            'is_new',
-            'openpay',
-            'last_login',
-            'is_superuser',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
+        fields = [
+            'username',
+            'password',
+            'first_name',
+            'last_name',
+            'company',
+            'email',
+            'nivel_acceso'
         ]
 
         labels = {
@@ -137,8 +146,8 @@ class UsuarioEdit(UserChangeForm):
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo electrónico',
-            'groups': 'Grupos de trabajo',
             'company': 'Compañías de trabajo',
+            'nivel_acceso': 'Nivel de Acceso'
         }
 
         widgets = {
@@ -152,13 +161,13 @@ class UsuarioEdit(UserChangeForm):
             ),
         }
 
-    def clean_groups(self):
+    def clean_nivel_acceso(self):
         n_acceso = self.data['nivel_acceso']
         customer = self.user.customer
         numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
         if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
             raise ValidationError('¡No puedes quedarte sin administradores!')
-        return n_acceso
+        return NivelAcceso.objects.get(pk=n_acceso)
 
 
 class UsuarioEditNoAdmin(UserChangeForm):

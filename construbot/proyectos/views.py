@@ -136,8 +136,9 @@ class DynamicList(ProyectosMenuMixin, ListView):
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
-        self.queryset = Contrato.especial.asignaciones(self.request.user, self.model).order_by(
-                Lower(self.model_options[self.model.__name__]['ordering']))
+        else:
+            self.queryset = Contrato.especial.asignaciones(self.request.user, self.model).order_by(
+                    Lower(self.model_options[self.model.__name__]['ordering']))
         return super(DynamicList, self).get_queryset()
 
     def get_context_data(self, **kwargs):

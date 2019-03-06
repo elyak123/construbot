@@ -796,7 +796,7 @@ class EstimateCreationTest(BaseViewTest):
             'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
         }
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
-        self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Enter a number.'])
+        self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Introduzca un número.'])
         self.assertEqual(response.status_code, 200)
 
     def test_estimate_auth_by_gen_other_company_fail(self):
@@ -1004,7 +1004,7 @@ class ContratoEditViewTest(BaseViewTest):
             contrato = Contrato.objects.get(pk=contrato_factory.pk)
             self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
             self.assertEqual(view.post(request=self.request).status_code, 200)
-            self.assertFormError(view, 'form', 'currently_at', 'This field is required.')
+            self.assertFormError(view, 'form', 'currently_at', 'Este campo es requerido.')
 
 
 class ClienteEditTest(BaseViewTest):

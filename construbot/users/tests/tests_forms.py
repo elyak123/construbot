@@ -70,7 +70,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'nivel_acceso': str(self.auxiliar_permission.id),
+            'nivel_acceso': self.auxiliar_permission.id,
             'groups': str(self.proyectos_group.id),
             'company': str(company.id),
         }
@@ -100,7 +100,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             'company': str(company.id),
         }
         qdict.update(data)
-        test_error_dict = {'groups': ['¡No puedes quedarte sin administradores!']}
+        test_error_dict = {'nivel_acceso': ['¡No puedes quedarte sin administradores!']}
         form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors, test_error_dict)

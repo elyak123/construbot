@@ -77,7 +77,7 @@
 					{% endif %}
 				</tr>
 				{% if forloop.last and almenos_coordinador%}
-				<tr><td>Total Contratos Vigentes</td><td>{{ c_object|totalvigentes|intcomma }}</td></tr>
+				<tr><td>Total Contratos Vigentes</td><td>{% language 'en' %}{{ c_object|totalvigentes|intcomma }}{% endlanguage %}</td></tr>
 				{% endif %}
 			{% empty%}
 				<tr>

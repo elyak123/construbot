@@ -12,7 +12,7 @@ from ..views import (
     UserCreateView, CompanyCreateView,
     CompanyEditView, UserDeleteView,
     CompanyChangeView, CompanyListView,
-    UserMixin, RemoveIsNewUserStatus, CompanyChangeViewFromList
+    UserMixin, RemoveIsNewUserStatus, PasswordRedirectView
 )
 from ..forms import (
     UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
@@ -107,8 +107,14 @@ class UserUpdateViewTest(utils.BaseTestCase):
         )
 
     def test_get_form_kwargs(self):
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'user': self.user,
+            'instance': self.user
+        }
         self.view.kwargs = {'username': self.user.username}
+        self.view.object = self.user
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
@@ -123,16 +129,23 @@ class UserUpdateViewTest(utils.BaseTestCase):
             username='hola',
             nivel_acceso=self.auxiliar_permission
         )
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'user': test_user,
+            'instance': test_user
+        }
         self.view.kwargs = {'username': test_user.username}
+        self.view.object = test_user
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
         )
 
-    def test_get_form_kwargs_for_admin_self_user(self):
-        self.user.groups.add(self.admin_group)
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+    def test_get_form_kwargs_for_auxiliar_self_user(self):
+        self.view.nivel_permiso_usuario = 1
+        self.view.nivel_permiso_vista = 3
+        test_kwargs = {'initial': {}, 'prefix': None}
         self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -140,7 +153,13 @@ class UserUpdateViewTest(utils.BaseTestCase):
         )
 
     def test_get_form_kwargs_no_username(self):
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'user': self.user,
+            'instance': self.user
+        }
+        self.view.object = self.user
         self.view.kwargs = {}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -550,3 +569,16 @@ class RemoveIsNewUserStatusTest(utils.BaseTestCase):
         )
         response = view.post(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {'exito': True})
+
+
+class PasswordRedirectViewTest(utils.BaseTestCase):
+
+    def test_get_redirect_url_password_change(self):
+        request = self.get_request(self.user),
+        view = self.get_instance(
+            PasswordRedirectView,
+            request=request,
+            pk=self.user.pk
+        )
+        view_url = view.get_redirect_url()
+        self.assertEqual(view_url, reverse('account_change_password'))

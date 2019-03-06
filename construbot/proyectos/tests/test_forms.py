@@ -212,7 +212,7 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
             'concept_set-1-project': str(contrato.id),
         }
         response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
-        self.assertFormsetError(response, 'formset', None, field=None, errors=['Please correct the duplicate data for concept_text.'])
+        self.assertFormsetError(response, 'formset', None, field=None, errors=['Por favor, corrija la información duplicada en concept_text.'])
         self.assertEqual(response.status_code, 200)
 
     def test_creacion_de_catalogo_unidad_differente_company_renders_error(self):
