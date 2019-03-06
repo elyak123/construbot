@@ -66,8 +66,7 @@ class UsuarioInterno(UserCreationForm):
         proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
         if int(n_acceso) >= 3:
             return [user_group.id, proyectos_groups.id]
-        else:
-            return [proyectos_groups.id]
+        return [proyectos_groups.id]
 
     class Meta:
         model = User
@@ -126,6 +125,7 @@ class UsuarioEdit(UserChangeForm):
     def __init__(self, user, *args, **kwargs):
         super(UsuarioEdit, self).__init__(*args, **kwargs)
         pass_change = reverse('account_change_password', kwargs={'username': user.username})
+        self.fields['company'].queryset = user.company.all()
         self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
         self.user = user
 
@@ -161,35 +161,25 @@ class UsuarioEdit(UserChangeForm):
             ),
         }
 
-    def clean_nivel_acceso(self):
-        n_acceso = self.data['nivel_acceso']
-        customer = self.user.customer
-        numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
-        if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
-            raise ValidationError('¡No puedes quedarte sin administradores!')
-        return NivelAcceso.objects.get(pk=n_acceso)
+    # def clean_nivel_acceso(self):
+    #     n_acceso = self.data['nivel_acceso']
+    #     customer = self.user.customer
+    #     numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
+    #     if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
+    #         raise ValidationError('¡No puedes quedarte sin administradores!')
+    #     return NivelAcceso.objects.get(pk=n_acceso)
 
 
 class UsuarioEditNoAdmin(UserChangeForm):
     class Meta:
         model = User
-        exclude = [
-            'is_new',
-            'openpay',
-            'groups',
-            'company',
-            'last_login',
-            'is_superuser',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
-            'nivel_acceso',
+        fields = [
+            'username',
+            'password',
+            'first_name',
+            'last_name',
+            'email',
         ]
-
         widgets = {
             'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),

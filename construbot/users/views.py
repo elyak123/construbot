@@ -112,14 +112,15 @@ class UserUpdateView(UserMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
         if self.nivel_permiso_usuario >= self.permiso_requerido:
-            kwargs['user'] = self.object
+            if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
+                kwargs['user'] = self.object
         return kwargs
 
     def get_form_class(self, form_class=None):
         if self.nivel_permiso_usuario >= self.permiso_requerido:
-            return UsuarioEdit
-        else:
-            return UsuarioEditNoAdmin
+            if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
+                return UsuarioEdit
+        return UsuarioEditNoAdmin
 
     def get_success_url(self):
         return reverse('users:detail', kwargs={'username': self.object.username})
@@ -256,8 +257,7 @@ class CompanyListView(UsersMenuMixin, ListView):
     ordering = '-company_name'
 
     def get_queryset(self):
-        if self.queryset is None:
-            self.queryset = self.request.user.company
+        self.queryset = self.request.user.company
         return super(CompanyListView, self).get_queryset()
 
     def get_context_data(self, **kwargs):

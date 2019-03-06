@@ -110,7 +110,6 @@ class UserUpdateViewTest(utils.BaseTestCase):
         test_kwargs = {
             'initial': {},
             'prefix': None,
-            'user': self.user,
             'instance': self.user
         }
         self.view.kwargs = {'username': self.user.username}
@@ -156,7 +155,6 @@ class UserUpdateViewTest(utils.BaseTestCase):
         test_kwargs = {
             'initial': {},
             'prefix': None,
-            'user': self.user,
             'instance': self.user
         }
         self.view.object = self.user
@@ -167,9 +165,24 @@ class UserUpdateViewTest(utils.BaseTestCase):
         )
 
     def test_returns_admin_form(self):
+        self.view.kwargs = {'username': 'blabla'}
         self.assertEqual(
             self.view.get_form_class(),
             UsuarioEdit
+        )
+
+    def test_returns_not_admin_form(self):
+        self.view.kwargs = {'username': self.user.username}
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEditNoAdmin
+        )
+
+    def test_returns_not_admin_form_no_username(self):
+        self.view.kwargs = {}
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEditNoAdmin
         )
 
     def test_get_form_class(self):

@@ -24,6 +24,19 @@ class BaseViewTest(utils.BaseTestCase):
             self.fail(message)
 
 
+class BaseViewTestTest(utils.BaseTestCase):
+
+    @mock.patch.object(BaseViewTest, 'fail')
+    def test_assert_not_raises(self, mock_fail):
+        my_function = mock.Mock()
+        function_result = mock.MagicMock()
+        my_function.return_value = function_result
+        instance = BaseViewTest()
+        instance.assertNotRaises(my_function(), Exception, 'Not raised')
+        my_function.assert_called_with()
+        mock_fail.assert_not_called()
+
+
 class PDFViewTest(BaseViewTest):
     view = views.BasePDFGenerator
 
@@ -935,13 +948,8 @@ class EstimateEditTest(BaseViewTest):
             self.request.FILES,
             instance=estimacion
         )
-        try:
-            mock_formset_klass.assert_called_once()
-            mock_formset.is_valid.assert_called_once()
-        except AttributeError:
-            # compatibilidad con python 3.5
-            self.assertEqual(mock_formset_klass.call_count, 1)
-            self.assertTrue(mock_formset.is_valid.call_count, 1)
+        mock_formset_klass.assert_called_once()
+        mock_formset.is_valid.assert_called_once()
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -1254,10 +1262,7 @@ class DynamicDeleteTest(BaseViewTest):
         )
         obj = view.get_object()
         self.assertEqual(obj, contrato)
-        try:
-            mock_404.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_404.call_count, 1)
+        mock_404.assert_called_once()
 
     def test_dynamic_delete_gets_object(self):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
@@ -1294,10 +1299,7 @@ class DynamicDeleteTest(BaseViewTest):
                 request=request,
             )
             response = view.delete(request)
-        try:
-            mock_object.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_object.call_count, 1)
+        mock_object.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
 
     @mock.patch.object(views.DynamicDelete, 'get_object')
@@ -1315,10 +1317,7 @@ class DynamicDeleteTest(BaseViewTest):
                 request=request,
             )
             response = view.delete(request)
-        try:
-            mock_object.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_object.call_count, 1)
+        mock_object.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
 
     @mock.patch.object(views.DynamicDelete, 'get_company_query')
@@ -1348,10 +1347,7 @@ class DynamicDeleteTest(BaseViewTest):
         view.folio_handling()
         contrato_delete_2.refresh_from_db()
         contrato_delete_3.refresh_from_db()
-        try:
-            mock_query.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_query.call_count, 1)
+        mock_query.assert_called_once()
         self.assertEqual(contrato_delete_2.folio, 1)
         self.assertEqual(contrato_delete_3.folio, 2)
 
