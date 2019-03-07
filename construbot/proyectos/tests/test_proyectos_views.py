@@ -1,6 +1,7 @@
 import json
 import decimal
 from unittest import mock
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import RequestFactory, tag
 from django.http import Http404
@@ -281,16 +282,14 @@ class ContratoDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, contrato)
 
-    def test_assert_contrato_request_returns_404_with_no_currently_at(self):
-        contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+    def test_assert_contrato_request_returns_permissiondenied_without_its_company(self):
+        contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.ContratoDetailView,
             pk=contrato.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -308,15 +307,14 @@ class ClienteDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, cliente)
 
-    def test_assert_cliente_request_returns_404_with_no_currently_at(self):
-        cliente_company = factories.CompanyFactory(customer=self.user.customer)
-        cliente = factories.ClienteFactory(company=cliente_company)
+    def test_assert_cliente_request_raises_permissiondenied_with_no_currently_at(self):
+        cliente = factories.ClienteFactory(company__customer=self.user.customer)
         view = self.get_instance(
             views.ClienteDetailView,
             pk=cliente.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_assert_cliente_contratos_ordenados_only_assigned(self):
@@ -326,6 +324,8 @@ class ClienteDetailTest(BaseViewTest):
         contrato2.users.add(self.user)
         contrato3 = factories.ContratoFactory(cliente=cliente)
         contrato3.users.add(self.user)
+        self.user.currently_at = cliente.company
+        self.user.save()
         view = self.get_instance(
             views.ClienteDetailView,
             pk=cliente.pk,
@@ -353,7 +353,7 @@ class SitioDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, sitio)
 
-    def test_assert_sitio_request_returns_404_with_no_currently_at(self):
+    def test_assert_sitio_request_returns_permissiondenied_without_its_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio_cliente = factories.ClienteFactory(company=sitio_company)
         sitio = factories.SitioFactory(cliente=sitio_cliente)
@@ -362,7 +362,7 @@ class SitioDetailTest(BaseViewTest):
             pk=sitio.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -381,16 +381,14 @@ class DestinatarioDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, destinatario)
 
-    def test_assert_request_returns_404_with_no_currently_at(self):
-        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
-        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+    def test_destinatario_assert_request_returns_permissiondenied_without_its_company(self):
+        destinatario = factories.DestinatarioFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.DestinatarioDetailView,
             pk=destinatario.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -966,14 +964,14 @@ class ContratoEditViewTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, contrato)
 
-    def test_get_object_raises_404_not_currently_at(self):
+    def test_get_object_raises_permissiondenied_without_its_company(self):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.ContratoEditView,
             request=self.request,
             pk=contrato.pk
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_get_initial_has_currently_at(self):
@@ -1027,14 +1025,14 @@ class ClienteEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, cliente)
 
-    def test_get_cliente_object_raises_404_not_currently_at(self):
+    def test_get_cliente_object_raises_permissiondenied_not_currently_at(self):
         cliente = factories.ClienteFactory()
         view = self.get_instance(
             views.ClienteEditView,
             request=self.request,
             pk=cliente.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_get_cliente_initial_has_company(self):
@@ -1062,14 +1060,14 @@ class SitioEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, sitio)
 
-    def test_get_sitio_object_raises_404_not_currently_at(self):
+    def test_get_sitio_object_raises_permissiondenied_not_currently_at(self):
         sitio = factories.SitioFactory()
         view = self.get_instance(
             views.SitioEditView,
             request=self.request,
             pk=sitio.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_sitio_get_initial_has_company(self):
@@ -1097,14 +1095,14 @@ class DestinatarioEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, destinatario)
 
-    def test_get_destinatario_object_raises_404_not_currently_at(self):
+    def test_get_destinatario_object_raises_permissiondenied_not_currently_at(self):
         destinatario = factories.DestinatarioFactory()
         view = self.get_instance(
             views.DestinatarioEditView,
             request=self.request,
             pk=destinatario.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_destinatario_get_initial_has_company(self):

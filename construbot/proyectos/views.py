@@ -120,8 +120,12 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         context = super(ProyectDashboardView, self).get_context_data(**kwargs)
         context['object'] = self.request.user.currently_at
         context['c_object'] = contratosvigentes(self.request.user)
-        context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
-        context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
+        context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(
+            self.request.user.currently_at, context['almenos_coordinador'], self.request.user
+        )
+        context['estimacionespendientes_pago'] = estimacionespendientes_pago(
+            self.request.user.currently_at, context['almenos_coordinador'], self.request.user
+        )
         context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
         context['total_sinpago'] = total_sinpago(context['estimacionespendientes_pago'])
         return context
@@ -234,6 +238,19 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
             )
         return self.object
 
+    def contratos_ordenados(self):
+        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
+            return self.object.get_contratos_ordenados()
+        contratos = self.object.contrato_set.filter(
+             **self.get_company_query('Contrato')).order_by('-fecha')
+        return contratos
+
+    def get_context_data(self, **kwargs):
+        context = super(DynamicDetail, self).get_context_data(**kwargs)
+        if self.model is Sitio or self.model is Cliente:
+            context['contratos_ordenados'] = self.contratos_ordenados()
+        return context
+
 
 class ContratoDetailView(DynamicDetail):
     permiso_requerido = 3
@@ -253,18 +270,6 @@ class ContratoDetailView(DynamicDetail):
 
 class ClienteDetailView(DynamicDetail):
     model = Cliente
-
-    def contratos_ordenados(self):
-        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
-            return self.object.get_contratos_ordenados()
-        else:
-            return self.object.contrato_set.filter(
-                users=self.request.user).order_by('-fecha')
-
-    def get_context_data(self, **kwargs):
-        context = super(ClienteDetailView, self).get_context_data(**kwargs)
-        context['contratos_ordenados'] = self.contratos_ordenados()
-        return context
 
 
 class SitioDetailView(DynamicDetail):

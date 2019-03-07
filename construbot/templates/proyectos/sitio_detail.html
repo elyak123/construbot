@@ -26,7 +26,7 @@
 	</table>
 </div>
 <br>
-{% if sitio.contrato_set.exists %}
+{% if contratos_ordenados %}
 	<h2 class="title">Listado de contratos con el sitio: </h2>
 	<table class="table_sample table_normal">
 		<tr>
@@ -35,7 +35,7 @@
 			{% if almenos_coordinador %}<th class="th_table_sample"> Monto </th>{% endif %}
 			<th class="th_table_sample"> Sitio </th>
 		</tr>
-	{% for contrato in sitio.get_contratos_ordenados %}
+	{% for contrato in contratos_ordenados %}
 		<tr>
 			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
 			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>

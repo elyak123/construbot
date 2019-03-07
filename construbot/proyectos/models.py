@@ -35,6 +35,10 @@ class Sitio(models.Model):
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
+    @property
+    def company(self):
+        return self.cliente.company
+
     def get_absolute_url(self):
         return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})
 
@@ -53,6 +57,10 @@ class Destinatario(models.Model):
     destinatario_text = models.CharField(max_length=80)
     puesto = models.CharField(max_length=50, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+
+    @property
+    def company(self):
+        return self.cliente.company
 
     def get_absolute_url(self):
         return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
@@ -91,6 +99,10 @@ class Contrato(models.Model):
 
     objects = models.Manager()
     especial = ContratoSet.as_manager()
+
+    @property
+    def company(self):
+        return self.cliente.company
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
@@ -155,6 +167,10 @@ class Estimate(models.Model):
     payment_date = models.DateField(null=True, blank=True)
     mostrar_anticipo = models.BooleanField(default=False)
     mostrar_retenciones = models.BooleanField(default=False)
+
+    @property
+    def company(self):
+        return self.project.cliente.company
 
     def get_absolute_url(self):
         return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})

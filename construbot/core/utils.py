@@ -1,6 +1,7 @@
 from time import strftime
 from django import shortcuts
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.db.models import Func
 from dal import autocomplete
 from construbot.users.auth import AuthenticationTestMixin
@@ -36,13 +37,13 @@ def get_image_directory_path(instance, filename):
 def get_object_403_or_404(model, user, **kwargs):
     try:
         obj = shortcuts.get_object_or_404(model, **kwargs)
-    except model.DoesNotExist as e:
+    except Http404 as e:
         if any([n[-7:] == 'company' for n in kwargs.keys()]):
             kwargs = get_rid_of_company_kw(kwargs)
             try:
-                obj = model.objects.filter(**kwargs)
+                obj = shortcuts.get_object_or_404(model, **kwargs)
                 return object_or_403(user, obj)
-            except model.DoesNotExist as e:
+            except Http404 as e:
                 raise e
         raise e
     return obj

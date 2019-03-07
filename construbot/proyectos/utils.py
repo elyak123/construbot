@@ -22,12 +22,18 @@ def sumatoria_query(queryset, campo):
     return queryset.aggregate(total=Sum(campo))
 
 
-def estimacionespendientes_facturacion(company):
-    return Estimate.objects.select_related('project').filter(project__cliente__company=company, invoiced=False)
+def estimacionespendientes_facturacion(company, almenos_coordinador, user):
+    kw = {'project__cliente__company': company, 'invoiced': False}
+    if almenos_coordinador:
+        kw['project__users'] = user
+    return Estimate.objects.select_related('project').filter(**kw)
 
 
-def estimacionespendientes_pago(company):
-    return Estimate.objects.select_related('project').filter(project__cliente__company=company, invoiced=True, paid=False)
+def estimacionespendientes_pago(company, almenos_coordinador, user):
+    kw = {'project__cliente__company': company, 'invoiced': True, 'paid': False}
+    if almenos_coordinador:
+        kw['project__users'] = user
+    return Estimate.objects.select_related('project').filter(**kw)
 
 
 def total_sinpago(estimaciones):

@@ -1,13 +1,12 @@
 # from django import forms
 from django import forms
-from django.forms import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from .models import Company, NivelAcceso
+from .models import Company
 from dal import autocomplete
 
 User = get_user_model()
@@ -160,14 +159,6 @@ class UsuarioEdit(UserChangeForm):
                 }
             ),
         }
-
-    # def clean_nivel_acceso(self):
-    #     n_acceso = self.data['nivel_acceso']
-    #     customer = self.user.customer
-    #     numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
-    #     if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
-    #         raise ValidationError('¡No puedes quedarte sin administradores!')
-    #     return NivelAcceso.objects.get(pk=n_acceso)
 
 
 class UsuarioEditNoAdmin(UserChangeForm):

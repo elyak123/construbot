@@ -1,7 +1,10 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.conf import settings
 from construbot.core.context import ContextManager
+
+User = get_user_model()
 
 
 class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
@@ -12,8 +15,12 @@ class AuthenticationTestMixin(UserPassesTestMixin, ContextManager):
     change_company_ability = True
 
     def test_func(self):
-        if not self.request.user.is_authenticated:
-            return False
+        try:
+            self.request.user = User.objects.select_related(
+                'currently_at', 'nivel_acceso').prefetch_related('company').get(pk=self.request.user.pk)
+        except User.DoesNotExist:
+            if not self.request.user.is_authenticated:
+                return False
         if self.request.user.company.exists():
             if not self.request.user.currently_at:
                 self.request.user.currently_at = self.request.user.company.first()

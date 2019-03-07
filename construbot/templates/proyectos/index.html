@@ -106,7 +106,7 @@
 						</td>
 					</tr>
 					{% if forloop.last and almenos_coordinador%}
-					<tr><td colspan="3">Total</td><td>{{ total_sin_facturar|intcomma }}</td></tr>
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sin_facturar|intcomma }}{% endlanguage %}</td></tr>
 					{% endif %}
 				{% empty %}
 					<tr>
@@ -132,7 +132,7 @@
 						</td>
 					</tr>
 					{% if forloop.last and almenos_coordinador%}
-					<tr><td colspan="3">Total</td><td>{{ total_sinpago|intcomma }}</td></tr>
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sinpago|intcomma }}{% endlanguage %}</td></tr>
 					{% endif %}
 				{% empty %}
 					<tr>

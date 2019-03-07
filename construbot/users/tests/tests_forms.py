@@ -80,31 +80,6 @@ class UsuarioEditTest(utils.BaseTestCase):
         form.save()
         self.assertTrue(authenticate(username='nuevo_test', password='password'))
 
-    # def test_UsuarioEdit_group_error(self):
-    #     company = Company.objects.create(
-    #         company_name='some_company',
-    #         customer=self.user.customer
-    #     )
-    #     self.user.groups.add(self.user_group)
-    #     self.user.company.add(company)
-    #     self.user.nivel_acceso = self.director_permission
-    #     qdict = QueryDict('', mutable=True)
-    #     data = {
-    #         'customer': str(self.user.customer.id),
-    #         'username': 'nuevo_test',
-    #         'first_name': 'John',
-    #         'last_name': 'Doe',
-    #         'email': 'lkjas@hola.com',
-    #         'nivel_acceso': self.auxiliar_permission.id,
-    #         'groups': str(self.user_group.id),
-    #         'company': str(company.id),
-    #     }
-    #     qdict.update(data)
-    #     test_error_dict = {'nivel_acceso': ['¡No puedes quedarte sin administradores!']}
-    #     form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
-    #     self.assertFalse(form.is_valid())
-    #     self.assertEqual(form.errors, test_error_dict)
-
     def test_CompanyCreationForm(self):
         company = Company.objects.create(
             company_name='some_company',

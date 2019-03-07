@@ -58,7 +58,7 @@ class _PasswordChangeView(AuthenticationTestMixin, PasswordChangeView):
             raise PermissionDenied('El usuario no tiene acceso a permisos fuera de su cuenta.')
 
     def get_form_class(self):
-        if self.nivel_permiso_vista == self.permiso_requerido:
+        if self.nivel_permiso_vista >= self.permiso_requerido:
             return SetPasswordForm
         return ChangePasswordForm
 
@@ -73,7 +73,7 @@ class _PasswordChangeView(AuthenticationTestMixin, PasswordChangeView):
         return context
 
     def get_success_url(self):
-        if self.nivel_permiso_vista == self.permiso_requerido:
+        if self.nivel_permiso_vista >= self.permiso_requerido:
             return reverse('users:detail', kwargs={'username': self.object.username})
         return reverse('proyectos:proyect_dashboard')
 
