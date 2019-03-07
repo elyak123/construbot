@@ -11,6 +11,13 @@ def contratosvigentes(user):
                 F('estimate__estimateconcept__concept__unit_price')
             ) / F('monto') * 100
             )).order_by('-monto')
+    elif user.nivel_acceso.nivel == 2:
+        contratos = Contrato.objects.select_related('cliente').filter(
+            status=True, cliente__company=user.currently_at, users=user).annotate(total_estimado=Round(Sum(
+                F('estimate__estimateconcept__cuantity_estimated') *
+                F('estimate__estimateconcept__concept__unit_price')
+            ) / F('monto') * 100
+            )).order_by('-monto')
     else:
         contratos = Contrato.objects.select_related('cliente').filter(
             status=True, cliente__company=user.currently_at, users=user
