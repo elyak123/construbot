@@ -38,4 +38,8 @@ urlpatterns = [
         regex=r'^migraciones/Contrato/$',
         view=views.DataMigration.contrato_concept_and_estimate_migration, name='migracion_de_contratos'
     ),
+    url(
+        regex=r'^post/webhook/$',
+        view=views.WebHook.as_view(), name='webhook_handler'
+    ),
 ]
