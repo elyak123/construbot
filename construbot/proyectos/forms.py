@@ -35,7 +35,8 @@ class ContratoForm(forms.ModelForm):
             'contrato_name': 'Nombre del contrato',
             'contrato_shortName': 'Nombre corto',
             'file': 'Archivo',
-            'users': '¿A qué usuarios desea asignarlo?'
+            'users': '¿A qué usuarios desea asignarlo?',
+            'status': '¿El proyecto ya terminó?'
         }
         widgets = {
             'fecha': forms.DateInput(
@@ -69,6 +70,18 @@ class ContratoForm(forms.ModelForm):
                 attrs={'style': 'width:200px;'}
             ),
         }
+        help_texts = {
+            'code': 'Código del contrato, este código debe coincidir con el código del contrato firmado.',
+            'folio': 'ID consecutivo de contrato en la compañía.',
+            'contrato_name': 'Nombre completo del proyecto, se utilizará para generar la estimación.',
+            'contrato_shortName': 'Identificador corto del contrato para control en listados.',
+            'cliente': '¿Con qué empresa/persona física firmé el contrato?',
+            'sitio': '¿En qué predio será realizado el proyecto?',
+            'status': 'Indique si el proyecto ya ha sido terminado.',
+            'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
+            'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
+            'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
+        }
 
 
 class BaseCleanForm(forms.ModelForm):
@@ -98,6 +111,9 @@ class ClienteForm(BaseCleanForm):
         widgets = {
             'company': forms.HiddenInput()
         }
+        help_texts = {
+            'cliente_name': 'Nombre o razón social del cliente con el cuál tendrá proyectos.',
+        }
 
 
 class SitioForm(forms.ModelForm):
@@ -116,6 +132,11 @@ class SitioForm(forms.ModelForm):
                 attrs={'data-minimum-input-length': 3}
             ),
         }
+        help_texts = {
+            'sitio_name': 'Nombre de la locación en la que se harán proyectos.',
+            'sitio_location': 'Ciudad dónde se encuentra el sitio',
+            'cliente': '¿A qué empresa/persona física le pertenece o se relaciona?'
+        }
 
 
 class DestinatarioForm(forms.ModelForm):
@@ -132,6 +153,11 @@ class DestinatarioForm(forms.ModelForm):
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}
             ),
+        }
+        help_texts = {
+            'destinatario_text': 'Nombre del representante de la empresa que firmará documentos.',
+            'puesto': '¿En qué puesto trabaja?',
+            'cliente': '¿Para qué empresa/persona física trabaja?'
         }
 
 
@@ -167,6 +193,20 @@ class EstimateForm(forms.ModelForm):
             'paid': '¿Pagada?',
             'invoiced': '¿Facturada?',
             'payment_date': 'Fecha de pago',
+        }
+        help_texts = {
+            'consecutive': 'Número de estimación correspondiente al proyecto.',
+            'supervised_by': '¿Qué usuario fue residente de obra?',
+            'start_date': 'Fecha de inicio del período que comprende la estimación.',
+            'finish_date': 'Fecha de finalización del período que comprende la estimación.',
+            'auth_by': '¿Qué personas encargadas de la empresa cliente autorizan la estimación?',
+            'auth_by_gen': '¿Qué personas encargadas de la empresa cliente autorizan el generador?',
+            'auth_date': 'Fecha en la que la estimación ha sido autorizada.',
+            'paid': '¿La estimación ya fue pagada?',
+            'invoiced': '¿La estimación ya fue facturada?',
+            'payment_date': 'En caso de que la estimación ya haya sido pagada, indique la fecha de pago.',
+            'mostrar_anticipo': '¿Desea que en la versión impresa se muestre el concepto de anticipo?',
+            'mostrar_retenciones': '¿Desea que en la versión impresa se muestren las retenciones efectuadas?'
         }
         widgets = {
             'consecutive': forms.TextInput(

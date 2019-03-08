@@ -32,6 +32,17 @@
 		$('#tutorialModal').on('hidden.bs.modal', function (e) {
 			if(!fuera){document.getElementById('startButton').click();}
 		});
+		$("#omitir").on("click", function(){
+			let POST_token = $("#user_form").serialize();
+			$.ajax({
+			    type: 'POST',
+			    url: '{% url "users:remove_is_new" request.user.pk %}',
+			    data: POST_token,
+			    success: function(result){
+			    	window.location.reload();
+			    }
+			});
+		});
   </script>
 {% endif %}
 {% endblock %}
@@ -160,6 +171,7 @@
 			</div>
 			<div class="modal-footer">
 				<button href="javascript:void(0);" id="startButton" type="button" class="btn btn-primary" data-dismiss="modal">Iniciar tutorial</button>
+				<button href="" id="omitir" type="button" class="btn btn-danger" data-dismiss="modal">Saltar tutorial</button>
 			</div>
 		</div>
 	</div>

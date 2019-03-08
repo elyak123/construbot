@@ -35,6 +35,7 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
         self.user.nivel_acceso = self.coordinador_permission
         self.user.save()
         self.client.login(username=self.user.username, password='password')
+        url_remove_is_new = reverse('users:remove_is_new', kwargs={'pk': self.user.pk})
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         nuevo_contrato_url = reverse('proyectos:nuevo_contrato')
         text = f"""
@@ -49,6 +50,17 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
                 $("#tutorialModal").modal();
                 $('#tutorialModal').on('hidden.bs.modal', function (e) {{
                     if(!fuera){{document.getElementById('startButton').click();}}
+                }});
+                $("#omitir").on("click", function(){{
+                    let POST_token = $("#user_form").serialize();
+                    $.ajax({{
+                        type: 'POST',
+                        url: '{url_remove_is_new}',
+                        data: POST_token,
+                        success: function(result){{
+                            window.location.reload();
+                        }}
+                    }});
                 }});
             </script>
         """
@@ -102,6 +114,7 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
         self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.client.login(username=self.user.username, password='password')
+        url_remove_is_new = reverse('users:remove_is_new', kwargs={'pk': self.user.pk})
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         remove_is_new = reverse('users:remove_is_new', kwargs={'pk': self.user.pk})
         text = f"""
@@ -124,6 +137,17 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
                 $("#tutorialModal").modal();
                 $('#tutorialModal').on('hidden.bs.modal', function (e) {{
                     if(!fuera){{document.getElementById('startButton').click();}}
+                }});
+                $("#omitir").on("click", function(){{
+                    let POST_token = $("#user_form").serialize();
+                    $.ajax({{
+                        type: 'POST',
+                        url: '{url_remove_is_new}',
+                        data: POST_token,
+                        success: function(result){{
+                            window.location.reload();
+                        }}
+                    }});
                 }});
             </script>
         """
