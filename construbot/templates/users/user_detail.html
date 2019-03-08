@@ -43,6 +43,7 @@
           ¡Este usuario no cuenta con compañías!
         {% endif %}
       </td>
+      <td colspan="2" class="text-center"><a href="{% url 'users:update' object.username %}">Editar Usuario</a></td>
     </tr>
   </table>
 </div>

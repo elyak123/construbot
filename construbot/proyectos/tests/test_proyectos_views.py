@@ -4,7 +4,6 @@ from unittest import mock
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import RequestFactory, tag
-from django.http import Http404
 from construbot.users.tests import utils
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
