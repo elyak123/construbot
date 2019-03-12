@@ -9,6 +9,7 @@ from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
 ##
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
@@ -100,6 +101,7 @@ class WebHook(APIView):
 
 class DataMigration(object):
     @api_view(['POST'])
+    @csrf_exempt
     def cliente_migration(request):
         json_data = dict(request.data)
         for nombre, obj in json_data.items():
