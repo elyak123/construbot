@@ -5,12 +5,6 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from rest_framework import generics
-# Checar uso correcto
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from django.views.decorators.csrf import csrf_exempt
-##
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -86,22 +80,8 @@ def change_user_password(request):
     return Response({'pass': user.has_usable_password()})
 
 
-class WebHook(APIView):
-    authentication_class = (BasicAuthentication)
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request, format=None):
-        import pdb; pdb.set_trace()
-        content = {
-            'user': request.user,  # `django.contrib.auth.User` instance.
-            'auth': request.auth,  # None
-        }
-        return Response(content)
-
-
 class DataMigration(object):
     @api_view(['POST'])
-    @csrf_exempt
     def cliente_migration(request):
         json_data = dict(request.data)
         for nombre, obj in json_data.items():
