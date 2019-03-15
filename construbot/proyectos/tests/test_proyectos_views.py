@@ -333,7 +333,7 @@ class ClienteDetailTest(BaseViewTest):
         view.object = cliente
         qs = view.contratos_ordenados()
         qs_test = [repr(q) for q in sorted(
-            [contrato2, contrato3], key=lambda x: repr(x.fecha).lower(), reverse=True
+            [contrato2, contrato3], key=lambda x: x.fecha, reverse=True
         )]
         self.assertQuerysetEqual(qs, qs_test)
 
