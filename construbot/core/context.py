@@ -46,5 +46,6 @@ class ContextManager(ContextMixin):
         context['is_new_user'] = self.request.user.is_new
         context['menu'] = self.get_menu()
         context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
+        context['favicon'] = settings.FAVICON_URL
         context['app_label_name'] = self.app_label_name.lower()
         return context

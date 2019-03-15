@@ -337,3 +337,5 @@ NIVELES_ACCESO = [
     {'nombre': 'Soporte', 'nivel': 5},
     {'nombre': 'Superusuario', 'nivel': 6}
 ]
+
+FAVICON_URL = env('FAVICON_URL', default='')
