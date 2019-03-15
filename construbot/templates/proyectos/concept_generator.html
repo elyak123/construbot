@@ -165,8 +165,9 @@
     if (list.length>0) {
       for(var i=0; i<conceptos; i++){
         if($("#conc-"+i).length>0){
-          aux = 680-(header_and_footer_size+$("#conc-"+i)[0].offsetHeight);
+          aux = 740-(header_and_footer_size+$("#conc-"+i)[0].offsetHeight);
           $('#img-'+i).css("height", aux+"px");
+          //$('#img-'+i).css("padding", "0px 2px");
         }
       }
       for(var i=0; i<conceptos; i++){
@@ -179,12 +180,12 @@
               lista_de_imagenes.css("max-height", 99+'%');
             }
           }
-          for(var j=0; j<lista_de_imagenes.length; j++){
-            var tam = parseInt($("#img-"+i)[0].style.height.substring(0, $("#img-"+i)[0].style.height.length-2));
-            while(lista_de_imagenes[j].offsetHeight >= tam){
-              lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
-            }
-          }
+          //for(var j=0; j<lista_de_imagenes.length; j++){
+          //  var tam = parseInt($("#img-"+i)[0].style.height.substring(0, $("#img-"+i)[0].style.height.length-2));
+          //  while(lista_de_imagenes[j].offsetHeight >= tam){
+          //    lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
+          //  }
+          //}
         }
       }
     }

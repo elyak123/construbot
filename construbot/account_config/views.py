@@ -13,22 +13,29 @@ from construbot.users.auth import AuthenticationTestMixin
 User = get_user_model()
 
 
-class _SignupView(SignupView):
+class BaseContext(object):
+    def get_context_data(self, **kwargs):
+        context = super(BaseContext, self).get_context_data(**kwargs)
+        context['favicon'] = settings.FAVICON_URL
+        return context
+
+
+class _SignupView(BaseContext, SignupView):
     pass
 
 
-class _LoginView(LoginView):
+class _LoginView(BaseContext, LoginView):
     def get_context_data(self, **kwargs):
         context = super(_LoginView, self).get_context_data(**kwargs)
         context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
         return context
 
 
-class _LogoutView(LogoutView):
+class _LogoutView(BaseContext, LogoutView):
     pass
 
 
-class _PasswordChangeView(AuthenticationTestMixin, PasswordChangeView):
+class _PasswordChangeView(BaseContext, AuthenticationTestMixin, PasswordChangeView):
     app_label_name = 'redirect'
     permiso_requerido = 3
 
@@ -78,37 +85,37 @@ class _PasswordChangeView(AuthenticationTestMixin, PasswordChangeView):
         return reverse('proyectos:proyect_dashboard')
 
 
-class _PasswordSetView(PasswordSetView):
+class _PasswordSetView(BaseContext, PasswordSetView):
     pass
 
 
-class _PasswordResetView(PasswordResetView):
+class _PasswordResetView(BaseContext, PasswordResetView):
     pass
 
 
-class _PasswordResetDoneView(PasswordResetDoneView):
+class _PasswordResetDoneView(BaseContext, PasswordResetDoneView):
     pass
 
 
-class _PasswordResetFromKeyView(PasswordResetFromKeyView):
+class _PasswordResetFromKeyView(BaseContext, PasswordResetFromKeyView):
     pass
 
 
-class _PasswordResetFromKeyDoneView(PasswordResetFromKeyDoneView):
+class _PasswordResetFromKeyDoneView(BaseContext, PasswordResetFromKeyDoneView):
     pass
 
 
-class _AccountInactiveView(AccountInactiveView):
+class _AccountInactiveView(BaseContext, AccountInactiveView):
     pass
 
 
-class _EmailView(EmailView):
+class _EmailView(BaseContext, EmailView):
     pass
 
 
-class _EmailVerificationSentView(EmailVerificationSentView):
+class _EmailVerificationSentView(BaseContext, EmailVerificationSentView):
     pass
 
 
-class _ConfirmEmailView(ConfirmEmailView):
+class _ConfirmEmailView(BaseContext, ConfirmEmailView):
     pass

@@ -43,7 +43,6 @@ class PDFViewTest(BaseViewTest):
     def test_get_cmd_options(self):
         test_obj = {
             'orientation': 'Landscape',
-            'javascript-delay': 1000
         }
         result = self.view.get_cmd_options(self)
         self.assertEqual(result, test_obj)
