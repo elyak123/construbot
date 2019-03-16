@@ -68,9 +68,9 @@ setup(
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
         'django-anymail==1.4',
-        # Raven is the Sentry client
+        # Sentry client
         # --------------------------
-        'raven==6.4.0',
+        'sentry-sdk==0.7.6',
         # Security
         'pyup-django==0.4.0',
     ],
