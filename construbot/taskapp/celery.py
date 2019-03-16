@@ -24,17 +24,11 @@ class CeleryConfig(AppConfig):
         installed_apps = [app_config.name for app_config in apps.get_app_configs()]
         app.autodiscover_tasks(lambda: installed_apps, force=True)
 
-        if hasattr(settings, 'SENTRY_DSN'):
-            # Celery signal registration
-            import sentry_sdk
-            from sentry_sdk.integrations.celery import CeleryIntegration
-            from sentry_sdk.integrations.logging import LoggingIntegration
-
-            sentry_logging = LoggingIntegration(
-                level=settings.SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
-                event_level=None,  # Send no events from log messages
-            )
-            sentry_sdk.init(dsn=settings.SENTRY_DSN, integrations=[sentry_logging, CeleryIntegration()])
+        # if hasattr(settings, 'SENTRY_DSN'):
+        #     # Celery signal registration
+        #     import sentry_sdk
+        #     from sentry_sdk.integrations.celery import CeleryIntegration
+        #     sentry_sdk.init(settings.SENTRY_DSN, integrations=[CeleryIntegration()])
 
 
 @app.task(bind=True)

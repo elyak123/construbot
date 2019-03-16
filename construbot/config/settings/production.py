@@ -18,7 +18,6 @@ import logging
 from .base import *  # noqa
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -182,16 +181,16 @@ LOGGING = {
         },
     },
 }
-# Sentry Configuration
+# # Sentry Configuration
 SENTRY_DSN = env('DJANGO_SENTRY_DSN')
 SENTRY_LOG_LEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
-sentry_logging = LoggingIntegration(
-    level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
-    event_level=None,  # Send no events from log messages
-)
+# sentry_logging = LoggingIntegration(
+#     level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
+#     event_level=logging.ERROR,  # Send no events from log messages
+# )
 sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[sentry_logging, DjangoIntegration()]
+    SENTRY_DSN,
+    integrations=[DjangoIntegration()]
 )
 
 # Custom Admin URL, use {% url 'admin:index' %}
