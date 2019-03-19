@@ -462,6 +462,14 @@ a:hover {
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.color-g {
+	background: #e4e4e4;
+}
+
+.color-b {
+	background: beige;
+}
+
 .fila_par, .fila_impar {
     padding: 15px;
     border-radius: 5px;
@@ -512,6 +520,14 @@ table.estimate * , table.generator * {
 	font-size: 18px;
 }
 
+.border-w {
+	border-color: white black white white;
+}
+
+.border-w-sp {
+	border-color: white black black white;
+}
+
 .cont_est_data {
 	border-style: none;
 }
@@ -536,7 +552,7 @@ table.estimate * , table.generator * {
 	border-width: 1px;
 }
 .generatorDescription{
-	height: 180px;
+	
 }
 .sin_borde {
 	border-style: none !important;

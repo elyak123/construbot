@@ -21,7 +21,7 @@ class ContextManager(ContextMixin):
             if single_menu['title'].lower() in self.user_groups:
                 shallow_menu.insert(count + 1, single_menu)
 
-        if len(menu_2) > 0:
+        if len(menu_2) > 0 and self.nivel_permiso_usuario >= 2:
             another_copy = copy.deepcopy(self.menu)
             for counter, element in enumerate(another_copy):
                 if self.app_label_name.lower() == element['title'].lower():
@@ -46,5 +46,6 @@ class ContextManager(ContextMixin):
         context['is_new_user'] = self.request.user.is_new
         context['menu'] = self.get_menu()
         context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
+        context['favicon'] = settings.FAVICON_URL
         context['app_label_name'] = self.app_label_name.lower()
         return context

@@ -1,7 +1,7 @@
+from unittest import mock
 from django.core.exceptions import PermissionDenied
-from django.test import RequestFactory, override_settings , tag
+from django.test import override_settings, tag
 from django.urls import reverse
-from django.contrib.auth.models import Group
 from construbot.users.models import Company
 from . import factories
 from . import utils
@@ -12,7 +12,7 @@ from ..views import (
     UserCreateView, CompanyCreateView,
     CompanyEditView, UserDeleteView,
     CompanyChangeView, CompanyListView,
-    CompanyDetailView
+    UserMixin, RemoveIsNewUserStatus, PasswordRedirectView
 )
 from ..forms import (
     UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin,
@@ -20,15 +20,20 @@ from ..forms import (
 )
 
 
-class BaseUserTestCase(utils.BaseTestCase):
+class UserMixinTest(utils.BaseTestCase):
 
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.user_factory()
-        self.factory = RequestFactory()
+    def test_check_permissions_raises_permission_denied(self):
+        mock_obj = mock.MagicMock()
+        mock_obj.obj = mock.MagicMock()
+        view = self.get_instance(
+            UserMixin,
+            request=self.get_request(self.user),
+        )
+        with self.assertRaises(PermissionDenied):
+            view.check_obj_permissions(mock_obj)
 
 
-class TestUserRedirectView(BaseUserTestCase):
+class UserRedirectViewTest(utils.BaseTestCase):
 
     def test_get_redirect_url(self):
         # Instantiate the view directly. Never do this outside a test!
@@ -47,26 +52,38 @@ class TestUserRedirectView(BaseUserTestCase):
         )
 
 
-class TestUserUpdateView(BaseUserTestCase):
+class UserUpdateViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestUserUpdateView, self).setUp()
+        super(UserUpdateViewTest, self).setUp()
         self.view = UserUpdateView()
         # Generate a fake request
         request = self.factory.get('/fake-url')
         request.user = self.user
         self.view.request = request
+        self.view.nivel_permiso_usuario = 3
+        self.view.nivel_permiso_vista = self.view.permiso_requerido
 
-    def test_get_tengo_que_ser_admin(self):
-        self.view.kwargs = {'username': self.user.username}
-        self.assertFalse(self.view.get_tengo_que_ser_admin())
-        self.view.kwargs = {'username': 'otro_que_no_conozco'}
-        self.assertTrue(self.view.get_tengo_que_ser_admin())
-
-    def test_get_success_url_on_user_not_new(self):
+    @mock.patch.object(UserUpdateView, 'check_obj_permissions')
+    def test_user_update_check_200(self, mock_check):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.company.add(company_test)
-        self.user.is_new = False
+        with self.login(username=self.user.username, password='password'):
+            response = self.get_check_200('users:update')
+            self.assertEqual(response.status_code, 200)
+        mock_check.assert_called_once_with(self.user)
+
+    def test_get_nivel_permiso(self):
+        self.view.nivel_permiso_usuario = 1
+        self.view.permiso_requerido = 3
+        self.view.kwargs = {'username': None}
+        self.assertEqual(self.view.get_nivel_permiso(), self.view.nivel_permiso_usuario)
+        self.view.kwargs = {'username': 'otro_que_no_conozco'}
+        self.assertEqual(self.view.get_nivel_permiso(), self.view.permiso_requerido)
+
+    def test_get_success_url(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.view.kwargs = {'username': self.user.username}
         self.view.object = self.user
@@ -90,33 +107,44 @@ class TestUserUpdateView(BaseUserTestCase):
         )
 
     def test_get_form_kwargs(self):
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'instance': self.user
+        }
         self.view.kwargs = {'username': self.user.username}
+        self.view.object = self.user
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
         )
 
     def test_get_form_kwargs_different_user(self):
-        admin, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(admin)
+        self.user.groups.add(self.admin_group)
         test_user = self.user_factory(
             company=self.user.company.first(),
             customer=self.user.customer,
             email='hola@hola.com',
-            username='hola'
+            username='hola',
+            nivel_acceso=self.auxiliar_permission
         )
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'user': test_user,
+            'instance': test_user
+        }
         self.view.kwargs = {'username': test_user.username}
+        self.view.object = test_user
         self.assertEqual(
             self.view.get_form_kwargs(),
             test_kwargs
         )
 
-    def test_get_form_kwargs_for_admin_self_user(self):
-        admin, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(admin)
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+    def test_get_form_kwargs_for_auxiliar_self_user(self):
+        self.view.nivel_permiso_usuario = 1
+        self.view.nivel_permiso_vista = 3
+        test_kwargs = {'initial': {}, 'prefix': None}
         self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -124,9 +152,12 @@ class TestUserUpdateView(BaseUserTestCase):
         )
 
     def test_get_form_kwargs_no_username(self):
-        admin, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(admin)
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
+        test_kwargs = {
+            'initial': {},
+            'prefix': None,
+            'instance': self.user
+        }
+        self.view.object = self.user
         self.view.kwargs = {}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -134,40 +165,51 @@ class TestUserUpdateView(BaseUserTestCase):
         )
 
     def test_returns_admin_form(self):
-        self.view.permiso_administracion = True
+        self.view.kwargs = {'username': 'blabla'}
         self.assertEqual(
             self.view.get_form_class(),
             UsuarioEdit
         )
 
-    def test_returns_no_admin_form(self):
-        self.view.permiso_administracion = False
+    def test_returns_not_admin_form(self):
+        self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_form_class(),
             UsuarioEditNoAdmin
         )
 
+    def test_returns_not_admin_form_no_username(self):
+        self.view.kwargs = {}
+        self.assertEqual(
+            self.view.get_form_class(),
+            UsuarioEditNoAdmin
+        )
 
-class TestListUserView(BaseUserTestCase):
+    def test_get_form_class(self):
+        self.view.nivel_permiso_usuario = 1
+        self.assertEqual(self.view.get_form_class(), UsuarioEditNoAdmin)
+
+
+class ListUserViewTest(utils.BaseTestCase):
     def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-        group = Group.objects.create(name='Users')
+        super(ListUserViewTest, self).setUp()
         company = Company.objects.create(company_name='my_company', customer=self.user.customer)
         self.user.company.add(company)
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
 
     def additional_users_different_customer(self):
-        self.user1_different_customer = self.make_user(username='foreign_user')
-        group, created = Group.objects.get_or_create(name='Users')
+        self.user1_different_customer = self.user_factory(
+            username='foreign_user',
+            nivel_acceso=self.auxiliar_permission
+        )
         company = Company.objects.create(company_name='another_company', customer=self.user.customer)
         self.user.company.add(company)
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
 
     def test_list_users_renders_correctly(self):
         self.client.login(username=self.user.username, password='password')
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 200)
 
@@ -178,22 +220,22 @@ class TestListUserView(BaseUserTestCase):
 
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertNotContains(response, 'foreign_user')
 
 
-class TestDetailUserView(BaseUserTestCase):
-    def test_detail_view_another_user_requires_admin_perms(self):
-        group, created = Group.objects.get_or_create(name='Users')
+class DetailUserViewTest(utils.BaseTestCase):
+
+    def test_detail_view_another_user_requires_director_perms(self):
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
         )
         self.user.company.add(company)
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
         view = self.get_instance(
             UserDetailView,
             request=self.get_request(self.user),
@@ -203,10 +245,8 @@ class TestDetailUserView(BaseUserTestCase):
             view.test_func()
 
     def test_detail_view_another_company_returns_user_obj(self):
-        group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         company = Company.objects.create(
             company_name='another_company',
             customer=self.user.customer
@@ -222,7 +262,8 @@ class TestDetailUserView(BaseUserTestCase):
         self.assertEqual(obj, self.user)
 
 
-class TestUserCreateView(BaseUserTestCase):
+class UserCreateViewTest(utils.BaseTestCase):
+
     def test_user_creation_form_query_involves_requests_user_companies(self):
         company = Company.objects.create(
             company_name='some_company',
@@ -238,11 +279,10 @@ class TestUserCreateView(BaseUserTestCase):
             UserCreateView,
             request=self.get_request(self.user)
         )
-        view.permiso_administracion = True
-        other_user = self.make_user(username='bla')
+        other_user = self.user_factory(username='bla', nivel_acceso=self.auxiliar_permission)
         other_user_company = Company.objects.create(
             company_name='other_user_company',
-            customer=other_user.customer
+            customer=other_user.customer,
         )
         other_user.company.add(other_user_company)
         form = view.get_form()
@@ -256,7 +296,7 @@ class TestUserCreateView(BaseUserTestCase):
             UserCreateView,
             request=self.get_request(self.user)
         )
-        view.object = self.make_user(username='some_user')
+        view.object = self.user_factory(username='some_user', nivel_acceso=self.auxiliar_permission)
         success_url = view.get_success_url()
         self.assertEqual('/users/detalle/{}/'.format(view.object.username), success_url)
 
@@ -265,11 +305,10 @@ class TestUserCreateView(BaseUserTestCase):
             company_name='200_company',
             customer=self.user.customer
         )
-        group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
         self.user.company.add(company)
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         with self.login(username=self.user.username, password='password'):
             response = self.get_check_200('users:new')
             self.assertEqual(response.status_code, 200)
@@ -280,11 +319,10 @@ class TestUserCreateView(BaseUserTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.nivel_acceso = self.director_permission
         self.user.company.add(company)
+        self.user.save()
         with self.login(username=self.user.username, password='password'):
             data = {
                 'customer': str(self.user.customer.id),
@@ -292,7 +330,7 @@ class TestUserCreateView(BaseUserTestCase):
                 'first_name': 'John',
                 'last_name': 'Doe',
                 'email': 'lkjas@hola.com',
-                'groups': [str(users_group.id)],
+                'nivel_acceso': self.auxiliar_permission.id,
                 'company': [str(company.id)],
                 'password1': 'esteesunpsslargo',
                 'password2': 'esteesunpsslargo'
@@ -309,11 +347,44 @@ class TestUserCreateView(BaseUserTestCase):
             response = self.client.get(reverse('users:detail', kwargs={'username': 'test_user_tres'}))
             self.assertEqual(response.status_code, 200)
 
+    @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
+    def test_user_created_can_login_different_company(self):
+        company = factories.CompanyFactory(customer=self.user.customer)
+        company_1 = Company.objects.create(
+            company_name='some_company',
+            customer=self.user.customer
+        )
+        self.user.groups.add(self.user_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.company.add(company_1, company)
+        self.user.currently_at = company
+        self.user.save()
+        with self.login(username=self.user.username, password='password'):
+            data = {
+                'customer': str(self.user.customer.id),
+                'username': 'test_user_tres',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'email': 'lkjas@hola.com',
+                'nivel_acceso': self.auxiliar_permission.id,
+                'company': [str(company_1.id)],
+                'password1': 'esteesunpsslargo',
+                'password2': 'esteesunpsslargo'
+            }
+            response = self.client.post(reverse('users:new'), data)
+            self.assertRedirects(
+                response,
+                reverse('users:detail', kwargs={'username': 'test_user_tres'}),
+                msg_prefix='\n{}\n'.format(
+                    str(response.context_data['form'].errors) if hasattr(response, 'context_data') else ''
+                )
+            )
 
-class TestCompanyCreateView(BaseUserTestCase):
+
+class CompanyCreateViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestCompanyCreateView, self).setUp()
+        super(CompanyCreateViewTest, self).setUp()
         self.view = CompanyCreateView()
         # Generate a fake request
         request = self.factory.get('/fake-url')
@@ -342,10 +413,10 @@ class TestCompanyCreateView(BaseUserTestCase):
         )
 
 
-class TestCompanyEditView(BaseUserTestCase):
+class CompanyEditViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestCompanyEditView, self).setUp()
+        super(CompanyEditViewTest, self).setUp()
         self.view = CompanyEditView()
         request = self.factory.get('/fake-url')
         request.user = self.user
@@ -373,14 +444,13 @@ class TestCompanyEditView(BaseUserTestCase):
         self.user.company.add(test_company)
         self.user.currently_at = test_company
         self.user.save()
-        #self.assertFalse(self.view.get_initial()['is_new'])
         self.assertEqual(self.view.get_initial()['is_new'], self.user.is_new)
 
 
-class TestUserDeleteView(BaseUserTestCase):
+class UserDeleteViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestUserDeleteView, self).setUp()
+        super(UserDeleteViewTest, self).setUp()
         self.view = UserDeleteView()
         request = self.factory.get('/fake-url')
         request.user = self.user
@@ -400,10 +470,10 @@ class TestUserDeleteView(BaseUserTestCase):
         self.assertEqual(self.view.delete(request=self.request).status_code, 200)
 
 
-class TestCompanyChangeView(BaseUserTestCase):
+class CompanyChangeViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestCompanyChangeView, self).setUp()
+        super(CompanyChangeViewTest, self).setUp()
         self.view = CompanyChangeView()
         request = self.factory.get('/fake-url')
         request.user = self.user
@@ -425,11 +495,52 @@ class TestCompanyChangeView(BaseUserTestCase):
             test_company
         )
 
+    def test_get_and_permissiondenied(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        self.view.kwargs = {'company': test_company.company_name}
+        with self.assertRaises(PermissionDenied):
+            self.view.get(self.request)
+        self.assertNotEqual(self.user.currently_at, test_company)
 
-class TestCompanyListView(BaseUserTestCase):
+    def test_get_and_change_method_two_companies_same_name(self):
+        test_company = factories.CompanyFactory(customer=self.user.customer)
+        factories.CompanyFactory(company_name=test_company)
+        self.view.kwargs = {'company': test_company.company_name}
+        self.user.company.add(test_company)
+        self.assertEqual(
+            self.view.get(self.request).status_code,
+            200
+        )
+        self.assertEqual(
+            self.user.currently_at,
+            test_company
+        )
+
+
+class CompanyChangeViewFromListTest(utils.BaseTestCase):
+
+    def test_get_change_from_list(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        self.user.groups.add(self.user_group, self.proyectos_group)
+        self.user.company.add(company_test)
+        with self.login(username=self.user.username, password='password'):
+            response = self.client.get(reverse('users:company_detail', kwargs={'pk': company_test.pk}))
+            self.assertRedirects(response, reverse('proyectos:proyect_dashboard'))
+
+    def test_get_change_from_list_raises_permission_denied(self):
+        company_test = factories.CompanyFactory(customer=self.user.customer)
+        company_test_2 = factories.CompanyFactory(customer=self.user.customer)
+        self.user.groups.add(self.user_group, self.proyectos_group)
+        self.user.company.add(company_test_2)
+        with self.login(username=self.user.username, password='password'):
+            response = self.client.get(reverse('users:company_detail', kwargs={'pk': company_test.pk}))
+            self.assertEqual(response.status_code, 403, response.status_code)
+
+
+class CompanyListViewTest(utils.BaseTestCase):
 
     def setUp(self):
-        super(TestCompanyListView, self).setUp()
+        super(CompanyListViewTest, self).setUp()
         self.view = CompanyListView()
         request = self.factory.get('/fake-url')
         request.user = self.user
@@ -449,38 +560,38 @@ class TestCompanyListView(BaseUserTestCase):
 
     def test_get_context_data_has_model_name_attr(self):
         self.view.object_list = [repr(a) for a in self.user.company.order_by('-company_name')]
-        self.view.kwargs={}
+        self.view.kwargs = {}
         self.view.user_groups = self.user.groups.all()
-        self.view.permiso_administracion = True
+        self.view.nivel_permiso_usuario = self.view.request.user.nivel_acceso.nivel
+        self.view.nivel_permiso_vista = self.view.permiso_requerido
         self.assertEqual(
             self.view.get_context_data()['model'],
             'Company'
         )
 
 
-class TestCompanyDetailView(BaseUserTestCase):
+class RemoveIsNewUserStatusTest(utils.BaseTestCase):
 
-    def setUp(self):
-        super(TestCompanyDetailView, self).setUp()
-        self.view = CompanyDetailView()
-        request = self.factory.get('/fake-url')
-        request.user = self.user
-        self.view.request = request
-        company = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company)
-        self.user.currently_at = company
-
-    def test_get_correct_context_object_name(self):
-        test_company = factories.CompanyFactory(customer=self.user.customer)
-        self.assertEqual(
-            self.view.get_context_object_name(test_company),
-            'company'
+    def test_post(self):
+        self.user.is_new = True
+        request = self.get_request(self.user),
+        view = self.get_instance(
+            RemoveIsNewUserStatus,
+            request=request,
+            pk=self.user.pk
         )
+        response = view.post(request)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), {'exito': True})
 
-    def test_get_correct_object(self):
-        test_company = factories.CompanyFactory(customer=self.user.customer)
-        self.view.kwargs = {'pk': test_company.pk}
-        self.assertEqual(
-            self.view.get_object(),
-            test_company
+
+class PasswordRedirectViewTest(utils.BaseTestCase):
+
+    def test_get_redirect_url_password_change(self):
+        request = self.get_request(self.user),
+        view = self.get_instance(
+            PasswordRedirectView,
+            request=request,
+            pk=self.user.pk
         )
+        view_url = view.get_redirect_url()
+        self.assertEqual(view_url, reverse('account_change_password'))

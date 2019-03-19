@@ -1,20 +1,12 @@
-from django.test import RequestFactory  # , tag
+from django.test import tag
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from users.tests import factories, utils
+from users.tests import utils
 
 User = get_user_model()
 
 
-class BaseCoreTestCase(utils.BaseTestCase):
-
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-
-
-class TestApiViews(BaseCoreTestCase):
+class TestApiViews(utils.BaseTestCase):
 
     def test_email_uniqueness(self):
         self.client.login(username=self.user.username, password='password')
@@ -25,7 +17,12 @@ class TestApiViews(BaseCoreTestCase):
         self.client.login(username=self.user.username, password='password')
         email_test = 'Soy correo mal formado'
         response = self.client.post(
-            reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
+            reverse('api:creation'), data={
+                'customer': 'nuevo_customer',
+                'company': 'Company',
+                'name': 'username',
+                'email': email_test
+            }
         )
         self.assertFalse(response.json()['success'])
 
@@ -33,10 +30,17 @@ class TestApiViews(BaseCoreTestCase):
         self.client.login(username=self.user.username, password='password')
         email_test = 'me@gmail.com'
         response = self.client.post(
-            reverse('api:creation'), data={'customer': 'nuevo_customer', 'email': email_test}
+            reverse('api:creation'), data={
+                'customer': 'nuevo_customer',
+                'company': 'Company',
+                'name': 'username',
+                'email': email_test,
+                'permission_level': 3
+            }
         )
-        self.assertTrue(response.json()['success'])
-        self.assertEqual(email_test, User.objects.get(id=response.json()['id']).email)
+        json_response = response.json()
+        self.assertTrue(json_response['success'], json_response)
+        self.assertEqual(email_test, User.objects.get(id=json_response['id']).email)
         self.assertFalse(response.data['usable'])
 
     def test_change_user_password(self):

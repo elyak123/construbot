@@ -1,20 +1,21 @@
 import decimal
 from unittest import mock
-from django.contrib.auth.models import Group
 from django.shortcuts import reverse
-from django.test import RequestFactory, tag
+from django.test import tag
 from construbot.users.tests import factories as user_factories
 from construbot.users.tests import utils
 from construbot.proyectos import forms, models
 from . import factories
 
 
-class ContratoFormTest(utils.BaseTestCase):
+class BaseFormTest(utils.BaseTestCase):
+
     def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
+        super(BaseFormTest, self).setUp()
         self.request = self.get_request(self.user)
+
+
+class ContratoFormTest(BaseFormTest):
 
     def test_contrato_form_creation_is_valid_when_is_new_user(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -76,12 +77,7 @@ class ContratoFormTest(utils.BaseTestCase):
         self.assertEqual(form.instance.monto, decimal.Decimal('1222.12'))
 
 
-class ClienteFormTest(utils.BaseTestCase):
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
+class ClienteFormTest(BaseFormTest):
 
     def test_cliente_form_creation_is_valid(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -116,12 +112,7 @@ class ClienteFormTest(utils.BaseTestCase):
         self.assertEqual(form.instance.pk, cliente_factory.pk)
 
 
-class DestinatarioFormTest(utils.BaseTestCase):
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
+class DestinatarioFormTest(BaseFormTest):
 
     def test_destinatario_form_creation_is_valid(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -174,18 +165,11 @@ class DestinatarioFormTest(utils.BaseTestCase):
         self.assertEqual(sitio_obj.pk, destinatario.pk)
 
 
-class CatalogoConceptosFormsetTest(utils.BaseTestCase):
-
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
+class CatalogoConceptosFormsetTest(BaseFormTest):
 
     def test_creacion_de_catalogo_conceptos(self):
         contrato = factories.ContratoFactory()
-        estimate = factories.EstimateFactory(project=contrato)
-        unit = factories.UnitFactory()
+        unit = factories.UnitFactory(company=contrato.cliente.company)
         formset = forms.ContractConceptInlineForm({
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '1',
@@ -196,22 +180,19 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
             'concept_set-0-unit_price': '10',
             'concept_set-0-DELETE': 'False',
             'concept_set-0-project': str(contrato.id),
-        },
-        instance=contrato)
+        }, instance=contrato)
         self.assertTrue(formset.is_valid(), formset.errors)
 
-    def test_creacion_de_catalogo_mismo_concepto_renders_errror(self):
+    def test_creacion_de_catalogo_mismo_concepto_renders_error(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
-        proyectos_group = Group.objects.create(name='Proyectos')
-        self.user.groups.add(proyectos_group)
-        proyectos_group = Group.objects.create(name='Administrators')
-        self.user.groups.add(proyectos_group)
+        contrato = factories.ContratoFactory(cliente__company=contrato_company)
+        self.user.groups.add(self.proyectos_group)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
         self.client.login(username=self.user.username, password='password')
-        unit = factories.UnitFactory()
+        unit = factories.UnitFactory(company=contrato_company)
         formset_data = {
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '2',
@@ -231,17 +212,45 @@ class CatalogoConceptosFormsetTest(utils.BaseTestCase):
             'concept_set-1-project': str(contrato.id),
         }
         response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
-        # self.assertFormsetError(response, 'form', 1, field='__all__', errors=['Please correct the duplicate values below.']) PENDIENTE
+        self.assertFormsetError(response, 'formset', None, field=None, errors=['Por favor, corrija la información duplicada en concept_text.'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_creacion_de_catalogo_unidad_differente_company_renders_error(self):
+        contrato_company = factories.CompanyFactory(customer=self.user.customer)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        self.user.groups.add(self.proyectos_group)
+        self.user.nivel_acceso = self.director_permission
+        self.user.company.add(contrato_company)
+        self.user.currently_at = contrato_company
+        self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        unit = factories.UnitFactory()
+        unit_2 = factories.UnitFactory(company=contrato_company)
+        formset_data = {
+            'concept_set-INITIAL_FORMS': '0',
+            'concept_set-TOTAL_FORMS': '2',
+            'concept_set-0-code': 'SOME',
+            'concept_set-0-concept_text': 'Concepto',
+            'concept_set-0-unit': str(unit_2.id),
+            'concept_set-0-total_cuantity': '100',
+            'concept_set-0-unit_price': '10',
+            'concept_set-0-DELETE': 'False',
+            'concept_set-0-project': str(contrato.id),
+            'concept_set-1-code': 'SOME',
+            'concept_set-1-concept_text': 'Concepto',
+            'concept_set-1-unit': str(unit.id),
+            'concept_set-1-total_cuantity': '100',
+            'concept_set-1-unit_price': '10',
+            'concept_set-1-DELETE': 'False',
+            'concept_set-1-project': str(contrato.id),
+        }
+        response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
+        self.assertFormsetError(response, 'formset', 1, field='unit', errors=['El concepto debe pertenecer a la misma compañia que su unidad.'])
         self.assertEqual(response.status_code, 200)
 
 
-class SitioFormTest(utils.BaseTestCase):
-
-    def setUp(self):
-        self.user_factory = user_factories.UserFactory
-        self.user = self.make_user()
-        self.factory = RequestFactory()
-        self.request = self.get_request(self.user)
+class SitioFormTest(BaseFormTest):
 
     def test_sitio_form_creation_is_not_valid_with_another_company(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -286,7 +295,7 @@ class SitioFormTest(utils.BaseTestCase):
         self.assertEqual(form.instance.id, sitio.id)
 
 
-class BaseCleanFormTest(utils.BaseTestCase):
+class BaseCleanFormTest(BaseFormTest):
 
     def test_clean_BaseCleanFormTest_company_is_None(self):
         forms.BaseCleanForm._meta = mock.Mock()

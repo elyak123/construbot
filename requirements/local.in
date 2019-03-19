@@ -34,3 +34,4 @@ httpie==0.9.9
 
 # Security
 safety==1.8.4
+pyyaml>=4.2b1 #because of safety

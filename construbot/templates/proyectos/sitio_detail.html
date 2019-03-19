@@ -16,30 +16,30 @@
 			<td class="td_table_sample">{{ sitio.sitio_name }}</td>
 		</tr>
 		<tr>
-			<td class="td_table_sample">Locación del sitio</td>
-			<td class="td_table_sample">{{ sitio.sitio_location }}</td>
+			{% if sitio.sitio_location %}<td class="td_table_sample">Locación del sitio</td>
+			<td class="td_table_sample">{{ sitio.sitio_location }}</td>{% endif %}
 		</tr>
 		<tr>
 			<td class="td_table_sample">Compañía</td>
-			<td class="td_table_sample">{{ sitio.company.company_name }}</td>
+			<td class="td_table_sample"><a href="{% url 'proyectos:cliente_detail' sitio.cliente.id %}">{{ sitio.cliente.cliente_name }}</td>
 		</tr>
 	</table>
 </div>
 <br>
-{% if sitio.contrato_set.exists %}
+{% if contratos_ordenados %}
 	<h2 class="title">Listado de contratos con el sitio: </h2>
 	<table class="table_sample table_normal">
 		<tr>
 			<th class="th_table_sample"> Fecha </th>
 			<th class="th_table_sample"> Nombre </th>
-			<th class="th_table_sample"> Monto </th>
+			{% if almenos_coordinador %}<th class="th_table_sample"> Monto </th>{% endif %}
 			<th class="th_table_sample"> Sitio </th>
 		</tr>
-	{% for contrato in sitio.get_contratos_ordenados %}
+	{% for contrato in contratos_ordenados %}
 		<tr>
 			<td class="td_table_sample">{{ contrato.fecha|date:"d/F/Y" }}</td>
 			<td class="td_table_sample"><a href="{% url 'proyectos:contrato_detail' contrato.id %}">{{ contrato.contrato_shortName }}</a></td>
-			<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
+			{% if almenos_coordinador %}<td class="td_table_sample">$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>{% endif %}
 			<td class="td_table_sample">{{ contrato.sitio.sitio_name }}</td>
 		</tr>
 	{% endfor %}

@@ -41,7 +41,12 @@ urlpatterns = [
         name='catalogo_retenciones'
     ),
     url(
-        regex=r'^contrato/catalogo-list/(?P<pk>\d+)/$',
+        regex=r'^contrato/catalogo-unidades/$',
+        view=views.CatalogoUnitsInlineFormView.as_view(),
+        name='catalogo_de_unidades'
+    ),
+    url(
+        regex=r'^contrato/catalogo-conceptos/(?P<pk>\d+)/$',
         view=views.CatalogoConceptos.as_view(),
         name='catalogo_conceptos_listado'
     ),
@@ -78,7 +83,7 @@ urlpatterns = [
     url(
         regex=r'^generador/pdf/(?P<pk>\d+)/$',
         view=views.GeneratorPdfPrint.as_view(),
-        name='estimate_detailpdf'
+        name='generator_detailpdf'
     ),
     url(
         regex=r'^contrato/nuevo/$',
@@ -164,6 +169,11 @@ urlpatterns = [
         regex=r'^company-autocomplete/$',
         view=views.CompanyAutocomplete.as_view(),
         name='company-autocomplete'
+    ),
+    url(
+        regex=r'^nivelacceso-autocomplete/$',
+        view=views.NivelAccesoAutocomplete.as_view(),
+        name='nivelacceso-autocomplete'
     ),
 
 ]

@@ -21,6 +21,11 @@ urlpatterns = [
         name='delete_user'
     ),
     url(
+        regex=r'^password/$',
+        view=views.PasswordRedirectView.as_view(),
+        name='password_change_redirect'
+    ),
+    url(
         regex=r'^~redirect/$',
         view=views.UserRedirectView.as_view(),
         name='redirect'
@@ -45,9 +50,15 @@ urlpatterns = [
         view=views.CompanyListView.as_view(),
         name='company_list'
     ),
+    # De momento se desactiva la vista.
+    # url(
+    #     regex=r'^detalle/company/(?P<pk>\d+)/$',
+    #     view=views.CompanyDetailView.as_view(),
+    #     name='company_detail'
+    # ),
     url(
         regex=r'^detalle/company/(?P<pk>\d+)/$',
-        view=views.CompanyDetailView.as_view(),
+        view=views.CompanyChangeViewFromList.as_view(),
         name='company_detail'
     ),
     url(

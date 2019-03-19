@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load i18n %}
+{% load projecttags %}
 {% if pdf %}
   {% load static i18n compress %}
   {% load bootstrap4 %}
@@ -62,7 +63,7 @@
           </table>
         </th>
       </tr>   
-      <tr class="center">
+      <tr class="center color-g">
         <th rowspan="2">N°</th>
         <th rowspan="2" style="width: 250px;" >CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
@@ -70,7 +71,7 @@
         <th colspan="2">ESTIMADO A LA FECHA</th>
         <th colspan="2">ESTA ESTIMACIÓN</th>
       </tr>
-      <tr class="center">
+      <tr class="center color-b">
         <th>UNIDAD</th>
         <th>CANTIDAD</th>
         <th>P.U.</th>
@@ -107,11 +108,58 @@
         </tr>
       {% endfor %}
       <tr>
-        <td class="right" colspan="2"><strong>Totales: </strong></td>
+        <td class="right" colspan="2"><strong>Totales Estimación: </strong></td>
         <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ total_estimacion|floatformat:"2"|intcomma }} </td>
+      </tr>
+      <tr>
+      </tr>
+      {% if estimate.mostrar_anticipo %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Anticipos</strong></td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.amortizacion_anticipo|floatformat:"2"|intcomma }} </td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Subtotal de Estimación:</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_subtotal|floatformat:"2"|intcomma }} </td>
+        </tr>
+      {% endif %}
+      <tr>
+      </tr>
+      {% if estimate.mostrar_retenciones %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Retenciones</strong></td>
+        </tr>
+        {% for retencion in estimate.get_retenciones %}
+          <tr>
+            <td colspan="6" class="border-w"></td>
+            {% if retencion.valor == retencion.monto %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }}</td>
+            {% else %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }} ({{ retencion.valor }}%)</td>
+            {% endif %}
+            <td colspan="2" class="text-right"> ${{ retencion.monto|floatformat:"2"|intcomma }} </td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Total de Retenciones:</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_total_retenciones|floatformat:"2"|intcomma }} </td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td colspan="6" class="border-w-sp"></td>
+        <td colspan="4" class="text-right"><strong>TOTAL FINAL:</strong></td>
+        <td colspan="2" class="text-right"> ${{ estimate.get_total_final|floatformat:"2"|intcomma }} </td>
       </tr>
       {% endlanguage %}
     </tbody>
@@ -141,4 +189,14 @@
       </tr>
     </tfoot>
 </table>
-{% if pdf %}</html>{% endif %}
+{% if pdf %}
+  <script
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+        crossorigin="anonymous"></script>
+  <script type="text/javascript">
+    $(".color-b").css("background", "beige");
+    $(".color-g").css("background", "#e4e4e4");
+  </script>
+  </html>
+{% endif %}

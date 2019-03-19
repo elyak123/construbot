@@ -10,7 +10,7 @@
 		let fuera = false;
 		document.getElementById('startButton').onclick = function() {
 			fuera = true;
-			{% if is_administrador %}
+			{% if almenos_coordinador %}
 			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
 				window.location.href = "{% url 'proyectos:nuevo_contrato' %}";
 			});
@@ -32,6 +32,17 @@
 		$('#tutorialModal').on('hidden.bs.modal', function (e) {
 			if(!fuera){document.getElementById('startButton').click();}
 		});
+		$("#omitir").on("click", function(){
+			let POST_token = $("#user_form").serialize();
+			$.ajax({
+			    type: 'POST',
+			    url: '{% url "users:remove_is_new" request.user.pk %}',
+			    data: POST_token,
+			    success: function(result){
+			    	window.location.reload();
+			    }
+			});
+		});
   </script>
 {% endif %}
 {% endblock %}
@@ -46,7 +57,7 @@
 {% block content %}
 {% if not is_new_user %}
 <div class="row" style="text-align:center;">
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 	{% else %}
 		<div class="col-2"></div>
@@ -56,7 +67,7 @@
 		<table class="table_sample table_left">
 			<tr>
 				<th>Nombre</th>
-				{% if is_administrador %}
+				{% if almenos_coordinador %}
 					<th>Avance General</th>
 				{% endif %}
 			</tr>
@@ -66,7 +77,7 @@
 						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</a><br>
 						Cliente: {{ contrato.cliente.cliente_name }}
 					</td>
-					{% if is_administrador %}
+					{% if almenos_coordinador %}
 						<td style="text-align:center;">
 						{% if contrato.total_estimado %}
 							{{ contrato.total_estimado }} %
@@ -76,6 +87,9 @@
 					</td>
 					{% endif %}
 				</tr>
+				{% if forloop.last and almenos_coordinador%}
+				<tr><td>Total Contratos Vigentes</td><td>{% language 'en' %}{{ c_object|totalvigentes|intcomma }}{% endlanguage %}</td></tr>
+				{% endif %}
 			{% empty%}
 				<tr>
 					<td colspan="2">¡No hay contratos vigentes!</td>
@@ -83,7 +97,7 @@
 			{% endfor %}
 		</table>
 	</div>
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
 			<table class="table_sample table_left">
@@ -93,7 +107,7 @@
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionespendientes %}
+				{% for estimacion in estimacionespendientes_facturacion %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -102,6 +116,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and almenos_coordinador%}
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sin_facturar|intcomma }}{% endlanguage %}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
@@ -116,7 +133,7 @@
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionesfacturadas %}
+				{% for estimacion in estimacionespendientes_pago %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -125,6 +142,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and almenos_coordinador%}
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sinpago|intcomma }}{% endlanguage %}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
@@ -151,18 +171,19 @@
 			</div>
 			<div class="modal-footer">
 				<button href="javascript:void(0);" id="startButton" type="button" class="btn btn-primary" data-dismiss="modal">Iniciar tutorial</button>
+				<button href="" id="omitir" type="button" class="btn btn-danger" data-dismiss="modal">Saltar tutorial</button>
 			</div>
 		</div>
 	</div>
 </div>
 <div class="row" style="text-align:center;">
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 	<div class="col-md-6">
 	{% else %}
 	<div class="col-2"></div>
 	<div class="col-8">
 	{% endif %}
-		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. {% if is_administrator %}El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.{% endif %}">
+		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. {% if almenos_coordinador %}El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.{% endif %}">
 			<p><strong>Contratos Vigentes</strong></p>
 			<table class="table_sample table_left">
 				<tr>
@@ -180,7 +201,7 @@
 			</table>
 		</div>
 	</div>
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 	<div class="col-xl-6">
 		<div data-step="3" data-intro="Aquí se muestran las estimaciones que aún no han sido marcadas como facturadas. Útil para dar seguimiento.">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>

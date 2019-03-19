@@ -1,7 +1,8 @@
 from django import http
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View, DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from django.http import JsonResponse
 from .auth import AuthenticationTestMixin
@@ -15,7 +16,7 @@ User = get_user_model()
 class UsersMenuMixin(AuthenticationTestMixin):
     change_company_ability = False
     app_label_name = UsersConfig.verbose_name
-    tengo_que_ser_admin = True
+    permiso_requerido = 3
     menu_specific = [
         {
             'title': 'Usuarios',
@@ -48,30 +49,44 @@ class UsersMenuMixin(AuthenticationTestMixin):
         return company_query[opcion]
 
 
-class UserDetailView(UsersMenuMixin, DetailView):
-    model = User
-    template_name = 'users/user_detail.html'
-    # These next two lines tell the view to index lookups by username
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
-    tengo_que_ser_admin = False
+class UserMixin(UsersMenuMixin):
+
+    def check_obj_permissions(self, obj):
+        if self.request.user.customer != obj.customer and self.request.user.nivel_acceso.nivel < 5:
+            raise PermissionDenied('El usuario no tiene acceso a permisos fuera de su cuenta.')
+
+    def get_nivel_permiso(self):
+        if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
+            return self.nivel_permiso_usuario
+        else:
+            return self.permiso_requerido
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('username', None):
-            self.kwargs['username'] = self.request.user.username
-        return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
+            return self.request.user
+        return User.objects.select_related('customer').get(username=self.kwargs['username'])
 
-    def get_tengo_que_ser_admin(self):
-        if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
-            return False
-        else:
-            return True
+
+class UserDetailView(UserMixin, DetailView):
+    model = User
+    template_name = 'users/user_detail.html'
+    app_label_name = 'redirect'  # dar acceso independientemente de sus grupos
+    # These next two lines tell the view to index lookups by username
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.check_obj_permissions(self.object)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 class UserRedirectView(UsersMenuMixin, RedirectView):
     tengo_que_ser_admin = False
     permanent = False
     app_label_name = 'redirect'
+    permiso_requerido = 1
 
     def get_redirect_url(self):
         return reverse('proyectos:proyect_dashboard')
@@ -85,42 +100,30 @@ class RemoveIsNewUserStatus(View):
         return JsonResponse({'exito': True})
 
 
-class UserUpdateView(UsersMenuMixin, UpdateView):
+class UserUpdateView(UserMixin, UpdateView):
+    app_label_name = 'redirect'  # dar acceso independientemente de sus grupos
     template_name = 'users/user_form.html'
 
-    def get_tengo_que_ser_admin(self):
-        if (self.kwargs.get('username') == self.request.user.username) or self.kwargs.get('username') is None:
-            return False
-        else:
-            return True
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.check_obj_permissions(self.object)
+        return super(UserUpdateView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
-        if self.auth_admin():
-            try:
-                kwargs['user'] = User.objects.get(username=self.kwargs.get('username'))
-            except User.DoesNotExist:
-                kwargs['user'] = self.request.user
-        else:
-            kwargs['user'] = self.request.user
+        if self.nivel_permiso_usuario >= self.permiso_requerido:
+            if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
+                kwargs['user'] = self.object
         return kwargs
 
     def get_form_class(self, form_class=None):
-        if self.permiso_administracion:
-            return UsuarioEdit
-        else:
-            return UsuarioEditNoAdmin
+        if self.nivel_permiso_usuario >= self.permiso_requerido:
+            if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
+                return UsuarioEdit
+        return UsuarioEditNoAdmin
 
     def get_success_url(self):
-        if self.request.user.is_new:
-            return reverse('users:company_edit', kwargs={'pk': self.object.currently_at.id})
-        else:
-            return reverse('users:detail', kwargs={'username': self.object.username})
-
-    def get_object(self, queryset=None):
-        if not self.kwargs.get('username', None):
-            return self.request.user
-        return get_object_or_404(User, username=self.kwargs['username'], company=self.request.user.currently_at)
+        return reverse('users:detail', kwargs={'username': self.object.username})
 
 
 class UserCreateView(UsersMenuMixin, CreateView):
@@ -133,6 +136,8 @@ class UserCreateView(UsersMenuMixin, CreateView):
         return form_class(self.request.user, **self.get_form_kwargs())
 
     def get_success_url(self):
+        if self.request.user.currently_at not in self.object.company.all():
+            pass
         return reverse('users:detail', kwargs={'username': self.object.username})
 
     def get_initial(self):
@@ -169,10 +174,7 @@ class CompanyEditView(UsersMenuMixin, UpdateView):
         return initial
 
     def get_success_url(self):
-        if hasattr(self.request.POST, 'is_new') and self.request.POST['is_new'] == 'True':
-            return reverse('proyectos:nuevo_contrato')
-        else:
-            return reverse('users:company_detail', kwargs={'pk': self.object.pk})
+        return reverse('users:company_detail', kwargs={'pk': self.object.pk})
 
     def get_object(self, queryset=None):
         return get_object_or_404(Company, pk=self.kwargs['pk'], user=self.request.user)
@@ -212,16 +214,41 @@ class UserListView(UsersMenuMixin, ListView):
         return qs
 
 
-class CompanyChangeView(TemplateView, AuthenticationTestMixin):
-    app_label_name = UsersConfig.verbose_name
+class CompanyChangeView(AuthenticationTestMixin, TemplateView):
+    app_label_name = 'redirect'
 
     def get(self, request, *args, **kwargs):
-        # Agregar un apartado donde se responda con 403 el cambio de compañía en 'else'
-        new_company = get_object_or_404(Company, company_name=self.kwargs['company'])
+        new_company = get_object_or_404(
+            Company,
+            company_name=self.kwargs['company'],
+            customer=self.request.user.customer
+        )
         if new_company in self.request.user.company.all():
             self.request.user.currently_at = new_company
             self.request.user.save()
             return http.HttpResponse(self.request.user.currently_at.company_name)
+        else:
+            raise PermissionDenied(
+                f'El usuario {self.request.user.username} no tiene acceso a {new_company.company_name}'
+            )
+
+
+class CompanyChangeViewFromList(CompanyChangeView):
+
+    def get(self, request, *args, **kwargs):
+        new_company = get_object_or_404(
+            Company,
+            pk=self.kwargs['pk'],
+            customer=self.request.user.customer
+        )
+        if new_company in self.request.user.company.all():
+            self.request.user.currently_at = new_company
+            self.request.user.save()
+            return redirect('proyectos:proyect_dashboard')
+        else:
+            raise PermissionDenied(
+                f'El usuario {self.request.user.username} no tiene acceso a {new_company.company_name}'
+            )
 
 
 class CompanyListView(UsersMenuMixin, ListView):
@@ -230,8 +257,7 @@ class CompanyListView(UsersMenuMixin, ListView):
     ordering = '-company_name'
 
     def get_queryset(self):
-        if self.queryset is None:
-            self.queryset = self.request.user.company
+        self.queryset = self.request.user.company
         return super(CompanyListView, self).get_queryset()
 
     def get_context_data(self, **kwargs):
@@ -240,13 +266,10 @@ class CompanyListView(UsersMenuMixin, ListView):
         return context
 
 
-class CompanyDetailView(UsersMenuMixin, DetailView):
-    model = Company
+class PasswordRedirectView(UsersMenuMixin, RedirectView):
+    permanent = True
+    app_label_name = 'redirect'
+    permiso_requerido = 1
 
-    def get_context_object_name(self, obj):
-        return obj.__class__.__name__.lower()
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(
-            self.model, pk=self.kwargs['pk'], customer=self.request.user.customer
-        )
+    def get_redirect_url(self):
+        return reverse('account_change_password')

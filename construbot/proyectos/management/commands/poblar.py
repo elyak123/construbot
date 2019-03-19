@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
 from construbot.users.tests import factories as user_factories
+from construbot.users.utils import establish_access_levels
+from construbot.users.models import NivelAcceso
 from construbot.proyectos.tests import factories
 from construbot.proyectos.models import Contrato
 
@@ -17,23 +19,23 @@ class Command(BaseCommand):
             self.user_factory = user_factories.UserFactory
             self.create_customer(5)
             self.create_core_groups()
+            establish_access_levels()
             self.create_user(20)
             self.create_companies(30)
             self.create_clientes(100)
             self.create_sitios(200)
             self.create_destinatarios(200)
             self.create_contratos(1500)
-            self.create_units(200)
             self.create_concepts(5000)
             self.stdout.write(self.style.SUCCESS(
-            "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
-            "- {0} Customer\n- {1} Usuarios\n- {2} Compañías\n- {3}".format(
-                len(self.customer),
-                len(self.users),
-                len(self.company),
-                len(self.clientes)) +
-            " Clientes\n- {0} Sitios\n- {1} Contratos\n".format(len(self.sitios), len(self.contratos)) +
-            "- {0} Unidades\n- {1} Conceptos.".format(len(self.units), len(self.concepts))
+                "La base de datos ha sido eliminada y poblada exitosamente con:\n" +
+                "- {0} Customer\n- {1} Usuarios\n- {2} Compañías\n- {3}".format(
+                    len(self.customer),
+                    len(self.users),
+                    len(self.company),
+                    len(self.clientes)) +
+                " Clientes\n- {0} Sitios\n- {1} Contratos\n".format(len(self.sitios), len(self.contratos)) +
+                "- {0} Conceptos.".format(len(self.concepts))
             ))
         else:
             raise ImproperlyConfigured('No tienes settings.DEBUG activado, la operación no se puede completar.')
@@ -45,9 +47,8 @@ class Command(BaseCommand):
 
     def create_core_groups(self):
         self.groups = [
-            user_factories.GroupFactory(name="proyectos"),
-            user_factories.GroupFactory(name="Administrators"),
-            user_factories.GroupFactory(name="users"),
+            user_factories.GroupFactory(name="Proyectos"),
+            user_factories.GroupFactory(name="Users"),
         ]
 
     def create_user(self, number):
@@ -58,7 +59,8 @@ class Command(BaseCommand):
                     username="user_{0}".format(i),
                     password="password",
                     customer=self.customer[round(random()*len(self.customer)-1)],
-                    groups=self.groups
+                    groups=self.groups,
+                    nivel_acceso=NivelAcceso.objects.get(nivel=4)
                 ))
         else:
             raise ImproperlyConfigured('¡No hay customer para asignar a usuario!')
@@ -145,20 +147,18 @@ class Command(BaseCommand):
         else:
             raise ImproperlyConfigured('¡No existen clientes y/o sitios para asignarles a los contratos!')
 
-    def create_units(self, number):
-        self.units = []
-        for i in range(0, number):
-            self.units.append(factories.UnitFactory(unit='unit{0}'.format(i)))
-
     def create_concepts(self, number):
         self.concepts = []
         for i in range(0, number):
-            if self.contratos and self.units:
+            if self.contratos:
+                contrato = self.contratos[round(random() * len(self.contratos)-1)]
                 self.concepts.append(factories.ConceptoFactory(
                     code=i,
                     concept_text="Concepto{0}".format(i),
-                    project=self.contratos[round(random() * len(self.contratos)-1)],
-                    unit=self.units[round(random() * len(self.units)-1)],
+                    project=contrato,
+                    unit=factories.UnitFactory(
+                        unit='unit{0}'.format(i),
+                        company=contrato.cliente.company)
                 ))
             else:
                 raise ImproperlyConfigured('¡No existen contratos y/o unidades para asignarles a los conceptos!')

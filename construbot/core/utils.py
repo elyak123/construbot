@@ -1,4 +1,7 @@
 from time import strftime
+from django import shortcuts
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.db.models import Func
 from dal import autocomplete
 from construbot.users.auth import AuthenticationTestMixin
@@ -29,6 +32,36 @@ def get_image_directory_path(instance, filename):
     return '{0}-{1}/{2}/{3}/{4}-{5}'.format(
         instance_customer.id, instance_customer.customer_name, instance_company, instance_model, date_str, filename
     )
+
+
+def get_object_403_or_404(model, user, **kwargs):
+    try:
+        obj = shortcuts.get_object_or_404(model, **kwargs)
+    except Http404 as e:
+        if any([n[-7:] == 'company' for n in kwargs.keys()]):
+            kwargs = get_rid_of_company_kw(kwargs)
+            try:
+                obj = shortcuts.get_object_or_404(model, **kwargs)
+                return object_or_403(user, obj)
+            except Http404 as e:
+                raise e
+        raise e
+    return obj
+
+
+def object_or_403(user, obj):
+    if obj.company in user.company.all():
+        user.currently_at = obj.company
+        user.save()
+        return obj
+    else:
+        raise PermissionDenied
+
+
+def get_rid_of_company_kw(kwargs):
+    kw = [n for n in kwargs.keys() if n[-7:] == 'company']
+    del kwargs[kw[0]]
+    return kwargs
 
 
 class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetView):

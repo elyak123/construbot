@@ -21,7 +21,7 @@
         <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
         {% block css %}
           <style type="text/css">
-            tr { page-break-inside: avoid !important; }
+            
           </style>
         {% endblock css %}
       {% endcompress %}
@@ -74,7 +74,7 @@
         </table>
       </th>     
     </tr>
-    <tr class="center">
+    <tr class="center color-g">
       <th rowspan="2">CÓDIGO</th>
       <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
       <th rowspan="2">LARGO</th>
@@ -83,7 +83,7 @@
       <th colspan="2">VOLUMEN EJECUTADO</th>
       <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
     </tr>
-    <tr class="center">
+    <tr class="center color-b">
       <th>CANTIDAD</th>
       <th>UNIDAD</th>
     </tr>
@@ -165,8 +165,9 @@
     if (list.length>0) {
       for(var i=0; i<conceptos; i++){
         if($("#conc-"+i).length>0){
-          aux = 680-(header_and_footer_size+$("#conc-"+i)[0].offsetHeight);
+          aux = 740-(header_and_footer_size+$("#conc-"+i)[0].offsetHeight);
           $('#img-'+i).css("height", aux+"px");
+          //$('#img-'+i).css("padding", "0px 2px");
         }
       }
       for(var i=0; i<conceptos; i++){
@@ -179,15 +180,17 @@
               lista_de_imagenes.css("max-height", 99+'%');
             }
           }
-          for(var j=0; j<lista_de_imagenes.length; j++){
-            var tam = parseInt($("#img-"+i)[0].style.height.substring(0, $("#img-"+i)[0].style.height.length-2));
-            while(lista_de_imagenes[j].offsetHeight >= tam){
-              lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
-            }
-          }
+          //for(var j=0; j<lista_de_imagenes.length; j++){
+          //  var tam = parseInt($("#img-"+i)[0].style.height.substring(0, $("#img-"+i)[0].style.height.length-2));
+          //  while(lista_de_imagenes[j].offsetHeight >= tam){
+          //    lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
+          //  }
+          //}
         }
       }
     }
+    $(".color-b").css("background", "beige");
+    $(".color-g").css("background", "#e4e4e4");
   </script>
   </html>
 {% endif %}
