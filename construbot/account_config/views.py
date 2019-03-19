@@ -28,7 +28,6 @@ class _LoginView(BaseContext, LoginView):
     def get_context_data(self, **kwargs):
         context = super(_LoginView, self).get_context_data(**kwargs)
         context['allow_register'] = settings.ACCOUNT_ALLOW_REGISTRATION
-        raise TypeError('Hola nuevo Sentry config provisional con logging!!')
         return context
 
 
