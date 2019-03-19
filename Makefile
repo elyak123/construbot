@@ -50,6 +50,8 @@ buildprod: dockerenv
 	@docker-compose -f docker-compose.yml up --build
 
 test: dockerenv
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.production/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/g .env
+	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
 
