@@ -60,7 +60,7 @@ def create_customer_user_and_company(request):
     except ValidationError as e:
         return Response({'success': False, 'errors': e})
     user.save()
-    user.company = [company.id]
+    user.company.add(Company.objects.get(id=company.id))
     user.groups.add(*[group_a, group_p, group_u])
     return Response(
         {

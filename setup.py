@@ -21,22 +21,22 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django>=1.11.19, <2.0',
+        'django>=2.1,<2.2',
         # REST
-        'djangorestframework==3.8.2',
+        'djangorestframework==3.9.2',
         'djangorestframework-jwt==1.11.0',
         # Configuration
-        'django-environ==0.4.4',
-        'whitenoise==3.3.1',
+        'django-environ==0.4.5',
+        'whitenoise==4.1.2',
         # Models
-        'django-model-utils==3.1.1',
+        'django-model-utils==3.1.2',
         # Images
-        'Pillow==5.0.0',
+        'Pillow==5.4.1',
         # Password storage
-        'argon2-cffi==18.1.0',
+        'argon2-cffi==18.3.0',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
-        'django-allauth==0.34.0',
+        'django-allauth==0.39.1',
         # Python-PostgreSQL Database Adapter
         'psycopg2>=2.7,<2.8',
         # Unicode slugification
@@ -44,7 +44,7 @@ setup(
         # Time zones support
         'pytz==2017.3',
         # Redis support
-        'django-redis==4.8.0',
+        'django-redis==4.10.0',
         'redis==2.10.5',
         # Celery support
         'celery==3.1.25',
@@ -54,8 +54,8 @@ setup(
         # PDF Generation
         'django-wkhtmltopdf==3.2.0',
         # FrontEnd Libraries
-        'django-autocomplete-light==3.2.10',
-        'django-bootstrap4==0.0.6',
+        'django-autocomplete-light==3.3.2',
+        'django-bootstrap4==0.0.8',
         # WSGI Handler
         # ------------------------------------------------
         'gevent==1.3.7',
@@ -67,7 +67,7 @@ setup(
         'django-storages==1.7.1',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
-        'django-anymail==1.4',
+        'django-anymail==6.0',
         # Raven is the Sentry client
         # --------------------------
         'raven==6.4.0',

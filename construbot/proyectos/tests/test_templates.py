@@ -1,6 +1,6 @@
 import os
 from unittest import skipIf
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import tag
 from construbot.users.tests import utils, factories as user_factories
 from construbot.proyectos.models import Estimate

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.db.models import Sum, F
 from decimal import Decimal
