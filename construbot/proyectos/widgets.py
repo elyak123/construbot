@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class ConceptDummyWidget(forms.Textarea):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         """
             esto se queda asi.... todavia no se porque, espero que se sepa con
             las pruebas de las vistas.
@@ -26,7 +26,7 @@ class ConceptDummyWidget(forms.Textarea):
         """
         data_name = data.get(name)
         try:
-            value = str(Concept.objects.get(concept_text=data_name).id)
+            value = str(Concept.objects.get(concept_text=data_name, project=int(data['project'])).id)
             return value
         except ObjectDoesNotExist:
             if isinstance(data_name, int):

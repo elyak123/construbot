@@ -173,7 +173,7 @@ class Estimate(models.Model):
         return self.project.cliente.company
 
     def get_absolute_url(self):
-        return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})
+        return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(

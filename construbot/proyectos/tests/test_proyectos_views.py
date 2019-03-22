@@ -871,6 +871,9 @@ class EstimateEditTest(BaseViewTest):
             mock_formset.is_valid.return_value = True
             mock_function.return_value = mock_formset_instance
             mock_form = mock.Mock()
+            mock_save = mock.MagicMock()
+            mock_save.return_value = estimacion
+            mock_form.save = mock_save
             view.form_valid(mock_form)
         self.assertTrue(mock_form.save.called)
         self.assertTrue(mock_formset.is_valid.called)
