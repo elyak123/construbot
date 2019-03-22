@@ -4,10 +4,10 @@ mkenv:
 	#@pip-sync requirements/base.txt requirements/local.txt
 
 pipcompile:
-	 @pip-compile --help > /dev/null
-	 @pip-compile --generate-hashes --output-file requirements/base.txt
-	 @pip-compile --generate-hashes requirements/local.in --output-file requirements/local.txt
-	 @pip-compile --generate-hashes requirements/test.in --output-file requirements/test.txt
+	@pip-compile --help > /dev/null
+	@pip-compile --generate-hashes --output-file requirements/base.txt
+	@pip-compile --generate-hashes requirements/local.in --output-file requirements/local.txt
+	@pip-compile --generate-hashes requirements/test.in --output-file requirements/test.txt
 
 dockerenv:
 	@sed -i.bak s/USE_DOCKER=no/USE_DOCKER=yes/g .env
@@ -54,6 +54,9 @@ test: dockerenv
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
+
+warningtest: dockerenv
+	@docker-compose -f docker-compose-dev.yml run django python -Wa manage.py test
 
 current: dockerenv
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test --tag=current

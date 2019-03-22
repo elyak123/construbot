@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import validate_email
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 

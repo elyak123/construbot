@@ -1,6 +1,6 @@
 # from django import forms
 from django import forms
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
