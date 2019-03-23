@@ -33,11 +33,13 @@ migrations: dockerenv
 
 buildev: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.production/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml up --build
 
 dev: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.production/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml up -d redis
 	@docker-compose -f docker-compose-dev.yml up -d postgres
@@ -51,6 +53,7 @@ buildprod: dockerenv
 
 test: dockerenv
 	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.production/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/g .env
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/g .env
 	@sed -i.bak s/DJANGO_DEBUG=False/DJANGO_DEBUG=True/g .env
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage run --source='.' manage.py test
 	@docker-compose -f docker-compose-dev.yml run --rm django coverage report
