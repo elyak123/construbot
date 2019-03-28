@@ -9,10 +9,19 @@ COPY ./requirements /requirements
 RUN apk add bash git
 
 ##
+WORKDIR /src/mozjpeg
+
+# especificar el commit 426de82d0c081c996c23b75fed05833b6627b590
+RUN git clone git://github.com/mozilla/mozjpeg.git ./
+
 RUN apk add --no-cache --virtual .build-deps \
-  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
+  build-base postgresql-dev gcc musl-dev musl-utils jpeg-dev openjpeg zlib-dev libffi-dev \
+    cmake nasm \
+    && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_JPEG8=1 -DCMAKE_INSTALL_LIBDIR=/usr/local/lib64 . \
+    && make install prefix=/usr/local libdir=/usr/local/lib64 \
+    && ldconfig /src/mozjpeg \
     && pip install pip-tools==3.1.0 \
-    && pip-sync requirements/base.txt requirements/local.txt \
+    && pip-sync /requirements/base.txt /requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
@@ -27,6 +36,7 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk add --virtual .rundeps $runDeps \
     && apk del .build-deps
 ##
+
 
 RUN apk add --update --no-cache \
     libgcc libstdc++ libx11 glib libxrender libxext libintl \
