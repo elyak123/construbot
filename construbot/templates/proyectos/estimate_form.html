@@ -4,7 +4,6 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% block css %}
-    <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block css_no_compress %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css" />
@@ -43,9 +42,6 @@
             $(".del-msj").css("display", "none");
         }
     </script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
@@ -122,5 +118,6 @@
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
+    {{ form.media }}
 {% endlanguage %}
 {% endblock %}

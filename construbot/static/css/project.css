@@ -449,15 +449,15 @@ a:hover {
 	float: right;
 }
 
-.n-input {
-	width: 90% !important;
-}
-
 .del-msj {
 	display: none;
 	width: 200px;
 	position: fixed;
 	z-index: 2;
+}
+
+.select2-selection, .select2-selection--single{
+	padding: 0 !important;
 }
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/

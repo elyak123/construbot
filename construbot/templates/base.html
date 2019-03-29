@@ -100,9 +100,10 @@
         <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
     </div>
-
     {% block modal %}{% endblock modal %}
     {% bootstrap_javascript jquery='full' %}
+    {% block javascript_no_compress %}
+    {% endblock javascript_no_compress %}
     {% compress js %}
       <script type="text/javascript">
         function OnchangeEventHandler(event) {
@@ -124,8 +125,6 @@
       {% block javascript %}
       {% endblock javascript %}
     {% endcompress %}
-    {% block javascript_no_compress %}
-    {% endblock javascript_no_compress %}
     {% if is_new_user and request.path != '/proyectos/' %}
       {% block conditions %}
       <script type="text/javascript">

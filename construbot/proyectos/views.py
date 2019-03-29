@@ -92,7 +92,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         company_query = {
             'Contrato': {
                 'cliente__company': self.request.user.currently_at,
-                'users': self.request.user
             },
             'Cliente': {
                 'company': self.request.user.currently_at
@@ -161,6 +160,7 @@ class ContratoListView(DynamicList):
                 cliente__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
+                users=self.request.user,
                 **self.get_company_query(self.model.__name__)
             ).order_by(self.ordering)
         return self.queryset
@@ -242,6 +242,7 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
             return self.object.get_contratos_ordenados()
         contratos = self.object.contrato_set.filter(
+            users=self.request.user,
              **self.get_company_query('Contrato')).order_by('-fecha')
         return contratos
 
@@ -264,7 +265,6 @@ class ContratoDetailView(DynamicDetail):
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-        del query_kw['users']
         return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 

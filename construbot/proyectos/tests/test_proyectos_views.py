@@ -1396,7 +1396,6 @@ class DynamicDeleteTest(BaseViewTest):
         view.object = view.get_object()
         control_dict = {
             'cliente__company': self.request.user.currently_at,
-            'users': self.request.user,
             'folio__gt': contrato.folio
         }
         kwargs, field = view.get_company_query('Contrato')

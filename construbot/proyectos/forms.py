@@ -36,7 +36,7 @@ class ContratoForm(forms.ModelForm):
             'contrato_shortName': 'Nombre corto',
             'file': 'Archivo',
             'users': '¿A qué usuarios desea asignarlo?',
-            'status': '¿El proyecto ya terminó?'
+            'status': '¿El proyecto sigue en curso?'
         }
         widgets = {
             'fecha': forms.DateInput(
@@ -77,7 +77,7 @@ class ContratoForm(forms.ModelForm):
             'contrato_shortName': 'Identificador corto del contrato para control en listados.',
             'cliente': '¿Con qué empresa/persona física firmé el contrato?',
             'sitio': '¿En qué predio será realizado el proyecto?',
-            'status': 'Indique si el proyecto ya ha sido terminado.',
+            'status': 'Indique si el proyecto sigue en curso.',
             'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
             'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
             'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'

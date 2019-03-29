@@ -152,7 +152,7 @@ $(document).ready(function(){
         let msj = $("#cont_est_danger")[0];
         delete_est.on("click", function(target){
             let element = target.target;
-            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -186,9 +186,10 @@ $(document).ready(function(){
         var mensaje = $("#cont_danger")[0];
 
         delete_link.on("click", function(target){
+            mensaje.innerHTML = "";
             target.preventDefault();
             var element = target.target;
-            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
             var pos = element.parentElement.getBoundingClientRect()
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){
