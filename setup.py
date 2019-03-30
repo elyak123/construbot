@@ -27,7 +27,7 @@ setup(
     license='GNU Affero General Public License v3',
     description='Una Solucion operativa para constructoras.',
     long_description=README,
-    url='https://www.construbot.org/',
+    url='https://www.construbot.com.mx/',
     author='Javier Llamas Ramirez',
     author_email='elyak.123@gmail.com',
     python_requires='>=3.6.1',
@@ -57,9 +57,9 @@ setup(
         'pytz==2017.3',
         # Redis support
         'django-redis==4.10.0',
-        'redis==2.10.5',
+        'redis==3.2.1',
         # Celery support
-        'celery==3.1.25',
+        'celery==4.2.1',
         # Compressing static files
         'rcssmin==1.0.6 ',
         'django-compressor==2.2',
@@ -70,7 +70,6 @@ setup(
         'django-bootstrap4==0.0.8',
         # WSGI Handler
         # ------------------------------------------------
-        'gevent==1.3.7',
         'gunicorn==19.7.1',
 
         # Static and Media Storage
