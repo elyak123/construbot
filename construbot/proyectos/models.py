@@ -461,7 +461,7 @@ class ImageEstimateConcept(models.Model):
         # Resize/modify the image
         if self.image.height > 380:
             self.image = utils.image_resize(self.image)
-        super(ImageEstimateConcept, self).save(self, *args, **kwargs)
+        super(ImageEstimateConcept, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Imagen_generador'
