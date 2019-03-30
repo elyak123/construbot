@@ -457,6 +457,12 @@ class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
 
+    def save(self, *args, **kwargs):
+        # Resize/modify the image
+        if self.image.height > 380:
+            self.image = utils.image_resize(self.image)
+        super(ImageEstimateConcept, self).save(self, *args, **kwargs)
+
     class Meta:
         verbose_name = 'Imagen_generador'
         verbose_name_plural = 'Imagenes_generadores'
