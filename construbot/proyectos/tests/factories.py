@@ -1,9 +1,10 @@
+import tempfile
 import string
 import datetime
 from unittest import mock
 import factory
 import factory.fuzzy
-from django.db.models import ImageField
+from django.core.files.images import ImageFile
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
 
@@ -104,9 +105,9 @@ class FuzzyImage(factory.fuzzy.BaseFuzzyAttribute):
         super(FuzzyImage, self).__init__(*args, **kwargs)
 
     def fuzz(self):
-        file = mock.Mock(spec=ImageField)
-        file._committed = True
-        return file
+        file = tempfile.NamedTemporaryFile(suffix='.png')
+        image = ImageFile(file, name='file.png')
+        return image
 
 
 class ImageEstimateConceptFactory(factory.django.DjangoModelFactory):

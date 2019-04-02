@@ -2,8 +2,6 @@
 {% load static %}
 {% load bootstrap4 %}
 {% block css %}
-  <link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
-  <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block javascript %}
   <script type="text/javascript">
@@ -18,10 +16,6 @@
         callbacks: callbacks
     });
   </script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
   <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
@@ -80,6 +74,7 @@
       {% endfor %}
       </tr>
     {% endfor %}
+    {{ formset.form.media }}
   </table>
   <br>
   <div class="cont_buttons">

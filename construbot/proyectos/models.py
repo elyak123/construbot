@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.db.models import Sum, F
 from decimal import Decimal
@@ -173,7 +173,7 @@ class Estimate(models.Model):
         return self.project.cliente.company
 
     def get_absolute_url(self):
-        return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})
+        return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
@@ -456,6 +456,12 @@ class EstimateConcept(models.Model):
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        # Resize/modify the image
+        if self.image.height > 380:
+            self.image = utils.image_resize(self.image)
+        super(ImageEstimateConcept, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Imagen_generador'

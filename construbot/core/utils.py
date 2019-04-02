@@ -1,4 +1,8 @@
+import sys
+from PIL import Image
+from io import BytesIO
 from time import strftime
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django import shortcuts
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -62,6 +66,20 @@ def get_rid_of_company_kw(kwargs):
     kw = [n for n in kwargs.keys() if n[-7:] == 'company']
     del kwargs[kw[0]]
     return kwargs
+
+
+def image_resize(image):
+    output = BytesIO()
+    new_size = (3000, 380)
+    im = Image.open(image)
+    im.thumbnail(new_size, resample=Image.LANCZOS)
+    frmt = 'JPEG' if image.name[-3:] == 'jpg' or image.name[-3:] == 'JPG' else image.name[-3:]
+    im.save(output, optimize=True, progressive=True, quality=95, format=frmt)
+    output.seek(0)
+    im = InMemoryUploadedFile(
+        output, 'ImageField', "%s.jpg" % image.name.split('.')[0],  'image/{}'.format(frmt), sys.getsizeof(output), None
+    )
+    return im
 
 
 class BasicAutocomplete(AuthenticationTestMixin, autocomplete.Select2QuerySetView):
