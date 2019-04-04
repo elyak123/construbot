@@ -36,7 +36,7 @@ setup(
         'django>=2.1,<2.2',
         # REST
         'djangorestframework==3.9.2',
-        'djangorestframework-jwt==1.11.0',
+        'djangorestframework_simplejwt==4.1.2',
         # Configuration
         'django-environ==0.4.5',
         'whitenoise==4.1.2',
