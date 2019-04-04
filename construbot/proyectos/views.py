@@ -178,7 +178,7 @@ class DestinatarioListView(DynamicList):
     model = Destinatario
 
     def get_queryset(self):
-        if self.request.user.nivel_acceso.nivel <= 3:
+        if self.request.user.nivel_acceso.nivel < 3:
             clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
             self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
