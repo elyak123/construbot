@@ -43,6 +43,7 @@ class PDFViewTest(BaseViewTest):
     def test_get_cmd_options(self):
         test_obj = {
             'orientation': 'Landscape',
+            'page-size': 'Letter'
         }
         result = self.view.get_cmd_options(self)
         self.assertEqual(result, test_obj)
