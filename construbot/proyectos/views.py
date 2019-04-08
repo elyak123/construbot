@@ -311,7 +311,8 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
     def get_cmd_options(self):
         return {
             'orientation': 'Landscape',
-            'page-size': 'Letter'
+            'page-size': 'Letter',
+            'dpi': '300'
         }
 
     def get_context_data(self, **kwargs):
