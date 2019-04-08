@@ -456,6 +456,7 @@ class EstimateConcept(models.Model):
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+    size = models.BigIntegerField('Tamaño del archivo en kb', null=True)
 
     def save(self, *args, **kwargs):
         # Resize/modify the image
