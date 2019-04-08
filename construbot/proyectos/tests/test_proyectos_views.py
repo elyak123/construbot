@@ -250,6 +250,52 @@ class DestinatarioListTest(BaseViewTest):
         )]
         self.assertQuerysetEqual(qs, qs_test)
 
+    def test_destinatario_query_same_client_company_coordinador(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.coordinador_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        contrato_3 = factories.ContratoFactory(cliente=destinatario_cliente_3)
+        self.user.contrato_set.add(contrato_1, contrato_2)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_destinatario_query_same_client_company_director(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.director_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2, destinatario_3], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
 
 class ContratoDetailTest(BaseViewTest):
 
