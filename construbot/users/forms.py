@@ -1,4 +1,3 @@
-# from django import forms
 from django import forms
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -127,7 +126,9 @@ class UsuarioEdit(UserChangeForm):
     )
 
     def __init__(self, user, *args, **kwargs):
-        super(UsuarioEdit, self).__init__(*args, **kwargs)
+        # Llamamos el super del padre porque el padre cambia arbitrariamente la url
+        # de cambio de contraseña
+        super(UserChangeForm, self).__init__(*args, **kwargs)
         pass_change = reverse('account_change_password', kwargs={'username': user.username})
         self.fields['company'].queryset = user.company.all()
         self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
