@@ -13,8 +13,8 @@
 
 <div class="input-group mb-3 img_input">
 	<div class="alert_text">¡Se eliminará al momento de guardar!</div>
-	<div class="input-group-prepend">
-		<span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="remove_span input-group-text"><span class="oi oi-circle-x"></span></span>
+	<div class="input-group-prepend remove_span">
+		<span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text"><span class="oi oi-circle-x"></span></span>
 	</div>
  	<div class="custom-file">
 		<input type="{{ widget.type }}" class="custom-file-input" id="inputGroupFile01" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
