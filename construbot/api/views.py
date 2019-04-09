@@ -1,4 +1,3 @@
-import time
 import json
 from operator import itemgetter
 from django.contrib.auth import get_user_model
