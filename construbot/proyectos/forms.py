@@ -312,6 +312,21 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
         return result
 
 
+class BaseUnitFormset(forms.BaseInlineFormSet):
+
+    def clean(self):
+        deleted_units = self.deleted_forms
+        validation_errors = []
+        for form in deleted_units:
+            if form.instance.concept_set.count() > 0:
+                validation_errors.append(forms.ValidationError(
+                    '{} no puede ser eliminado, tiene conceptos '
+                    'que deben ser eliminados primero.'.format(form.instance.unit))
+                )
+        if len(validation_errors) > 0:
+            raise forms.ValidationError(validation_errors)
+
+
 def estimateConceptInlineForm(count=0):
     inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
         'concept',
@@ -324,7 +339,7 @@ def estimateConceptInlineForm(count=0):
         'concept': widgets.ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
         'cuantity_estimated': forms.TextInput(),
         'observations': forms.Textarea(
-            attrs = {'rows': '3', 'cols': '40'}
+            attrs={'rows': '3', 'cols': '40'}
         )
     }, labels={
         'concept': 'Concepto',
@@ -382,4 +397,5 @@ UnitsInlineForm = forms.inlineformset_factory(
         'unit',
     ),
     extra=1,
+    formset=BaseUnitFormset
 )

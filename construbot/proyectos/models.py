@@ -336,7 +336,7 @@ class Concept(models.Model):
     concept_text = models.TextField()
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     estimate_concept = models.ManyToManyField(Estimate, through='EstimateConcept')
-    unit = models.ForeignKey(Units, on_delete=models.PROTECT)
+    unit = models.ForeignKey(Units, on_delete=models.CASCADE)
     total_cuantity = models.DecimalField('cuantity', max_digits=12, decimal_places=2, default=0.0)
     unit_price = models.DecimalField('unit_price', max_digits=12, decimal_places=2, default=0.0)
 
