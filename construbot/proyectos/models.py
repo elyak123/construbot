@@ -30,6 +30,19 @@ class Cliente(models.Model):
         return self.cliente_name
 
 
+class Units(models.Model):
+    unit = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('unit', 'company')
+        verbose_name = 'Unidad'
+        verbose_name_plural = 'Unidades'
+
+    def __str__(self):
+        return self.unit
+
+
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
@@ -136,19 +149,6 @@ class Retenciones(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-class Units(models.Model):
-    unit = models.CharField(max_length=50)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('unit', 'company')
-        verbose_name = 'Unidad'
-        verbose_name_plural = 'Unidades'
-
-    def __str__(self):
-        return self.unit
 
 
 class Estimate(models.Model):
@@ -462,6 +462,7 @@ class ImageEstimateConcept(models.Model):
         # Resize/modify the image
         if self.image.height > 380:
             self.image = utils.image_resize(self.image)
+        self.size = self.image.size
         super(ImageEstimateConcept, self).save(*args, **kwargs)
 
     class Meta:
