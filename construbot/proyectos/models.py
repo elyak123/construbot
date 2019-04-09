@@ -453,10 +453,21 @@ class EstimateConcept(models.Model):
         return self.concept.concept_text + str(self.cuantity_estimated)
 
 
+class ImageEstimateConceptSet(models.QuerySet):
+
+    def size_per_customer(self, customer):
+        return self.filter(
+                estimateconcept__concept__project__cliente__company__customer=customer
+            ).aggregate(Sum('size'))['size__sum']
+
+
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
     size = models.BigIntegerField('Tamaño del archivo en kb', null=True)
+
+    objects = models.Manager()
+    especial = ImageEstimateConceptSet.as_manager()
 
     def save(self, *args, **kwargs):
         # Resize/modify the image
