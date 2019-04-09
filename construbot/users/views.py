@@ -1,3 +1,5 @@
+import importlib
+from django.conf import settings
 from django import http
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
@@ -10,10 +12,15 @@ from .apps import UsersConfig
 from .models import Company
 from .forms import UsuarioInterno, UsuarioEdit, UsuarioEditNoAdmin, CompanyForm, CompanyEditForm
 
+try:
+    Authclass = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
+except ImportError:
+    from construbot.users import auth as Authclass
+
 User = get_user_model()
 
 
-class UsersMenuMixin(AuthenticationTestMixin):
+class UsersMenuMixin(Authclass.AuthenticationTestMixin):
     change_company_ability = False
     app_label_name = UsersConfig.verbose_name
     permiso_requerido = 3

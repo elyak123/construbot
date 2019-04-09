@@ -1,3 +1,5 @@
+import importlib
+from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -5,7 +7,6 @@ from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
-from construbot.users.auth import AuthenticationTestMixin
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -14,10 +15,15 @@ from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Esti
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
     totalsinfacturar, total_sinpago
 
+try:
+    auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
+except ImportError:
+    from construbot.users import auth
+
 User = get_user_model()
 
 
-class ProyectosMenuMixin(AuthenticationTestMixin):
+class ProyectosMenuMixin(auth.AuthenticationTestMixin):
     permiso_requerido = 2
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
