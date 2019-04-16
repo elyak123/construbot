@@ -666,7 +666,7 @@ class ConceptGeneratorTemplateTest(TestBaseTemplates):
         )
         self.assertTemplateNotUsed(response, 'proyectos/estimate_detail.html')
         self.assertTemplateNotUsed(response, 'proyectos/concept_estimate.html')
-        self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_pdf_generator.html')
         self.assertContains(response, '<!DOCTYPE html>', html=True)
 
 

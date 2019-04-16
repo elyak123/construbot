@@ -44,7 +44,9 @@ class PDFViewTest(BaseViewTest):
         test_obj = {
             'orientation': 'Landscape',
             'page-size': 'Letter',
-            'dpi': '300'
+            'dpi': '300',
+            'print-media-type ': None
+
         }
         result = self.view.get_cmd_options(self)
         self.assertEqual(result, test_obj)
