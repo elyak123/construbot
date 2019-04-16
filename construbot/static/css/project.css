@@ -491,8 +491,6 @@ table.informacion * {
 table.estimate, table.generator {
 	font-size: 11px;
 	width: 100%;
-	border-color: black;
-	border-style: double;
 	margin-bottom: 10px;
 }
 
@@ -609,10 +607,22 @@ table.estimate * , table.generator * {
         margin: 0 !important;
     }
 
-    @page {
-	    size: auto;
+    .est_cont{
+    	zoom: .75;
+    }
 
-	 }
+    .cc {
+    	height: 994px;
+    }
+
+    @page {
+	    size: letter landscape;
+	    page-break-inside: avoid;
+	    margin-top: 1cm;
+    	margin-bottom: 1cm;
+    	margin-left: 1cm;
+    	margin-right: 1cm;
+	}
 }
 
 @media screen and (min-width: 600px){

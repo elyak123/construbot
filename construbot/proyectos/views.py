@@ -319,7 +319,8 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
             'orientation': 'Landscape',
             'page-size': 'Letter',
             'dpi': '300',
-            'javascript-delay': 5000,
+            'print-media-type ': None
+
         }
 
     def get_context_data(self, **kwargs):
@@ -333,10 +334,8 @@ class EstimatePdfPrint(BasePDFGenerator):
     template_name = 'proyectos/concept_estimate.html'
 
 
-class GeneratorPdfPrint(BasePDFGenerator):
-    header_template = 'proyectos/head_concept_generator.html'
-    footer_template = 'proyectos/foot_concept_generator.html'
-    template_name = 'proyectos/concept_generator.html'
+class GeneratorPdfPrint(EstimateDetailView):
+    template_name = 'proyectos/concept_pdf_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
