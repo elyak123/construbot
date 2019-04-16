@@ -81,6 +81,16 @@ table.estimate, table.generator {
 	margin-bottom: 10px;
 }
 
+table.generator_header {
+	border-width: medium medium 0px medium;
+	border-color: black black white black !important;
+}
+
+table.generator_footer {
+	border-width: 0px medium medium medium;
+	border-color: white black black black !important;
+}
+
 table.estimate * , table.generator * {
 	padding: 2px;
 }

@@ -318,7 +318,8 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return {
             'orientation': 'Landscape',
             'page-size': 'Letter',
-            'dpi': '300'
+            'dpi': '300',
+            'javascript-delay': 5000,
         }
 
     def get_context_data(self, **kwargs):
@@ -333,6 +334,8 @@ class EstimatePdfPrint(BasePDFGenerator):
 
 
 class GeneratorPdfPrint(BasePDFGenerator):
+    header_template = 'proyectos/head_concept_generator.html'
+    footer_template = 'proyectos/foot_concept_generator.html'
     template_name = 'proyectos/concept_generator.html'
 
 

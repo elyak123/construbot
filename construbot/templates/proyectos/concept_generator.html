@@ -1,196 +1,110 @@
 {% load humanize %}
-{% load i18n %}
-{% if pdf %}
-  {% load static i18n compress %}
-  {% load bootstrap4 %}
-  <!DOCTYPE html>
-  <html lang="es">
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="x-ua-compatible" content="ie=edge">
-      <title>{% block title %}Construbot{% endblock title %}</title>
-      <meta name="description" content="{% block metadescription %}{% endblock metadescription %}">
-      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-      <meta name="author" content="{% block author %}{% endblock author %}">
-      {# Bootstrap 4 #}
-      {% bootstrap_css %}
-      <!-- ICONOS Iconic para Bootstrap 4 -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-      {% compress css %}
-        <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
-        {% block css %}
-          <style type="text/css">
-            
-          </style>
-        {% endblock css %}
-      {% endcompress %}
-    </head>
-  <div class="est_cont">
-{% endif %}
+{% load static i18n compress %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  {% compress css %}
+    <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
+    {% block css %}
+      <style type="text/css">
+        table.generator {
+          border-width: 0px medium;
+          border-color: white black !important;
+        }
+        body {
+          border:0; 
+          margin: 0;
+          padding: 0;
+        }
+        .concepto_container {
+          height: 128mm;
+        }
+        .color-g *, .color-b *, .concepto_info td, .image {
+          border-style: solid;
+          border-color: black;
+          border-width: .5px;
+        }
+      </style>
+    {% endblock css %}
+  {% endcompress %}
+</head>
+<div class="est_cont">
 <table class="generator">
-  <thead id="header_frame">
-    <tr>
-      <th class="sin_borde" colspan="8">
-        <div class="cont_est_gen">
-          <h5> {{ estimate.project.cliente.cliente_name.upper }} </h5>
-          <h6> RESIDENCIA DE CONSTRUCCIÓN </h6>
-          <h4> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
-        </div>
-      </th>
-    </tr>
-    <tr style="margin-bottom:25px;">
-      <th class="sin_borde" colspan="4">
-        <table class="informacion">
-          <tr>
-            <td>PROYECTO:</td>
-            <td class="bc subrayado"> {{ estimate.project.contrato_name }} </td>
-          </tr>
-          <tr>
-            <td>CONTRATO:</td>
-            <td class="bc subrayado"> {{ estimate.project.code }} </td>
-          </tr>
-          <tr>
-            <td>ÁREA:</td>
-            <td class="bc subrayado"> {{ estimate.project.sitio.sitio_name }} </td>
-          </tr>
-        </table>
-      </th>
-      <th class="sin_borde" colspan="1"></th>
-      <th class="sin_borde" colspan="3">
-        <table class="informacion">
-          <tr>
-            <td>CONTRATISTA:</td>
-            <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
-          </tr>
-          <tr>
-            <td>PERIODO:</td>
-            <td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
-          </tr>
-          <tr>
-            <td>PLANOS:</td>
-            <td class="bc subrayado"> - </td>
-          </tr>
-        </table>
-      </th>     
-    </tr>
-    <tr class="center color-g">
-      <th rowspan="2">CÓDIGO</th>
-      <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
-      <th rowspan="2">LARGO</th>
-      <th rowspan="2">ANCHO</th>
-      <th rowspan="2">ALTO</th>
-      <th colspan="2">VOLUMEN EJECUTADO</th>
-      <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
-    </tr>
-    <tr class="center color-b">
-      <th>CANTIDAD</th>
-      <th>UNIDAD</th>
-    </tr>
-  </thead>
   <tbody id="content_frame">
     {% language 'en' %}
-  	{% for concepto in conceptos %}
-  	  {% if concepto.cantidad_esta_estimacion %}
-        <tr id="conc-{{ forloop.counter0 }}">
-  	      <td> {{ concepto.code }} </td>
-  	      <td class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}>
-            <p>{{ concepto.concept_text }}</p>
-  	      </td>
-  	      <td> {{ concepto.largo }} </td>
-  	      <td> {{ concepto.ancho }} </td>
-  	      <td> {{ concepto.alto }} </td>
-  	      <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-  	      <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-  	      {% if concepto.observations %}
-  	        <td> {{ concepto.observations }} </td>
-  	      {% else %}
-  	        <td>
-  	        </td>
-  	      {% endif %}
-  	    </tr>
-  	    {% if conceptos.total_imagenes_estimacion.total_images %}
-  	      <tr class="image">
-  	        <td colspan="8" id="img-{{ forloop.counter0 }}" style="text-align: center;">
-  	            {% if concepto.image_count %}
-  	              {% for image in concepto.anotar_imagenes %}
-                    <img class="estimateImage{{forloop.parentloop.counter}}" src="{{ image.image.url }}">
-  	              {% endfor %}
-  	            {% endif %}
-  	        </td>
-  	      </tr>
-  	    {% endif %}
-  	  {% endif %}
-  	{% endfor %}
+    {% for concepto in conceptos %}
+      {% if concepto.cantidad_esta_estimacion %}
+        <tr class="cc">
+          <td class="concepto_container">
+            <table>
+              <tbody>
+                <tr class="center color-g header_frame">
+                  <th rowspan="2">CÓDIGO</th>
+                  <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
+                  <th rowspan="2">LARGO</th>
+                  <th rowspan="2">ANCHO</th>
+                  <th rowspan="2">ALTO</th>
+                  <th colspan="2">VOLUMEN EJECUTADO</th>
+                  <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
+                </tr>
+                <tr class="center color-b">
+                  <th>CANTIDAD</th>
+                  <th>UNIDAD</th>
+                </tr>
+                <tr class="concepto_info" id="conc-{{ forloop.counter0 }}">
+                  <td> {{ concepto.code }} </td>
+                  <td class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}>
+                    <p>{{ concepto.concept_text }}</p>
+                  </td>
+                  <td> {{ concepto.largo }} </td>
+                  <td> {{ concepto.ancho }} </td>
+                  <td> {{ concepto.alto }} </td>
+                  <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                  <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                  {% if concepto.observations %}
+                    <td> {{ concepto.observations }} </td>
+                  {% else %}
+                    <td>
+                    </td>
+                  {% endif %}
+                </tr>
+                {% if conceptos.total_imagenes_estimacion.total_images %}
+                  <tr class="image" id="img-{{ forloop.counter0 }}">
+                    <td colspan="8" style="text-align: center;">
+                        {% if concepto.image_count %}
+                          {% for image in concepto.anotar_imagenes %}
+                            <img class="estimateImage{{forloop.parentloop.counter}}" src="{{ image.image.url }}" style="max-width:32%">
+                          {% endfor %}
+                        {% endif %}
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      {% endif %}
+    {% endfor %}
     {% endlanguage %}
   </tbody>
-  <tfoot id="footer_generator">
-    <tr>
-      <td class="cont_firmas" colspan="8">
-        <div class="cont_firma">
-          <div class="bc subrayado_f"></div>
-          <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-          <p> <strong>Supervisor de Obras </strong></p>
-          <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
-        </div>
-        {% for firma in estimate.auth_by_gen.all %}
-          <div class="cont_firma">
-            <div class="bc subrayado_f"></div>
-            <p><strong>{{ firma.destinatario_text }}</strong></p>
-            {% if firma.puesto %}
-              <p><strong>{{ firma.puesto }}</strong></p>
-              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-            {% else %}
-              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
-              <p style="color:white">-</p>
-            {% endif %}
-          </div>
-        {% endfor %}
-      </td>
-    </tr>
-  </tfoot>
 </table>
-{% if pdf %}
-  </div>
-  <script
-        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-        crossorigin="anonymous"></script>
-  <script type="text/javascript">
+</div>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
     var conceptos = {{ cantidad_de_conceptos }}; //Variable de contexto.
-    var list = $(".image");
-    var header_and_footer_size = $('#header_frame')[0].offsetHeight+$('#footer_generator')[0].offsetHeight;
+    var list = document.getElementsByClassName("image");
+    var header_size = document.getElementsByClassName('header_frame')[0].offsetHeight;
     var aux;
-    var lista_de_imagenes;
     if (list.length>0) {
       for(var i=0; i<conceptos; i++){
-        if($("#conc-"+i).length>0){
-          aux = 740-(header_and_footer_size+$("#conc-"+i)[0].offsetHeight);
-          $('#img-'+i).css("height", aux+"px");
-          //$('#img-'+i).css("padding", "0px 2px");
-        }
-      }
-      for(var i=0; i<conceptos; i++){
-        if($("#img-"+i).length>0){
-          lista_de_imagenes = $("#img-"+i).children();
-          if(lista_de_imagenes.length>0){
-            if(lista_de_imagenes.length>1){
-              lista_de_imagenes.css("max-width", (100/lista_de_imagenes.length)-1+'%');
-            } else {
-              lista_de_imagenes.css("max-height", 99+'%');
-            }
-          }
-          //for(var j=0; j<lista_de_imagenes.length; j++){
-          //  var tam = parseInt($("#img-"+i)[0].style.height.substring(0, $("#img-"+i)[0].style.height.length-2));
-          //  while(lista_de_imagenes[j].offsetHeight >= tam){
-          //    lista_de_imagenes[j].style.width = lista_de_imagenes[j].offsetWidth*.95 + 'px';
-          //  }
-          //}
+        if(document.getElementById("conc-"+i)!=null){
+          aux = 475.65-(header_size+document.getElementById("conc-"+i).offsetHeight);
+          document.getElementById('img-'+i).style.height = aux+"px";
         }
       }
     }
-    $(".color-b").css("background", "beige");
-    $(".color-g").css("background", "#e4e4e4");
-  </script>
-  </html>
-{% endif %}
+  });
+</script>
+</html>
