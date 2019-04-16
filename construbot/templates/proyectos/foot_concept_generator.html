@@ -1,0 +1,51 @@
+{% load humanize %}
+{% load i18n %}
+{% load static i18n compress %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
+    <style type="text/css">
+        body {
+          border:0; 
+          margin: 0;
+          padding: 0;
+          height: 40mm;
+        }
+        .est_cont {
+          height: 100%;
+        }
+    </style>
+  </head>
+  <div class="est_cont">
+    <table class="generator generator_footer">
+      <tfoot id="footer_generator">
+        <tr>
+          <td class="cont_firmas">
+            <div class="cont_firma">
+              <div class="bc subrayado_f"></div>
+              <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+              <p> <strong>Supervisor de Obras </strong></p>
+              <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+            </div>
+            {% for firma in estimate.auth_by_gen.all %}
+              <div class="cont_firma">
+                <div class="bc subrayado_f"></div>
+                <p><strong>{{ firma.destinatario_text }}</strong></p>
+                {% if firma.puesto %}
+                  <p><strong>{{ firma.puesto }}</strong></p>
+                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                {% else %}
+                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                  <p style="color:white">-</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</html>
