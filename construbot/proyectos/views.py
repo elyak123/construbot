@@ -329,9 +329,9 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return context
 
 
-class EstimatePdfPrint(BasePDFGenerator):
+class EstimatePdfPrint(EstimateDetailView):
     nivel_permiso_asignado = 2
-    template_name = 'proyectos/concept_estimate.html'
+    template_name = 'proyectos/concept_pdf_estimate.html'
 
 
 class GeneratorPdfPrint(EstimateDetailView):

@@ -498,6 +498,11 @@ table.estimate * , table.generator * {
 	padding: 4px;
 }
 
+.bord-doble {
+	border-style: double;
+	border-color: black;
+}
+
 .cont_est_gen {
 	text-align: center;
 }
@@ -607,7 +612,7 @@ table.estimate * , table.generator * {
         margin: 0 !important;
     }
 
-    .est_cont{
+    .est_cont, .estimate{
     	zoom: .75;
     }
 

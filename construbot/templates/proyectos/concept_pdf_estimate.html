@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>{% block title %}Generador PDF{% endblock title %}</title>
+  <title>{% block title %}Estimación PDF{% endblock title %}</title>
   {% bootstrap_css %}
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
   <meta charset="utf-8">
@@ -24,7 +24,7 @@
     {% endblock css %}
   {% endcompress %}
 </head>
-<table class="estimate {% if not pdf %}bord-doble{% endif %}">
+<table class="estimate bord-doble">
   <thead>
       <tr>
         <th colspan="5" style="border-style:none;">
@@ -185,4 +185,9 @@
       </tr>
     </tfoot>
 </table>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+      window.print();
+  });
+</script>
 </html>
