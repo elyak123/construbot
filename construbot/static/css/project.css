@@ -462,6 +462,18 @@ a:hover {
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.boton-flotante {
+	right: 120px;
+}
+
+.boton-arriba {
+	right: 75px;	
+}
+
+.boton-abajo {
+	right: 30px;	
+}
+
 .color-g {
 	background: #e4e4e4;
 }

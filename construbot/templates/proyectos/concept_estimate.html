@@ -1,29 +1,6 @@
 {% load humanize %}
 {% load i18n %}
 {% load projecttags %}
-{% load static bootstrap4 compress %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>{% block title %}Generador PDF{% endblock title %}</title>
-  {% bootstrap_css %}
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-  <meta charset="utf-8">
-  {% compress css %}
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
-    {% block css %}
-      <style type="text/css">
-        .color-g *, .color-b *, .concepto_info td, .image {
-          border-style: solid;
-          border-color: black;
-          border-width: .5px;
-        }
-      </style>
-    {% endblock css %}
-  {% endcompress %}
-</head>
 <table class="estimate {% if not pdf %}bord-doble{% endif %}">
   <thead>
       <tr>
@@ -185,4 +162,3 @@
       </tr>
     </tfoot>
 </table>
-</html>
