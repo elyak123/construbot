@@ -318,7 +318,9 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return {
             'orientation': 'Landscape',
             'page-size': 'Letter',
-            'dpi': '300'
+            'dpi': '300',
+            'print-media-type ': None
+
         }
 
     def get_context_data(self, **kwargs):
@@ -327,13 +329,13 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return context
 
 
-class EstimatePdfPrint(BasePDFGenerator):
+class EstimatePdfPrint(EstimateDetailView):
     nivel_permiso_asignado = 2
-    template_name = 'proyectos/concept_estimate.html'
+    template_name = 'proyectos/concept_pdf_estimate.html'
 
 
-class GeneratorPdfPrint(BasePDFGenerator):
-    template_name = 'proyectos/concept_generator.html'
+class GeneratorPdfPrint(EstimateDetailView):
+    template_name = 'proyectos/concept_pdf_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
