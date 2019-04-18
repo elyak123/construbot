@@ -719,6 +719,6 @@ class ConceptEstimateTemplateTest(TestBaseTemplates):
             {'as': 'html'}
         )
         self.assertTemplateNotUsed(response, 'proyectos/estimate_detail.html')
-        self.assertTemplateUsed(response, 'proyectos/concept_estimate.html')
+        self.assertTemplateUsed(response, 'proyectos/concept_pdf_estimate.html')
         self.assertTemplateNotUsed(response, 'proyectos/concept_generator.html')
         self.assertContains(response, '<!DOCTYPE html>', html=True)
