@@ -30,6 +30,19 @@ class Cliente(models.Model):
         return self.cliente_name
 
 
+class Units(models.Model):
+    unit = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('unit', 'company')
+        verbose_name = 'Unidad'
+        verbose_name_plural = 'Unidades'
+
+    def __str__(self):
+        return self.unit
+
+
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
@@ -136,19 +149,6 @@ class Retenciones(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-class Units(models.Model):
-    unit = models.CharField(max_length=50)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('unit', 'company')
-        verbose_name = 'Unidad'
-        verbose_name_plural = 'Unidades'
-
-    def __str__(self):
-        return self.unit
 
 
 class Estimate(models.Model):
@@ -336,7 +336,7 @@ class Concept(models.Model):
     concept_text = models.TextField()
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     estimate_concept = models.ManyToManyField(Estimate, through='EstimateConcept')
-    unit = models.ForeignKey(Units, on_delete=models.PROTECT)
+    unit = models.ForeignKey(Units, on_delete=models.CASCADE)
     total_cuantity = models.DecimalField('cuantity', max_digits=12, decimal_places=2, default=0.0)
     unit_price = models.DecimalField('unit_price', max_digits=12, decimal_places=2, default=0.0)
 
@@ -453,14 +453,27 @@ class EstimateConcept(models.Model):
         return self.concept.concept_text + str(self.cuantity_estimated)
 
 
+class ImageEstimateConceptSet(models.QuerySet):
+
+    def size_per_customer(self, customer):
+        return self.filter(
+                estimateconcept__concept__project__cliente__company__customer=customer
+            ).aggregate(Sum('size'))['size__sum']
+
+
 class ImageEstimateConcept(models.Model):
     image = models.ImageField(upload_to=utils.get_image_directory_path)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+    size = models.BigIntegerField('Tamaño del archivo en kb', null=True)
+
+    objects = models.Manager()
+    especial = ImageEstimateConceptSet.as_manager()
 
     def save(self, *args, **kwargs):
         # Resize/modify the image
         if self.image.height > 380:
             self.image = utils.image_resize(self.image)
+        self.size = self.image.size
         super(ImageEstimateConcept, self).save(*args, **kwargs)
 
     class Meta:

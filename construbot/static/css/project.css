@@ -462,6 +462,18 @@ a:hover {
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.boton-flotante {
+	right: 120px;
+}
+
+.boton-arriba {
+	right: 75px;	
+}
+
+.boton-abajo {
+	right: 30px;	
+}
+
 .color-g {
 	background: #e4e4e4;
 }
@@ -491,13 +503,16 @@ table.informacion * {
 table.estimate, table.generator {
 	font-size: 11px;
 	width: 100%;
-	border-color: black;
-	border-style: double;
 	margin-bottom: 10px;
 }
 
 table.estimate * , table.generator * {
 	padding: 4px;
+}
+
+.bord-doble {
+	border-style: double;
+	border-color: black;
 }
 
 .cont_est_gen {
@@ -609,10 +624,22 @@ table.estimate * , table.generator * {
         margin: 0 !important;
     }
 
-    @page {
-	    size: auto;
+    .est_cont, .estimate{
+    	zoom: .75;
+    }
 
-	 }
+    .cc {
+    	height: 994px;
+    }
+
+    @page {
+	    size: letter landscape;
+	    page-break-inside: avoid;
+	    margin-top: 1cm;
+    	margin-bottom: 1cm;
+    	margin-left: 1cm;
+    	margin-right: 1cm;
+	}
 }
 
 @media screen and (min-width: 600px){

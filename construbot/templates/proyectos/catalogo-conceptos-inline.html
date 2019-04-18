@@ -34,7 +34,7 @@
   <br>
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
-  {{ formset.non_form_errors.as_ul }}
+  {% bootstrap_formset_errors formset %}
   <table id="formset" class="form table_sample table_inline table_normal">
     {{ formset.management_form }}
     {% for frm in formset.forms %}

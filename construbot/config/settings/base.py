@@ -338,7 +338,10 @@ ADMIN_URL = r'^admin/'
 # ------------------------------------------------------------------------------
 
 USERNAME_TEST = env('USERNAME_TEST', default='')
+
 CONSTRUBOT_AS_LIBRARY = env.bool('CONSTRUBOT_AS_LIBRARY', False)
+
+CONSTRUBOT_AUTHORIZATION_CLASS = env('CONSTRUBOT_AUTHORIZATION_CLASS', default='construbot.users.auth')
 
 NIVELES_ACCESO = [
     {'nombre': 'Auxiliar', 'nivel': 1},
@@ -350,3 +353,5 @@ NIVELES_ACCESO = [
 ]
 
 FAVICON_URL = env('FAVICON_URL', default='')
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS=10240
