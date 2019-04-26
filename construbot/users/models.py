@@ -92,6 +92,7 @@ class AbstractConstrubotUser(AbstractUser):
     )
     last_updated = models.DateTimeField(auto_now=True)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
+    puesto = models.CharField(max_length=75, blank=True, null=True)
     email = models.EmailField(unique=True, validators=[validate_email])
     is_new = models.BooleanField(default=True)
     nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.PROTECT)

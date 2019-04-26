@@ -5,9 +5,6 @@
 {% block content %}
   {% language 'es' %}
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
-    {% if almenos_coordinador %}
-      <a class="btn btn-danger boton-flotante position-fixed" href="{% url 'proyectos:editar_estimacion' estimate.id %}">Editar Estimación/Generador</a>
-    {% endif %}
     <a class="btn btn-secondary boton-arriba position-fixed" href="#arriba">▲</a>
     <a class="btn btn-secondary boton-abajo position-fixed" href="#abajo">▼</a>
     <a id="arriba"></a>
@@ -23,8 +20,13 @@
         </li>
       {% endif %}
       <li class="nav-item">
-        <a id="print_es" class="nav-link" href="#">Imprimir</a>
+        <a id="print_es" class="nav-link" href="#"><span class="icon_menu oi oi-print"></span>Imprimir</a>
       </li>
+      {% if almenos_coordinador %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'proyectos:editar_estimacion' estimate.id %}"><span class="icon_menu oi oi-pencil"></span>Editar</a>
+        </li>
+      {% endif %}
     </ul>
     <br class="d-print-none">
     <div style="display:none;" class="cont_estimacion">

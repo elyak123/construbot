@@ -15,7 +15,13 @@
           <table class="informacion">
             <tr>
               <th>Contratista:</th>
-              <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+              <td class="bc subrayado"> 
+                {% if estimate.project.cliente.company.full_name %} 
+                  {{ estimate.project.cliente.company.full_name }}
+                {% else %}
+                  {{ estimate.project.cliente.company.company_name }}
+                {% endif %}
+            </td>
             </tr>
             <tr>
               <th>Contrato:</th>
@@ -27,11 +33,11 @@
             </tr>
             <tr>
               <th>Fecha:</th>
-              <td class="bc subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+              {% language 'es' %}<td class="bc subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>{% endlanguage %}
             </tr>
             <tr>
               <th>Período:</th>
-              <td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+              {% language 'es' %}<td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>{% endlanguage %}
             </tr>
           </table>
         </th>
@@ -142,7 +148,7 @@
           <div class="cont_firma">
             <div class="bc subrayado_f"></div>
             <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-            <p> <strong>Supervisor de Obras </strong></p>
+            <p> <strong>{% if user.puesto %} {{ user.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
             <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
           </div>
           {% for firma in estimate.auth_by.all %}
