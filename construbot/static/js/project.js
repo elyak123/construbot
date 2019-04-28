@@ -46,6 +46,8 @@ $(document).ready(function(){
             var url = window.location.href
             url = url.replace('detalle', 'pdf');
             url = url.replace('#', '');
+            url = url.replace('/arriba', '');
+            url = url.replace('/abajo', '');
             if(ctrl!=0){
                 url = url.replace('estimacion', 'generador');
             } else {
@@ -249,6 +251,7 @@ $(document).ready(function(){
         });
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
+            $("label:contains('Eliminar')").parent().hide();
         }
         $(document).on("click", ".remove_span", function(event){
             let ev = event.target;
