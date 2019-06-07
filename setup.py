@@ -74,14 +74,14 @@ setup(
 
         # Static and Media Storage
         # ------------------------------------------------
-        'boto3==1.9.28',
+        'boto3==1.9.163',
         'django-storages==1.7.1',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
         'django-anymail==6.0',
         # --------------------------
         # Sentry client
-        'sentry-sdk==0.7.6',
+        'sentry-sdk==0.9.0',
         # Security
         'pyup-django==0.4.0',
     ],
