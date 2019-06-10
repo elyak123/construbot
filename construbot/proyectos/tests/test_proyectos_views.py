@@ -43,6 +43,10 @@ class PDFViewTest(BaseViewTest):
     def test_get_cmd_options(self):
         test_obj = {
             'orientation': 'Landscape',
+            'page-size': 'Letter',
+            'dpi': '300',
+            'print-media-type ': None
+
         }
         result = self.view.get_cmd_options(self)
         self.assertEqual(result, test_obj)
@@ -246,6 +250,52 @@ class DestinatarioListTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(q) for q in sorted(
             [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_destinatario_query_same_client_company_coordinador(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.coordinador_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        contrato_3 = factories.ContratoFactory(cliente=destinatario_cliente_3)
+        self.user.contrato_set.add(contrato_1, contrato_2)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_destinatario_query_same_client_company_director(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.director_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2, destinatario_3], key=lambda x: repr(x).lower(), reverse=False
         )]
         self.assertQuerysetEqual(qs, qs_test)
 
@@ -658,7 +708,7 @@ class EstimateCreationTest(BaseViewTest):
         self.assertRedirects(
             response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
         )
-
+    @tag('current')
     def test_estimate_post_correctly_admin_user_not_assigned(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
@@ -871,6 +921,9 @@ class EstimateEditTest(BaseViewTest):
             mock_formset.is_valid.return_value = True
             mock_function.return_value = mock_formset_instance
             mock_form = mock.Mock()
+            mock_save = mock.MagicMock()
+            mock_save.return_value = estimacion
+            mock_form.save = mock_save
             view.form_valid(mock_form)
         self.assertTrue(mock_form.save.called)
         self.assertTrue(mock_formset.is_valid.called)
@@ -1393,7 +1446,6 @@ class DynamicDeleteTest(BaseViewTest):
         view.object = view.get_object()
         control_dict = {
             'cliente__company': self.request.user.currently_at,
-            'users': self.request.user,
             'folio__gt': contrato.folio
         }
         kwargs, field = view.get_company_query('Contrato')

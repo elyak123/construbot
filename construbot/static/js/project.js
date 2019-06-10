@@ -46,6 +46,8 @@ $(document).ready(function(){
             var url = window.location.href
             url = url.replace('detalle', 'pdf');
             url = url.replace('#', '');
+            url = url.replace('/arriba', '');
+            url = url.replace('/abajo', '');
             if(ctrl!=0){
                 url = url.replace('estimacion', 'generador');
             } else {
@@ -152,7 +154,7 @@ $(document).ready(function(){
         let msj = $("#cont_est_danger")[0];
         delete_est.on("click", function(target){
             let element = target.target;
-            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -186,9 +188,10 @@ $(document).ready(function(){
         var mensaje = $("#cont_danger")[0];
 
         delete_link.on("click", function(target){
+            mensaje.innerHTML = "";
             target.preventDefault();
             var element = target.target;
-            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
             var pos = element.parentElement.getBoundingClientRect()
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){
@@ -248,21 +251,22 @@ $(document).ready(function(){
         });
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
+            $("label:contains('Eliminar')").parent().hide();
         }
         $(document).on("click", ".remove_span", function(event){
-            var ev;
-            ev = event.target;
+            let ev = event.target;
+            ev.closest(".form-group").nextSibling.nextSibling.nextSibling.nextSibling.children[0].children[0].click();
             try {
-                ev.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
+                $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
+                $(ev).parent().prev()[0].classList.toggle("appear");
+                ev.classList.toggle("span_eliminar");
             } catch (err) {
-                if (err.constructor == TypeError){
-                    ev = event.target.parentElement;
-                    ev.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
-                }
+                ev = ev.parentNode;
+                $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
+                $(ev).parent().prev()[0].classList.toggle("appear");
+                ev.classList.toggle("span_eliminar");
             }
-            $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
-            $(ev).parent().prev()[0].classList.toggle("appear");
-            ev.classList.toggle("span_eliminar");
+            
         });
         $(document).on('change', '.custom-file-input', function(){
             $(this).parent().find(".custom-file-label")[0].innerText = $(this).val().replace(/C:\\fakepath\\/i, '');

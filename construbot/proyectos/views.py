@@ -1,3 +1,5 @@
+import importlib
+from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -5,7 +7,6 @@ from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
-from construbot.users.auth import AuthenticationTestMixin
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -14,10 +15,15 @@ from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Esti
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
     totalsinfacturar, total_sinpago
 
+try:
+    auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
+except ImportError:
+    from construbot.users import auth
+
 User = get_user_model()
 
 
-class ProyectosMenuMixin(AuthenticationTestMixin):
+class ProyectosMenuMixin(auth.AuthenticationTestMixin):
     permiso_requerido = 2
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
@@ -92,7 +98,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         company_query = {
             'Contrato': {
                 'cliente__company': self.request.user.currently_at,
-                'users': self.request.user
             },
             'Cliente': {
                 'company': self.request.user.currently_at
@@ -161,6 +166,7 @@ class ContratoListView(DynamicList):
                 cliente__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
+                users=self.request.user,
                 **self.get_company_query(self.model.__name__)
             ).order_by(self.ordering)
         return self.queryset
@@ -178,7 +184,7 @@ class DestinatarioListView(DynamicList):
     model = Destinatario
 
     def get_queryset(self):
-        if self.request.user.nivel_acceso.nivel <= 3:
+        if self.request.user.nivel_acceso.nivel < 3:
             clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
             self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
@@ -242,6 +248,7 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
             return self.object.get_contratos_ordenados()
         contratos = self.object.contrato_set.filter(
+            users=self.request.user,
              **self.get_company_query('Contrato')).order_by('-fecha')
         return contratos
 
@@ -264,7 +271,6 @@ class ContratoDetailView(DynamicDetail):
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-        del query_kw['users']
         return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 
@@ -311,6 +317,10 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
     def get_cmd_options(self):
         return {
             'orientation': 'Landscape',
+            'page-size': 'Letter',
+            'dpi': '300',
+            'print-media-type ': None
+
         }
 
     def get_context_data(self, **kwargs):
@@ -319,13 +329,13 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return context
 
 
-class EstimatePdfPrint(BasePDFGenerator):
+class EstimatePdfPrint(EstimateDetailView):
     nivel_permiso_asignado = 2
-    template_name = 'proyectos/concept_estimate.html'
+    template_name = 'proyectos/concept_pdf_estimate.html'
 
 
-class GeneratorPdfPrint(BasePDFGenerator):
-    template_name = 'proyectos/concept_generator.html'
+class GeneratorPdfPrint(EstimateDetailView):
+    template_name = 'proyectos/concept_pdf_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):

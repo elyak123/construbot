@@ -3,7 +3,6 @@
 {% load bootstrap4 %}
 
 {% block css %}
-  <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block css_no_compress %}
   {% if is_new_user %}
@@ -17,9 +16,8 @@
 {% block javascript %}
     <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
+    <script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
-  {#<script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>#}
   <script type="text/javascript">
     $(document).ready(function(){
       if($("#id_fecha").length){
@@ -31,9 +29,6 @@
         }
       }
     });
-    {% if is_new_user %}
-      
-    {% endif %}
   </script>
 {% endblock javascript %}
 {% block conditions %}
@@ -76,7 +71,7 @@
   </form>
   <form data-step="5" data-intro="<strong>Crea tu primer contrato. </strong> Te servirá para iniciar tu primer catálogo de conceptos y posteriormente generar estimaciones. ¡Gracias por completar el tutorial!</strong>." style="position:relative" class="form-horizontal" method="post">
   {% else %}
-  <form style="position:relative" class="form-horizontal" method="post">
+  <form style="position:relative" class="form-horizontal" method="post" enctype="multipart/form-data">
   {% endif %}
     {% csrf_token %}
     {% bootstrap_form form %}

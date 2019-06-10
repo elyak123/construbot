@@ -23,8 +23,12 @@ skip_covered = True
 precision = 2
 sort = Miss
 omit =
+    setup.py
     */migrations/*
-    config/settings/*
+    */config/settings/*
     docs/conf.py
-    construbot/wsgi.py
+    construbot/config/wsgi.py
+    */staticfiles/*
+    construbot/templates/bootstrap4/*
+    construbot/templates/account/*
 show_missing = True

@@ -1,9 +1,8 @@
-import time
 import json
+from operator import itemgetter
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import api_view
@@ -60,7 +59,7 @@ def create_customer_user_and_company(request):
     except ValidationError as e:
         return Response({'success': False, 'errors': e})
     user.save()
-    user.company = [company.id]
+    user.company.add(Company.objects.get(id=company.id))
     user.groups.add(*[group_a, group_p, group_u])
     return Response(
         {
@@ -137,7 +136,8 @@ class DataMigration(object):
     @api_view(['POST'])
     def contrato_concept_and_estimate_migration(request):
         json_data = json.loads(request.data)
-        for nombre, obj in json_data.items():
+        data = sorted(json_data['payload'], key=itemgetter('folio'))
+        for obj in data:
             company, company_created = Company.objects.get_or_create(
                 company_name=obj['company'],
                 customer=request.user.customer
@@ -191,7 +191,8 @@ def get_concepts(contrato, concept_data):
 
 
 def get_estimate_concepts(estimate, estimate_concepts):
-    for estimate_concept_data in estimate_concepts:
+    estimate_concepts_ordenados = sorted(estimate_concepts, key=itemgetter('id'))
+    for estimate_concept_data in estimate_concepts_ordenados:
         concept, c_created = Concept.objects.get_or_create(
             concept_text=estimate_concept_data['concept'],
             project=estimate.project,
@@ -205,7 +206,8 @@ def get_estimate_concepts(estimate, estimate_concepts):
 
 
 def get_estimates(contrato, estimate_data, username):
-    for estimacion in estimate_data:
+    estimaciones_ordenadas = sorted(estimate_data, key=itemgetter('consecutive'))
+    for estimacion in estimaciones_ordenadas:
         estimate, estimate_created = Estimate.objects.get_or_create(
             project=contrato,
             consecutive=estimacion['consecutive'],

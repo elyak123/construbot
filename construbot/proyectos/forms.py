@@ -3,9 +3,9 @@ from dal import autocomplete
 from .models import (Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
     EstimateConcept, ImageEstimateConcept, Retenciones, Units)
 from construbot.users.models import Company
-from django.core.exceptions import ObjectDoesNotExist
+from construbot.proyectos import widgets
 
-MY_DATE_FORMATS = ['%Y-%m-%d']
+MY_DATE_FORMATS = '%Y-%m-%d'
 
 
 class ContratoForm(forms.ModelForm):
@@ -36,7 +36,7 @@ class ContratoForm(forms.ModelForm):
             'contrato_shortName': 'Nombre corto',
             'file': 'Archivo',
             'users': '¿A qué usuarios desea asignarlo?',
-            'status': '¿El proyecto ya terminó?'
+            'status': '¿El proyecto sigue en curso?'
         }
         widgets = {
             'fecha': forms.DateInput(
@@ -77,7 +77,7 @@ class ContratoForm(forms.ModelForm):
             'contrato_shortName': 'Identificador corto del contrato para control en listados.',
             'cliente': '¿Con qué empresa/persona física firmé el contrato?',
             'sitio': '¿En qué predio será realizado el proyecto?',
-            'status': 'Indique si el proyecto ya ha sido terminado.',
+            'status': 'Indique si el proyecto sigue en curso.',
             'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
             'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
             'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
@@ -271,48 +271,12 @@ class EstimateForm(forms.ModelForm):
         }
 
 
-class ConceptDummyWidget(forms.Textarea):
-    def render(self, name, value, attrs=None):
-        """
-            esto se queda asi.... todavia no se porque, espero que se sepa con
-            las pruebas de las vistas.
-        """
-        try:
-            value_instance = Concept.objects.get(pk=value)
-            self.value = value_instance
-        except:
-            self.value = str(Concept.objects.get(concept_text=value).id)
-            widget = forms.Select(choices=(self.value,))
-            return widget.render(name, self.value, attrs)
-        return super(ConceptDummyWidget, self).render(name, self.value, attrs)
-
-    def value_from_datadict(self, data, files, name):
-        """
-            Funcion que usa la vista, todavia para pasar los datos al render
-            en algunos casos es un numero, otros es texto, se maneja deacuerdo
-            a como venga.
-        """
-        data_name = data.get(name)
-        try:
-            value = str(Concept.objects.get(concept_text=data_name, project=int(data['project'])).id)
-            return value
-        except ObjectDoesNotExist:
-            if isinstance(data_name, int):
-                return data_name
-            else:
-                raise
-
-
-class FileNestedWidget(forms.ClearableFileInput):
-    template_name = 'proyectos/file_input.html'
-
-
 imageformset = forms.inlineformset_factory(
     EstimateConcept,
     ImageEstimateConcept,
     extra=1,
     fields=('image',),
-    widgets={'image': FileNestedWidget()},
+    widgets={'image': widgets.FileNestedWidget()},
 )
 
 
@@ -348,6 +312,21 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
         return result
 
 
+class BaseUnitFormset(forms.BaseInlineFormSet):
+
+    def clean(self):
+        deleted_units = self.deleted_forms
+        validation_errors = []
+        for form in deleted_units:
+            if form.instance.concept_set.count() > 0:
+                validation_errors.append(forms.ValidationError(
+                    '{} no puede ser eliminado, tiene conceptos '
+                    'que deben ser eliminados primero.'.format(form.instance.unit))
+                )
+        if len(validation_errors) > 0:
+            raise forms.ValidationError(validation_errors)
+
+
 def estimateConceptInlineForm(count=0):
     inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
         'concept',
@@ -357,10 +336,10 @@ def estimateConceptInlineForm(count=0):
         'ancho',
         'alto',
     ), max_num=count, extra=count, can_delete=False, widgets={
-        'concept': ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
+        'concept': widgets.ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
         'cuantity_estimated': forms.TextInput(),
         'observations': forms.Textarea(
-            attrs = {'rows': '3', 'cols': '40'}
+            attrs={'rows': '3', 'cols': '40'}
         )
     }, labels={
         'concept': 'Concepto',
@@ -418,4 +397,5 @@ UnitsInlineForm = forms.inlineformset_factory(
         'unit',
     ),
     extra=1,
+    formset=BaseUnitFormset
 )
