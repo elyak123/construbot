@@ -217,7 +217,11 @@
     <div class="cont_listado">
         <strong> Vista previa del contrato </strong>
         <div class="float-right">
+            {% if contrato.file %}
             <span data-url={{ contrato.file.url }} class="oi oi-plus toggle-button-1 lanzar-contrato"></span><span class="oi oi-minus toggle-button-2 contraer-contrato" style="display:none"></span>
+            {% else %}
+            <span data-url="" class="oi oi-plus toggle-button-1 lanzar-contrato"></span><span class="oi oi-minus toggle-button-2 contraer-contrato" style="display:none"></span>
+            {% endif %}
         </div>
     </div>
     {% if contrato.file %}
@@ -226,7 +230,7 @@
             </object>
         </div>
     {% else %}
-        <div id="toggle-hide" class="cont_message text-center">¡No ha subido el PDF del contrato!, súbalo <a href="{% url 'proyectos:edit_contrato' contrato.id %}">Aquí</a>.</div>
+        <div id="toggle-hide" style="display:none;" class="cont_message text-center">¡No ha subido el PDF del contrato!, súbalo <a href="{% url 'proyectos:editar_contrato' contrato.id %}">Aquí</a>.</div>
     {% endif %}
 {% endif %}
 {% endlanguage %}
