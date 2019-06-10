@@ -1,245 +1,401 @@
 from django import forms
-from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import Group
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from .models import Company
 from dal import autocomplete
+from .models import (Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
+    EstimateConcept, ImageEstimateConcept, Retenciones, Units)
+from construbot.users.models import Company
+from construbot.proyectos import widgets
 
-User = get_user_model()
+MY_DATE_FORMATS = '%Y-%m-%d'
 
 
-class UserForm(UserCreationForm):
-    company = forms.CharField(
-        label=_('Empresa Principal'),
-        help_text=_('Para comenzar necesitamos una empresa en la cual trabajar.')
-    )
+class ContratoForm(forms.ModelForm):
+    currently_at = forms.CharField(widget=forms.HiddenInput())
 
-    def signup(self, request, user):
-        empresa = Company.objects.create(company_name=self.cleaned_data['company'], customer=user.customer)
-        user_group, created = Group.objects.get_or_create(name='Users')
-        proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
-        user.company.add(empresa)
-        user.groups.add(user_group)
-        user.groups.add(proyectos_groups)
+    def clean(self):
+        result = super(ContratoForm, self).clean()
+        if self.cleaned_data.get('currently_at') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data.get('currently_at') == self.request.user.currently_at.company_name:
+            if self.request.user.is_new:
+                self.request.user.is_new = False
+                self.request.user.save()
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
 
     class Meta:
-        model = User
-        exclude = [
-            'is_new',
-            'openpay',
-            'password',
-            'customer',
-            'company',
-            'last_login',
-            'is_superuser',
-            'groups',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
-            'nivel_acceso',
-        ]
+        model = Contrato
+        fields = '__all__'
+        labels = {
+            'code': 'Folio del contrato',
+            'contrato_name': 'Nombre del contrato',
+            'contrato_shortName': 'Nombre corto',
+            'file': 'Archivo',
+            'users': '¿A qué usuarios desea asignarlo?',
+            'status': '¿El proyecto sigue en curso?'
+        }
+        widgets = {
+            'fecha': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_fecha',
+                    'name': 'fecha'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'folio': forms.TextInput(
+                attrs={'readonly': 'readonly'}
+            ),
+            'cliente': autocomplete.ModelSelect2(
+                url='proyectos:cliente-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
+            'sitio': autocomplete.ModelSelect2(
+                url='proyectos:sitio-autocomplete',
+                attrs={'data-minimum-input-length': 3},
+                forward=['cliente']
+            ),
+            'users': autocomplete.ModelSelect2Multiple(
+                url='proyectos:user-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                }
+            ),
+            'anticipo': forms.TextInput(
+                attrs={'style': 'width:200px;'}
+            ),
+        }
+        help_texts = {
+            'code': 'Código del contrato, este código debe coincidir con el código del contrato firmado.',
+            'folio': 'ID consecutivo de contrato en la compañía.',
+            'contrato_name': 'Nombre completo del proyecto, se utilizará para generar la estimación.',
+            'contrato_shortName': 'Identificador corto del contrato para control en listados.',
+            'cliente': '¿Con qué empresa/persona física firmé el contrato?',
+            'sitio': '¿En qué predio será realizado el proyecto?',
+            'status': 'Indique si el proyecto sigue en curso.',
+            'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
+            'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
+            'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
+        }
 
 
-class UsuarioInterno(UserCreationForm):
+class BaseCleanForm(forms.ModelForm):
 
-    def __init__(self, user, *args, **kwargs):
-        super(UsuarioInterno, self).__init__(*args, **kwargs)
-        self.fields['company'].queryset = Company.objects.filter(customer=user.customer)
+    def clean(self):
+        result = super(BaseCleanForm, self).clean()
+        if self.cleaned_data.get('company') is None:
+            raise forms.ValidationError('Error en la formación del formulario, es posible que este corrupto,'
+                                        'porfavor recarga y vuelve a intentarlo')
+        if self.cleaned_data['company'].company_name == self.request.user.currently_at.company_name:
+            return result
+        else:
+            raise forms.ValidationError(
+                'Actualmente te encuentras en otra compañia, '
+                'es necesario recargar y repetir el proceso.'
+            )
+
+
+class ClienteForm(BaseCleanForm):
+
+    class Meta:
+        model = Cliente
+        fields = '__all__'
+        labels = {
+            'cliente_name': 'Nombre del cliente'
+        }
+        widgets = {
+            'company': forms.HiddenInput()
+        }
+        help_texts = {
+            'cliente_name': 'Nombre o razón social del cliente con el cuál tendrá proyectos.',
+        }
+
+
+class SitioForm(forms.ModelForm):
+
+    class Meta:
+        model = Sitio
+        fields = '__all__'
+        labels = {
+            'sitio_name': 'Nombre del sitio',
+            'sitio_location': 'Ubicación',
+            'cliente': '¿A qué cliente pertenece?'
+        }
+        widgets = {
+            'cliente': autocomplete.ModelSelect2(
+                url='proyectos:cliente-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
+        }
+        help_texts = {
+            'sitio_name': 'Nombre de la locación en la que se harán proyectos.',
+            'sitio_location': 'Ciudad dónde se encuentra el sitio',
+            'cliente': '¿A qué empresa/persona física le pertenece o se relaciona?'
+        }
+
+
+class DestinatarioForm(forms.ModelForm):
+
+    class Meta:
+        model = Destinatario
+        fields = '__all__'
+        labels = {
+            'destinatario_text': 'Nombre del destinatario',
+            'cliente': '¿En qué empresa trabaja?'
+        }
+        widgets = {
+            'cliente': autocomplete.ModelSelect2(
+                url='proyectos:cliente-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
+        }
+        help_texts = {
+            'destinatario_text': 'Nombre del representante de la empresa que firmará documentos.',
+            'puesto': '¿En qué puesto trabaja?',
+            'cliente': '¿Para qué empresa/persona física trabaja?'
+        }
+
+
+class EstimateForm(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super(EstimateForm, self).clean()
+        destinatarios_contratos_error_message = 'Destinatarios y contratos no pueden ser de empresas diferentes'
+        for auth_by in cleaned_data['auth_by']:
+            if auth_by.cliente.company != cleaned_data['project'].cliente.company:
+                raise forms.ValidationError(destinatarios_contratos_error_message)
+        for auth_by_gen in cleaned_data['auth_by_gen']:
+            if auth_by_gen.cliente.company != cleaned_data['project'].cliente.company:
+                raise forms.ValidationError(destinatarios_contratos_error_message)
+        pago_sin_fecha_validation_error_message = 'Si la estimación fué pagada, es necesaria fecha de pago.'
+        if self.cleaned_data['paid'] and not self.cleaned_data['payment_date']:
+            self.add_error('payment_date', pago_sin_fecha_validation_error_message)
+        return cleaned_data
+
+    class Meta:
+        model = Estimate
+        fields = '__all__'
+        exclude = ['estimate_concept']
+        labels = {
+            'consecutive': 'Consecutivo',
+            'descripcion': 'Descripción',
+            'supervised_by': 'Supervisado por:',
+            'start_date': 'Fecha de inicio',
+            'finish_date': 'Fecha de finalización',
+            'auth_by': 'Autorizado por [Estimación]:',
+            'auth_by_gen': 'Autorizado por [Generador]:',
+            'auth_date': 'Fecha de autorización',
+            'paid': '¿Pagada?',
+            'invoiced': '¿Facturada?',
+            'payment_date': 'Fecha de pago',
+        }
+        help_texts = {
+            'consecutive': 'Número de estimación correspondiente al proyecto.',
+            'supervised_by': '¿Qué usuario fue residente de obra?',
+            'start_date': 'Fecha de inicio del período que comprende la estimación.',
+            'finish_date': 'Fecha de finalización del período que comprende la estimación.',
+            'auth_by': '¿Qué personas encargadas de la empresa cliente autorizan la estimación?',
+            'auth_by_gen': '¿Qué personas encargadas de la empresa cliente autorizan el generador?',
+            'auth_date': 'Fecha en la que la estimación ha sido autorizada.',
+            'paid': '¿La estimación ya fue pagada?',
+            'invoiced': '¿La estimación ya fue facturada?',
+            'payment_date': 'En caso de que la estimación ya haya sido pagada, indique la fecha de pago.',
+            'mostrar_anticipo': '¿Desea que en la versión impresa se muestre el concepto de anticipo?',
+            'mostrar_retenciones': '¿Desea que en la versión impresa se muestren las retenciones efectuadas?'
+        }
+        widgets = {
+            'consecutive': forms.TextInput(
+                attrs={'readonly': 'readonly'}
+            ),
+            'project': forms.HiddenInput(),
+            'draft_by': forms.HiddenInput(),
+            'supervised_by': autocomplete.ModelSelect2(
+                url='proyectos:user-autocomplete',
+                attrs={'data-minimum-input-length': 3}
+            ),
+            'start_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_start_date',
+                    'name': 'start_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'finish_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_finish_date',
+                    'name': 'finish_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'auth_by': autocomplete.ModelSelect2Multiple(
+                url='proyectos:destinatario-autocomplete',
+                forward=['project'],
+                attrs={
+                    'data-minimum-input-length': 2,
+                }
+            ),
+            'auth_by_gen': autocomplete.ModelSelect2Multiple(
+                url='proyectos:destinatario-autocomplete',
+                forward=['project'],
+                attrs={
+                    'data-minimum-input-length': 2,
+                }
+            ),
+            'auth_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_auth_date',
+                    'name': 'auth_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+            'payment_date': forms.DateInput(
+                attrs={
+                    'class': 'datetimepicker-input',
+                    'data-toggle': 'datetimepicker',
+                    'data-target': '#id_payment_date',
+                    'name': 'payment_date'
+                },
+                format=MY_DATE_FORMATS
+            ),
+        }
+
+
+imageformset = forms.inlineformset_factory(
+    EstimateConcept,
+    ImageEstimateConcept,
+    extra=1,
+    fields=('image',),
+    widgets={'image': widgets.FileNestedWidget()},
+)
+
+
+class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
+
+    def add_fields(self, form, index):
+        super(BaseEstimateConceptInlineFormset, self).add_fields(form, index)
+
+        form.nested = imageformset(
+            instance=form.instance,
+            data=form.data if form.is_bound else None,
+            files=form.files if form.is_bound else None,
+            prefix='%s-%s' % (
+                form.prefix,
+                imageformset.get_default_prefix()
+            ),
+        )
+
+    def is_valid(self):
+        result = super(BaseEstimateConceptInlineFormset, self).is_valid()
+        if self.is_bound:
+            for form in self.forms:
+                if hasattr(form, 'nested'):
+                    nested_validity = form.nested.is_valid()
+                    result &= nested_validity
+        return result
 
     def save(self, commit=True):
-        user = super(UsuarioInterno, self).save(commit=True)
-        self._save_m2m()
-        return user
-
-    def clean_groups(self):
-        n_acceso = self.data['nivel_acceso']
-        user_group, created = Group.objects.get_or_create(name='Users')
-        proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
-        if int(n_acceso) >= 3:
-            return [user_group.id, proyectos_groups.id]
-        return [proyectos_groups.id]
-
-    class Meta:
-        model = User
-        exclude = [
-            'is_new',
-            'openpay',
-            'password',
-            'last_login',
-            'is_superuser',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
-        ]
-
-        labels = {
-            'username': 'Nombre de Usuario',
-            'first_name': 'Nombres',
-            'last_name': 'Apellidos',
-            'email': 'Correo electrónico',
-            'groups': 'Grupos de trabajo',
-            'company': 'Compañías de trabajo',
-            'password1': 'Contraseña',
-            'password2': 'Confirme Contraseña'
-        }
-        help_texts = {
-            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
-            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
-            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
-            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
-        }
-        widgets = {
-            'groups': forms.HiddenInput(),
-            'customer': forms.HiddenInput(),
-            'nivel_acceso': autocomplete.ModelSelect2(
-                url='proyectos:nivelacceso-autocomplete'
-            ),
-            'company': autocomplete.ModelSelect2Multiple(
-                url='proyectos:company-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                }
-            ),
-        }
+        result = super(BaseEstimateConceptInlineFormset, self).save(commit=commit)
+        for form in self.forms:
+            if hasattr(form, 'nested'):
+                form.nested.save(commit=commit)
+        return result
 
 
-class UsuarioEdit(UserChangeForm):
-    password = ReadOnlyPasswordHashField(
-        label=_("Password"),
-        help_text=_(
-            'Las contraseñas no se almacenan en texto plano, así '
-            'que no hay manera de ver la contraseña del usuario, pero se puede '
-            'cambiar la contraseña mediante este '
-            '<a href="{}">formulario</a>.'
+class BaseUnitFormset(forms.BaseInlineFormSet):
+
+    def clean(self):
+        deleted_units = self.deleted_forms
+        validation_errors = []
+        for form in deleted_units:
+            if form.instance.concept_set.count() > 0:
+                validation_errors.append(forms.ValidationError(
+                    '{} no puede ser eliminado, tiene conceptos '
+                    'que deben ser eliminados primero.'.format(form.instance.unit))
+                )
+        if len(validation_errors) > 0:
+            raise forms.ValidationError(validation_errors)
+
+
+def estimateConceptInlineForm(count=0):
+    inlineform = forms.inlineformset_factory(Estimate, EstimateConcept, fields=(
+        'concept',
+        'cuantity_estimated',
+        'observations',
+        'largo',
+        'ancho',
+        'alto',
+    ), max_num=count, extra=count, can_delete=False, widgets={
+        'concept': widgets.ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
+        'cuantity_estimated': forms.TextInput(),
+        'observations': forms.Textarea(
+            attrs={'rows': '3', 'cols': '40'}
+        )
+    }, labels={
+        'concept': 'Concepto',
+        'cuantity_estimated': 'Cantidad estimada',
+        'observations': 'Observaciones'
+    }, formset=BaseEstimateConceptInlineFormset)
+    return inlineform
+
+
+ContractConceptInlineForm = forms.inlineformset_factory(
+    Contrato, Concept,
+    fields=(
+        'code',
+        'concept_text',
+        'unit',
+        'total_cuantity',
+        'unit_price',
+    ),
+    extra=1,
+    widgets={
+        'concept_text': forms.Textarea(attrs={
+            'cols': '20',
+            'rows': '4'
+        }),
+        'unit': autocomplete.ModelSelect2(
+            url='proyectos:unit-autocomplete',
+            attrs={'class': 'n-input', 'data-minimum-input-length': 1}
         ),
-    )
+        'total_cuantity': forms.NumberInput(attrs={
+            'class': 'n-input',
+        }),
+        'unit_price': forms.NumberInput(attrs={
+            'class': 'n-input',
+        }),
+        'code': forms.TextInput(attrs={
+            'maxlength': '6',
+            'class': 'inlineCode',
+        }),
+    },
+)
 
-    def __init__(self, user, *args, **kwargs):
-        # Llamamos el super del padre porque el padre cambia arbitrariamente la url
-        # de cambio de contraseña
-        super(UserChangeForm, self).__init__(*args, **kwargs)
-        pass_change = reverse('account_change_password', kwargs={'username': user.username})
-        self.fields['company'].queryset = user.company.all()
-        self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
-        self.user = user
+ContractRetentionInlineForm = forms.inlineformset_factory(
+    Contrato, Retenciones,
+    fields=(
+        'nombre',
+        'tipo',
+        'valor',
+    ),
+    extra=1,
+)
 
-    class Meta:
-        model = User
-        fields = [
-            'username',
-            'password',
-            'first_name',
-            'last_name',
-            'company',
-            'email',
-            'nivel_acceso'
-        ]
-
-        labels = {
-            'username': 'Nombre de Usuario',
-            'first_name': 'Nombres',
-            'last_name': 'Apellidos',
-            'email': 'Correo electrónico',
-            'company': 'Compañías de trabajo',
-            'nivel_acceso': 'Nivel de Acceso'
-        }
-        help_texts = {
-            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
-            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
-            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
-            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
-        }
-        widgets = {
-            'password': forms.HiddenInput(),
-            'customer': forms.HiddenInput(),
-            'company': autocomplete.ModelSelect2Multiple(
-                url='proyectos:company-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                }
-            ),
-        }
-
-
-class UsuarioEditNoAdmin(UserChangeForm):
-    class Meta:
-        model = User
-        fields = [
-            'username',
-            'password',
-            'first_name',
-            'last_name',
-            'email',
-        ]
-        help_texts = {
-            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
-            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
-            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
-            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
-        }
-        widgets = {
-            'password': forms.HiddenInput(),
-            'customer': forms.HiddenInput(),
-            'company': autocomplete.ModelSelect2Multiple(
-                url='proyectos:company-autocomplete',
-                attrs={
-                    'data-minimum-input-length': 3,
-                }
-            ),
-        }
-
-
-class CompanyForm(forms.ModelForm):
-
-    def __init__(self, user, *args, **kwargs):
-        super(CompanyForm, self).__init__(*args, **kwargs)
-        self.user = user
-
-    class Meta:
-        model = Company
-        fields = '__all__'
-        labels = {
-            'full_name': 'Razón Social',
-            'company_name': 'Nombre de la Compañía'
-        }
-        help_texts = {
-            'full_name': 'Razón social de la empresa de trabajo, es necesaria para mostrarlo en los documentos impresos.',
-            'company_name': 'Nombre corto de la empresa, con la cual sea más sencillo identificarla.',
-        }
-        widgets = {
-            'customer': forms.HiddenInput(),
-        }
-
-    def save(self):
-        company = super(CompanyForm, self).save()
-        self.user.company.add(company.id)
-        return company
-
-
-class CompanyEditForm(forms.ModelForm):
-    is_new = forms.BooleanField(
-        widget=forms.HiddenInput(),
-        required=False
-    )
-
-    class Meta:
-        model = Company
-        fields = '__all__'
-        labels = {
-            'full_name': 'Nombre de la compañía',
-            'company_name': 'Nombre corto'
-        }
-        widgets = {
-            'customer': forms.HiddenInput(),
-        }
+UnitsInlineForm = forms.inlineformset_factory(
+    Company, Units,
+    fields=(
+        'unit',
+    ),
+    extra=1,
+    formset=BaseUnitFormset
+)

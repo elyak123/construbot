@@ -4,10 +4,6 @@ from unittest import mock
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import RequestFactory, tag
-<<<<<<< HEAD
-from django.http import Http404
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.tests import utils
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
@@ -366,11 +362,7 @@ class ClienteDetailTest(BaseViewTest):
             pk=cliente.pk,
             request=self.request
         )
-<<<<<<< HEAD
-        with self.assertRaises(Http404):
-=======
         with self.assertRaises(PermissionDenied):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
             view.get_object()
 
     def test_assert_cliente_contratos_ordenados_only_assigned(self):
@@ -380,11 +372,8 @@ class ClienteDetailTest(BaseViewTest):
         contrato2.users.add(self.user)
         contrato3 = factories.ContratoFactory(cliente=cliente)
         contrato3.users.add(self.user)
-<<<<<<< HEAD
-=======
         self.user.currently_at = cliente.company
         self.user.save()
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         view = self.get_instance(
             views.ClienteDetailView,
             pk=cliente.pk,
@@ -393,11 +382,7 @@ class ClienteDetailTest(BaseViewTest):
         view.object = cliente
         qs = view.contratos_ordenados()
         qs_test = [repr(q) for q in sorted(
-<<<<<<< HEAD
-            [contrato2, contrato3], key=lambda x: repr(x.fecha).lower(), reverse=True
-=======
             [contrato2, contrato3], key=lambda x: x.fecha, reverse=True
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         )]
         self.assertQuerysetEqual(qs, qs_test)
 

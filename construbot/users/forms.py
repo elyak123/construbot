@@ -64,12 +64,7 @@ class UsuarioInterno(UserCreationForm):
         proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
         if int(n_acceso) >= 3:
             return [user_group.id, proyectos_groups.id]
-<<<<<<< HEAD
-        else:
-            return [proyectos_groups.id]
-=======
         return [proyectos_groups.id]
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     class Meta:
         model = User
@@ -98,16 +93,12 @@ class UsuarioInterno(UserCreationForm):
             'password1': 'Contraseña',
             'password2': 'Confirme Contraseña'
         }
-<<<<<<< HEAD
-
-=======
         help_texts = {
             'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
             'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
             'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
             'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
         }
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         widgets = {
             'groups': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -180,45 +171,16 @@ class UsuarioEdit(UserChangeForm):
             ),
         }
 
-<<<<<<< HEAD
-    def clean_groups(self):
-        n_acceso = self.data['nivel_acceso']
-        customer = self.user.customer
-        numero_admins = User.objects.filter(customer=customer, nivel_acceso__nivel__lte=3).count()
-        if numero_admins == 1 and (int(n_acceso) < 3 and self.user.nivel_acceso.nivel >= 3):
-            raise ValidationError('¡No puedes quedarte sin administradores!')
-        return n_acceso
-
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 class UsuarioEditNoAdmin(UserChangeForm):
     class Meta:
         model = User
-<<<<<<< HEAD
-        exclude = [
-            'is_new',
-            'openpay',
-            'groups',
-            'company',
-            'last_login',
-            'is_superuser',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
-            'nivel_acceso',
-=======
         fields = [
             'username',
             'password',
             'first_name',
             'last_name',
             'email',
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         ]
         help_texts = {
             'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
