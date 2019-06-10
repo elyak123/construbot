@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from django.core.urlresolvers import reverse, resolve
+=======
+from django.urls import reverse, resolve
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from . import utils
 
 

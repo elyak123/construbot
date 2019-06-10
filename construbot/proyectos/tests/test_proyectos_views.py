@@ -1,9 +1,13 @@
 import json
 import decimal
 from unittest import mock
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import RequestFactory, tag
+<<<<<<< HEAD
 from django.http import Http404
+=======
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.tests import utils
 from construbot.proyectos import views
 from construbot.proyectos.models import Destinatario, Contrato, Estimate
@@ -24,13 +28,29 @@ class BaseViewTest(utils.BaseTestCase):
             self.fail(message)
 
 
+class BaseViewTestTest(utils.BaseTestCase):
+
+    @mock.patch.object(BaseViewTest, 'fail')
+    def test_assert_not_raises(self, mock_fail):
+        my_function = mock.Mock()
+        function_result = mock.MagicMock()
+        my_function.return_value = function_result
+        instance = BaseViewTest()
+        instance.assertNotRaises(my_function(), Exception, 'Not raised')
+        my_function.assert_called_with()
+        mock_fail.assert_not_called()
+
+
 class PDFViewTest(BaseViewTest):
     view = views.BasePDFGenerator
 
     def test_get_cmd_options(self):
         test_obj = {
             'orientation': 'Landscape',
-            'javascript-delay': 1000
+            'page-size': 'Letter',
+            'dpi': '300',
+            'print-media-type ': None
+
         }
         result = self.view.get_cmd_options(self)
         self.assertEqual(result, test_obj)
@@ -174,12 +194,16 @@ class ContratoListTest(BaseViewTest):
 
 
 class ClienteListTest(BaseViewTest):
+
     def test_cliente_query_only_same_client(self):
         cliente_company = factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         cliente = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_bLdYMUBC')
         cliente_2 = factories.ClienteFactory(company=cliente_company, cliente_name='cliente_JBFQADJV')
-        cliente_3 = factories.ClienteFactory()
+        factories.ClienteFactory()
+        contrato_1 = factories.ContratoFactory(cliente=cliente)
+        contrato_2 = factories.ContratoFactory(cliente=cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.ClienteListView,
             request=self.request
@@ -190,13 +214,17 @@ class ClienteListTest(BaseViewTest):
 
 
 class SitioListTest(BaseViewTest):
+
     def test_sitio_query_only_same_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio_cliente = factories.ClienteFactory(company=sitio_company)
         self.user.currently_at = sitio_company
         sitio = factories.SitioFactory(cliente=sitio_cliente)
         sitio_2 = factories.SitioFactory(cliente__company=sitio_company)
-        sitio_3 = factories.SitioFactory()
+        factories.SitioFactory()
+        contrato_1 = factories.ContratoFactory(sitio=sitio)
+        contrato_2 = factories.ContratoFactory(sitio=sitio_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.SitioListView,
             request=self.request
@@ -207,6 +235,7 @@ class SitioListTest(BaseViewTest):
 
 
 class DestinatarioListTest(BaseViewTest):
+
     def test_destinatario_query_same_client_company(self):
         destinatario_company = factories.CompanyFactory(customer=self.user.customer)
         self.request.user.currently_at = destinatario_company
@@ -215,6 +244,9 @@ class DestinatarioListTest(BaseViewTest):
         destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
         destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
         destinatario_3 = factories.DestinatarioFactory()
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        self.user.contrato_set.add(contrato_1, contrato_2)
         view = self.get_instance(
             views.DestinatarioListView,
             request=self.request
@@ -222,6 +254,52 @@ class DestinatarioListTest(BaseViewTest):
         qs = view.get_queryset()
         qs_test = [repr(q) for q in sorted(
             [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_destinatario_query_same_client_company_coordinador(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.coordinador_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        contrato_1 = factories.ContratoFactory(cliente=destinatario_cliente)
+        contrato_2 = factories.ContratoFactory(cliente=destinatario_cliente_2)
+        contrato_3 = factories.ContratoFactory(cliente=destinatario_cliente_3)
+        self.user.contrato_set.add(contrato_1, contrato_2)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2], key=lambda x: repr(x).lower(), reverse=False
+        )]
+        self.assertQuerysetEqual(qs, qs_test)
+
+    def test_destinatario_query_same_client_company_director(self):
+        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
+        self.request.user.currently_at = destinatario_company
+        self.request.user.nivel_acceso = self.director_permission
+        self.request.user.save()
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_2 = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente_3 = factories.ClienteFactory(company=destinatario_company)
+        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+        destinatario_2 = factories.DestinatarioFactory(cliente=destinatario_cliente_2)
+        destinatario_3 = factories.DestinatarioFactory(cliente=destinatario_cliente_3)
+        view = self.get_instance(
+            views.DestinatarioListView,
+            request=self.request
+        )
+        qs = view.get_queryset()
+        qs_test = [repr(q) for q in sorted(
+            [destinatario, destinatario_2, destinatario_3], key=lambda x: repr(x).lower(), reverse=False
         )]
         self.assertQuerysetEqual(qs, qs_test)
 
@@ -256,16 +334,14 @@ class ContratoDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, contrato)
 
-    def test_assert_contrato_request_returns_404_with_no_currently_at(self):
-        contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+    def test_assert_contrato_request_returns_permissiondenied_without_its_company(self):
+        contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.ContratoDetailView,
             pk=contrato.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -283,15 +359,18 @@ class ClienteDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, cliente)
 
-    def test_assert_cliente_request_returns_404_with_no_currently_at(self):
-        cliente_company = factories.CompanyFactory(customer=self.user.customer)
-        cliente = factories.ClienteFactory(company=cliente_company)
+    def test_assert_cliente_request_raises_permissiondenied_with_no_currently_at(self):
+        cliente = factories.ClienteFactory(company__customer=self.user.customer)
         view = self.get_instance(
             views.ClienteDetailView,
             pk=cliente.pk,
             request=self.request
         )
+<<<<<<< HEAD
         with self.assertRaises(Http404):
+=======
+        with self.assertRaises(PermissionDenied):
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
             view.get_object()
 
     def test_assert_cliente_contratos_ordenados_only_assigned(self):
@@ -301,6 +380,11 @@ class ClienteDetailTest(BaseViewTest):
         contrato2.users.add(self.user)
         contrato3 = factories.ContratoFactory(cliente=cliente)
         contrato3.users.add(self.user)
+<<<<<<< HEAD
+=======
+        self.user.currently_at = cliente.company
+        self.user.save()
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         view = self.get_instance(
             views.ClienteDetailView,
             pk=cliente.pk,
@@ -309,7 +393,11 @@ class ClienteDetailTest(BaseViewTest):
         view.object = cliente
         qs = view.contratos_ordenados()
         qs_test = [repr(q) for q in sorted(
+<<<<<<< HEAD
             [contrato2, contrato3], key=lambda x: repr(x.fecha).lower(), reverse=True
+=======
+            [contrato2, contrato3], key=lambda x: x.fecha, reverse=True
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         )]
         self.assertQuerysetEqual(qs, qs_test)
 
@@ -328,7 +416,7 @@ class SitioDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, sitio)
 
-    def test_assert_sitio_request_returns_404_with_no_currently_at(self):
+    def test_assert_sitio_request_returns_permissiondenied_without_its_company(self):
         sitio_company = factories.CompanyFactory(customer=self.user.customer)
         sitio_cliente = factories.ClienteFactory(company=sitio_company)
         sitio = factories.SitioFactory(cliente=sitio_cliente)
@@ -337,7 +425,7 @@ class SitioDetailTest(BaseViewTest):
             pk=sitio.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -356,16 +444,14 @@ class DestinatarioDetailTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, destinatario)
 
-    def test_assert_request_returns_404_with_no_currently_at(self):
-        destinatario_company = factories.CompanyFactory(customer=self.user.customer)
-        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
-        destinatario = factories.DestinatarioFactory(cliente=destinatario_cliente)
+    def test_destinatario_assert_request_returns_permissiondenied_without_its_company(self):
+        destinatario = factories.DestinatarioFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.DestinatarioDetailView,
             pk=destinatario.pk,
             request=self.request
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
 
@@ -784,7 +870,7 @@ class EstimateCreationTest(BaseViewTest):
             'estimateconcept_set-0-imageestimateconcept_set-MAX_NUM_FORMS': '1000'
         }
         response = self.client.post(reverse('proyectos:nueva_estimacion', kwargs={'pk': contrato.pk}), form_data)
-        self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Enter a number.'])
+        self.assertFormsetError(response, 'generator_inline_concept', 0, 'cuantity_estimated', ['Introduzca un número.'])
         self.assertEqual(response.status_code, 200)
 
     def test_estimate_auth_by_gen_other_company_fail(self):
@@ -850,6 +936,9 @@ class EstimateEditTest(BaseViewTest):
             mock_formset.is_valid.return_value = True
             mock_function.return_value = mock_formset_instance
             mock_form = mock.Mock()
+            mock_save = mock.MagicMock()
+            mock_save.return_value = estimacion
+            mock_form.save = mock_save
             view.form_valid(mock_form)
         self.assertTrue(mock_form.save.called)
         self.assertTrue(mock_formset.is_valid.called)
@@ -923,13 +1012,8 @@ class EstimateEditTest(BaseViewTest):
             self.request.FILES,
             instance=estimacion
         )
-        try:
-            mock_formset_klass.assert_called_once()
-            mock_formset.is_valid.assert_called_once()
-        except AttributeError:
-            # compatibilidad con python 3.5
-            self.assertEqual(mock_formset_klass.call_count, 1)
-            self.assertTrue(mock_formset.is_valid.call_count, 1)
+        mock_formset_klass.assert_called_once()
+        mock_formset.is_valid.assert_called_once()
 
 
 class ContratoEditViewTest(BaseViewTest):
@@ -946,14 +1030,14 @@ class ContratoEditViewTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, contrato)
 
-    def test_get_object_raises_404_not_currently_at(self):
+    def test_get_object_raises_permissiondenied_without_its_company(self):
         contrato = factories.ContratoFactory(cliente__company__customer=self.user.customer)
         view = self.get_instance(
             views.ContratoEditView,
             request=self.request,
             pk=contrato.pk
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_get_initial_has_currently_at(self):
@@ -992,7 +1076,7 @@ class ContratoEditViewTest(BaseViewTest):
             contrato = Contrato.objects.get(pk=contrato_factory.pk)
             self.assertEqual(contrato.monto, decimal.Decimal('90.00'))
             self.assertEqual(view.post(request=self.request).status_code, 200)
-            self.assertFormError(view, 'form', 'currently_at', 'This field is required.')
+            self.assertFormError(view, 'form', 'currently_at', 'Este campo es requerido.')
 
 
 class ClienteEditTest(BaseViewTest):
@@ -1007,14 +1091,14 @@ class ClienteEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, cliente)
 
-    def test_get_cliente_object_raises_404_not_currently_at(self):
+    def test_get_cliente_object_raises_permissiondenied_not_currently_at(self):
         cliente = factories.ClienteFactory()
         view = self.get_instance(
             views.ClienteEditView,
             request=self.request,
             pk=cliente.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_get_cliente_initial_has_company(self):
@@ -1042,14 +1126,14 @@ class SitioEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, sitio)
 
-    def test_get_sitio_object_raises_404_not_currently_at(self):
+    def test_get_sitio_object_raises_permissiondenied_not_currently_at(self):
         sitio = factories.SitioFactory()
         view = self.get_instance(
             views.SitioEditView,
             request=self.request,
             pk=sitio.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_sitio_get_initial_has_company(self):
@@ -1077,14 +1161,14 @@ class DestinatarioEditTest(BaseViewTest):
         obj = view.get_object()
         self.assertEqual(obj, destinatario)
 
-    def test_get_destinatario_object_raises_404_not_currently_at(self):
+    def test_get_destinatario_object_raises_permissiondenied_not_currently_at(self):
         destinatario = factories.DestinatarioFactory()
         view = self.get_instance(
             views.DestinatarioEditView,
             request=self.request,
             pk=destinatario.pk,
         )
-        with self.assertRaises(Http404):
+        with self.assertRaises(PermissionDenied):
             view.get_object()
 
     def test_destinatario_get_initial_has_company(self):
@@ -1127,6 +1211,12 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         )
         test_url = '/proyectos/contrato/detalle/%i/' % contrato_inline.pk
         self.assertEqual(view.get_success_url(), test_url)
+
+
+class CatalogoRetencionesInlineFormTest(BaseViewTest):
+
+    def test_get_assignment_returns_according_estimate_model(self):
+        pass
 
 
 class CatalogoConceptosTest(BaseViewTest):
@@ -1236,10 +1326,7 @@ class DynamicDeleteTest(BaseViewTest):
         )
         obj = view.get_object()
         self.assertEqual(obj, contrato)
-        try:
-            mock_404.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_404.call_count, 1)
+        mock_404.assert_called_once()
 
     def test_dynamic_delete_gets_object(self):
         company_delete = factories.CompanyFactory(customer=self.user.customer)
@@ -1276,10 +1363,7 @@ class DynamicDeleteTest(BaseViewTest):
                 request=request,
             )
             response = view.delete(request)
-        try:
-            mock_object.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_object.call_count, 1)
+        mock_object.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
 
     @mock.patch.object(views.DynamicDelete, 'get_object')
@@ -1297,10 +1381,7 @@ class DynamicDeleteTest(BaseViewTest):
                 request=request,
             )
             response = view.delete(request)
-        try:
-            mock_object.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_object.call_count, 1)
+        mock_object.assert_called_once()
         self.assertJSONEqual(str(response.content, encoding='utf8'), {"exito": True})
 
     @mock.patch.object(views.DynamicDelete, 'get_company_query')
@@ -1330,10 +1411,7 @@ class DynamicDeleteTest(BaseViewTest):
         view.folio_handling()
         contrato_delete_2.refresh_from_db()
         contrato_delete_3.refresh_from_db()
-        try:
-            mock_query.assert_called_once()
-        except AttributeError:
-            self.assertEqual(mock_query.call_count, 1)
+        mock_query.assert_called_once()
         self.assertEqual(contrato_delete_2.folio, 1)
         self.assertEqual(contrato_delete_3.folio, 2)
 
@@ -1383,7 +1461,6 @@ class DynamicDeleteTest(BaseViewTest):
         view.object = view.get_object()
         control_dict = {
             'cliente__company': self.request.user.currently_at,
-            'users': self.request.user,
             'folio__gt': contrato.folio
         }
         kwargs, field = view.get_company_query('Contrato')

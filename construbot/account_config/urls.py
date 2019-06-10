@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^login/$', views._LoginView.as_view(), name='account_login'),
     url(r'^logout/$', views._LogoutView.as_view(), name='account_logout'),
 
-    url(r'^password/change/$', views._PasswordChangeView.as_view(),
+    url(r'^password/change/(?:(?P<username>[\w.@+-]+)/)?$', views._PasswordChangeView.as_view(),
         name='account_change_password'),
     url(r'^password/set/$', views._PasswordSetView.as_view(), name='account_set_password'),
 

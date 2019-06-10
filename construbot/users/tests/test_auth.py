@@ -30,7 +30,7 @@ class AuthTest(utils.BaseTestCase):
         view.request.user.groups.add(group)
         view.app_label_name = 'foo'
         view.test_func()
-        self.assertEqual(company, self.user.currently_at)
+        self.assertEqual(company, view.request.user.currently_at)
 
     def test_AnonymousUser_returns_false(self):
         view = self.get_instance(

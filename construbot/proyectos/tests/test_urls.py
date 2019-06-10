@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from django.core.urlresolvers import reverse
+=======
+from django.urls import reverse
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.tests import utils
 
 

@@ -11,6 +11,8 @@
     <meta name="author" content="{% block author %}{% endblock author %}">
     {# Bootstrap 4 #}
     {% bootstrap_css %}
+    <!-- FAVICON -->
+    <link rel="shortcut icon" href="{{ favicon }}">
     <!-- ICONOS Iconic para Bootstrap 4 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
@@ -98,9 +100,10 @@
         <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
     </div>
-
     {% block modal %}{% endblock modal %}
     {% bootstrap_javascript jquery='full' %}
+    {% block javascript_no_compress %}
+    {% endblock javascript_no_compress %}
     {% compress js %}
       <script type="text/javascript">
         function OnchangeEventHandler(event) {
@@ -122,8 +125,6 @@
       {% block javascript %}
       {% endblock javascript %}
     {% endcompress %}
-    {% block javascript_no_compress %}
-    {% endblock javascript_no_compress %}
     {% if is_new_user and request.path != '/proyectos/' %}
       {% block conditions %}
       <script type="text/javascript">

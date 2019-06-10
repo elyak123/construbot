@@ -70,7 +70,11 @@ class UsuarioEditTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
+<<<<<<< HEAD
             'nivel_acceso': str(self.auxiliar_permission.id),
+=======
+            'nivel_acceso': self.auxiliar_permission.id,
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
             'groups': str(self.proyectos_group.id),
             'company': str(company.id),
         }
@@ -79,6 +83,7 @@ class UsuarioEditTest(utils.BaseTestCase):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertTrue(authenticate(username='nuevo_test', password='password'))
+<<<<<<< HEAD
 
     def test_UsuarioEdit_group_error(self):
         company = Company.objects.create(
@@ -104,6 +109,8 @@ class UsuarioEditTest(utils.BaseTestCase):
         form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors, test_error_dict)
+=======
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_CompanyCreationForm(self):
         company = Company.objects.create(

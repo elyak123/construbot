@@ -28,7 +28,7 @@ class ContextTests(utils.BaseTestCase):
                     '%s is not in user_groups' % obj['title']
                 )
 
-    def test_context_includes_menu_specific_right_place(self):
+    def test_context_includes_menu_specific_right_place_al_least_coordinator(self):
         with mock.patch('django.urls.reverse') as reverse_mock:
             reverse_mock.return_value = '/fake/url/'
             reverse_mock.side_effect = 'fake/url/'
@@ -39,9 +39,25 @@ class ContextTests(utils.BaseTestCase):
             menu_specific_obj = [{'title': 'fake'}, {'title': 'foo'}]
             view.menu_specific = menu_specific_obj
             view.app_label_name = 'Documentos'
+            view.nivel_permiso_usuario = 2
             menu = view.get_menu()
             self.assertIn(menu_specific_obj[0], menu)
             self.assertEqual(menu.index(menu_specific_obj[0]), 3)
+
+    def test_context_includes_menu_specific_not_there(self):
+        with mock.patch('django.urls.reverse') as reverse_mock:
+            reverse_mock.return_value = '/fake/url/'
+            reverse_mock.side_effect = 'fake/url/'
+            view = ContextManager()
+            view.user_groups = [
+                'users', 'documentos', 'pendientes', 'proyectos'
+            ]
+            menu_specific_obj = [{'title': 'fake'}, {'title': 'foo'}]
+            view.menu_specific = menu_specific_obj
+            view.app_label_name = 'Documentos'
+            view.nivel_permiso_usuario = 1
+            menu = view.get_menu()
+            self.assertNotIn(menu_specific_obj[0], menu)
 
 
 class BaseAutoCompleteTest(utils.BaseTestCase):
@@ -123,11 +139,16 @@ class Get_object_403_or_404Test(utils.BaseTestCase):
     def test_403_or_404_raises_permission_denied(self, mock_get_rid, mock_404):
         model = mock.MagicMock()
         model.DoesNotExist = Http404
-        mock_404.side_effect = Http404
+        mock_obj = mock.MagicMock()
+        mock_obj.company = mock.MagicMock()
+        mock_404.side_effect = [Http404, mock_obj]
+        mock_get_rid.return_value = {'algo': 'algo'}
         kwargs = {'algo': 'algo', 'cliente__company': mock.MagicMock()}
         with self.assertRaises(PermissionDenied):
             get_object_403_or_404(model, self.user, **kwargs)
-        mock_404.assert_called_once()
+        mock_404.assert_any_call(model, **kwargs)
+        mock_404.assert_any_call(model, algo='algo')
+        self.assertEqual(mock_404.call_count, 2)
         mock_get_rid.assert_called_once_with(kwargs)
 
     @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
@@ -143,16 +164,16 @@ class Get_object_403_or_404Test(utils.BaseTestCase):
     @mock.patch('construbot.core.utils.shortcuts.get_object_or_404')
     def test_403_or_404_raises_404_no_obj(self, mock_404):
         model = mock.MagicMock()
-        _filter = mock.MagicMock()
-        _filter.side_effect = Http404
+        _get = mock.MagicMock()
+        _get.side_effect = Http404
         model.DoesNotExist = Http404
         model.objects = mock.MagicMock()
-        model.objects.filter = _filter
+        model.objects.get = _get
         mock_404.side_effect = Http404
         kwargs = {'algo': 'algo', 'cliente__company': mock.MagicMock()}
         with self.assertRaises(Http404):
             get_object_403_or_404(model, self.user, **kwargs)
-        mock_404.assert_called_once()
+        self.assertEqual(mock_404.call_count, 2)
 
 
 class Object_or_403(utils.BaseTestCase):

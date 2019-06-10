@@ -88,7 +88,11 @@
 					{% endif %}
 				</tr>
 				{% if forloop.last and almenos_coordinador%}
+<<<<<<< HEAD
 				<tr><td>Total Contratos Vigentes</td><td>{{ c_object|totalvigentes|intcomma }}</td></tr>
+=======
+				<tr><td>Total Contratos Vigentes</td><td>{% language 'en' %}{{ c_object|totalvigentes|intcomma }}{% endlanguage %}</td></tr>
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 				{% endif %}
 			{% empty%}
 				<tr>
@@ -117,7 +121,11 @@
 						</td>
 					</tr>
 					{% if forloop.last and almenos_coordinador%}
+<<<<<<< HEAD
 					<tr><td colspan="3">Total</td><td>{{ total_sin_facturar|intcomma }}</td></tr>
+=======
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sin_facturar|intcomma }}{% endlanguage %}</td></tr>
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 					{% endif %}
 				{% empty %}
 					<tr>
@@ -143,7 +151,11 @@
 						</td>
 					</tr>
 					{% if forloop.last and almenos_coordinador%}
+<<<<<<< HEAD
 					<tr><td colspan="3">Total</td><td>{{ total_sinpago|intcomma }}</td></tr>
+=======
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sinpago|intcomma }}{% endlanguage %}</td></tr>
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 					{% endif %}
 				{% empty %}
 					<tr>

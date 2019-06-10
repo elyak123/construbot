@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-
 {% load i18n %}
 {% load humanize %}
 {% block title %} Estimación {{ estimate.consecutive|stringformat:"02d" }} {% endblock title %}
 {% block content %}
   {% language 'es' %}
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
+    <a class="btn btn-secondary boton-arriba position-fixed" href="#arriba">▲</a>
+    <a class="btn btn-secondary boton-abajo position-fixed" href="#abajo">▼</a>
+    <a id="arriba"></a>
     <h2 class="title d-print-none"> Detalle de Estimación </h2>
     <br class="d-print-none">
     <ul class="nav nav-tabs nav-pills d-print-none">
@@ -18,8 +20,13 @@
         </li>
       {% endif %}
       <li class="nav-item">
-        <a id="print_es" class="nav-link" href="#">Imprimir</a>
+        <a id="print_es" class="nav-link" href="#"><span class="icon_menu oi oi-print"></span>Imprimir</a>
       </li>
+      {% if almenos_coordinador %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'proyectos:editar_estimacion' estimate.id %}"><span class="icon_menu oi oi-pencil"></span>Editar</a>
+        </li>
+      {% endif %}
     </ul>
     <br class="d-print-none">
     <div style="display:none;" class="cont_estimacion">
@@ -30,6 +37,7 @@
     <div class="cont_generator">
       {% include "proyectos/concept_generator.html" %}
     </div>
+    <a id="abajo"></a>
     <div class="d-print-none" style="text-align:center;">
       <a href="{% url 'proyectos:contrato_detail' estimate.project.id %}"><button type="button" class="btn btn-primary">Volver a detalle de contrato</button></a>
     </div>

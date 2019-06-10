@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import validate_email
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -92,6 +92,10 @@ class AbstractConstrubotUser(AbstractUser):
     )
     last_updated = models.DateTimeField(auto_now=True)
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
+<<<<<<< HEAD
+=======
+    puesto = models.CharField(max_length=75, blank=True, null=True)
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
     email = models.EmailField(unique=True, validators=[validate_email])
     is_new = models.BooleanField(default=True)
     nivel_acceso = models.ForeignKey(NivelAcceso, on_delete=models.PROTECT)

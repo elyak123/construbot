@@ -21,6 +21,11 @@ urlpatterns = [
         name='delete_user'
     ),
     url(
+        regex=r'^password/$',
+        view=views.PasswordRedirectView.as_view(),
+        name='password_change_redirect'
+    ),
+    url(
         regex=r'^~redirect/$',
         view=views.UserRedirectView.as_view(),
         name='redirect'

@@ -2,6 +2,7 @@ import tempfile
 import shutil
 from unittest import mock
 from django.core.exceptions import ValidationError
+from django.core.files.images import ImageFile
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import override_settings, tag
@@ -174,7 +175,9 @@ class ConceptoSetTest(BaseModelTesCase):
         self.assertEqual(main_query[2].anterior, 270)
         self.assertEqual(main_query[2].estaestimacion, 698)
 
-    def test_concept_image_count(self):
+    @mock.patch.object(ImageFile, '_get_image_dimensions')
+    def test_concept_image_count(self, mock_dimensions):
+        mock_dimensions.return_value = (500, 380)
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
         for concepto in ecset:
@@ -184,7 +187,9 @@ class ConceptoSetTest(BaseModelTesCase):
         for concept in conceptos:
             self.assertEqual(concept.image_count, 2)
 
-    def test_total_imagenes_estimacion(self):
+    @mock.patch.object(ImageFile, '_get_image_dimensions')
+    def test_total_imagenes_estimacion(self, mock_dimensions):
+        mock_dimensions.return_value = (500, 380)
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
         for concepto in ecset:
@@ -211,7 +216,9 @@ class ConceptoSetTest(BaseModelTesCase):
         conceptos = models.Concept.especial.filter(estimate_concept=estimate2).order_by('pk')
         self.assertEqual(conceptos.estimado_a_la_fecha(estimate2.consecutive).importe_total_acumulado()['total'], 8828)
 
-    def test_anotar_imagenes(self):
+    @mock.patch.object(ImageFile, '_get_image_dimensions')
+    def test_anotar_imagenes(self, mock_dimensions):
+        mock_dimensions.return_value = (500, 380)
         estimate1, estimate2 = self.generacion_estimaciones_con_conceptos()
         ecset = models.EstimateConcept.especial.filter(estimate=estimate1).order_by('pk')
         for estimate_cpt in ecset:
@@ -312,11 +319,19 @@ class ImageEstimateConceptTest(BaseModelTesCase):
         shutil.rmtree(MOCK_MEDIA_ROOT, ignore_errors=True)
 
     def get_test_image_file(self):
-        from django.core.files.images import ImageFile
         file = tempfile.NamedTemporaryFile(suffix='.png')
+<<<<<<< HEAD
         return ImageFile(file, name='file.png')
 
     def test_guardado_de_imagen(self):
+=======
+        image = ImageFile(file, name='file.png')
+        return image
+
+    @mock.patch.object(ImageFile, '_get_image_dimensions')
+    def test_guardado_de_imagen(self, mock_dimensions):
+        mock_dimensions.return_value = (500, 380)
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         concepto = factories.EstimateConceptFactory(
             estimate__draft_by=self.user,  # se ocupa porque si no truena
             estimate__supervised_by=self.user

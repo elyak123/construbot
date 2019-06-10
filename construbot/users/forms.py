@@ -1,10 +1,10 @@
-# from django import forms
 from django import forms
-from django.forms import ValidationError
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from .models import Company
 from dal import autocomplete
 
@@ -64,8 +64,12 @@ class UsuarioInterno(UserCreationForm):
         proyectos_groups, proy_created = Group.objects.get_or_create(name='Proyectos')
         if int(n_acceso) >= 3:
             return [user_group.id, proyectos_groups.id]
+<<<<<<< HEAD
         else:
             return [proyectos_groups.id]
+=======
+        return [proyectos_groups.id]
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     class Meta:
         model = User
@@ -94,7 +98,16 @@ class UsuarioInterno(UserCreationForm):
             'password1': 'Contraseña',
             'password2': 'Confirme Contraseña'
         }
+<<<<<<< HEAD
 
+=======
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         widgets = {
             'groups': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -111,25 +124,35 @@ class UsuarioInterno(UserCreationForm):
 
 
 class UsuarioEdit(UserChangeForm):
+    password = ReadOnlyPasswordHashField(
+        label=_("Password"),
+        help_text=_(
+            'Las contraseñas no se almacenan en texto plano, así '
+            'que no hay manera de ver la contraseña del usuario, pero se puede '
+            'cambiar la contraseña mediante este '
+            '<a href="{}">formulario</a>.'
+        ),
+    )
 
     def __init__(self, user, *args, **kwargs):
-        super(UsuarioEdit, self).__init__(*args, **kwargs)
+        # Llamamos el super del padre porque el padre cambia arbitrariamente la url
+        # de cambio de contraseña
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        pass_change = reverse('account_change_password', kwargs={'username': user.username})
+        self.fields['company'].queryset = user.company.all()
+        self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
         self.user = user
 
     class Meta:
         model = User
-        exclude = [
-            'is_new',
-            'openpay',
-            'last_login',
-            'is_superuser',
-            'user_permissions',
-            'is_staff',
-            'is_active',
-            'date_joined',
-            'last_supervised',
-            'currently_at',
-            'name',
+        fields = [
+            'username',
+            'password',
+            'first_name',
+            'last_name',
+            'company',
+            'email',
+            'nivel_acceso'
         ]
 
         labels = {
@@ -137,10 +160,15 @@ class UsuarioEdit(UserChangeForm):
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo electrónico',
-            'groups': 'Grupos de trabajo',
             'company': 'Compañías de trabajo',
+            'nivel_acceso': 'Nivel de Acceso'
         }
-
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
         widgets = {
             'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -152,6 +180,7 @@ class UsuarioEdit(UserChangeForm):
             ),
         }
 
+<<<<<<< HEAD
     def clean_groups(self):
         n_acceso = self.data['nivel_acceso']
         customer = self.user.customer
@@ -160,10 +189,13 @@ class UsuarioEdit(UserChangeForm):
             raise ValidationError('¡No puedes quedarte sin administradores!')
         return n_acceso
 
+=======
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 class UsuarioEditNoAdmin(UserChangeForm):
     class Meta:
         model = User
+<<<<<<< HEAD
         exclude = [
             'is_new',
             'openpay',
@@ -179,8 +211,21 @@ class UsuarioEditNoAdmin(UserChangeForm):
             'currently_at',
             'name',
             'nivel_acceso',
+=======
+        fields = [
+            'username',
+            'password',
+            'first_name',
+            'last_name',
+            'email',
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         ]
-
+        help_texts = {
+            'username': 'Requerido. 150 caracteres o menos. Letras, dígitos y @/./+/-/_ solamente.',
+            'first_name': 'Nombres del usuario, es necesario para impresión de estimaciones.',
+            'last_name': 'Apellidos del usuario, es necesario para la impresión de estimaciones.',
+            'company': 'Compañías de trabajo, ¿A qué compañías podrá tener acceso?',
+        }
         widgets = {
             'password': forms.HiddenInput(),
             'customer': forms.HiddenInput(),
@@ -205,6 +250,10 @@ class CompanyForm(forms.ModelForm):
         labels = {
             'full_name': 'Razón Social',
             'company_name': 'Nombre de la Compañía'
+        }
+        help_texts = {
+            'full_name': 'Razón social de la empresa de trabajo, es necesaria para mostrarlo en los documentos impresos.',
+            'company_name': 'Nombre corto de la empresa, con la cual sea más sencillo identificarla.',
         }
         widgets = {
             'customer': forms.HiddenInput(),

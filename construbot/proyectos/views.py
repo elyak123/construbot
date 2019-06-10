@@ -1,4 +1,5 @@
-from django import shortcuts
+import importlib
+from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -6,7 +7,10 @@ from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
+<<<<<<< HEAD
 from construbot.users.auth import AuthenticationTestMixin
+=======
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -15,10 +19,19 @@ from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Esti
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
     totalsinfacturar, total_sinpago
 
+try:
+    auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
+except ImportError:
+    from construbot.users import auth
+
 User = get_user_model()
 
 
+<<<<<<< HEAD
 class ProyectosMenuMixin(AuthenticationTestMixin):
+=======
+class ProyectosMenuMixin(auth.AuthenticationTestMixin):
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
     permiso_requerido = 2
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
@@ -93,7 +106,6 @@ class ProyectosMenuMixin(AuthenticationTestMixin):
         company_query = {
             'Contrato': {
                 'cliente__company': self.request.user.currently_at,
-                'users': self.request.user
             },
             'Cliente': {
                 'company': self.request.user.currently_at
@@ -121,8 +133,17 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         context = super(ProyectDashboardView, self).get_context_data(**kwargs)
         context['object'] = self.request.user.currently_at
         context['c_object'] = contratosvigentes(self.request.user)
+<<<<<<< HEAD
         context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
         context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
+=======
+        context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(
+            self.request.user.currently_at, context['almenos_coordinador'], self.request.user
+        )
+        context['estimacionespendientes_pago'] = estimacionespendientes_pago(
+            self.request.user.currently_at, context['almenos_coordinador'], self.request.user
+        )
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
         context['total_sinpago'] = total_sinpago(context['estimacionespendientes_pago'])
         return context
@@ -132,11 +153,14 @@ class DynamicList(ProyectosMenuMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        if self.queryset is None:
+        if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
                 **self.get_company_query(self.model.__name__)).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
+        else:
+            self.queryset = Contrato.especial.asignaciones(self.request.user, self.model).order_by(
+                    Lower(self.model_options[self.model.__name__]['ordering']))
         return super(DynamicList, self).get_queryset()
 
     def get_context_data(self, **kwargs):
@@ -152,12 +176,13 @@ class ContratoListView(DynamicList):
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
-                cliente__company=self.request.user.currently_at)
+                cliente__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
+                users=self.request.user,
                 **self.get_company_query(self.model.__name__)
-            )
-        return super(ContratoListView, self).get_queryset()
+            ).order_by(self.ordering)
+        return self.queryset
 
 
 class ClienteListView(DynamicList):
@@ -170,6 +195,15 @@ class SitioListView(DynamicList):
 
 class DestinatarioListView(DynamicList):
     model = Destinatario
+
+    def get_queryset(self):
+        if self.request.user.nivel_acceso.nivel < 3:
+            clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
+            self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
+                Lower(self.model_options[self.model.__name__]['ordering'])
+            )
+            return self.queryset
+        return super(DestinatarioListView, self).get_queryset()
 
 
 class CatalogoConceptos(ProyectosMenuMixin, ListView):
@@ -222,6 +256,23 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
                 self.model, self.request.user, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
             )
         return self.object
+<<<<<<< HEAD
+=======
+
+    def contratos_ordenados(self):
+        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
+            return self.object.get_contratos_ordenados()
+        contratos = self.object.contrato_set.filter(
+            users=self.request.user,
+             **self.get_company_query('Contrato')).order_by('-fecha')
+        return contratos
+
+    def get_context_data(self, **kwargs):
+        context = super(DynamicDetail, self).get_context_data(**kwargs)
+        if self.model is Sitio or self.model is Cliente:
+            context['contratos_ordenados'] = self.contratos_ordenados()
+        return context
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 
 class ContratoDetailView(DynamicDetail):
@@ -236,7 +287,10 @@ class ContratoDetailView(DynamicDetail):
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
+<<<<<<< HEAD
         del query_kw['users']
+=======
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 
@@ -295,7 +349,10 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
     def get_cmd_options(self):
         return {
             'orientation': 'Landscape',
-            'javascript-delay': 1000
+            'page-size': 'Letter',
+            'dpi': '300',
+            'print-media-type ': None
+
         }
 
     def get_context_data(self, **kwargs):
@@ -304,13 +361,19 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return context
 
 
+<<<<<<< HEAD
 class EstimatePdfPrint(BasePDFGenerator):
     nivel_permiso_asignado = 2
     template_name = 'proyectos/concept_estimate.html'
+=======
+class EstimatePdfPrint(EstimateDetailView):
+    nivel_permiso_asignado = 2
+    template_name = 'proyectos/concept_pdf_estimate.html'
+>>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 
-class GeneratorPdfPrint(BasePDFGenerator):
-    template_name = 'proyectos/concept_generator.html'
+class GeneratorPdfPrint(EstimateDetailView):
+    template_name = 'proyectos/concept_pdf_generator.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
