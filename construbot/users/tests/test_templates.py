@@ -1,9 +1,5 @@
 from construbot.users.tests import factories as user_factories
-<<<<<<< HEAD
-from django.core.urlresolvers import reverse
-=======
 from django.urls import reverse
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from django.test import tag
 from . import utils
 

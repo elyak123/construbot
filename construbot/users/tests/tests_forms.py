@@ -70,11 +70,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-<<<<<<< HEAD
-            'nivel_acceso': str(self.auxiliar_permission.id),
-=======
             'nivel_acceso': self.auxiliar_permission.id,
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
             'groups': str(self.proyectos_group.id),
             'company': str(company.id),
         }
@@ -83,34 +79,6 @@ class UsuarioEditTest(utils.BaseTestCase):
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertTrue(authenticate(username='nuevo_test', password='password'))
-<<<<<<< HEAD
-
-    def test_UsuarioEdit_group_error(self):
-        company = Company.objects.create(
-            company_name='some_company',
-            customer=self.user.customer
-        )
-        self.user.groups.add(self.user_group)
-        self.user.company.add(company)
-        self.user.nivel_acceso = self.director_permission
-        qdict = QueryDict('', mutable=True)
-        data = {
-            'customer': str(self.user.customer.id),
-            'username': 'nuevo_test',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'lkjas@hola.com',
-            'nivel_acceso': self.auxiliar_permission.id,
-            'groups': str(self.user_group.id),
-            'company': str(company.id),
-        }
-        qdict.update(data)
-        test_error_dict = {'groups': ['¡No puedes quedarte sin administradores!']}
-        form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, test_error_dict)
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_CompanyCreationForm(self):
         company = Company.objects.create(

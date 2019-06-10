@@ -3,11 +3,7 @@ from django.conf import settings
 from django import http
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-<<<<<<< HEAD
-from django.core.urlresolvers import reverse
-=======
 from django.urls import reverse
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View, DetailView, ListView, RedirectView, UpdateView, CreateView, TemplateView, DeleteView
 from django.http import JsonResponse
@@ -123,28 +119,15 @@ class UserUpdateView(UserMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super(UserUpdateView, self).get_form_kwargs()
         if self.nivel_permiso_usuario >= self.permiso_requerido:
-<<<<<<< HEAD
-            try:
-                kwargs['user'] = User.objects.get(username=self.kwargs.get('username'))
-            except User.DoesNotExist:
-                kwargs['user'] = self.request.user
-=======
             if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
                 kwargs['user'] = self.object
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         return kwargs
 
     def get_form_class(self, form_class=None):
         if self.nivel_permiso_usuario >= self.permiso_requerido:
-<<<<<<< HEAD
-            return UsuarioEdit
-        else:
-            return UsuarioEditNoAdmin
-=======
             if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
                 return UsuarioEdit
         return UsuarioEditNoAdmin
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def get_success_url(self):
         return reverse('users:detail', kwargs={'username': self.object.username})

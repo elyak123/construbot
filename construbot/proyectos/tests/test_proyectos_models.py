@@ -320,18 +320,12 @@ class ImageEstimateConceptTest(BaseModelTesCase):
 
     def get_test_image_file(self):
         file = tempfile.NamedTemporaryFile(suffix='.png')
-<<<<<<< HEAD
-        return ImageFile(file, name='file.png')
-
-    def test_guardado_de_imagen(self):
-=======
         image = ImageFile(file, name='file.png')
         return image
 
     @mock.patch.object(ImageFile, '_get_image_dimensions')
     def test_guardado_de_imagen(self, mock_dimensions):
         mock_dimensions.return_value = (500, 380)
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         concepto = factories.EstimateConceptFactory(
             estimate__draft_by=self.user,  # se ocupa porque si no truena
             estimate__supervised_by=self.user

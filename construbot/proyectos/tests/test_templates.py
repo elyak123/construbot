@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-import os
-from unittest import skipIf
-from django.core.urlresolvers import reverse
-from django.test import tag
-=======
 from django.urls import reverse
 from django.test import tag, override_settings
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.tests import utils, factories as user_factories
 from construbot.proyectos.models import Estimate
 from . import factories
@@ -23,7 +16,6 @@ class TestBaseTemplates(utils.BaseTestCase):
 
 
 class ProyectDashboardIndexTemplate(TestBaseTemplates):
-<<<<<<< HEAD
 
     def test_proyects_dashboard_uses_correct_template_if_not_is_new(self):
         self.user.is_new = False
@@ -32,143 +24,12 @@ class ProyectDashboardIndexTemplate(TestBaseTemplates):
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         self.assertTemplateUsed(response, 'proyectos/index.html')
 
-    @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
-    def test_proyects_dashboard_correct_html_if_is_new_and_coordinador(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.is_new = True
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.nivel_acceso = self.coordinador_permission
-        self.user.save()
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        nuevo_contrato_url = reverse('proyectos:nuevo_contrato')
-        text = f"""
-            <script type="text/javascript">
-                let fuera = false;
-                document.getElementById('startButton').onclick = function() {{
-                    fuera = true;
-                    introJs().setOptions({{'doneLabel': 'Crea tu primer contrato', 'showBullets': false}}).start().oncomplete(function() {{
-                        window.location.href = "{nuevo_contrato_url}";
-                    }});
-                }};
-                $("#tutorialModal").modal();
-                $('#tutorialModal').on('hidden.bs.modal', function (e) {{
-                    if(!fuera){{document.getElementById('startButton').click();}}
-                }});
-            </script>
-        """
-        self.assertContains(response, text, html=True, msg_prefix=response.content.decode().strip('\n'))
-
-    def test_proyects_dashboard_correct_html_if_not_new_and_director(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        contrato = factories.ContratoFactory(cliente__company=company_test, monto=150000)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.nivel_acceso = self.director_permission
-        self.user.is_new = False
-        self.user.save()
-        contrato_url = reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
-        text = f"""
-        <div class="col-md-6"><p><strong>Contratos Vigentes</strong></p>
-        <table class="table_sample table_left"><tr><th>Nombre</th><th>Avance General</th></tr><tr><td>
-        <a href="{contrato_url}">{contrato.folio}. {contrato.contrato_shortName}</a><br>
-        Cliente: {contrato.cliente.cliente_name}</td><td style="text-align:center;">0.00 %</td></tr>
-        <tr><td>Total Contratos Vigentes</td><td>150,000.00</td></tr></table></div>
-        """
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
-        self.assertContains(response, text, html=True, msg_prefix=error_message)
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
-
-    def test_proyects_dashboard_correct_html_if_not_new_and_auxiliar(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        contrato = factories.ContratoFactory(cliente__company=company_test, monto=150000)
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        self.user.is_new = False
-        self.user.save()
-        contrato_url = reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
-        text = f"""
-        <div class="col-md-6"><p><strong>Contratos Vigentes</strong></p>
-        <table class="table_sample table_left"><tr><th>Nombre</th><th>Avance General</th></tr><tr><td>
-        <a href="{contrato_url}">{contrato.folio}. {contrato.contrato_shortName}</a><br>
-        Cliente: {contrato.cliente.cliente_name}</td><td style="text-align:center;">0.00 %</td></tr>
-        <tr><td>Total Contratos Vigentes</td><td>150,000.00</td></tr></table></div>
-        """
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
-        self.assertNotContains(response, text, html=True, msg_prefix=error_message)
-
-<<<<<<< HEAD
-    @skipIf(os.environ.get('TRAVIS_ENVIRON', False), 'Do not run over Travis')
-    def test_proyects_dashboard_uses_correct_template_if_is_new_and_not_coordinador(self):
-=======
     @override_settings(COMPRESS_ENABLED=False)
     def test_proyects_dashboard_correct_html_if_is_new_and_coordinador(self):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         company_test = factories.CompanyFactory(customer=self.user.customer)
         self.user.is_new = True
         self.user.company.add(company_test)
         self.user.currently_at = company_test
-<<<<<<< HEAD
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        remove_is_new = reverse('users:remove_is_new', kwargs={'pk': self.user.pk})
-        text = f"""
-            <script type="text/javascript">
-                let fuera = false;
-                document.getElementById('startButton').onclick = function() {{
-                    fuera = true;
-                    introJs().setOptions({{'doneLabel': '¡Terminar!', 'showBullets': false}}).start().oncomplete(function() {{
-                        let POST_token = $("#user_form").serialize();
-                        $.ajax({{
-                            type: 'POST',
-                            url: '{remove_is_new}',
-                            data: POST_token,
-                            success: function(result){{
-                                window.location.reload();
-                            }}
-                        }});
-                    }});
-                }};
-                $("#tutorialModal").modal();
-                $('#tutorialModal').on('hidden.bs.modal', function (e) {{
-                    if(!fuera){{document.getElementById('startButton').click();}}
-                }});
-            </script>
-        """
-        self.assertContains(response, text, html=True)
-
-    def test_proyects_dashboard_has_correct_html_if_is_new(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.is_new = True
-        self.user.company.add(company_test)
-        self.user.currently_at = company_test
-        text = """
-            Este es el espacio de trabajo de Construbot, en este tutorial aprenderás 
-            lo básico del uso de la aplicación, además de asignarte un nombre de 
-            usuario y generar tu primer compañía.
-        """
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        self.assertTemplateUsed(response, 'proyectos/index.html')
-        self.assertContains(response, text, html=True)
-
-    def test_proyects_dashboard_has_correct_status_code(self):
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:proyect_dashboard'))
-        self.assertEqual(response.status_code, 200)
-
-
-class ContratoListTemplates(TestBaseTemplates):
-
-    def test_contrato_list_uses_correct_template(self):
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.user.nivel_acceso = self.coordinador_permission
         self.user.save()
         self.client.login(username=self.user.username, password='password')
@@ -224,27 +85,12 @@ class ContratoListTemplates(TestBaseTemplates):
         error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
         self.assertContains(response, text, html=True, msg_prefix=error_message)
 
-<<<<<<< HEAD
-    def test_contrato_list_has_correct_status_code(self):
-        self.user.nivel_acceso = self.coordinador_permission
-        self.user.save()
-        self.client.login(username=self.user.username, password='password')
-        response = self.client.get(reverse('proyectos:listado_de_contratos'))
-        self.assertEqual(response.status_code, 200)
-
-
-class ClienteListTemplate(TestBaseTemplates):
-
-    def test_clientes_list_uses_correct_template(self):
-        self.user.nivel_acceso = self.coordinador_permission
-=======
     def test_proyects_dashboard_correct_html_if_not_new_and_auxiliar(self):
         company_test = factories.CompanyFactory(customer=self.user.customer)
         contrato = factories.ContratoFactory(cliente__company=company_test, monto=150000)
         self.user.company.add(company_test)
         self.user.currently_at = company_test
         self.user.is_new = False
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.user.save()
         contrato_url = reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
         text = f"""
@@ -255,19 +101,6 @@ class ClienteListTemplate(TestBaseTemplates):
         <tr><td>Total Contratos Vigentes</td><td>150,000.00</td></tr></table></div>
         """
         self.client.login(username=self.user.username, password='password')
-<<<<<<< HEAD
-        for i in range(0, 11):
-            factories.ClienteFactory(company=self.user.currently_at)
-        response = self.client.get('/proyectos/listado/clientes/?page=2')
-        self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
-
-    def test_clientes_list_uses_correct_template_and_no_next_page(self):
-        self.user.nivel_acceso = self.coordinador_permission
-        self.user.save()
-        self.client.login(username=self.user.username, password='password')
-        for i in range(0, 11):
-            factories.ClienteFactory(company=self.user.currently_at)
-=======
         response = self.client.get(reverse('proyectos:proyect_dashboard'))
         error_message = response.content.decode().strip('\n') + '\n\n\n-------\n'
         self.assertNotContains(response, text, html=True, msg_prefix=error_message)
@@ -366,7 +199,6 @@ class ClienteListTemplate(TestBaseTemplates):
             cliente = factories.ClienteFactory(company=self.user.currently_at)
             contrato = factories.ContratoFactory(cliente=cliente)
             self.user.contrato_set.add(contrato)
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         response = self.client.get('/proyectos/listado/clientes/?page=2')
         self.assertTemplateUsed(response, 'proyectos/cliente_list.html')
 
@@ -834,11 +666,7 @@ class ConceptGeneratorTemplateTest(TestBaseTemplates):
         )
         self.assertTemplateNotUsed(response, 'proyectos/estimate_detail.html')
         self.assertTemplateNotUsed(response, 'proyectos/concept_estimate.html')
-<<<<<<< HEAD
-        self.assertTemplateUsed(response, 'proyectos/concept_generator.html')
-=======
         self.assertTemplateUsed(response, 'proyectos/concept_pdf_generator.html')
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.assertContains(response, '<!DOCTYPE html>', html=True)
 
 
@@ -891,10 +719,6 @@ class ConceptEstimateTemplateTest(TestBaseTemplates):
             {'as': 'html'}
         )
         self.assertTemplateNotUsed(response, 'proyectos/estimate_detail.html')
-<<<<<<< HEAD
-        self.assertTemplateUsed(response, 'proyectos/concept_estimate.html')
-=======
         self.assertTemplateUsed(response, 'proyectos/concept_pdf_estimate.html')
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.assertTemplateNotUsed(response, 'proyectos/concept_generator.html')
         self.assertContains(response, '<!DOCTYPE html>', html=True)

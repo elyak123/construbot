@@ -7,10 +7,6 @@ from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from wkhtmltopdf.views import PDFTemplateView
-<<<<<<< HEAD
-from construbot.users.auth import AuthenticationTestMixin
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -27,11 +23,7 @@ except ImportError:
 User = get_user_model()
 
 
-<<<<<<< HEAD
-class ProyectosMenuMixin(AuthenticationTestMixin):
-=======
 class ProyectosMenuMixin(auth.AuthenticationTestMixin):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
     permiso_requerido = 2
     app_label_name = ProyectosConfig.verbose_name
     menu_specific = [
@@ -133,17 +125,12 @@ class ProyectDashboardView(ProyectosMenuMixin, ListView):
         context = super(ProyectDashboardView, self).get_context_data(**kwargs)
         context['object'] = self.request.user.currently_at
         context['c_object'] = contratosvigentes(self.request.user)
-<<<<<<< HEAD
-        context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(self.request.user.currently_at)
-        context['estimacionespendientes_pago'] = estimacionespendientes_pago(self.request.user.currently_at)
-=======
         context['estimacionespendientes_facturacion'] = estimacionespendientes_facturacion(
             self.request.user.currently_at, context['almenos_coordinador'], self.request.user
         )
         context['estimacionespendientes_pago'] = estimacionespendientes_pago(
             self.request.user.currently_at, context['almenos_coordinador'], self.request.user
         )
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         context['total_sin_facturar'] = totalsinfacturar(context['estimacionespendientes_facturacion'])
         context['total_sinpago'] = total_sinpago(context['estimacionespendientes_pago'])
         return context
@@ -256,8 +243,6 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
                 self.model, self.request.user, pk=self.kwargs['pk'], **self.get_company_query(self.model.__name__)
             )
         return self.object
-<<<<<<< HEAD
-=======
 
     def contratos_ordenados(self):
         if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
@@ -272,7 +257,6 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
         if self.model is Sitio or self.model is Cliente:
             context['contratos_ordenados'] = self.contratos_ordenados()
         return context
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 
 class ContratoDetailView(DynamicDetail):
@@ -287,27 +271,11 @@ class ContratoDetailView(DynamicDetail):
     def get_object(self, queryset=None):
         query_kw = self.get_company_query(self.model.__name__)
         query_kw.update({'pk': self.kwargs['pk']})
-<<<<<<< HEAD
-        del query_kw['users']
-=======
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         return get_object_403_or_404(self.model, self.request.user, **query_kw)
 
 
 class ClienteDetailView(DynamicDetail):
     model = Cliente
-
-    def contratos_ordenados(self):
-        if self.request.user.nivel_acceso.nivel >= self.permiso_requerido:
-            return self.object.get_contratos_ordenados()
-        else:
-            return self.object.contrato_set.filter(
-                users=self.request.user).order_by('-fecha')
-
-    def get_context_data(self, **kwargs):
-        context = super(ClienteDetailView, self).get_context_data(**kwargs)
-        context['contratos_ordenados'] = self.contratos_ordenados()
-        return context
 
 
 class SitioDetailView(DynamicDetail):
@@ -361,15 +329,9 @@ class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
         return context
 
 
-<<<<<<< HEAD
-class EstimatePdfPrint(BasePDFGenerator):
-    nivel_permiso_asignado = 2
-    template_name = 'proyectos/concept_estimate.html'
-=======
 class EstimatePdfPrint(EstimateDetailView):
     nivel_permiso_asignado = 2
     template_name = 'proyectos/concept_pdf_estimate.html'
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
 
 class GeneratorPdfPrint(EstimateDetailView):

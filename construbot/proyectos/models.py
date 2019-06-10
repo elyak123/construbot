@@ -113,13 +113,10 @@ class Contrato(models.Model):
     objects = models.Manager()
     especial = ContratoSet.as_manager()
 
-<<<<<<< HEAD
-=======
     @property
     def company(self):
         return self.cliente.company
 
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
 

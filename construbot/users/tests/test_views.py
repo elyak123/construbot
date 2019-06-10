@@ -20,9 +20,6 @@ from ..forms import (
 )
 
 
-<<<<<<< HEAD
-class TestUserRedirectView(utils.BaseTestCase):
-=======
 class UserMixinTest(utils.BaseTestCase):
 
     def test_check_permissions_raises_permission_denied(self):
@@ -37,7 +34,6 @@ class UserMixinTest(utils.BaseTestCase):
 
 
 class UserRedirectViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_get_redirect_url(self):
         # Instantiate the view directly. Never do this outside a test!
@@ -56,11 +52,7 @@ class UserRedirectViewTest(utils.BaseTestCase):
         )
 
 
-<<<<<<< HEAD
-class TestUserUpdateView(utils.BaseTestCase):
-=======
 class UserUpdateViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(UserUpdateViewTest, self).setUp()
@@ -72,8 +64,6 @@ class UserUpdateViewTest(utils.BaseTestCase):
         self.view.nivel_permiso_usuario = 3
         self.view.nivel_permiso_vista = self.view.permiso_requerido
 
-<<<<<<< HEAD
-=======
     @mock.patch.object(UserUpdateView, 'check_obj_permissions')
     def test_user_update_check_200(self, mock_check):
         company_test = factories.CompanyFactory(customer=self.user.customer)
@@ -83,7 +73,6 @@ class UserUpdateViewTest(utils.BaseTestCase):
             self.assertEqual(response.status_code, 200)
         mock_check.assert_called_once_with(self.user)
 
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
     def test_get_nivel_permiso(self):
         self.view.nivel_permiso_usuario = 1
         self.view.permiso_requerido = 3
@@ -139,16 +128,12 @@ class UserUpdateViewTest(utils.BaseTestCase):
             username='hola',
             nivel_acceso=self.auxiliar_permission
         )
-<<<<<<< HEAD
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': test_user}
-=======
         test_kwargs = {
             'initial': {},
             'prefix': None,
             'user': test_user,
             'instance': test_user
         }
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.view.kwargs = {'username': test_user.username}
         self.view.object = test_user
         self.assertEqual(
@@ -156,16 +141,10 @@ class UserUpdateViewTest(utils.BaseTestCase):
             test_kwargs
         )
 
-<<<<<<< HEAD
-    def test_get_form_kwargs_for_admin_self_user(self):
-        self.user.groups.add(self.admin_group)
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
-=======
     def test_get_form_kwargs_for_auxiliar_self_user(self):
         self.view.nivel_permiso_usuario = 1
         self.view.nivel_permiso_vista = 3
         test_kwargs = {'initial': {}, 'prefix': None}
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -173,16 +152,12 @@ class UserUpdateViewTest(utils.BaseTestCase):
         )
 
     def test_get_form_kwargs_no_username(self):
-<<<<<<< HEAD
-        test_kwargs = {'initial': {}, 'prefix': None, 'user': self.user}
-=======
         test_kwargs = {
             'initial': {},
             'prefix': None,
             'instance': self.user
         }
         self.view.object = self.user
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.view.kwargs = {}
         self.assertEqual(
             self.view.get_form_kwargs(),
@@ -190,20 +165,12 @@ class UserUpdateViewTest(utils.BaseTestCase):
         )
 
     def test_returns_admin_form(self):
-<<<<<<< HEAD
-=======
         self.view.kwargs = {'username': 'blabla'}
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         self.assertEqual(
             self.view.get_form_class(),
             UsuarioEdit
         )
 
-<<<<<<< HEAD
-    def test_get_form_class(self):
-        self.view.nivel_permiso_usuario = 1
-        self.assertEqual(self.view.get_form_class(), UsuarioEditNoAdmin)
-=======
     def test_returns_not_admin_form(self):
         self.view.kwargs = {'username': self.user.username}
         self.assertEqual(
@@ -217,22 +184,15 @@ class UserUpdateViewTest(utils.BaseTestCase):
             self.view.get_form_class(),
             UsuarioEditNoAdmin
         )
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_get_form_class(self):
         self.view.nivel_permiso_usuario = 1
         self.assertEqual(self.view.get_form_class(), UsuarioEditNoAdmin)
 
 
-<<<<<<< HEAD
-class TestListUserView(utils.BaseTestCase):
-    def setUp(self):
-        super(TestListUserView, self).setUp()
-=======
 class ListUserViewTest(utils.BaseTestCase):
     def setUp(self):
         super(ListUserViewTest, self).setUp()
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
         company = Company.objects.create(company_name='my_company', customer=self.user.customer)
         self.user.company.add(company)
         self.user.groups.add(self.user_group)
@@ -267,11 +227,7 @@ class ListUserViewTest(utils.BaseTestCase):
         self.assertNotContains(response, 'foreign_user')
 
 
-<<<<<<< HEAD
-class TestDetailUserView(utils.BaseTestCase):
-=======
 class DetailUserViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_detail_view_another_user_requires_director_perms(self):
         company = Company.objects.create(
@@ -306,11 +262,7 @@ class DetailUserViewTest(utils.BaseTestCase):
         self.assertEqual(obj, self.user)
 
 
-<<<<<<< HEAD
-class TestUserCreateView(utils.BaseTestCase):
-=======
 class UserCreateViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def test_user_creation_form_query_involves_requests_user_companies(self):
         company = Company.objects.create(
@@ -429,11 +381,7 @@ class UserCreateViewTest(utils.BaseTestCase):
             )
 
 
-<<<<<<< HEAD
-class TestCompanyCreateView(utils.BaseTestCase):
-=======
 class CompanyCreateViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(CompanyCreateViewTest, self).setUp()
@@ -465,11 +413,7 @@ class CompanyCreateViewTest(utils.BaseTestCase):
         )
 
 
-<<<<<<< HEAD
-class TestCompanyEditView(utils.BaseTestCase):
-=======
 class CompanyEditViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(CompanyEditViewTest, self).setUp()
@@ -503,11 +447,7 @@ class CompanyEditViewTest(utils.BaseTestCase):
         self.assertEqual(self.view.get_initial()['is_new'], self.user.is_new)
 
 
-<<<<<<< HEAD
-class TestUserDeleteView(utils.BaseTestCase):
-=======
 class UserDeleteViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(UserDeleteViewTest, self).setUp()
@@ -530,11 +470,7 @@ class UserDeleteViewTest(utils.BaseTestCase):
         self.assertEqual(self.view.delete(request=self.request).status_code, 200)
 
 
-<<<<<<< HEAD
-class TestCompanyChangeView(utils.BaseTestCase):
-=======
 class CompanyChangeViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(CompanyChangeViewTest, self).setUp()
@@ -581,9 +517,6 @@ class CompanyChangeViewTest(utils.BaseTestCase):
         )
 
 
-<<<<<<< HEAD
-class TestCompanyListView(utils.BaseTestCase):
-=======
 class CompanyChangeViewFromListTest(utils.BaseTestCase):
 
     def test_get_change_from_list(self):
@@ -605,7 +538,6 @@ class CompanyChangeViewFromListTest(utils.BaseTestCase):
 
 
 class CompanyListViewTest(utils.BaseTestCase):
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 
     def setUp(self):
         super(CompanyListViewTest, self).setUp()

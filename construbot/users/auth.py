@@ -1,8 +1,5 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
-<<<<<<< HEAD
-=======
 from django.contrib.auth import get_user_model
->>>>>>> 432b8adc6f2247b6794c8149615a4b25fef180f5
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.conf import settings
 from construbot.core.context import ContextManager
