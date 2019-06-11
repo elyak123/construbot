@@ -33,7 +33,7 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django>=2.1,<2.2',
+        'django>=2.1.9,<2.2',
         # REST
         'djangorestframework==3.9.2',
         'djangorestframework_simplejwt==4.1.2',
@@ -74,16 +74,18 @@ setup(
 
         # Static and Media Storage
         # ------------------------------------------------
-        'boto3==1.9.163',
+        'boto3==1.9.165',
         'django-storages==1.7.1',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
-        'django-anymail==6.0',
+        'django-anymail>=6.0,<6.1',
         # --------------------------
         # Sentry client
         'sentry-sdk==0.9.0',
-        # Security
-        'pyup-django==0.4.0',
+        # pinned due to security:
+        # via django-allauth, django-anymail, requests-oauthlib
+        'requests>=2.22.0',
+        'urllib3>=1.24.2',
     ],
     classifiers=[
         'Environment :: Web Environment',
