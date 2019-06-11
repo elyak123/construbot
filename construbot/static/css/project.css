@@ -119,15 +119,19 @@ a:hover {
 }
 /*FIN DE ESTILOS GENERALES*/
 
+/*ESTILOS PARA CONTRATO DETAIL*/
+.contrato-widget {
+	width: 90%;
+	margin: auto;
+	display: none;
+}
+/*FIN DE ESTILOS PARA CONTRATO DETAIL*/
+
 /*ESTILOS PARA LISTADOS AJAX*/
-.icon_right, .icon_right-up, #toggle-button-1, #toggle-button-2 {
+.toggle-button-1, .toggle-button-2 {
 	float: right;
 	cursor: pointer;
 	margin-right: 15px;
-}
-
-.icon_right-up {
-	display: none;
 }
 
 .cont_listado {
@@ -140,10 +144,6 @@ a:hover {
 .cont_message {
 	text-align: center;
 	font-size: 16px;
-}
-
-.cont_message_no_result {
-	display: none;
 }
 /*FIN DE ESTILOS PARA LISTADOS AJAX*/
 
