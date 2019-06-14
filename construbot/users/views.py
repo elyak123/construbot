@@ -121,7 +121,6 @@ class UserUpdateView(UserMixin, UpdateView):
         if self.nivel_permiso_usuario >= self.permiso_requerido:
             if self.kwargs.get('username', None) and self.kwargs.get('username') != self.request.user.username:
                 kwargs['user'] = self.object
-                kwargs['admin'] = self.request.user
         return kwargs
 
     def get_form_class(self, form_class=None):

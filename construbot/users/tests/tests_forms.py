@@ -61,14 +61,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        company_2 = Company.objects.create(
-            company_name='some_company_2',
-            customer=self.user.customer
-        )
         self.user.company.add(company)
-        admin_user = self.user_factory(nivel_acceso=self.director_permission, customer=self.user.customer)
-        admin_user.company.add(company, company_2)
-        admin_user.groups.add(self.user_group)
         qdict = QueryDict('groups={}'.format(self.user_group.id), mutable=True)
         data = {
             'customer': str(self.user.customer.id),
@@ -81,11 +74,7 @@ class UsuarioEditTest(utils.BaseTestCase):
             'company': str(company.id),
         }
         qdict.update(data)
-        form = forms.UsuarioEdit(self.user, admin_user, data=qdict, instance=self.user)
-        self.assertQuerysetEqual(
-            [a for a in admin_user.company.all()],
-            [repr(a) for a in form.fields['company'].queryset]
-        )
+        form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertTrue(authenticate(username='nuevo_test', password='password'))
