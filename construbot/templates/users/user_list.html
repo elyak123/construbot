@@ -30,5 +30,19 @@
 	  <br>
 	  <h4>Usted no cuenta con usuarios aún.</h4>
 	{% endif %}
+	<br>
+	<br>
+	{% if special_users %}
+	<h2>Listado de usuarios que no tienen compañía registrada:</h2>
+	<div class="list-group">
+		{% for user in special_users %}
+			<div class="div_list border_normal">
+				<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'users:detail' user.username %}">{{ user.username }}</h4></a>
+				<a class="boton_edicion" href="{% url 'users:update' user.username %}">Editar</a> / 
+				<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="User" data-id="{{ user.id }}" href="#">Eliminar</a>
+			</div>
+		{% endfor %}
+	</div>
+	{% endif %}
 </div>
 {% endblock content %}

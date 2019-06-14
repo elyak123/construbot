@@ -34,7 +34,7 @@ class ContratoForm(forms.ModelForm):
             'code': 'Folio del contrato',
             'contrato_name': 'Nombre del contrato',
             'contrato_shortName': 'Nombre corto',
-            'file': 'Archivo',
+            'file': 'PDF del Contrato',
             'users': '¿A qué usuarios desea asignarlo?',
             'status': '¿El proyecto sigue en curso?'
         }
@@ -65,6 +65,11 @@ class ContratoForm(forms.ModelForm):
                 attrs={
                     'data-minimum-input-length': 3,
                 }
+            ),
+            'file': forms.FileInput(
+                attrs={
+                    'accept': 'application/pdf',
+                },
             ),
             'anticipo': forms.TextInput(
                 attrs={'style': 'width:200px;'}
@@ -271,12 +276,24 @@ class EstimateForm(forms.ModelForm):
         }
 
 
+class ImageInlineFormset(forms.BaseInlineFormSet):
+    def clean(self):
+        result = super(ImageInlineFormset, self).clean()
+        limit_size = 2097152
+        for frm in self.cleaned_data:
+            img = frm.get("image", None)
+            if img is not None:
+                if img.size > limit_size:
+                    raise forms.ValidationError("El tamaño de la imagen excede el tamaño permitido de 2MB.")
+
+
 imageformset = forms.inlineformset_factory(
     EstimateConcept,
     ImageEstimateConcept,
     extra=1,
     fields=('image',),
     widgets={'image': widgets.FileNestedWidget()},
+    formset=ImageInlineFormset,
 )
 
 
