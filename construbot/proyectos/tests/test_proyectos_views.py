@@ -708,7 +708,7 @@ class EstimateCreationTest(BaseViewTest):
         self.assertRedirects(
             response, reverse('proyectos:contrato_detail', kwargs={'pk': contrato.pk})
         )
-    @tag('current')
+
     def test_estimate_post_correctly_admin_user_not_assigned(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)

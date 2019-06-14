@@ -125,12 +125,12 @@ class UsuarioEdit(UserChangeForm):
         ),
     )
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, admin, *args, **kwargs):
         # Llamamos el super del padre porque el padre cambia arbitrariamente la url
         # de cambio de contraseña
         super(UserChangeForm, self).__init__(*args, **kwargs)
         pass_change = reverse('account_change_password', kwargs={'username': user.username})
-        self.fields['company'].queryset = user.company.all()
+        self.fields['company'].queryset = admin.company.all()
         self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
         self.user = user
 
