@@ -206,6 +206,14 @@ class ListUserViewTest(utils.BaseTestCase):
         self.user.company.add(company)
         self.user.groups.add(self.user_group)
 
+    def additional_users_without_company(self):
+        self.user1_different_customer = self.user_factory(
+            username='foreign_user',
+            nivel_acceso=self.auxiliar_permission,
+            customer=self.user.customer
+        )
+        self.user.groups.add(self.user_group)
+
     def test_list_users_renders_correctly(self):
         self.client.login(username=self.user.username, password='password')
         self.user.nivel_acceso = self.director_permission
@@ -217,6 +225,14 @@ class ListUserViewTest(utils.BaseTestCase):
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(reverse('users:list'))
         self.assertEqual(response.status_code, 403)
+
+    def test_list_user_displays_user_without_company(self):
+        self.additional_users_without_company()
+        self.user.nivel_acceso = self.director_permission
+        self.user.save()
+        self.client.login(username=self.user.username, password='password')
+        response = self.client.get(reverse('users:list'))
+        self.assertContains(response, 'foreign_user')
 
     def test_view_list_users_only_in_current_company(self):
         self.additional_users_different_customer()

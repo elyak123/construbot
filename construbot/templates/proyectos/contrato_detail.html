@@ -143,12 +143,14 @@
     ¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.
 </div>
 {% endif %}
+<br>
+<br>
+<div class="cont_listado alert alert-danger" id="cont_est_danger">
+</div>
+<div class="cont_listado">
+    <strong> Listado de estimaciones </strong>
+</div>
 {% if contrato.estimate_set.exists %}
-    <div class="cont_listado alert alert-danger" id="cont_est_danger">
-    </div>
-    <div class="cont_listado">
-        <strong> Listado de estimaciones </strong>
-    </div>
     <table class="table_sample table_normal">
         <tbody>
             <tr>

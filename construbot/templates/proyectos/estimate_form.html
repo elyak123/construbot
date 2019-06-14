@@ -56,6 +56,14 @@
                     }
                 }
             }
+            var uploadField = document.getElementsByClassName("img-input");
+
+            $(uploadField).on("change", function() {
+                if(this.files[0].size > 2097152){
+                   alert("¡No puedes adjuntar imagenes mayores a 2MB!");
+                   this.value = "";
+                };
+            });
         });
     </script>
 {% endblock javascript %}
