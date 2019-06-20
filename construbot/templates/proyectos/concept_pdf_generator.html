@@ -110,7 +110,7 @@
                       <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
                       <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
                       {% if concepto.observations %}
-                        <td> {{ concepto.observations }} </td>
+                        <td> {{ concepto.observations|linebreaksbr }} </td>
                       {% else %}
                         <td>
                         </td>
