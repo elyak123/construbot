@@ -130,7 +130,6 @@ class UsuarioEdit(UserChangeForm):
         # de cambio de contraseña
         super(UserChangeForm, self).__init__(*args, **kwargs)
         pass_change = reverse('account_change_password', kwargs={'username': user.username})
-        self.fields['company'].queryset = user.company.all()
         self.fields['password'].help_text = self.fields['password'].help_text.format(pass_change)
         self.user = user
 

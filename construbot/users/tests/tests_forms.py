@@ -61,7 +61,6 @@ class UsuarioEditTest(utils.BaseTestCase):
             company_name='some_company',
             customer=self.user.customer
         )
-        self.user.groups.add(self.user_group)
         self.user.company.add(company)
         qdict = QueryDict('groups={}'.format(self.user_group.id), mutable=True)
         data = {

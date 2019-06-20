@@ -220,6 +220,11 @@ class UserListView(UsersMenuMixin, ListView):
         qs = self.model.objects.filter(company=self.request.user.currently_at).exclude(id=self.request.user.id)
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+        context['special_users'] = User.objects.filter(customer=self.request.user.customer).filter(company__isnull=True)
+        return context
+
 
 class CompanyChangeView(AuthenticationTestMixin, TemplateView):
     app_label_name = 'redirect'

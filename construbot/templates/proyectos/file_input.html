@@ -17,7 +17,7 @@
 		<span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text"><span class="oi oi-circle-x"></span></span>
 	</div>
  	<div class="custom-file">
-		<input type="{{ widget.type }}" class="custom-file-input" id="inputGroupFile01" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+		<input type="{{ widget.type }}" class="custom-file-input img-input" id="inputGroupFile01" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} accept="image/*">
     	<label class="custom-file-label" for="inputGroupFile01">
     		{% if widget.is_initial %}
     			{{ widget.initial_text }}: <a href="">{{ widget.value }}</a>
