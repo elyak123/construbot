@@ -142,7 +142,8 @@ class UsuarioEdit(UserChangeForm):
             'last_name',
             'company',
             'email',
-            'nivel_acceso'
+            'nivel_acceso',
+            'puesto'
         ]
 
         labels = {
