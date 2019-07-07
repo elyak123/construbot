@@ -440,9 +440,6 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
-    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
-    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
-    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
     objects = models.Manager()
     especial = ECSet.as_manager()
 
@@ -452,6 +449,15 @@ class EstimateConcept(models.Model):
 
     def __str__(self):
         return self.concept.concept_text + str(self.cuantity_estimated)
+
+
+class Vertices(models.Model):
+    nombre = models.CharField('Nombre del Vertice', max_length=80)
+    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
+    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
+    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
+    piezas = models.DecimalField('número de piezas', max_digits=10, decimal_places=2, default=0)
+    estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
 
 
 class ImageEstimateConceptSet(models.QuerySet):

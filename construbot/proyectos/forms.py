@@ -1,7 +1,8 @@
 from django import forms
 from dal import autocomplete
-from .models import (Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
-    EstimateConcept, ImageEstimateConcept, Retenciones, Units)
+from .models import (
+    Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
+    EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
 from construbot.users.models import Company
 from construbot.proyectos import widgets
 
@@ -296,6 +297,13 @@ imageformset = forms.inlineformset_factory(
     formset=ImageInlineFormset,
 )
 
+verticesformset = forms.inlineformset_factory(
+    EstimateConcept,
+    Vertices,
+    extra=1,
+    fields=('nombre', 'largo', 'ancho', 'alto', 'piezas')
+)
+
 
 class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
 
@@ -303,6 +311,15 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
         super(BaseEstimateConceptInlineFormset, self).add_fields(form, index)
 
         form.nested = imageformset(
+            instance=form.instance,
+            data=form.data if form.is_bound else None,
+            files=form.files if form.is_bound else None,
+            prefix='%s-%s' % (
+                form.prefix,
+                imageformset.get_default_prefix()
+            ),
+        )
+        form.vertices = verticesformset(
             instance=form.instance,
             data=form.data if form.is_bound else None,
             files=form.files if form.is_bound else None,
@@ -349,9 +366,6 @@ def estimateConceptInlineForm(count=0):
         'concept',
         'cuantity_estimated',
         'observations',
-        'largo',
-        'ancho',
-        'alto',
     ), max_num=count, extra=count, can_delete=False, widgets={
         'concept': widgets.ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
         'cuantity_estimated': forms.TextInput(),

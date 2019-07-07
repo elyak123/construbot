@@ -85,22 +85,31 @@
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.observations %}
                 <div class="row">
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.largo %} 
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.ancho %}
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.alto %}
-                    </div>
-                    <div class="col-md-3 row">
+                    {% for vertice in frm.vertices %}
+                        <div class="col-md-12">
+                            {% bootstrap_field vertice.nombre %} 
+                        </div>
+                        <div class="col-md-3">
+                            {% bootstrap_field vertice.largo %} 
+                        </div>
+                        <div class="col-md-3">
+                            {% bootstrap_field vertice.ancho %} 
+                        </div>
+                        <div class="col-md-3">
+                            {% bootstrap_field vertice.alto %} 
+                        </div>
+                        <div class="col-md-3">
+                            {% bootstrap_field vertice.piezas %} 
+                        </div>
+                    {% endfor %}
+                    <div class="col-md-6 row">
                         <div class="col-xl-4">
                             <button style="margin-top:29px" class="calcular_cantidad btn btn-sm btn-primary">Calcular</button>
                         </div>
                         <div class="col-xl-8">
                             {% bootstrap_field frm.cuantity_estimated %}
                         </div>
+                    <button type="button" class="btn btn-dark add-form-row">Agregar vértices</button>
                     </div>
                     <div class="col-12">
                         <i>Alto, Largo y Ancho son operandos para calcular la cantidad estimada. Si deseas puedes dejarlos en blanco y poner directamente la cantidad estimada en el campo.</i>
