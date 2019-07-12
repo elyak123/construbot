@@ -325,7 +325,7 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
             files=form.files if form.is_bound else None,
             prefix='%s-%s' % (
                 form.prefix,
-                imageformset.get_default_prefix()
+                verticesformset.get_default_prefix()
             ),
         )
 
@@ -336,6 +336,9 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
                 if hasattr(form, 'nested'):
                     nested_validity = form.nested.is_valid()
                     result &= nested_validity
+                if hasattr(form, 'vertices'):
+                    vertice_validity = form.vertices.is_valid()
+                    result &= vertice_validity
         return result
 
     def save(self, commit=True):
@@ -343,6 +346,8 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
         for form in self.forms:
             if hasattr(form, 'nested'):
                 form.nested.save(commit=commit)
+            if hasattr(form, 'vertices'):
+                form.vertices.save(commit=commit)
         return result
 
 

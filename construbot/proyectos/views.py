@@ -445,11 +445,13 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             generator_inline_concept = inlineform
         codes = [x['concept'].code for x in fill_data]
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
+        vertice_formset_prefix = [x.vertices.prefix for x in generator_inline_concept.forms]
         return_dict = {
             'form': form,
             'generator_inline_concept': generator_inline_concept,
             'generator_zip': zip(generator_inline_concept, codes),
-            'image_formset_prefix': image_formset_prefix
+            'image_formset_prefix': image_formset_prefix,
+            'vertice_formset_prefix': vertice_formset_prefix
         }
         return return_dict
 
@@ -484,6 +486,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
             self.request.FILES,
             instance=form.instance
         )
+        import pdb; pdb.set_trace();
         if generator_inline_concept.is_valid():
             response = super(EstimateCreationView, self).form_valid(form)
             generator_inline_concept.save()
