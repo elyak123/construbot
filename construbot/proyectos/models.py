@@ -273,7 +273,7 @@ class ConceptSet(models.QuerySet):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
     def concept_vertice_count(self):
-        return self.annotate(image_count=models.Count('estimateconcept__vertices'))
+        return self.annotate(vertice_count=models.Count('estimateconcept__vertices'))
 
     def get_observations(self, estimate_consecutive):
         conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(

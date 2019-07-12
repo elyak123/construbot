@@ -76,9 +76,11 @@
           <td class="generatorDescription">
             <p>{{ concepto.concept_text }}</p>
           </td>
-          <td> {{ concepto.largo }} </td>
-          <td> {{ concepto.ancho }} </td>
-          <td> {{ concepto.alto }} </td>
+          {% for vertice in concepto.anotar_vertices %}
+            <td> {{ vertice.largo }} </td>
+            <td> {{ vertice.ancho }} </td>
+            <td> {{ vertice.alto }} </td>
+          {% endfor %}
           <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
           <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
           {% if concepto.observations %}
