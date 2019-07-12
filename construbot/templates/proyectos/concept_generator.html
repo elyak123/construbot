@@ -72,23 +72,25 @@
     {% for concepto in conceptos %}
       {% if concepto.cantidad_esta_estimacion %}
         <tr id="conc-{{ forloop.counter0 }}">
-          <td> {{ concepto.code }} </td>
-          <td class="generatorDescription">
+          <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.code }} </td>
+          <td rowspan="{{ concepto.vertice_count }}" class="generatorDescription">
             <p>{{ concepto.concept_text }}</p>
           </td>
           {% for vertice in concepto.anotar_vertices %}
             <td> {{ vertice.largo }} </td>
             <td> {{ vertice.ancho }} </td>
             <td> {{ vertice.alto }} </td>
+            {% if forloop.first %}
+              <td rowspan="{{ concepto.vertice_count }}" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+              <td rowspan="{{ concepto.vertice_count }}" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+              {% if concepto.observations %}
+                <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.observations|linebreaksbr }} </td>
+              {% else %}
+                <td rowspan="{{ concepto.vertice_count }}">
+                </td>
+              {% endif %}
+            {% endif %}</tr>
           {% endfor %}
-          <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-          <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-          {% if concepto.observations %}
-            <td> {{ concepto.observations|linebreaksbr }} </td>
-          {% else %}
-            <td>
-            </td>
-          {% endif %}
         </tr>
         {% if conceptos.total_imagenes_estimacion.total_images %}
           <tr class="image">
