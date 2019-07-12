@@ -8,11 +8,11 @@ $(document).ready(function(){
     ev.preventDefault();
     let source = ev.target.parentElement.parentElement;
     let container = source.parentElement;
-    let elements = $(container).find(".set-ver-0");
+    let elements = $(container).find(".vertices");
     let estimado = 0;
     for(let i = 0; i < elements.length; i++){
       let mult = 1;
-      for(let j = 1; j < 5; j++){
+      for(let j = 2; j < 6; j++){
         mult *= elements[i].children[j].children[0].children[1].value;
       }
       estimado+=mult;

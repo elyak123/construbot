@@ -272,24 +272,8 @@ class ConceptSet(models.QuerySet):
     def concept_image_count(self):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
-    def get_largo_alto_ancho(self, estimate_consecutive):
-        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
-            concept=models.OuterRef('pk')
-        )
-        largo = conceptos_estimacion.values('largo')
-        ancho = conceptos_estimacion.values('ancho')
-        alto = conceptos_estimacion.values('alto')
-        return self.annotate(
-            largo=models.Subquery(
-                largo, output_field=models.DecimalField(decimal_places=2)
-            ),
-            ancho=models.Subquery(
-                ancho, output_field=models.DecimalField(decimal_places=2)
-            ),
-            alto=models.Subquery(
-                alto, output_field=models.DecimalField(decimal_places=2)
-            ),
-        )
+    def concept_vertice_count(self):
+        return self.annotate(vertice_count=models.Count('estimateconcept__vertices'))
 
     def get_observations(self, estimate_consecutive):
         conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
@@ -324,7 +308,7 @@ class ConceptSet(models.QuerySet):
                 .esta_estimacion(estimate_consecutive)
                 .add_estimateconcept_ids(estimate_consecutive)
                 .concept_image_count()
-                .get_largo_alto_ancho(estimate_consecutive)
+                .concept_vertice_count()
                 .get_observations(estimate_consecutive)
         )
 
@@ -389,6 +373,15 @@ class Concept(models.Model):
     def anotar_imagenes(self):
         if hasattr(self, 'conceptoestimacion'):
             return ImageEstimateConcept.objects.filter(estimateconcept=self.conceptoestimacion)
+        else:
+            raise AttributeError('No es posible realizar la operación porque es necesario '
+                                 'que se ejecute add_estimateconcept_properties o al menos '
+                                 'add_estimateconcept_ids desde la instancia de un QuerySet '
+                                 'con el manejador ConceptSet')
+
+    def anotar_vertices(self):
+        if hasattr(self, 'conceptoestimacion'):
+            return Vertices.objects.filter(estimateconcept=self.conceptoestimacion)
         else:
             raise AttributeError('No es posible realizar la operación porque es necesario '
                                  'que se ejecute add_estimateconcept_properties o al menos '
