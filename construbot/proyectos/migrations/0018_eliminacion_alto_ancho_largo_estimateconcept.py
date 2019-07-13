@@ -23,9 +23,4 @@ class Migration(migrations.Migration):
             model_name='estimateconcept',
             name='largo',
         ),
-        migrations.AddField(
-            model_name='vertices',
-            name='estimateconcept',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='proyectos.EstimateConcept'),
-        ),
     ]
