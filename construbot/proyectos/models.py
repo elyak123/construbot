@@ -310,6 +310,7 @@ class ConceptSet(models.QuerySet):
                 .concept_image_count()
                 .concept_vertice_count()
                 .get_observations(estimate_consecutive)
+                .select_related('unit')
         )
 
 
