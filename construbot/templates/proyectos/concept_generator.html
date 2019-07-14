@@ -86,12 +86,12 @@
             <td> {{ vertice.alto }} </td>
             <td> {{ vertice.piezas }} </td>
             {% if forloop.first %}
-              <td rowspan="{{ concepto.vertice_count }}" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-              <td rowspan="{{ concepto.vertice_count }}" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+              <td {% if concepto.anotar_imagenes.exists %}rowspan="{{ concepto.anotar_vertices.count }}" {% endif %} class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+              <td {% if concepto.anotar_imagenes.exists %}rowspan="{{ concepto.anotar_vertices.count }}" {% endif %} style="text-align:center;"> {{ concepto.unit.unit }} </td>
               {% if concepto.observations %}
-                <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.observations|linebreaksbr }} </td>
+                <td {% if concepto.anotar_imagenes.exists %}rowspan="{{ concepto.anotar_vertices.count }}" {% endif %}> {{ concepto.observations|linebreaksbr }} </td>
               {% else %}
-                <td rowspan="{{ concepto.vertice_count }}">
+                <td {% if concepto.anotar_imagenes.exists %}rowspan="{{ concepto.anotar_vertices.count }}" {% endif %}>
                 </td>
               {% endif %}
             {% endif %}</tr>
