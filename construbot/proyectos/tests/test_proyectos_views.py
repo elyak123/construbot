@@ -833,7 +833,7 @@ class EstimateCreationTest(BaseViewTest):
         self.assertFormError(
             response, 'form', 'payment_date', 'Si la estimación fué pagada, es necesaria fecha de pago.'
         )
-    @tag('current')
+
     def test_estimate_createview_renders_formset_errors(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)

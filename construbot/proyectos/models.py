@@ -233,13 +233,13 @@ class Estimate(models.Model):
 class ConceptSet(models.QuerySet):
 
     def estimado_a_la_fecha(self, estimate_consecutive):
-            estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
-            return self.annotate(
-                acumulado=models.Subquery(
-                    estimateconcept,
-                    output_field=models.DecimalField()
-                )
+        estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
+        return self.annotate(
+            acumulado=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
             )
+        )
 
     def estimado_anterior(self, estimate_consecutive):
         estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
@@ -273,7 +273,7 @@ class ConceptSet(models.QuerySet):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
     def concept_vertice_count(self):
-        return self.annotate(vertice_count=models.Count('estimateconcept__vertices'))
+        return self.annotate(vertice_count=models.Count('estimateconcept__vertices', distinct=True))
 
     def get_observations(self, estimate_consecutive):
         conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
