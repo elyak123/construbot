@@ -1,3 +1,8 @@
-from django.db import models  # pragma: no cover
+from chunked_upload.models import ChunkedUpload
 
-# Create your models here.
+
+class ChunkedCoreUpload(ChunkedUpload):
+
+    class Meta:
+        verbose_name = "ChunkedCoreUpload"
+        verbose_name_plural = "ChunkedCoreUploads"
