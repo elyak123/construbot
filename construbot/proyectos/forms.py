@@ -10,7 +10,7 @@ MY_DATE_FORMATS = '%Y-%m-%d'
 
 
 class ContratoDummyFileForm(forms.Form):
-    dummy_archivo = forms.FileField(widget=widgets.FileNestedWidget())
+    dummy_archivo = forms.FileField()
 
 
 class ContratoForm(forms.ModelForm):

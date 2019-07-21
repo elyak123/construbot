@@ -1,6 +1,6 @@
 import importlib
 from django.conf import settings
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -340,6 +340,10 @@ class GeneratorPdfPrint(EstimateDetailView):
     template_name = 'proyectos/concept_pdf_generator.html'
 
 
+class DummyFileForm(ProyectosMenuMixin, TemplateView):
+    template_name = 'core/dummy_input.html'        
+
+
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     permiso_requerido = 2
     change_company_ability = False
@@ -365,7 +369,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
-        context['dummy_file'] = forms.ContratoDummyFileForm()
+        context['dummy_file'] = True
         return context
 
 
@@ -567,7 +571,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ContratoEditView, self).get_context_data(**kwargs)
-        context['dummy_file'] = forms.ContratoDummyFileForm()
+        context['dummy_file'] = True
         return context
 
     def get_initial(self):
