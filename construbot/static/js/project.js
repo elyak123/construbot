@@ -246,14 +246,19 @@ $(document).ready(function(){
     }
     if($(".form-group > label:contains('Image')")){
         ocultar_elementos();
-        $(".add-img-form-row").on("click", function(){
+        $(".add-form").on("click", function(){
             ocultar_elementos();
         });
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
             $("label:contains('Eliminar')").parent().hide();
         }
-        $(document).on("click", ".remove_span", function(event){
+        $(document).on("click", ".remove_ver_div", function(event){
+            let ev = event.target;
+            ev.closest(".remove_ver_div").nextSibling.nextSibling.children[0].children[0].click();
+            ev.closest(".remove_ver_div").parentElement.classList.toggle("background_ver_eliminar");        
+        });
+        $(document).on("click", ".remove_img_span", function(event){
             let ev = event.target;
             ev.closest(".form-group").nextSibling.nextSibling.nextSibling.nextSibling.children[0].children[0].click();
             try {
