@@ -4,7 +4,7 @@
 <table class="generator bord-doble">
   <thead id="header_frame">
     <tr>
-      <th class="sin_borde" colspan="8">
+      <th class="sin_borde" colspan="10">
         <div class="cont_est_gen">
           <h5 class="m-0"> {{ estimate.project.cliente.cliente_name.upper }} </h5>
           <h6 class="m-0"> RESIDENCIA DE CONSTRUCCIÓN </h6>
@@ -29,7 +29,7 @@
           </tr>
         </table>
       </th>
-      <th class="sin_borde" colspan="1"></th>
+      <th class="sin_borde" colspan="3"></th>
       <th class="sin_borde" colspan="3">
         <table class="informacion">
           <tr>
@@ -56,13 +56,16 @@
     <tr class="center color-g">
       <th rowspan="2">CÓDIGO</th>
       <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
-      <th rowspan="2">LARGO</th>
-      <th rowspan="2">ANCHO</th>
-      <th rowspan="2">ALTO</th>
+      <th colspan="5">VÉRTICES</th>
       <th colspan="2">VOLUMEN EJECUTADO</th>
       <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
     </tr>
     <tr class="center color-b">
+      <th>NOMBRE</th>
+      <th>LARGO</th>
+      <th>ANCHO</th>
+      <th>ALTO</th>
+      <th>PIEZAS</th>
       <th>CANTIDAD</th>
       <th>UNIDAD</th>
     </tr>
@@ -72,25 +75,31 @@
     {% for concepto in conceptos %}
       {% if concepto.cantidad_esta_estimacion %}
         <tr id="conc-{{ forloop.counter0 }}">
-          <td> {{ concepto.code }} </td>
-          <td class="generatorDescription">
+          <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.code }} </td>
+          <td rowspan="{{ concepto.vertice_count }}" class="generatorDescription">
             <p>{{ concepto.concept_text }}</p>
           </td>
-          <td> {{ concepto.largo }} </td>
-          <td> {{ concepto.ancho }} </td>
-          <td> {{ concepto.alto }} </td>
-          <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-          <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-          {% if concepto.observations %}
-            <td> {{ concepto.observations }} </td>
-          {% else %}
-            <td>
-            </td>
-          {% endif %}
+          {% for vertice in concepto.anotar_vertices %}
+            <td> {{ vertice.nombre }} </td>
+            <td> {{ vertice.largo }} </td>
+            <td> {{ vertice.ancho }} </td>
+            <td> {{ vertice.alto }} </td>
+            <td> {{ vertice.piezas }} </td>
+            {% if forloop.first %}
+              <td rowspan="{{ concepto.vertice_count }}" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+              <td rowspan="{{ concepto.vertice_count }}" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+              {% if concepto.observations %}
+                <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.observations|linebreaksbr }} </td>
+              {% else %}
+                <td rowspan="{{ concepto.vertice_count }}">
+                </td>
+              {% endif %}
+            {% endif %}</tr>
+          {% endfor %}
         </tr>
         {% if conceptos.total_imagenes_estimacion.total_images %}
           <tr class="image">
-            <td colspan="8" id="img-{{ forloop.counter0 }}" style="text-align: center;">
+            <td colspan="10" id="img-{{ forloop.counter0 }}" style="text-align: center;">
                 {% if concepto.image_count %}
                   {% for image in concepto.anotar_imagenes %}
                     <img class="estimateImage{{forloop.parentloop.counter}}" src="{{ image.image.url }}">
@@ -105,7 +114,7 @@
   </tbody>
   <tfoot id="footer_generator">
     <tr>
-      <td class="cont_firmas" colspan="8">
+      <td class="cont_firmas" colspan="10">
         <div class="cont_firma">
           <div class="bc subrayado_f"></div>
           <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>

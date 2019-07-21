@@ -15,22 +15,38 @@
 {% endblock javascript_no_compress %}
 {% block javascript %}
     <script type="text/javascript">
-        var setPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+        var setImgPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+        var setVerPrefix = '{{ vertice_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
     </script>
     <script src="{% static 'js/inlineform.js' %}"></script>
     <script src="{% static 'js/estimate_button.js' %}"></script>
     <script type="text/javascript">
-        var fileSets = document.getElementsByClassName('dynamic-form');
-        var formset = undefined;
-        for(var i = 0; i<fileSets.length; i++){
-            formset = new Formset();
-            formset.setup({
-                prefix: setPrefix[i],
-                callbacks: callbacks,
-                form_selector: '.set-' + i,
-                nested: true
-            });
+        function activateFormset(className, prefix, tipo){
+            var fileSets = document.getElementsByClassName(className);
+            var formset = undefined;
+            var nested = false;
+            var vertice = false;
+            var selector;
+            for(var i = 0; i<fileSets.length; i++){
+                formset = new Formset(className);
+                if(tipo == 'imagen'){
+                    nested = true;
+                    selector = 'img';
+                } else if (tipo == 'vertice'){
+                    vertice = true;
+                    selector = 'ver';
+                }
+                formset.setup({
+                    prefix: prefix[i],
+                    callbacks: callbacks,
+                    form_selector: ".set"+ "-" + selector + "-" + i,
+                    nested: nested,
+                    vertice: vertice
+                });
+            }
         }
+        activateFormset('dynamic-img-form', setImgPrefix, 'imagen');
+        activateFormset('dynamic-vertice-form', setVerPrefix, 'vertice');
         function event_appear(){
             $(".del-msj").css("display", "block");
         }
@@ -79,44 +95,61 @@
             </div>
         {{ generator_inline_concept.management_form }}
         {% for frm, code in generator_zip %}
-            <div class="{% cycle 'fila_impar' 'fila_par' %}">
+            <div class="{% cycle 'fila_impar' 'fila_par' %}" data-id="{{ code }}">
                 <div style="text-align: center;"><h4>Concepto: {{ code }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.observations %}
-                <div class="row">
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.largo %} 
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.ancho %}
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.alto %}
-                    </div>
-                    <div class="col-md-3 row">
-                        <div class="col-xl-4">
-                            <button style="margin-top:29px" class="calcular_cantidad btn btn-sm btn-primary">Calcular</button>
+                <div class="calcular dynamic-vertice-form {% cycle 'vertice-impar' 'vertice-par' %}">
+                    <h4>Vértices</h4>
+                    {{ frm.vertices.management_form }}
+                    {% for vertice in frm.vertices %}
+                        <div class="row set-ver-{{ forloop.parentloop.counter0 }} vertices">
+                            {{ vertice.id }}
+                            <div class="col-md-12">
+                                <h5>Vértice </h5>
+                                {% bootstrap_field vertice.nombre %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.ancho %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.alto %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.largo %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.piezas %} 
+                            </div>
                         </div>
-                        <div class="col-xl-8">
+                    {% endfor %}
+                    <div class="col-md-6 row">
+                        <div class="col-xl-4">
+                            <br>
+                            <button style="margin-top:5px" class="calcular_cantidad btn btn-sm btn-primary">Calcular</button>
+                        </div>
+                        <div class="col-xl-8 calculable-mul">
                             {% bootstrap_field frm.cuantity_estimated %}
                         </div>
                     </div>
                     <div class="col-12">
-                        <i>Alto, Largo y Ancho son operandos para calcular la cantidad estimada. Si deseas puedes dejarlos en blanco y poner directamente la cantidad estimada en el campo.</i>
+                        <i>Ancho, Alto, Largo y Piezas son operandos para calcular la cantidad estimada. Si deseas puedes dejarlos en blanco y poner directamente la cantidad estimada en el campo.</i>
                     </div>
+                    <br>
+                    <button type="button" class="btn btn-dark add-ver-form-row">Agregar vértices</button>
                 </div>
                 <br>
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
-                    <div class="dynamic-form">
+                    <div class="dynamic-img-form">
                         {{ frm.nested.non_form_errors }}
                         {% for nested_form in frm.nested.forms %}
-                            <div class="set-{{ forloop.parentloop.counter0 }}">
+                            <div class="set-img-{{ forloop.parentloop.counter0 }}">
                                 {% bootstrap_form nested_form %}
                             </div>
                         {% endfor %}
-                        <button type="button" class="btn btn-dark add-form-row">Agregar más imagenes</button>
+                        <button type="button" class="btn btn-dark add-img-form-row">Agregar más imagenes</button>
                     </div>
                 {% endif %}
             </div>

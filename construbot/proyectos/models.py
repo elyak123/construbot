@@ -233,13 +233,13 @@ class Estimate(models.Model):
 class ConceptSet(models.QuerySet):
 
     def estimado_a_la_fecha(self, estimate_consecutive):
-            estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
-            return self.annotate(
-                acumulado=models.Subquery(
-                    estimateconcept,
-                    output_field=models.DecimalField()
-                )
+        estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
+        return self.annotate(
+            acumulado=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
             )
+        )
 
     def estimado_anterior(self, estimate_consecutive):
         estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
@@ -272,24 +272,8 @@ class ConceptSet(models.QuerySet):
     def concept_image_count(self):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
-    def get_largo_alto_ancho(self, estimate_consecutive):
-        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
-            concept=models.OuterRef('pk')
-        )
-        largo = conceptos_estimacion.values('largo')
-        ancho = conceptos_estimacion.values('ancho')
-        alto = conceptos_estimacion.values('alto')
-        return self.annotate(
-            largo=models.Subquery(
-                largo, output_field=models.DecimalField(decimal_places=2)
-            ),
-            ancho=models.Subquery(
-                ancho, output_field=models.DecimalField(decimal_places=2)
-            ),
-            alto=models.Subquery(
-                alto, output_field=models.DecimalField(decimal_places=2)
-            ),
-        )
+    def concept_vertice_count(self):
+        return self.annotate(vertice_count=models.Count('estimateconcept__vertices', distinct=True))
 
     def get_observations(self, estimate_consecutive):
         conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
@@ -324,8 +308,9 @@ class ConceptSet(models.QuerySet):
                 .esta_estimacion(estimate_consecutive)
                 .add_estimateconcept_ids(estimate_consecutive)
                 .concept_image_count()
-                .get_largo_alto_ancho(estimate_consecutive)
+                .concept_vertice_count()
                 .get_observations(estimate_consecutive)
+                .select_related('unit')
         )
 
 
@@ -395,6 +380,15 @@ class Concept(models.Model):
                                  'add_estimateconcept_ids desde la instancia de un QuerySet '
                                  'con el manejador ConceptSet')
 
+    def anotar_vertices(self):
+        if hasattr(self, 'conceptoestimacion'):
+            return Vertices.objects.filter(estimateconcept=self.conceptoestimacion)
+        else:
+            raise AttributeError('No es posible realizar la operación porque es necesario '
+                                 'que se ejecute add_estimateconcept_properties o al menos '
+                                 'add_estimateconcept_ids desde la instancia de un QuerySet '
+                                 'con el manejador ConceptSet')
+
 
 class ECSet(models.QuerySet):
 
@@ -440,9 +434,6 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
-    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
-    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
-    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
     objects = models.Manager()
     especial = ECSet.as_manager()
 
@@ -452,6 +443,15 @@ class EstimateConcept(models.Model):
 
     def __str__(self):
         return self.concept.concept_text + str(self.cuantity_estimated)
+
+
+class Vertices(models.Model):
+    nombre = models.CharField('Nombre del Vertice', max_length=80)
+    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
+    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
+    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
+    piezas = models.DecimalField('número de piezas', max_digits=10, decimal_places=2, default=0)
+    estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
 
 
 class ImageEstimateConceptSet(models.QuerySet):

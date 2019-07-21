@@ -246,7 +246,7 @@ $(document).ready(function(){
     }
     if($(".form-group > label:contains('Image')")){
         ocultar_elementos();
-        $(".add-form-row").on("click", function(){
+        $(".add-img-form-row").on("click", function(){
             ocultar_elementos();
         });
         function ocultar_elementos(){

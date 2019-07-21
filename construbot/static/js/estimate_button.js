@@ -1,4 +1,5 @@
 $(document).ready(function(){
+  let current = $(".calcular-mul")[0];
   let button = $(".calcular_cantidad");
   button.on("click", function n(ev){
     calcular(ev);
@@ -6,12 +7,17 @@ $(document).ready(function(){
   function calcular(ev){
     ev.preventDefault();
     let source = ev.target.parentElement.parentElement;
-    let field = source.children[1].children[0].children[1];
-    let values = source.parentElement;
-    let v1 = parseFloat(values.children[0].children[0].children[1].value);
-    let v2 = parseFloat(values.children[1].children[0].children[1].value);
-    let v3 = parseFloat(values.children[2].children[0].children[1].value);
-    field.value = (v1*v2*v3).toFixed(2);
+    let container = source.parentElement;
+    let elements = $(container).find(".vertices");
+    let estimado = 0;
+    for(let i = 0; i < elements.length; i++){
+      let mult = 1;
+      for(let j = 2; j < 6; j++){
+        mult *= elements[i].children[j].children[0].children[1].value;
+      }
+      estimado+=mult;
+    }
+    $(container).find("[placeholder='Cantidad estimada']")[0].value = estimado.toFixed(2);
   }
   $('textarea').each(function () {
     this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');

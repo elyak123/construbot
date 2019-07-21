@@ -187,6 +187,11 @@ class ConceptoSetTest(BaseModelTesCase):
         for concept in conceptos:
             self.assertEqual(concept.image_count, 2)
 
+    @mock.patch.object(models.ConceptSet, 'annotate')
+    def test_vertice_count_correct_call(self, mock_annotate):
+        models.Concept.especial.concept_vertice_count()
+        mock_annotate.assert_called_once_with(vertice_count=models.models.Count('estimateconcept__vertices', distinct=True))
+
     @mock.patch.object(ImageFile, '_get_image_dimensions')
     def test_total_imagenes_estimacion(self, mock_dimensions):
         mock_dimensions.return_value = (500, 380)

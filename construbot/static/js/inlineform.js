@@ -174,7 +174,10 @@
             });
             var addEventTarget = $('.add-form-row');
             if(formset.nested){
-                addEventTarget = $(formset.form_selector).siblings('.add-form-row');
+                addEventTarget = $(formset.form_selector).siblings('.add-img-form-row');
+            }
+            if(formset.vertice){
+                addEventTarget = $(formset.form_selector).siblings('.add-ver-form-row');
             }
             addEventTarget.click( function(e) {
                 e.preventDefault();

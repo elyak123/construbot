@@ -80,9 +80,9 @@
             <td style="text-align: center;"> - </td>
             <td style="text-align: center;"> - </td>
           {% endif %}
-          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha }} </td>
+          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha|floatformat:"2"|intcomma }} </td>
           <td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
-          <td class="right"> {{ concepto.cantidad_esta_estimacion }} </td>
+          <td class="right"> {{ concepto.cantidad_esta_estimacion|floatformat:"2"|intcomma }} </td>
           <td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
         </tr>
       {% endfor %}

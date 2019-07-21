@@ -462,6 +462,23 @@ a:hover {
 
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.vertices {
+	margin-top: 20px;
+}
+
+.vertice-impar {
+	background: #c4e4e6;
+}
+
+.vertice-par {
+	background: #ececec;
+}
+
+.vertice-par, .vertice-impar {
+    padding: 20px;
+    border-radius: 5px;
+}
+
 .boton-flotante {
 	right: 120px;
 }

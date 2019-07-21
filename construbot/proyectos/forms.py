@@ -1,7 +1,8 @@
 from django import forms
 from dal import autocomplete
-from .models import (Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
-    EstimateConcept, ImageEstimateConcept, Retenciones, Units)
+from .models import (
+    Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
+    EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
 from construbot.users.models import Company
 from construbot.proyectos import widgets
 
@@ -296,6 +297,13 @@ imageformset = forms.inlineformset_factory(
     formset=ImageInlineFormset,
 )
 
+verticesformset = forms.inlineformset_factory(
+    EstimateConcept,
+    Vertices,
+    extra=1,
+    fields=('nombre', 'largo', 'ancho', 'alto', 'piezas')
+)
+
 
 class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
 
@@ -311,6 +319,15 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
                 imageformset.get_default_prefix()
             ),
         )
+        form.vertices = verticesformset(
+            instance=form.instance,
+            data=form.data if form.is_bound else None,
+            files=form.files if form.is_bound else None,
+            prefix='%s-%s' % (
+                form.prefix,
+                verticesformset.get_default_prefix()
+            ),
+        )
 
     def is_valid(self):
         result = super(BaseEstimateConceptInlineFormset, self).is_valid()
@@ -319,6 +336,9 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
                 if hasattr(form, 'nested'):
                     nested_validity = form.nested.is_valid()
                     result &= nested_validity
+                if hasattr(form, 'vertices'):
+                    vertice_validity = form.vertices.is_valid()
+                    result &= vertice_validity
         return result
 
     def save(self, commit=True):
@@ -326,6 +346,8 @@ class BaseEstimateConceptInlineFormset(forms.BaseInlineFormSet):
         for form in self.forms:
             if hasattr(form, 'nested'):
                 form.nested.save(commit=commit)
+            if hasattr(form, 'vertices'):
+                form.vertices.save(commit=commit)
         return result
 
 
@@ -349,9 +371,6 @@ def estimateConceptInlineForm(count=0):
         'concept',
         'cuantity_estimated',
         'observations',
-        'largo',
-        'ancho',
-        'alto',
     ), max_num=count, extra=count, can_delete=False, widgets={
         'concept': widgets.ConceptDummyWidget(attrs={'readonly': True, 'rows': ""}),
         'cuantity_estimated': forms.TextInput(),
