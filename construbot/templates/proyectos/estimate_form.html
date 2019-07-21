@@ -106,6 +106,10 @@
                     {% for vertice in frm.vertices %}
                         <div class="row set-ver-{{ forloop.parentloop.counter0 }} vertices">
                             {{ vertice.id }}
+                            <div class="input-group-prepend remove_ver_div">
+                                <span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text">Eliminar <span style="margin-left:10px;" class="oi oi-trash"></span></span>
+                            </div>
+                            {% bootstrap_field vertice.DELETE %}
                             <div class="col-md-12">
                                 {% bootstrap_field vertice.nombre %} 
                             </div>
@@ -121,10 +125,6 @@
                             <div class="col-md-3">
                                 {% bootstrap_field vertice.piezas %} 
                             </div>
-                            <div class="input-group-prepend remove_ver_div">
-                                <span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text">Eliminar <span style="margin-left:10px;" class="oi oi-trash"></span></span>
-                            </div>
-                            {% bootstrap_field vertice.DELETE %}
                         </div>
                     {% endfor %}
                     <div class="col-md-6 row">

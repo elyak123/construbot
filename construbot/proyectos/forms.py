@@ -9,8 +9,13 @@ from construbot.proyectos import widgets
 MY_DATE_FORMATS = '%Y-%m-%d'
 
 
+class ContratoDummyFileForm(forms.Form):
+    dummy_archivo = forms.FileField(widget=widgets.FileNestedWidget())
+
+
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
+    relacion_id_archivo = forms.IntegerField(widget=forms.HiddenInput())
 
     def clean(self):
         result = super(ContratoForm, self).clean()
@@ -30,12 +35,11 @@ class ContratoForm(forms.ModelForm):
 
     class Meta:
         model = Contrato
-        fields = '__all__'
+        exclude = ['file']
         labels = {
             'code': 'Folio del contrato',
             'contrato_name': 'Nombre del contrato',
             'contrato_shortName': 'Nombre corto',
-            'file': 'PDF del Contrato',
             'users': '¿A qué usuarios desea asignarlo?',
             'status': '¿El proyecto sigue en curso?'
         }
@@ -66,14 +70,6 @@ class ContratoForm(forms.ModelForm):
                 attrs={
                     'data-minimum-input-length': 3,
                 }
-            ),
-            'file': forms.FileInput(
-                attrs={
-                    'accept': 'application/pdf',
-                },
-            ),
-            'anticipo': forms.TextInput(
-                attrs={'style': 'width:200px;'}
             ),
         }
         help_texts = {

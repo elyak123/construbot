@@ -476,9 +476,10 @@ a:hover {
 
 .remove_ver_div {
 	cursor: pointer;
-	position: absolute;
-	right: 70px;
-	bottom: 10px;
+	display: inline-flex;
+    position: relative;
+    margin-left: auto;
+    right: 0;
 }
 
 .vertice-impar {
