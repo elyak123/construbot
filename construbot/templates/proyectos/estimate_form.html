@@ -107,7 +107,6 @@
                         <div class="row set-ver-{{ forloop.parentloop.counter0 }} vertices">
                             {{ vertice.id }}
                             <div class="col-md-12">
-                                <h5>Vértice </h5>
                                 {% bootstrap_field vertice.nombre %} 
                             </div>
                             <div class="col-md-3">
@@ -122,14 +121,20 @@
                             <div class="col-md-3">
                                 {% bootstrap_field vertice.piezas %} 
                             </div>
+                            <div class="input-group-prepend remove_ver_div">
+                                <span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text">Eliminar <span style="margin-left:10px;" class="oi oi-trash"></span></span>
+                            </div>
+                            {% bootstrap_field vertice.DELETE %}
                         </div>
                     {% endfor %}
                     <div class="col-md-6 row">
                         <div class="col-xl-4">
                             <br>
+                            <br>
                             <button style="margin-top:5px" class="calcular_cantidad btn btn-sm btn-primary">Calcular</button>
                         </div>
                         <div class="col-xl-8 calculable-mul">
+                            <br>
                             {% bootstrap_field frm.cuantity_estimated %}
                         </div>
                     </div>
@@ -137,7 +142,7 @@
                         <i>Ancho, Alto, Largo y Piezas son operandos para calcular la cantidad estimada. Si deseas puedes dejarlos en blanco y poner directamente la cantidad estimada en el campo.</i>
                     </div>
                     <br>
-                    <button type="button" class="btn btn-dark add-ver-form-row">Agregar vértices</button>
+                    <button type="button" class="btn btn-dark add-form add-ver-form-row">Agregar vértices</button>
                 </div>
                 <br>
                 {% if frm.nested %}
@@ -149,7 +154,7 @@
                                 {% bootstrap_form nested_form %}
                             </div>
                         {% endfor %}
-                        <button type="button" class="btn btn-dark add-img-form-row">Agregar más imagenes</button>
+                        <button type="button" class="btn btn-dark add-form add-img-form-row">Agregar más imagenes</button>
                     </div>
                 {% endif %}
             </div>
