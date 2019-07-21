@@ -44,6 +44,8 @@ setup(
         'django-model-utils==3.1.2',
         # Images
         'Pillow==5.4.1',
+        # User uploads
+        'django-chunked-upload==1.1.3',
         # Password storage
         'argon2-cffi==18.3.0',
         # For user registration, either via email or social
