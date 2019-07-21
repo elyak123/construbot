@@ -13,7 +13,7 @@ Production settings for Construbot project.
 
 
 import logging
-
+import importlib
 
 from .base import *  # noqa
 import sentry_sdk
@@ -86,6 +86,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 MEDIA_URL = 'https://s3.amazonaws.com/%s/' % AWS_STORAGE_BUCKET_NAME
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+CHUNKED_UPLOAD_STORAGE_CLASS = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
 
 # Static Assets
 # ------------------------

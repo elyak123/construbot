@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
     'wkhtmltopdf',  # pdf generation
+    'chunked_upload',  # user uploads
 ]
 
 # Apps specific for this project go here.
@@ -257,7 +258,7 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
-
+CHUNKED_UPLOAD_ABSTRACT_MODEL = False
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------

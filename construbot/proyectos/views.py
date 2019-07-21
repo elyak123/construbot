@@ -1,6 +1,7 @@
 import importlib
 from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -10,6 +11,7 @@ from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
+from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
@@ -363,6 +365,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
+        context['dummy_file'] = forms.ContratoDummyFileForm()
         return context
 
 
@@ -561,6 +564,11 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
                 cliente__company=self.request.user.currently_at
             )
         return self.object
+
+    def get_context_data(self, **kwargs):
+        context = super(ContratoEditView, self).get_context_data(**kwargs)
+        context['dummy_file'] = forms.ContratoDummyFileForm()
+        return context
 
     def get_initial(self):
         initial_obj = super(ContratoEditView, self).get_initial()
@@ -900,3 +908,13 @@ class NivelAccesoAutocomplete(AutocompletePoryectos):
         if self.q:
             key_words['nombre__unaccent__icontains'] = self.q
         return key_words
+
+
+class ContratoChunkedUpload(ChunkedUploadCompleteView):
+
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        super(ContratoChunkedUpload, self).post(request, *args, **kwargs)
+
+    def on_completion(self, uploaded_file, request):
+        pass
