@@ -1,4 +1,6 @@
+import os
 import sys
+import time
 from PIL import Image
 from io import BytesIO
 from time import strftime

@@ -370,7 +370,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
-        context['dummy_file'] = True
+        # context['dummy_file'] = True
         return context
 
 
@@ -574,7 +574,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ContratoEditView, self).get_context_data(**kwargs)
-        context['dummy_file'] = True
+        # context['dummy_file'] = True
         return context
 
     def get_initial(self):
@@ -646,7 +646,9 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         return formset
 
     def get_concept_codes(self):
-        concepts = [x.code for x in Concept.objects.filter(project=self.object.project).order_by('id')]
+        estimate_concepts = Concept.objects.filter(project=self.object.project).order_by('id')
+        concepts = [x.code for x in estimate_concepts]
+        self.estimate_concepts_names = [x.concept_text for x in estimate_concepts]
         return concepts
 
     def get_context_data(self, **kwargs):
@@ -656,6 +658,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
         image_formset_prefix = [x.nested.prefix for x in formset.forms]
         context['generator_inline_concept'] = formset
         context['generator_zip'] = zip(formset, concept_codes)
+        context['generator_autocomplete'] = zip(self.estimate_concepts_names, concept_codes)
         context['image_formset_prefix'] = image_formset_prefix
         context['project_instance'] = self.object.project
         return context
