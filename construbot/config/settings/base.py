@@ -7,6 +7,7 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
+from time import strftime
 import environ
 
 ROOT_DIR = environ.Path(__file__) - 4  # (construbot/construbot/config/settings/base.py - 3 = construbot/)
@@ -76,6 +77,7 @@ LOCAL_APPS = [
     'construbot.proyectos.apps.ProyectosConfig',
     'construbot.api.apps.ApiConfig',
     'construbot.account_config.apps.AccountConfigConfig',
+    'construbot.core.apps.CoreConfig'
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -258,7 +260,20 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
-CHUNKED_UPLOAD_ABSTRACT_MODEL = False
+
+CHUNKED_UPLOAD_ABSTRACT_MODEL = True
+
+
+def get_directory_path(instance, filename):
+    date_str = strftime('%Y-%m-%d-%H-%M-%S')
+    instance_model = instance._meta.verbose_name_plural
+    instance_customer = instance.cliente.company.customer
+    instance_company = instance.cliente.company.company_name
+    return '{0}-{1}/{2}/{3}/{4}-{5}'.format(
+        instance_customer.id, instance_customer.customer_name, instance_company, instance_model, date_str, filename
+    )
+
+UPLOAD_TO = get_directory_path
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------

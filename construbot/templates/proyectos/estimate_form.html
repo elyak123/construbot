@@ -80,6 +80,24 @@
                    this.value = "";
                 };
             });
+            $('.concept-selector').select2();
+            $('.concept-selector').on("change", function(){
+                let valor = $(this).find(':selected')[0].value;
+                selected = $("[data-id="+$(this).find(':selected')[0].value+"]").css("display", "block");
+                current = $(".d-appear");
+                if(selected[0] != current[0]){
+                    current.toggleClass("d-none");
+                    current.toggleClass("d-appear");
+                    selected.toggleClass("d-none");
+                    selected.toggleClass("d-appear");
+                    $('textarea').each(function () {
+                      this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+                    }).on('input', function () {
+                      this.style.height = 'auto';
+                      this.style.height = (this.scrollHeight) + 'px';
+                    });
+                }
+            });
         });
     </script>
 {% endblock javascript %}
@@ -93,10 +111,18 @@
                 <h4 style="margin: 0 0 10px 0;">Datos Generales de la Estimación.</h4>
                 {% bootstrap_form form %}
             </div>
+        <div style="text-align: center;">
+            <h4>Concepto:</h4>
+            <select class="concept-selector">
+                {% for frm, code in generator_autocomplete %}
+                    <option value="{{ code }}">{{ code }}. {{ frm|truncatechars:100 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
         {{ generator_inline_concept.management_form }}
         {% for frm, code in generator_zip %}
-            <div class="{% cycle 'fila_impar' 'fila_par' %}" data-id="{{ code }}">
-                <div style="text-align: center;"><h4>Concepto: {{ code }}</h4></div>
+            <div class="{% cycle 'fila_impar' 'fila_par' %}{% if not forloop.first %} d-none{% else %} d-appear{% endif %}" data-id="{{ code }}">
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.observations %}
@@ -164,6 +190,8 @@
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
-    {{ form.media }}
+    {% block jquery %}
+      {{ form.media }}
+    {% endblock jquery %}
 {% endlanguage %}
 {% endblock %}

@@ -101,7 +101,9 @@
       {% endblock content %}
     </div>
     {% block modal %}{% endblock modal %}
-    {% bootstrap_javascript jquery='full' %}
+    {% block jquery %}
+      {% bootstrap_javascript jquery='full' %}
+    {% endblock jquery %}
     {% block javascript_no_compress %}
     {% endblock javascript_no_compress %}
     {% compress js %}

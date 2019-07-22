@@ -1,7 +1,7 @@
 import importlib
+import json
 from django.conf import settings
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -11,6 +11,7 @@ from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
+from construbot.core.models import ChunkedCoreUpload
 from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
@@ -340,6 +341,10 @@ class GeneratorPdfPrint(EstimateDetailView):
     template_name = 'proyectos/concept_pdf_generator.html'
 
 
+class DummyFileForm(ProyectosMenuMixin, TemplateView):
+    template_name = 'core/dummy_input.html'        
+
+
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
     permiso_requerido = 2
     change_company_ability = False
@@ -365,7 +370,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
-        context['dummy_file'] = forms.ContratoDummyFileForm()
+        context['dummy_file'] = True
         return context
 
 
@@ -449,10 +454,12 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         codes = [x['concept'].code for x in fill_data]
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         vertice_formset_prefix = [x.vertices.prefix for x in generator_inline_concept.forms]
+        autocomplete_data = [x['concept_text_input'] for x in fill_data]
         return_dict = {
             'form': form,
             'generator_inline_concept': generator_inline_concept,
             'generator_zip': zip(generator_inline_concept, codes),
+            'generator_autocomplete': zip(autocomplete_data, codes),
             'image_formset_prefix': image_formset_prefix,
             'vertice_formset_prefix': vertice_formset_prefix
         }
@@ -567,7 +574,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ContratoEditView, self).get_context_data(**kwargs)
-        context['dummy_file'] = forms.ContratoDummyFileForm()
+        context['dummy_file'] = True
         return context
 
     def get_initial(self):
@@ -911,10 +918,11 @@ class NivelAccesoAutocomplete(AutocompletePoryectos):
 
 
 class ContratoChunkedUpload(ChunkedUploadCompleteView):
+    model = ChunkedCoreUpload
 
-    @csrf_exempt
-    def post(self, request, *args, **kwargs):
-        super(ContratoChunkedUpload, self).post(request, *args, **kwargs)
-
-    def on_completion(self, uploaded_file, request):
-        pass
+    def get_response_data(self, chunked_upload, request):
+        """
+        Data for the response. Should return a dictionary-like object.
+        Called *only* if POST is successful.
+        """
+        return json.dumps({'chunked_id': chunked_upload.upload_id})

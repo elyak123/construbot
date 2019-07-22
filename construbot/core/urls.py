@@ -7,7 +7,7 @@ app_name = 'construbot.core'
 
 urlpatterns = [
     url(
-        regex=r'chunk_upload^$',
+        regex=r'^chunk_upload/$',
         view=views.ChunkUpload.as_view(),
         name='chunkupload'
     ),

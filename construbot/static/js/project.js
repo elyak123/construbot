@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	// $('.form-group').removeClass('row');
+    // $('.form-group').removeClass('row');
     var menu = $(".cont_menu_lateral");
     var menu_in = $("#event_menu_in");
     var menu_out = $("#event_menu_out");

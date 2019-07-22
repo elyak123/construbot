@@ -1,21 +1,22 @@
 from django import forms
 from dal import autocomplete
+from construbot.core.models import ChunkedCoreUpload
+from construbot.users.models import Company
+from construbot.proyectos import widgets
 from .models import (
     Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
     EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
-from construbot.users.models import Company
-from construbot.proyectos import widgets
 
 MY_DATE_FORMATS = '%Y-%m-%d'
 
 
 class ContratoDummyFileForm(forms.Form):
-    dummy_archivo = forms.FileField(widget=widgets.FileNestedWidget())
+    dummy_archivo = forms.FileField()
 
 
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
-    relacion_id_archivo = forms.IntegerField(widget=forms.HiddenInput())
+    relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def clean(self):
         result = super(ContratoForm, self).clean()
@@ -32,6 +33,15 @@ class ContratoForm(forms.ModelForm):
                 'Actualmente te encuentras en otra compañia, '
                 'es necesario recargar y repetir el proceso.'
             )
+
+    def save(self, commit=True):
+        instance = super(ContratoForm, self).save(commit=commit)
+        if self.cleaned_data.get('relacion_id_archivo'):
+            file = ChunkedCoreUpload.objects.get(upload_id=self.cleaned_data['relacion_id_archivo'])
+            instance.file = file.file
+            instance.save()
+            file.delete(delete_file=False)
+        return instance
 
     class Meta:
         model = Contrato
