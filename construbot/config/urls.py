@@ -25,7 +25,7 @@ urlpatterns += [
     # REST API
     url(r'^api/v1/', include('construbot.api.urls', namespace='api')),
 
-    url(r'^core/', include('construbot.api.urls', namespace='api')),
+    url(r'^core/', include('construbot.core.urls', namespace='core')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
