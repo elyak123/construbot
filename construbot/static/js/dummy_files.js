@@ -55,7 +55,7 @@ $(document).ready(function(){
           done: function (e, data) { // Called when the file has completely uploaded
             $.ajax({
               type: "POST",
-              url: "{% url 'api_chunked_upload_complete' %}",
+              url: "/proyectos/file_chunk_complete/",
               data: {
                 csrfmiddlewaretoken: csrf,
                 upload_id: data.result.upload_id,

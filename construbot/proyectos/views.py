@@ -11,6 +11,7 @@ from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
+from construbot.core.models import ChunkedCoreUpload
 from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
@@ -915,10 +916,10 @@ class NivelAccesoAutocomplete(AutocompletePoryectos):
 
 
 class ContratoChunkedUpload(ChunkedUploadCompleteView):
+    model = ChunkedCoreUpload
 
-    @csrf_exempt
     def post(self, request, *args, **kwargs):
-        super(ContratoChunkedUpload, self).post(request, *args, **kwargs)
+        return super(ContratoChunkedUpload, self).post(request, *args, **kwargs)
 
     def on_completion(self, uploaded_file, request):
         pass
