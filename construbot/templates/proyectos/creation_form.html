@@ -83,6 +83,8 @@
     {% csrf_token %}
     {% bootstrap_form form %}
     {% if dummy_file %}
+      <p id="progress"></p>
+      <div id="messages"></div>
       <div id="dummy_parent">
         <div id="dummy_file" class="input-group mb-3">
           <div class="custom-file">

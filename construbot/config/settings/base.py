@@ -260,7 +260,7 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
 
-CHUNKED_UPLOAD_ABSTRACT_MODEL = False
+CHUNKED_UPLOAD_ABSTRACT_MODEL = True
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------

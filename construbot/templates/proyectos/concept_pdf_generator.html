@@ -163,17 +163,6 @@
                   </tfoot>
                 </table>
               </td>
-              <td> {{ concepto.largo }} </td>
-              <td> {{ concepto.ancho }} </td>
-              <td> {{ concepto.alto }} </td>
-              <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-              <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-              {% if concepto.observations %}
-                <td> {{ concepto.observations|linebreaksbr }} </td>
-              {% else %}
-                <td>
-                </td>
-              {% endif %}
             </tr>
           {% endif %}
         {% endfor %}
@@ -309,17 +298,6 @@
                   </tfoot>
                 </table>
               </td>
-              <td> {{ concepto.largo }} </td>
-              <td> {{ concepto.ancho }} </td>
-              <td> {{ concepto.alto }} </td>
-              <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-              <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-              {% if concepto.observations %}
-                <td> {{ concepto.observations|linebreaksbr }} </td>
-              {% else %}
-                <td>
-                </td>
-              {% endif %}
             </tr>
           {% endif %}
         {% endfor %}

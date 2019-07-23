@@ -204,34 +204,6 @@ class Object_or_403(utils.BaseTestCase):
         self.assertEqual(company_1, self.user.currently_at)
 
 
-class Object_or_403(utils.BaseTestCase):
-
-    def test_object_or_403_return_obj(self):
-        obj = mock.Mock()
-        company_1 = factories.CompanyFactory(customer=self.user.customer)
-        company_2 = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_1, company_2)
-        self.user.currently_at = company_2
-        obj.company = company_1
-        test_obj = object_or_403(self.user, obj)
-        self.assertEqual(obj, test_obj)
-        self.assertEqual(company_1, self.user.currently_at)
-
-
-class Object_or_403(utils.BaseTestCase):
-
-    def test_object_or_403_return_obj(self):
-        obj = mock.Mock()
-        company_1 = factories.CompanyFactory(customer=self.user.customer)
-        company_2 = factories.CompanyFactory(customer=self.user.customer)
-        self.user.company.add(company_1, company_2)
-        self.user.currently_at = company_2
-        obj.company = company_1
-        test_obj = object_or_403(self.user, obj)
-        self.assertEqual(obj, test_obj)
-        self.assertEqual(company_1, self.user.currently_at)
-
-
 class Get_rid_of_company_kw(utils.BaseTestCase):
 
     def test_get_rid_gets_job_done(self):

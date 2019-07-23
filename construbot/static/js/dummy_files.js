@@ -1,6 +1,5 @@
 $(document).ready(function(){
     let dp = document.getElementById("dummy_parent");
-    let var_prueba = null;
     
     function cargar_elementos(){
         $("#inputGroupFile01").click();
@@ -56,7 +55,11 @@ $(document).ready(function(){
           done: function (e, data) { // Called when the file has completely uploaded
             $.ajax({
               type: "POST",
+<<<<<<< HEAD
               url: "{% url 'api_chunked_upload_complete' %}",
+=======
+              url: "/proyectos/file_chunk_complete/",
+>>>>>>> upstream/master
               data: {
                 csrfmiddlewaretoken: csrf,
                 upload_id: data.result.upload_id,
