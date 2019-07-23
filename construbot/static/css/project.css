@@ -119,25 +119,29 @@ a:hover {
 }
 /*FIN DE ESTILOS GENERALES*/
 
+/*ESTILOS PARA CONTRATO DETAIL*/
+.contrato-widget {
+	width: 90%;
+	margin: auto;
+	display: none;
+}
+/*FIN DE ESTILOS PARA CONTRATO DETAIL*/
+
 /*ESTILOS PARA LISTADOS AJAX*/
-.icon_right, .icon_right-up {
+.toggle-button-1, .toggle-button-2 {
 	float: right;
 	cursor: pointer;
 	margin-right: 15px;
-}
-
-.icon_right-up {
-	display: none;
 }
 
 .cont_listado {
 	padding: 8px;
 	width: 90%;
 	margin-left: 5%;
+	background: #d2d2d2;
 }
 
-.cont_message_no_result {
-	display: none;
+.cont_message {
 	text-align: center;
 	font-size: 16px;
 }
@@ -375,6 +379,10 @@ a:hover {
 /*FIN DE ESTILOS PARA TABLAS*/
 
 /*ESTILOS PARA LISTADOS DE DOCUMENTOS*/
+#cont_est_danger {
+	display: none;
+}
+
 #cont_danger {
 	text-align: center;
 	color: white;
@@ -386,7 +394,6 @@ a:hover {
 
 #button_confirm, #button_cancel {
 	display: inline-block;
-	float: right;
 	margin-left: 10px;
 	font-size: 10px;
 }
@@ -441,8 +448,73 @@ a:hover {
 	margin-right: 5%;
 	float: right;
 }
+
+.del-msj {
+	display: none;
+	width: 200px;
+	position: fixed;
+	z-index: 2;
+}
+
+.select2-selection, .select2-selection--single{
+	padding: 0 !important;
+}
+
 /*FIN DE ESTILOS PARA INLINE FORMSET*/
 /*ESTILOS PARA ESTIMACION*/
+.vertices {
+	margin-top: 20px;
+	border: solid 1px black;
+	border-radius: 5px;
+	padding: 10px;
+	position: relative;
+}
+
+.background_ver_eliminar {
+	background: #ff00005e;
+}
+
+.remove_ver_div {
+	cursor: pointer;
+	display: inline-flex;
+    position: relative;
+    margin-left: auto;
+    right: 0;
+}
+
+.vertice-impar {
+	background: #c4e4e6;
+}
+
+.vertice-par {
+	background: #ececec;
+}
+
+.vertice-par, .vertice-impar {
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.boton-flotante {
+	right: 120px;
+}
+
+.boton-arriba {
+	right: 75px;	
+}
+
+.boton-abajo {
+	right: 30px;	
+}
+
+.color-g {
+	background: #e4e4e4;
+}
+
+.color-b {
+	background: beige;
+}
+
 .fila_par, .fila_impar {
     padding: 15px;
     border-radius: 5px;
@@ -464,13 +536,16 @@ table.informacion * {
 table.estimate, table.generator {
 	font-size: 11px;
 	width: 100%;
-	border-color: black;
-	border-style: double;
 	margin-bottom: 10px;
 }
 
 table.estimate * , table.generator * {
 	padding: 4px;
+}
+
+.bord-doble {
+	border-style: double;
+	border-color: black;
 }
 
 .cont_est_gen {
@@ -491,6 +566,14 @@ table.estimate * , table.generator * {
 
 .cont_est_title > h4 {
 	font-size: 18px;
+}
+
+.border-w {
+	border-color: white black white white;
+}
+
+.border-w-sp {
+	border-color: white black black white;
 }
 
 .cont_est_data {
@@ -517,7 +600,7 @@ table.estimate * , table.generator * {
 	border-width: 1px;
 }
 .generatorDescription{
-	height: 180px;
+	
 }
 .sin_borde {
 	border-style: none !important;
@@ -574,10 +657,22 @@ table.estimate * , table.generator * {
         margin: 0 !important;
     }
 
-    @page {
-	    size: auto;
+    .est_cont, .estimate{
+    	zoom: .75;
+    }
 
-	 }
+    .cc {
+    	height: 994px;
+    }
+
+    @page {
+	    size: letter landscape;
+	    page-break-inside: avoid;
+	    margin-top: 1cm;
+    	margin-bottom: 1cm;
+    	margin-left: 1cm;
+    	margin-right: 1cm;
+	}
 }
 
 @media screen and (min-width: 600px){
@@ -601,4 +696,3 @@ table.estimate * , table.generator * {
 /*IMPRESIÓN DE ESTIMACIÓN*/
 
 /*FIN DE QUERYSETS*/
-

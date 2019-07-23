@@ -1,7 +1,14 @@
 /*ESTILOS PATA TABLAS*/
 tr { page-break-inside: avoid !important; }
+td { page-break-inside: avoid !important; }
+th { page-break-inside: avoid !important; }
+
+p {
+	margin: 0;
+}
+
 * {
-	font-size: 8px;
+	/*font-size: 8px;*/
 }
 table {
 	border-collapse: collapse;
@@ -74,6 +81,16 @@ table.estimate, table.generator {
 	margin-bottom: 10px;
 }
 
+table.generator_header {
+	border-width: medium medium 0px medium;
+	border-color: black black white black !important;
+}
+
+table.generator_footer {
+	border-width: 0px medium medium medium;
+	border-color: white black black black !important;
+}
+
 table.estimate * , table.generator * {
 	padding: 2px;
 }
@@ -125,9 +142,7 @@ table.estimate * , table.generator * {
 	border-style: solid;
 	border-width: 1px;
 }
-.generatorDescription{
-	height: 180px;
-}
+
 .sin_borde {
 	border-style: none !important;
 }

@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-
+{% block javascript %}
+	<script type="text/javascript">
+	  let url_for_list = '{% url "proyectos:proyect_dashboard" %}';
+	</script>
+{% endblock javascript %}
 {% load i18n %}
 {% block title %} Destinatarios en {{ request.user.currently_at.company_name }}{% endblock title %}
 
@@ -14,7 +18,7 @@
 	{% for i in object_list %}
 		<div class="div_list border_normal">
 			<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'construbot.proyectos:destinatario_detail' i.id %}">{{ i.destinatario_text }}</a></h4>
-			<p class="p_div_list"><strong>Puesto: </strong> {{ i.puesto }} </p>
+			{% if i.puesto %}<p class="p_div_list"><strong>Puesto: </strong> {{ i.puesto }} </p>{% endif %}
 			<p class="p_div_list"><strong>Cliente: </strong> {{ i.cliente.cliente_name }} </p>
 			<a class="boton_edicion" href="{% url 'proyectos:editar_destinatario' i.id %}">Editar</a> / 
 			<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="{{ model }}" data-id="{{ i.id }}" href="#">Eliminar</a>

@@ -1,15 +1,17 @@
-FROM python:3.6-alpine
+FROM python:3.6.8-alpine3.8
 
 ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements /requirements
-# Solo en caso de usar python alpine
-RUN apk add bash
+# Paquetes que se ocupan despues de hacer build
+# bash se necesita para ejecutar start.sh y entrypoint.sh
+# git se necesita despues para subir a coveralls
+RUN apk add bash git
 
 ##
 RUN apk add --no-cache --virtual .build-deps \
-  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
-    && pip install pip-tools==3.1.0 \
+  build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
+    && pip install pip-tools==3.3.1 \
     && pip-sync requirements/base.txt requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \

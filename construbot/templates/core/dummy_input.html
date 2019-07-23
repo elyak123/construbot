@@ -1,0 +1,15 @@
+<form id="dummy_file_form" action="" method="post">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="inputGroupFile01" name="id_contrato_pdf" accept="application/pdf">
+            <label class="custom-file-label" for="inputGroupFile01">
+                {% if widget.is_initial %}
+                    {{ widget.initial_text }}: <a href="">{{ widget.value }}</a>
+                {% else %}
+                    Adjuntar archivo.
+                {% endif %}
+            </label>
+        </div>
+    </div>
+</form>

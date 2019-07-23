@@ -11,9 +11,19 @@ urlpatterns = [
         name='list'
     ),
     url(
+        regex=r'^remove-is-new/(?P<pk>\d+)/$',
+        view=views.RemoveIsNewUserStatus.as_view(),
+        name='remove_is_new'
+    ),
+    url(
         regex=r'^eliminar/(?P<model>\w+)/(?P<pk>\d+)/$',
         view=views.UserDeleteView.as_view(),
         name='delete_user'
+    ),
+    url(
+        regex=r'^password/$',
+        view=views.PasswordRedirectView.as_view(),
+        name='password_change_redirect'
     ),
     url(
         regex=r'^~redirect/$',
@@ -40,9 +50,15 @@ urlpatterns = [
         view=views.CompanyListView.as_view(),
         name='company_list'
     ),
+    # De momento se desactiva la vista.
+    # url(
+    #     regex=r'^detalle/company/(?P<pk>\d+)/$',
+    #     view=views.CompanyDetailView.as_view(),
+    #     name='company_detail'
+    # ),
     url(
         regex=r'^detalle/company/(?P<pk>\d+)/$',
-        view=views.CompanyDetailView.as_view(),
+        view=views.CompanyChangeViewFromList.as_view(),
         name='company_detail'
     ),
     url(

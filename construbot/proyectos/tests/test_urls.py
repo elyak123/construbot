@@ -1,14 +1,9 @@
-from construbot.users.tests import factories
-from django.core.urlresolvers import reverse, resolve
+from django.urls import reverse
+from construbot.users.tests import utils
 
-from test_plus.test import TestCase
 
-class TestProyectsURLs(TestCase):
+class TestProyectsURLs(utils.BaseTestCase):
     """Test URL patterns for users app."""
-
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
 
     def test_proyects_dashboard_reverse(self):
         self.assertEqual(reverse('proyectos:proyect_dashboard'), '/proyectos/')
@@ -29,7 +24,7 @@ class TestProyectsURLs(TestCase):
         self.assertEqual(reverse('proyectos:catalogo_conceptos', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-edit/1/')
 
     def test_catalogo_list_reverse(self):
-        self.assertEqual(reverse('proyectos:catalogo_conceptos_listado', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-list/1/')
+        self.assertEqual(reverse('proyectos:catalogo_conceptos_listado', kwargs={'pk': 1}), '/proyectos/contrato/catalogo-conceptos/1/')
 
     def test_contrato_detail_reverse(self):
         self.assertEqual(reverse('proyectos:contrato_detail', kwargs={'pk': 1}), '/proyectos/contrato/detalle/1/')

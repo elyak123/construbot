@@ -27,6 +27,7 @@
 
             // Setup the empty form for add_form()
             var empty_form = $(this.form_selector + ':first').clone(true).get(0);
+
             // Clear all values except for hidden field values.
             $(empty_form).find(':input')
                 .removeAttr('checked')
@@ -50,6 +51,11 @@
             this.update_index(form, index, false);
             
             // Add form after last one, or after the placeholder if none exist.
+
+            if($(form).find(".dropdown-wrapper") != null){
+                $(form).find(".dropdown-wrapper").parent().remove();
+            }
+
             if ($(this.form_selector + ':last').length > 0)
                 $(form).insertAfter(
                     $(this.form_selector + ':last')
@@ -62,7 +68,6 @@
             $(form).find('div, input, select, label, button, textarea').each( function() {
                 self.update_index(this, index, false);
             });
-
             // Update index counter
             ++this.form_count;
             this.form_manager.val(this.form_count);
@@ -169,7 +174,10 @@
             });
             var addEventTarget = $('.add-form-row');
             if(formset.nested){
-                addEventTarget = $(formset.form_selector).siblings('.add-form-row');
+                addEventTarget = $(formset.form_selector).siblings('.add-img-form-row');
+            }
+            if(formset.vertice){
+                addEventTarget = $(formset.form_selector).siblings('.add-ver-form-row');
             }
             addEventTarget.click( function(e) {
                 e.preventDefault();

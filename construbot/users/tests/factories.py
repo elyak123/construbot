@@ -1,6 +1,8 @@
+import string
 import factory
+import factory.fuzzy
 from django.contrib.auth import get_user_model
-from construbot.users.models import Customer, Company
+from construbot.users.models import Customer, Company, NivelAcceso
 from django.contrib.auth.models import Group
 
 User = get_user_model()
@@ -28,11 +30,20 @@ class CompanyFactory(factory.django.DjangoModelFactory):
         model = Company
 
 
+class NivelAccesoFactory(factory.django.DjangoModelFactory):
+    nivel = factory.fuzzy.FuzzyInteger(0, 5)
+    nombre = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='nivel_')
+
+    class Meta:
+        model = NivelAcceso
+
+
 class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: 'user-{0}'.format(n))
     email = factory.Sequence(lambda n: 'user-{0}@example.com'.format(n))
     password = factory.PostGenerationMethodCall('set_password', 'password')
     customer = factory.SubFactory(CustomerFactory)
+    nivel_acceso = factory.SubFactory(NivelAccesoFactory)
 
     @factory.post_generation
     def company(self, create, extracted, **kwargs):  # pragma: no cover
@@ -58,4 +69,4 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
-        django_get_or_create = ('username', )
+        django_get_or_create = ('username', 'nivel_acceso')

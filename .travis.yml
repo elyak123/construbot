@@ -1,20 +1,23 @@
 sudo: required
-dist: trusty
+services:
+  - docker
+
+env:
+  COMPOSE_VERSION: 1.23.1 
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
-  - sudo apt-get install -qq libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev
-  - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
-  - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
-  - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
-  - sudo apt-get install apache2-dev
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+ - export DJANGO_READ_DOT_ENV_FILE=True
+ - echo -e "DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}\nDJANGO_READ_DOT_ENV_FILE=True\nDJANGO_SETTINGS_MODULE=config.settings.test" > ${TRAVIS_BUILD_DIR}/.env
+
 language: python
 python:
   - "3.6"
-install:
-  - pip install pip-tools==3.1.0
-  - pip-sync requirements/test.txt
+
 script:
-  - DJANGO_SETTINGS_MODULE=config.settings.test coverage run --source='.' manage.py test
+  - docker-compose -f docker-compose-dev.yml run -e TRAVIS_ENVIRON=${TRAVIS_ENVIRON} --rm django coverage run --source='.' manage.py test
+
 after_success:
-  - coveralls
+  - docker-compose -f docker-compose-dev.yml run -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} --rm django coveralls

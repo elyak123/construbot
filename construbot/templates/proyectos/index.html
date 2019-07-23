@@ -7,20 +7,48 @@
 {% block javascript %}
 {% if is_new_user %}
 	<script type="text/javascript">
+		let fuera = false;
 		document.getElementById('startButton').onclick = function() {
-			introJs().setOptions({'doneLabel': 'Crea tu username', 'showBullets': false}).start().oncomplete(function() {
-				window.location.href = "{% url 'users:update' request.user.username %}";
+			fuera = true;
+			{% if almenos_coordinador %}
+			introJs().setOptions({'doneLabel': 'Crea tu primer contrato', 'showBullets': false}).start().oncomplete(function() {
+				window.location.href = "{% url 'proyectos:nuevo_contrato' %}";
 			});
+			{% else %}
+			introJs().setOptions({'doneLabel': '¡Terminar!', 'showBullets': false}).start().oncomplete(function() {
+				let POST_token = $("#user_form").serialize();
+				$.ajax({
+		            type: 'POST',
+		            url: '{% url "users:remove_is_new" request.user.pk %}',
+		            data: POST_token,
+		            success: function(result){
+		            	window.location.reload();
+		            }
+		        });
+			});
+			{% endif %}
 		};
 		$("#tutorialModal").modal();
 		$('#tutorialModal').on('hidden.bs.modal', function (e) {
-			document.getElementById('startButton').click();
+			if(!fuera){document.getElementById('startButton').click();}
+		});
+		$("#omitir").on("click", function(){
+			let POST_token = $("#user_form").serialize();
+			$.ajax({
+			    type: 'POST',
+			    url: '{% url "users:remove_is_new" request.user.pk %}',
+			    data: POST_token,
+			    success: function(result){
+			    	window.location.reload();
+			    }
+			});
 		});
   </script>
 {% endif %}
 {% endblock %}
 {% block css_no_compress %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js@2.9.3/themes/introjs-modern.css" crossorigin="anonymous" />
 {% endblock %}
 {% block javascript_no_compress %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
@@ -29,7 +57,7 @@
 {% block content %}
 {% if not is_new_user %}
 <div class="row" style="text-align:center;">
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 	{% else %}
 		<div class="col-2"></div>
@@ -39,8 +67,8 @@
 		<table class="table_sample table_left">
 			<tr>
 				<th>Nombre</th>
-				{% if is_administrador %}
-					<th>% Estimado</th>
+				{% if almenos_coordinador %}
+					<th>Avance General</th>
 				{% endif %}
 			</tr>
 			{% for contrato in c_object %}
@@ -49,7 +77,7 @@
 						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</a><br>
 						Cliente: {{ contrato.cliente.cliente_name }}
 					</td>
-					{% if is_administrador %}
+					{% if almenos_coordinador %}
 						<td style="text-align:center;">
 						{% if contrato.total_estimado %}
 							{{ contrato.total_estimado }} %
@@ -59,6 +87,9 @@
 					</td>
 					{% endif %}
 				</tr>
+				{% if forloop.last and almenos_coordinador%}
+				<tr><td>Total Contratos Vigentes</td><td>{% language 'en' %}{{ c_object|totalvigentes|intcomma }}{% endlanguage %}</td></tr>
+				{% endif %}
 			{% empty%}
 				<tr>
 					<td colspan="2">¡No hay contratos vigentes!</td>
@@ -66,17 +97,17 @@
 			{% endfor %}
 		</table>
 	</div>
-	{% if is_administrador %}
+	{% if almenos_coordinador %}
 		<div class="col-md-6">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
 			<table class="table_sample table_left">
 				<tr>
 					<th>Fecha</th>
-					<th>Proyecto</th>
+					<th>Contrato</th>
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionespendientes %}
+				{% for estimacion in estimacionespendientes_facturacion %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{ estimacion.project.folio }} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -85,6 +116,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and almenos_coordinador%}
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sin_facturar|intcomma }}{% endlanguage %}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de facturar!</td>
@@ -99,7 +133,7 @@
 					<th>Estimacion</th>
 					<th>Monto</th>
 				</tr>
-				{% for estimacion in object|estimacionesfacturadas %}
+				{% for estimacion in estimacionespendientes_pago %}
 					<tr>
 						<td>{{ estimacion.start_date|date:'d\/m\/Y' }}</td>
 						<td><a href="{% url 'proyectos:contrato_detail' pk=estimacion.project.id %}">{{estimacion.project.folio}} {{ estimacion.project.contrato_shortName|truncatechars:35 }}</a></td>
@@ -108,6 +142,9 @@
 							<a href="{% url 'proyectos:estimate_detail' pk=estimacion.id %}">{{ estimacion.total_estimate.total|intcomma }}</a>
 						</td>
 					</tr>
+					{% if forloop.last and almenos_coordinador%}
+					<tr><td colspan="3">Total</td><td>{% language 'en' %}{{ total_sinpago|intcomma }}{% endlanguage %}</td></tr>
+					{% endif %}
 				{% empty %}
 					<tr>
 						<td colspan="4">¡No hay estimaciones pendientes de pago!</td>
@@ -120,6 +157,9 @@
 	{% endif %}
 </div>
 {% else %}
+<form style="display:none;" id="user_form" action="" method="post">
+    {% csrf_token %}
+</form>
 <div class="modal fade" id="tutorialModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -131,13 +171,19 @@
 			</div>
 			<div class="modal-footer">
 				<button href="javascript:void(0);" id="startButton" type="button" class="btn btn-primary" data-dismiss="modal">Iniciar tutorial</button>
+				<button href="" id="omitir" type="button" class="btn btn-danger" data-dismiss="modal">Saltar tutorial</button>
 			</div>
 		</div>
 	</div>
 </div>
 <div class="row" style="text-align:center;">
-	<div class="col-xl-6">
-		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.">
+	{% if almenos_coordinador %}
+	<div class="col-md-6">
+	{% else %}
+	<div class="col-2"></div>
+	<div class="col-8">
+	{% endif %}
+		<div data-step="2" data-intro="En esta tabla encontrarás los proyectos que están vigentes. {% if almenos_coordinador %}El porcentaje estimado se calcula en base a las estimaciones hechas sobre el monto del contrato.{% endif %}">
 			<p><strong>Contratos Vigentes</strong></p>
 			<table class="table_sample table_left">
 				<tr>
@@ -155,6 +201,7 @@
 			</table>
 		</div>
 	</div>
+	{% if almenos_coordinador %}
 	<div class="col-xl-6">
 		<div data-step="3" data-intro="Aquí se muestran las estimaciones que aún no han sido marcadas como facturadas. Útil para dar seguimiento.">
 			<p><strong>Estimaciones Pendientes de Facturar</strong></p>
@@ -179,7 +226,7 @@
 				</tr>
 			</table>
 		</div>
-		<div data-step="4" data-intro="Es posible indicar también cuando una estimación no ha sido pagada.">
+		<div data-step="4" data-intro="Aquí se muestran las estimaciones que ya han sido facturadas pero que estan pendientes de pago.">
 			<p><strong>Estimaciones Facturadas Pendientes de Pago</strong></p>
 			<table class="table_sample table_left">
 				<tr>
@@ -203,6 +250,9 @@
 			</table>
 		</div>
 	</div>
+	{% else %}
+		<div class="col-2"></div>
+	{% endif %}
 </div>
 {% endif %}
 {% endblock content %}

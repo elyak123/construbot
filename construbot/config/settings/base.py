@@ -31,7 +31,7 @@ if READ_DOT_ENV_FILE:
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['construbot.com', ])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['construbot.com.mx', ])
 # END SITE CONFIGURATION
 
 # APP CONFIGURATION
@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
     'wkhtmltopdf',  # pdf generation
+    'chunked_upload',  # user uploads
 ]
 
 # Apps specific for this project go here.
@@ -75,6 +76,7 @@ LOCAL_APPS = [
     'construbot.proyectos.apps.ProyectosConfig',
     'construbot.api.apps.ApiConfig',
     'construbot.account_config.apps.AccountConfigConfig',
+    'construbot.core.apps.CoreConfig'
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -99,7 +101,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
@@ -157,7 +159,9 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 TIME_ZONE = 'America/Mexico_City'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-MX'
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = ','
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
@@ -256,6 +260,7 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
 
+CHUNKED_UPLOAD_ABSTRACT_MODEL = False
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------
@@ -303,15 +308,26 @@ ACCOUNT_FORMS = {
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
 # ######### CELERY
-INSTALLED_APPS += ['construbot.taskapp.celery.CeleryConfig']
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='django://')
-if CELERY_BROKER_URL == 'django://':
-    CELERY_RESULT_BACKEND = 'redis://'
-else:
-    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+INSTALLED_APPS += ['construbot.taskapp.celery.CeleryAppConfig']
+if USE_TZ:
+    # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-timezone
+    CELERY_TIMEZONE = TIME_ZONE
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-broker_url
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-result_backend
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-accept_content
+CELERY_ACCEPT_CONTENT = ["json"]
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_serializer
+CELERY_TASK_SERIALIZER = "json"
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-result_serializer
+CELERY_RESULT_SERIALIZER = "json"
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-time-limit
+# TODO: set to whatever value is adequate in your circumstances
+CELERYD_TASK_TIME_LIMIT = 5 * 60
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-soft-time-limit
+# TODO: set to whatever value is adequate in your circumstances
+CELERYD_TASK_SOFT_TIME_LIMIT = 60
 # ######### END CELERY
 # django-compressor
 # ------------------------------------------------------------------------------
@@ -324,7 +340,21 @@ ADMIN_URL = r'^admin/'
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-UUID = env('UUID', default='')
-
 USERNAME_TEST = env('USERNAME_TEST', default='')
+
 CONSTRUBOT_AS_LIBRARY = env.bool('CONSTRUBOT_AS_LIBRARY', False)
+
+CONSTRUBOT_AUTHORIZATION_CLASS = env('CONSTRUBOT_AUTHORIZATION_CLASS', default='construbot.users.auth')
+
+NIVELES_ACCESO = [
+    {'nombre': 'Auxiliar', 'nivel': 1},
+    {'nombre': 'Coordinador', 'nivel': 2},
+    {'nombre': 'Director', 'nivel': 3},
+    {'nombre': 'Corporativo', 'nivel': 4},
+    {'nombre': 'Soporte', 'nivel': 5},
+    {'nombre': 'Superusuario', 'nivel': 6}
+]
+
+FAVICON_URL = env('FAVICON_URL', default='')
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS=10240

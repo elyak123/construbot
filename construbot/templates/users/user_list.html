@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block javascript %}
+	<script type="text/javascript">
+	  let url_for_list = '{% url "users:list" %}';
+	</script>
+{% endblock javascript %}
 {% load static i18n %}
 {% block title %} Usuarios en {{ request.user.currently_at.company_name }} {% endblock %}
 
@@ -8,6 +13,8 @@
 
 <div class="container">
   <h2>Listado de usuarios en {{ request.user.currently_at.company_name }} </h2>
+  <br>
+	<a class="boton" href="{% url 'users:new' %}"><button type="button" class="btn"><span class="oi oi-plus"></span></button></a>
   	{% if user_list.exists %}
 	  <div class="list-group">
 	    {% for user in user_list %}
@@ -22,6 +29,20 @@
 	  <br>
 	  <br>
 	  <h4>Usted no cuenta con usuarios aún.</h4>
+	{% endif %}
+	<br>
+	<br>
+	{% if special_users %}
+	<h2>Listado de usuarios que no tienen compañía registrada:</h2>
+	<div class="list-group">
+		{% for user in special_users %}
+			<div class="div_list border_normal">
+				<h4 class="h4_div"><a class="anchor_div_list" href="{% url 'users:detail' user.username %}">{{ user.username }}</h4></a>
+				<a class="boton_edicion" href="{% url 'users:update' user.username %}">Editar</a> / 
+				<a class="anchor_delete" id="delete_{{ forloop.counter0 }}" data-model="User" data-id="{{ user.id }}" href="#">Eliminar</a>
+			</div>
+		{% endfor %}
+	</div>
 	{% endif %}
 </div>
 {% endblock content %}

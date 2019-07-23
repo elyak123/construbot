@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} {{ object.username }}{% endblock %}
+{% block title %} Detalle del usuario {% if object.first_name %}{{object.first_name}}{% else %}{{ object.username }}{% endif %}{% endblock %}
 
 {% block content %}
-<h2 class="title" > Detalle del usuario {{ object.username }}</h2>
+<h2 class="title" >Detalle del usuario {% if object.first_name %}{{object.first_name}}{% else %}{{ object.username }}{% endif %}</h2>
 <div class="cont_table_sample">
   <table class="table_sample table_detalle">
     <tr>
@@ -12,7 +12,7 @@
     </tr>
     <tr>
       <td>Nombre</td>
-      <td>{{ object.first_name }}</td>
+      <td>{% if object.first_name %}{{ object.first_name }}{% else %}No has definido tu nombre, hazlo <a href="{% url 'users:update' object.username %}">aquí</a>{% endif %}</td>
     </tr>
     <tr>
       <td>Apellidos</td>
@@ -21,6 +21,10 @@
     <tr>
       <td>Correo electrónico</td>
       <td>{{ object.email }}</td>
+    </tr>
+    <tr>
+      <td>Nivel de Acceso</td>
+      <td>{{object.nivel_acceso.nombre}}</td>
     </tr>
     <tr>
       <td>Fecha de registro</td>
@@ -39,6 +43,9 @@
           ¡Este usuario no cuenta con compañías!
         {% endif %}
       </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="text-center"><a href="{% url 'users:update' object.username %}">Editar Usuario</a></td>
     </tr>
   </table>
 </div>

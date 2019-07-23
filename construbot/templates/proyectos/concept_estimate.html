@@ -1,33 +1,7 @@
 {% load humanize %}
 {% load i18n %}
-{% if pdf %}
-  {% load static i18n compress %}
-  {% load bootstrap4 %}
-  <!DOCTYPE html>
-  <html lang="es">
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="x-ua-compatible" content="ie=edge">
-      <title>{% block title %}Construbot{% endblock title %}</title>
-      <meta name="description" content="{% block metadescription %}{% endblock metadescription %}">
-      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-      <meta name="author" content="{% block author %}{% endblock author %}">
-      {# Bootstrap 4 #}
-      {% bootstrap_css %}
-      <!-- ICONOS Iconic para Bootstrap 4 -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-      {% compress css %}
-        <link href="{% static 'css/pdf.css' %}" rel="stylesheet">
-        {% block css %}
-        <style type="text/css">
-          tr { page-break-inside: avoid !important; }
-        </style>
-        {% endblock css %}
-      {% endcompress %}
-    </head>
-{% endif %}
-<table class="estimate">
+{% load projecttags %}
+<table class="estimate {% if not pdf %}bord-doble{% endif %}">
   <thead>
       <tr>
         <th colspan="5" style="border-style:none;">
@@ -41,7 +15,13 @@
           <table class="informacion">
             <tr>
               <th>Contratista:</th>
-              <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+              <td class="bc subrayado"> 
+                {% if estimate.project.cliente.company.full_name %} 
+                  {{ estimate.project.cliente.company.full_name }}
+                {% else %}
+                  {{ estimate.project.cliente.company.company_name }}
+                {% endif %}
+            </td>
             </tr>
             <tr>
               <th>Contrato:</th>
@@ -53,16 +33,16 @@
             </tr>
             <tr>
               <th>Fecha:</th>
-              <td class="bc subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>
+              {% language 'es' %}<td class="bc subrayado"> {{ estimate.auth_date|date:"d/F/Y" }} </td>{% endlanguage %}
             </tr>
             <tr>
               <th>Período:</th>
-              <td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>
+              {% language 'es' %}<td class="bc subrayado"> Del {{ estimate.start_date|date:"d/F/Y" }} al {{ estimate.finish_date|date:"d/F/Y" }} </td>{% endlanguage %}
             </tr>
           </table>
         </th>
       </tr>   
-      <tr class="center">
+      <tr class="center color-g">
         <th rowspan="2">N°</th>
         <th rowspan="2" style="width: 250px;" >CONCEPTOS DE OBRA</th>
         <th colspan="4">CONTRATADO</th>
@@ -70,7 +50,7 @@
         <th colspan="2">ESTIMADO A LA FECHA</th>
         <th colspan="2">ESTA ESTIMACIÓN</th>
       </tr>
-      <tr class="center">
+      <tr class="center color-b">
         <th>UNIDAD</th>
         <th>CANTIDAD</th>
         <th>P.U.</th>
@@ -100,18 +80,65 @@
             <td style="text-align: center;"> - </td>
             <td style="text-align: center;"> - </td>
           {% endif %}
-          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha }} </td>
+          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha|floatformat:"2"|intcomma }} </td>
           <td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
-          <td class="right"> {{ concepto.cantidad_esta_estimacion }} </td>
+          <td class="right"> {{ concepto.cantidad_esta_estimacion|floatformat:"2"|intcomma }} </td>
           <td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
         </tr>
       {% endfor %}
       <tr>
-        <td class="right" colspan="2"><strong>Totales: </strong></td>
+        <td class="right" colspan="2"><strong>Totales Estimación: </strong></td>
         <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
         <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ conceptos.importe_total_esta_estimacion.total|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="2"> ${{ total_estimacion|floatformat:"2"|intcomma }} </td>
+      </tr>
+      <tr>
+      </tr>
+      {% if estimate.mostrar_anticipo %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Anticipos</strong></td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.amortizacion_anticipo|floatformat:"2"|intcomma }} </td>
+        </tr>
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Subtotal de Estimación:</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_subtotal|floatformat:"2"|intcomma }} </td>
+        </tr>
+      {% endif %}
+      <tr>
+      </tr>
+      {% if estimate.mostrar_retenciones %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="6" class="text-center" style="background:#e4e4e4;"><strong>Retenciones</strong></td>
+        </tr>
+        {% for retencion in estimate.get_retenciones %}
+          <tr>
+            <td colspan="6" class="border-w"></td>
+            {% if retencion.valor == retencion.monto %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }}</td>
+            {% else %}
+            <td colspan="4" class="text-right">{{ retencion.descripcion }} ({{ retencion.valor }}%)</td>
+            {% endif %}
+            <td colspan="2" class="text-right"> ${{ retencion.monto|floatformat:"2"|intcomma }} </td>
+          </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="6" class="border-w"></td>
+          <td colspan="4" class="text-right"><strong>Total de Retenciones:</strong></td>
+          <td colspan="2" class="text-right"> ${{ estimate.get_total_retenciones|floatformat:"2"|intcomma }} </td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td colspan="6" class="border-w-sp"></td>
+        <td colspan="4" class="text-right"><strong>TOTAL FINAL:</strong></td>
+        <td colspan="2" class="text-right"> ${{ estimate.get_total_final|floatformat:"2"|intcomma }} </td>
       </tr>
       {% endlanguage %}
     </tbody>
@@ -121,7 +148,7 @@
           <div class="cont_firma">
             <div class="bc subrayado_f"></div>
             <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-            <p> <strong>Supervisor de Obras </strong></p>
+            <p> <strong>{% if user.puesto %} {{ user.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
             <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
           </div>
           {% for firma in estimate.auth_by.all %}
@@ -141,4 +168,3 @@
       </tr>
     </tfoot>
 </table>
-{% if pdf %}</html>{% endif %}

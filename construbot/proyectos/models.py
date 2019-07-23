@@ -1,8 +1,11 @@
 from django.conf import settings
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db.models import Sum, F
-from construbot.core.utils import Round, get_directory_path
+from decimal import Decimal
+from construbot.core import utils
 from construbot.users.models import Company
 
 
@@ -28,10 +31,27 @@ class Cliente(models.Model):
         return self.cliente_name
 
 
+class Units(models.Model):
+    unit = models.CharField(max_length=50)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('unit', 'company')
+        verbose_name = 'Unidad'
+        verbose_name_plural = 'Unidades'
+
+    def __str__(self):
+        return self.unit
+
+
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+
+    @property
+    def company(self):
+        return self.cliente.company
 
     def get_absolute_url(self):
         return reverse('proyectos:sitio_detail', kwargs={'pk': self.id})
@@ -52,6 +72,10 @@ class Destinatario(models.Model):
     puesto = models.CharField(max_length=50, null=True, blank=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
+    @property
+    def company(self):
+        return self.cliente.company
+
     def get_absolute_url(self):
         return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
 
@@ -63,6 +87,16 @@ class Destinatario(models.Model):
         return self.destinatario_text
 
 
+class ContratoSet(models.QuerySet):
+
+    def asignaciones(self, user, model):
+        # asumimos que el atributo en el modelo Contrato
+        # se llama igual que el modelo pasado como parametro.
+        kw = {model.__name__.lower(): models.OuterRef('pk'), 'users': user}
+        contratos = self.filter(**kw)
+        return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
+
+
 class Contrato(models.Model):
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
@@ -72,12 +106,23 @@ class Contrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
-    file = models.FileField(upload_to=get_directory_path, blank=True, null=True)
+    file = models.FileField(upload_to=utils.get_directory_path, blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
+
+    objects = models.Manager()
+    especial = ContratoSet.as_manager()
+
+    @property
+    def company(self):
+        return self.cliente.company
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
+
+    def get_estimaciones(self):
+        return self.estimate_set.all().order_by('consecutive')
 
     class Meta:
         verbose_name = "Contrato"
@@ -87,15 +132,24 @@ class Contrato(models.Model):
         return self.contrato_name
 
 
-class Units(models.Model):
-    unit = models.CharField(max_length=50, unique=True)
+class Retenciones(models.Model):
+    TYPES = (
+        ('AMOUNT', 'Monto'),
+        ('PERCENTAGE', 'Porcentaje'),
+    )
+    nombre = models.CharField(max_length=80)
+    valor = models.DecimalField('valor', max_digits=12, decimal_places=2, default=0.0)
+    tipo = models.CharField(
+        max_length=21, choices=TYPES, default='PERCENTAGE'
+    )
+    project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Unidad'
-        verbose_name_plural = 'Unidades'
+        verbose_name = 'Retención'
+        verbose_name_plural = 'Retenciones'
 
     def __str__(self):
-        return self.unit
+        return self.nombre
 
 
 class Estimate(models.Model):
@@ -112,14 +166,60 @@ class Estimate(models.Model):
     paid = models.BooleanField(default=False)
     invoiced = models.BooleanField(default=False)
     payment_date = models.DateField(null=True, blank=True)
+    mostrar_anticipo = models.BooleanField(default=False)
+    mostrar_retenciones = models.BooleanField(default=False)
+
+    @property
+    def company(self):
+        return self.project.cliente.company
 
     def get_absolute_url(self):
-        return reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id})
+        return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
 
     def total_estimate(self):
         total = self.estimateconcept_set.all().aggregate(
-            total=Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
+            total=utils.Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
+        if not total['total']:
+            total['total'] = Decimal(0)
         return total
+
+    def amortizacion_anticipo(self):
+        amortizacion = self.total_estimate()['total'] * self.project.anticipo / 100
+        return amortizacion
+
+    def get_subtotal(self):
+        monto_total = self.total_estimate()['total']
+        return monto_total - (monto_total * (self.project.anticipo / 100))
+
+    def get_total_retenciones(self):
+        total_retenciones = 0
+        subtotal = self.get_subtotal()
+        for retencion in self.project.retenciones_set.all():
+            if retencion.tipo == 'AMOUNT':
+                aux = retencion.valor
+            else:
+                aux = subtotal * (retencion.valor/100)
+            total_retenciones = total_retenciones+aux
+        return total_retenciones
+
+    def get_retenciones(self):
+        retenciones = []
+        aux = {}
+        subtotal = self.get_subtotal()
+        for retencion in self.project.retenciones_set.all():
+            aux['descripcion'] = retencion.nombre
+            aux['valor'] = retencion.valor
+            if retencion.tipo == 'AMOUNT':
+                aux['monto'] = retencion.valor
+            else:
+                aux['monto'] = subtotal * (retencion.valor/100)
+            retenciones.append(aux.copy())
+        return retenciones
+
+    def get_total_final(self):
+        subtotal = self.get_subtotal()
+        total_retenciones = self.get_total_retenciones()
+        return subtotal - total_retenciones
 
     def anotaciones_conceptos(self):
         conceptos = Concept.especial.filter(estimate_concept=self).order_by('pk')
@@ -133,13 +233,13 @@ class Estimate(models.Model):
 class ConceptSet(models.QuerySet):
 
     def estimado_a_la_fecha(self, estimate_consecutive):
-            estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
-            return self.annotate(
-                acumulado=models.Subquery(
-                    estimateconcept,
-                    output_field=models.DecimalField()
-                )
+        estimateconcept = EstimateConcept.especial.estimado_a_la_fecha(estimate_consecutive)
+        return self.annotate(
+            acumulado=models.Subquery(
+                estimateconcept,
+                output_field=models.DecimalField()
             )
+        )
 
     def estimado_anterior(self, estimate_consecutive):
         estimateconcept = EstimateConcept.especial.estimado_anterior(estimate_consecutive)
@@ -172,24 +272,8 @@ class ConceptSet(models.QuerySet):
     def concept_image_count(self):
         return self.annotate(image_count=models.Count('estimateconcept__imageestimateconcept'))
 
-    def get_largo_alto_ancho(self, estimate_consecutive):
-        conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
-            concept=models.OuterRef('pk')
-        )
-        largo = conceptos_estimacion.values('largo')
-        ancho = conceptos_estimacion.values('ancho')
-        alto = conceptos_estimacion.values('alto')
-        return self.annotate(
-            largo=models.Subquery(
-                largo, output_field=models.DecimalField(decimal_places=2)
-            ),
-            ancho=models.Subquery(
-                ancho, output_field=models.DecimalField(decimal_places=2)
-            ),
-            alto=models.Subquery(
-                alto, output_field=models.DecimalField(decimal_places=2)
-            ),
-        )
+    def concept_vertice_count(self):
+        return self.annotate(vertice_count=models.Count('estimateconcept__vertices', distinct=True))
 
     def get_observations(self, estimate_consecutive):
         conceptos_estimacion = EstimateConcept.especial.filtro_esta_estimacion(estimate_consecutive).filter(
@@ -224,8 +308,9 @@ class ConceptSet(models.QuerySet):
                 .esta_estimacion(estimate_consecutive)
                 .add_estimateconcept_ids(estimate_consecutive)
                 .concept_image_count()
-                .get_largo_alto_ancho(estimate_consecutive)
+                .concept_vertice_count()
                 .get_observations(estimate_consecutive)
+                .select_related('unit')
         )
 
 
@@ -247,9 +332,18 @@ class Concept(models.Model):
     class Meta:
         verbose_name = 'Concepto'
         verbose_name_plural = 'Conceptos'
+        unique_together = ('concept_text', 'project')
 
     def __str__(self):
         return self.concept_text
+
+    def clean(self):
+        if not self.unit.company == self.project.cliente.company:
+            raise ValidationError(
+                {
+                    'unit': 'El concepto debe pertenecer a la misma compañia que su unidad.'
+                }
+            )
 
     def importe_contratado(self):
         return self.unit_price * self.total_cuantity
@@ -266,7 +360,6 @@ class Concept(models.Model):
         if new_attr is not None:
             return new_attr / self.unit_price
         else:
-            from decimal import Decimal
             return Decimal('0.00')
 
     def cantidad_estimado_anterior(self):
@@ -281,6 +374,15 @@ class Concept(models.Model):
     def anotar_imagenes(self):
         if hasattr(self, 'conceptoestimacion'):
             return ImageEstimateConcept.objects.filter(estimateconcept=self.conceptoestimacion)
+        else:
+            raise AttributeError('No es posible realizar la operación porque es necesario '
+                                 'que se ejecute add_estimateconcept_properties o al menos '
+                                 'add_estimateconcept_ids desde la instancia de un QuerySet '
+                                 'con el manejador ConceptSet')
+
+    def anotar_vertices(self):
+        if hasattr(self, 'conceptoestimacion'):
+            return Vertices.objects.filter(estimateconcept=self.conceptoestimacion)
         else:
             raise AttributeError('No es posible realizar la operación porque es necesario '
                                  'que se ejecute add_estimateconcept_properties o al menos '
@@ -332,9 +434,6 @@ class EstimateConcept(models.Model):
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cuantity_estimated = models.DecimalField('cuantity_estimated', max_digits=12, decimal_places=2)
     observations = models.TextField(blank=True, null=True)
-    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
-    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
-    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
     objects = models.Manager()
     especial = ECSet.as_manager()
 
@@ -346,9 +445,41 @@ class EstimateConcept(models.Model):
         return self.concept.concept_text + str(self.cuantity_estimated)
 
 
-class ImageEstimateConcept(models.Model):
-    image = models.ImageField(upload_to=get_directory_path)
+class Vertices(models.Model):
+    nombre = models.CharField('Nombre del Vertice', max_length=80)
+    largo = models.DecimalField('largo', max_digits=10, decimal_places=2, default=0)
+    ancho = models.DecimalField('ancho', max_digits=10, decimal_places=2, default=0)
+    alto = models.DecimalField('alto', max_digits=10, decimal_places=2, default=0)
+    piezas = models.DecimalField('número de piezas', max_digits=10, decimal_places=2, default=0)
     estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+
+
+class ImageEstimateConceptSet(models.QuerySet):
+
+    def size_per_customer(self, customer):
+        return self.filter(
+                estimateconcept__concept__project__cliente__company__customer=customer
+            ).aggregate(Sum('size'))['size__sum']
+
+
+class ImageEstimateConcept(models.Model):
+    image = models.ImageField(upload_to=utils.get_image_directory_path)
+    estimateconcept = models.ForeignKey(EstimateConcept, on_delete=models.CASCADE)
+    size = models.BigIntegerField('Tamaño del archivo en kb', null=True)
+
+    objects = models.Manager()
+    especial = ImageEstimateConceptSet.as_manager()
+
+    def save(self, *args, **kwargs):
+        # Resize/modify the image
+        if self.image.height > 380:
+            self.image = utils.image_resize(self.image)
+        self.size = self.image.size
+        super(ImageEstimateConcept, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Imagen_generador'
+        verbose_name_plural = 'Imagenes_generadores'
 
     def __str__(self):
         return '{} {}'.format(self.id, repr(self.estimateconcept))

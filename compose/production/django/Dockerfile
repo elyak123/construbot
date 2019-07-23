@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.6.8-alpine3.8
 
 ENV PYTHONUNBUFFERED 1
 
@@ -12,7 +12,7 @@ COPY ./requirements /requirements
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
-    && pip install pip-tools==3.1.0 \
+    && pip install pip-tools==3.3.1 \
     && pip-sync requirements/base.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \

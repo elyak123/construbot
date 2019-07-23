@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	// $('.form-group').removeClass('row');
+    // $('.form-group').removeClass('row');
     var menu = $(".cont_menu_lateral");
     var menu_in = $("#event_menu_in");
     var menu_out = $("#event_menu_out");
@@ -46,6 +46,8 @@ $(document).ready(function(){
             var url = window.location.href
             url = url.replace('detalle', 'pdf');
             url = url.replace('#', '');
+            url = url.replace('/arriba', '');
+            url = url.replace('/abajo', '');
             if(ctrl!=0){
                 url = url.replace('estimacion', 'generador');
             } else {
@@ -66,21 +68,6 @@ $(document).ready(function(){
             return intcomma(newValue);
         }
     };
-
-    function OnchangeEventHandler(event) {
-        if(event.target.getAttribute("value")){
-            $.ajax({
-                url:'/users/company-change/' + event.target.getAttribute("value") + '/',
-                type: 'GET',
-                success: function(response){
-                    window.location.reload();
-                },
-            });
-        } 
-    }
-    $(document).on("click",".drop-company", function(event){
-        OnchangeEventHandler(event);
-    });
     
     function ajustarContenido(arg){
         if(arg==1){
@@ -162,15 +149,49 @@ $(document).ready(function(){
         ajustarContenido(2);
     }
 
+    if($("#cont_est_danger")){
+        let delete_est = $(".anchor_est_delete");
+        let msj = $("#cont_est_danger")[0];
+        delete_est.on("click", function(target){
+            let element = target.target;
+            let url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(response){
+                    msj.style.display = "block";
+                    msj.innerHTML = response;
+                    var f_data = $('#delete_form').serialize();
+                    $("#button_cancel").on("click", function(target){
+                        target.preventDefault();
+                        msj.style.display = "none";
+                    });
+                    $("#delete_form").submit(function(event){
+                        event.preventDefault()
+                        $.ajax({
+                            type:"POST",
+                            url: url,
+                            data: f_data,
+                            success: function(){
+                                window.location.reload() 
+                            }
+                        });
+                    });
+                },
+            });
+        });
+    }
+
     if($(".div_list")){
         var div_list = $(".div_list");
         var delete_link = $(".anchor_delete");
         var mensaje = $("#cont_danger")[0];
 
         delete_link.on("click", function(target){
+            mensaje.innerHTML = "";
             target.preventDefault();
             var element = target.target;
-            var url = "/"+window.location.pathname.split('/')[1]+"/eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id")+"/";
+            var url = url_for_list+"eliminar/"+element.getAttribute("data-model")+"/"+element.getAttribute("data-id").split(",").join("")+"/";
             var pos = element.parentElement.getBoundingClientRect()
             for(i=0; i<div_list.length; i++){
                 if(element.parentElement != div_list[i]){
@@ -225,24 +246,33 @@ $(document).ready(function(){
     }
     if($(".form-group > label:contains('Image')")){
         ocultar_elementos();
-        $(".add-form-row").on("click", function(){
+        $(".add-form").on("click", function(){
             ocultar_elementos();
         });
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
+            $("label:contains('Eliminar')").parent().hide();
         }
-        $(document).on("click",".remove_span", function(event){
-            event.target.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling.nextElementSibling.children[0].children[0].children[0].click();
-            $(event.target).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
-            $(event.target).parent().prev()[0].classList.toggle("appear");
-            event.target.classList.toggle("span_eliminar");
-            if(event.target.innerText=="Cancelar"){
-                event.target.innerText = "Remover";
-            } else {
-                event.target.innerText = "Cancelar";
-            }
+        $(document).on("click", ".remove_ver_div", function(event){
+            let ev = event.target;
+            ev.closest(".remove_ver_div").nextSibling.nextSibling.children[0].children[0].click();
+            ev.closest(".remove_ver_div").parentElement.classList.toggle("background_ver_eliminar");        
         });
-
+        $(document).on("click", ".remove_img_span", function(event){
+            let ev = event.target;
+            ev.closest(".form-group").nextSibling.nextSibling.nextSibling.nextSibling.children[0].children[0].click();
+            try {
+                $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
+                $(ev).parent().prev()[0].classList.toggle("appear");
+                ev.classList.toggle("span_eliminar");
+            } catch (err) {
+                ev = ev.parentNode;
+                $(ev).parent().next().find(".custom-file-input")[0].classList.toggle("is-invalid");
+                $(ev).parent().prev()[0].classList.toggle("appear");
+                ev.classList.toggle("span_eliminar");
+            }
+            
+        });
         $(document).on('change', '.custom-file-input', function(){
             $(this).parent().find(".custom-file-label")[0].innerText = $(this).val().replace(/C:\\fakepath\\/i, '');
         });

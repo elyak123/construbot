@@ -2,12 +2,10 @@
 {% load static %}
 {% load bootstrap4 %}
 {% block css %}
-  <link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
-  <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block javascript %}
   <script type="text/javascript">
-    var setPrefix = '{{ form.prefix }}';
+    var setPrefix = '{{ formset.prefix }}';
   </script>
   <script src="{% static 'js/inlineform.js' %}"></script>
   <script type="text/javascript">
@@ -18,10 +16,6 @@
         callbacks: callbacks
     });
   </script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-  <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
   <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
@@ -40,18 +34,27 @@
   <br>
   <form role="form" method="POST" class="form">
   {% csrf_token  %}
-  {{ form.non_form_errors.as_ul }}
+  {% bootstrap_formset_errors formset %}
   <table id="formset" class="form table_sample table_inline table_normal">
-    {{ form.management_form }}
-    {% for frm in form.forms %}
+    {{ formset.management_form }}
+    {% for frm in formset.forms %}
+      {% bootstrap_form_errors frm %}
       {% if forloop.first %}
         <thead>
           <tr>
+            {% if type == 'retenciones' %}
+            <th> Nombre </th>
+            <th> Tipo </th>
+            <th> Valor </th>
+            {% elif type == 'conceptos' %}
             <th> Código </th>
             <th> Concepto </th>
             <th> Unidad </th>
             <th> Cantidad </th>
             <th> Precio unitario </th>
+            {% else %}
+            <th> Nombre de la Unidad </th>
+            {% endif %}
             <th> ¿Eliminar? </th>
           </tr>
         </thead>
@@ -71,6 +74,7 @@
       {% endfor %}
       </tr>
     {% endfor %}
+    {{ formset.form.media }}
   </table>
   <br>
   <div class="cont_buttons">

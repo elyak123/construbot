@@ -1,10 +1,19 @@
 main_menu = [
     {
+        'title': 'Proyectos',
+        'url': 'proyectos:proyect_dashboard',
+        'always_appear': True,
+        'urlkwargs': '',
+        'icon': 'briefcase',
+        'parent': False,
+        'child': False,
+    },
+    {
         'title': 'Users',
         'url': 'users:list',
         'always_appear': False,
         'urlkwargs': None,
-        'icon': 'person',
+        'icon': 'key',
         'parent': False,
         'child': False,
     },
@@ -27,14 +36,4 @@ main_menu = [
         'child': False,
         'group': 'Pendientes'
     },
-    {
-        'title': 'Proyectos',
-        'url': 'proyectos:proyect_dashboard',
-        'always_appear': True,
-        'urlkwargs': '',
-        'icon': 'briefcase',
-        'parent': False,
-        'child': False,
-    },
-
 ]

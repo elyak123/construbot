@@ -1,11 +1,8 @@
 from django.test import TestCase, override_settings, tag
 from django.http import QueryDict
-from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate
 from construbot.users import forms
 from construbot.users.models import Company
-from . import factories
-from django.test import tag
 from . import utils
 
 
@@ -29,20 +26,14 @@ class UserFormTest(TestCase):
 
 class UsuarioInternoTest(utils.BaseTestCase):
 
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-
     @override_settings(ACCOUNT_EMAIL_VERIFICATION='none')
     def test_UsuarioInterno_post(self):
         company = Company.objects.create(
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.admin_group)
         self.user.company.add(company)
         data = {
             'customer': str(self.user.customer.id),
@@ -50,7 +41,8 @@ class UsuarioInternoTest(utils.BaseTestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'groups': [str(users_group.id)],
+            'nivel_acceso': self.auxiliar_permission.id,
+            'groups': [str(self.user_group.id)],
             'company': [str(company.id)],
             'password1': 'esteesunpsslargo',
             'password2': 'esteesunpsslargo'
@@ -61,62 +53,31 @@ class UsuarioInternoTest(utils.BaseTestCase):
         self.assertTrue(user.check_password('esteesunpsslargo'))
         self.assertTrue(authenticate(username='test_user_dos', password='esteesunpsslargo'))
 
+
 class UsuarioEditTest(utils.BaseTestCase):
-    def setUp(self):
-        self.user_factory = factories.UserFactory
-        self.user = self.make_user()
-    
+
     def test_UsusarioEdit_post(self):
         company = Company.objects.create(
             company_name='some_company',
             customer=self.user.customer
         )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
         self.user.company.add(company)
-        qdict = QueryDict('groups={}'.format(users_group.id), mutable=True)
+        qdict = QueryDict('groups={}'.format(self.user_group.id), mutable=True)
         data = {
             'customer': str(self.user.customer.id),
             'username': 'nuevo_test',
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'lkjas@hola.com',
-            'groups': str(group.id),
+            'nivel_acceso': self.auxiliar_permission.id,
+            'groups': str(self.proyectos_group.id),
             'company': str(company.id),
         }
         qdict.update(data)
         form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
         self.assertTrue(form.is_valid(), form.errors)
-        user = form.save()
-        self.assertTrue(authenticate(username='nuevo_test', password='password'))        
-
-    def test_UsusarioEdit_group_error(self):
-        company = Company.objects.create(
-            company_name='some_company',
-            customer=self.user.customer
-        )
-        users_group, created = Group.objects.get_or_create(name='Users')
-        self.user.groups.add(users_group)
-        group, created = Group.objects.get_or_create(name='Administrators')
-        self.user.groups.add(group)
-        self.user.company.add(company)
-        qdict = QueryDict('', mutable=True)
-        data = {
-            'customer': str(self.user.customer.id),
-            'username': 'nuevo_test',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'lkjas@hola.com',
-            'groups': str(users_group.id),
-            'company': str(company.id),
-        }
-        qdict.update(data)
-        test_error_dict = {'groups': ['¡No puedes quedarte sin administradores!']}
-        form = forms.UsuarioEdit(self.user, data=qdict, instance=self.user)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, test_error_dict)
+        form.save()
+        self.assertTrue(authenticate(username='nuevo_test', password='password'))
 
     def test_CompanyCreationForm(self):
         company = Company.objects.create(

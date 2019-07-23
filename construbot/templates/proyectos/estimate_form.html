@@ -4,40 +4,60 @@
 {% load bootstrap4 %}
 {% load humanize %}
 {% block css %}
-    <link href="{% static 'autocomplete_light/vendor/select2/dist/css/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
-    <link href="{% static 'autocomplete_light/select2.css' %}" type='text/css' media='all' rel='stylesheet'>
 {% endblock css %}
 {% block css_no_compress %}
-    <link rel='stylesheet' href='https://rawgit.com/tempusdominus/bootstrap-4/master/build/css/tempusdominus-bootstrap-4.css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/css/tempusdominus-bootstrap-4.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {% endblock css_no_compress %}
 {% block javascript_no_compress %}
     <script src='https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js'></script>
-    <script src='https://rawgit.com/tempusdominus/bootstrap-4/master/build/js/tempusdominus-bootstrap-4.js'></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.0-alpha14/js/tempusdominus-bootstrap-4.min.js"></script>
 {% endblock javascript_no_compress %}
 {% block javascript %}
     <script type="text/javascript">
-        var setPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+        var setImgPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+        var setVerPrefix = '{{ vertice_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
     </script>
     <script src="{% static 'js/inlineform.js' %}"></script>
     <script src="{% static 'js/estimate_button.js' %}"></script>
     <script type="text/javascript">
-        var fileSets = document.getElementsByClassName('dynamic-form');
-        var formset = undefined;
-        for(var i = 0; i<fileSets.length; i++){
-            formset = new Formset();
-            formset.setup({
-                prefix: setPrefix[i],
-                callbacks: callbacks,
-                form_selector: '.set-' + i,
-                nested: true
-            });
+        function activateFormset(className, prefix, tipo){
+            var fileSets = document.getElementsByClassName(className);
+            var formset = undefined;
+            var nested = false;
+            var vertice = false;
+            var selector;
+            for(var i = 0; i<fileSets.length; i++){
+                formset = new Formset(className);
+                if(tipo == 'imagen'){
+                    nested = true;
+                    selector = 'img';
+                } else if (tipo == 'vertice'){
+                    vertice = true;
+                    selector = 'ver';
+                }
+                formset.setup({
+                    prefix: prefix[i],
+                    callbacks: callbacks,
+                    form_selector: ".set"+ "-" + selector + "-" + i,
+                    nested: nested,
+                    vertice: vertice
+                });
+            }
+        }
+        activateFormset('dynamic-img-form', setImgPrefix, 'imagen');
+        activateFormset('dynamic-vertice-form', setVerPrefix, 'vertice');
+        function event_appear(){
+            $(".del-msj").css("display", "block");
+        }
+        function event_move(){
+            $(".del-msj")[0].style.top = event.clientY+'px';
+            $(".del-msj")[0].style.left = event.clientX+10+'px';
+        }
+        function erase(){
+            $(".del-msj").css("display", "none");
         }
     </script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/vendor/select2/dist/js/select2.full.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             var fecha = [$("#id_auth_date"), $("#id_start_date"), $("#id_finish_date"), $("#id_payment_date")];
@@ -52,11 +72,20 @@
                     }
                 }
             }
+            var uploadField = document.getElementsByClassName("img-input");
+
+            $(uploadField).on("change", function() {
+                if(this.files[0].size > 2097152){
+                   alert("¡No puedes adjuntar imagenes mayores a 2MB!");
+                   this.value = "";
+                };
+            });
         });
     </script>
 {% endblock javascript %}
 {% block content %}
 {% language 'es' %}
+    <div class="del-msj alert alert-danger"><p>Si le das click será eliminado cuando sea guardado el formulario.</p></div>
     <form role="form" method="post" class="form" enctype="multipart/form-data">
         {% csrf_token  %}
             <h3>Projecto: {{ project_instance.contrato_shortName }}</h3>
@@ -66,40 +95,66 @@
             </div>
         {{ generator_inline_concept.management_form }}
         {% for frm, code in generator_zip %}
-            <div class="{% cycle 'fila_impar' 'fila_par' %}">
+            <div class="{% cycle 'fila_impar' 'fila_par' %}" data-id="{{ code }}">
                 <div style="text-align: center;"><h4>Concepto: {{ code }}</h4></div>
                 {{ frm.id }}
                 {% bootstrap_field frm.concept %}
                 {% bootstrap_field frm.observations %}
-                <div class="row">
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.largo %}
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.ancho %}
-                    </div>
-                    <div class="col-md-3">
-                        {% bootstrap_field frm.alto %}
-                    </div>
-                    <div class="col-md-3 row">
-                        <div class="col-xl-4">
-                            <button style="margin-top:29px" class="calcular_cantidad btn btn-primary">Calcular</button>
+                <div class="calcular dynamic-vertice-form {% cycle 'vertice-impar' 'vertice-par' %}">
+                    <h4>Vértices</h4>
+                    {{ frm.vertices.management_form }}
+                    {% for vertice in frm.vertices %}
+                        <div class="row set-ver-{{ forloop.parentloop.counter0 }} vertices">
+                            {{ vertice.id }}
+                            <div class="input-group-prepend remove_ver_div">
+                                <span onmouseover="event_appear()" onmousemove="event_move()" onmouseleave="erase()" class="input-group-text">Eliminar <span style="margin-left:10px;" class="oi oi-trash"></span></span>
+                            </div>
+                            {% bootstrap_field vertice.DELETE %}
+                            <div class="col-md-12">
+                                {% bootstrap_field vertice.nombre %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.ancho %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.alto %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.largo %} 
+                            </div>
+                            <div class="col-md-3">
+                                {% bootstrap_field vertice.piezas %} 
+                            </div>
                         </div>
-                        <div class="col-xl-8">
+                    {% endfor %}
+                    <div class="col-md-6 row">
+                        <div class="col-xl-4">
+                            <br>
+                            <br>
+                            <button style="margin-top:5px" class="calcular_cantidad btn btn-sm btn-primary">Calcular</button>
+                        </div>
+                        <div class="col-xl-8 calculable-mul">
+                            <br>
                             {% bootstrap_field frm.cuantity_estimated %}
                         </div>
                     </div>
+                    <div class="col-12">
+                        <i>Ancho, Alto, Largo y Piezas son operandos para calcular la cantidad estimada. Si deseas puedes dejarlos en blanco y poner directamente la cantidad estimada en el campo.</i>
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-dark add-form add-ver-form-row">Agregar vértices</button>
                 </div>
+                <br>
                 {% if frm.nested %}
                     {{ frm.nested.management_form }}
-                    <div class="dynamic-form">
+                    <div class="dynamic-img-form">
                         {{ frm.nested.non_form_errors }}
                         {% for nested_form in frm.nested.forms %}
-                            <div class="set-{{ forloop.parentloop.counter0 }}">
+                            <div class="set-img-{{ forloop.parentloop.counter0 }}">
                                 {% bootstrap_form nested_form %}
                             </div>
                         {% endfor %}
-                        <button type="button" class="btn btn-dark add-form-row">agregar imagen</button>
+                        <button type="button" class="btn btn-dark add-form add-img-form-row">Agregar más imagenes</button>
                     </div>
                 {% endif %}
             </div>
@@ -109,5 +164,6 @@
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
+    {{ form.media }}
 {% endlanguage %}
 {% endblock %}

@@ -1,60 +1,18 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 
-{% block title %}{% if not is_new_user %}{{ user.username }}{% else %} Crea tu username {% endif %}{% endblock %}
-
-{% block conditions %}
-{% endblock conditions %}
-
-{% block conditions_2 %}
-  {% block css_no_compress %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/introjs.min.css" crossorigin="anonymous" />
-  {% endblock %}
-  {% block javascript_no_compress %}
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/2.9.3/intro.js"></script>
-  {% endblock %}
-  <script type="text/javascript">
-    document.getElementById("id_username").value = "";
-    window.onload = function() {
-      introJs().setOption('doneLabel', '¡Bien!').setOption('showBullets', false).start();
-    };
-  </script>
-{% endblock conditions_2 %}
+{% block title %}{{ user.username }}{% endblock %}
 
 {% block content %}
-  {% if not is_new_user %}
-  <h1>{{ user.username }}</h1>
-  <form class="form-horizontal" method="post" action="">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    <div class="control-group">
-      <div class="controls">
-        <button type="submit" class="btn">Update</button>
-      </div>
+<h1>{{ user.username }}</h1>
+<form class="form-horizontal" method="post" action="">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <div class="control-group">
+    <div class="controls">
+      <button type="submit" class="btn">Actualizar</button>
     </div>
-  </form>
-  {% else %}
-  <h3>Crea tu nombre de usuario.</h3>
-  <br>
-  <br>
-  <form data-step="5" data-intro="<strong>Crea tu nombre de usuario. </strong> Tus nombres y apellidos sirven cuando se generen las estimaciones, así serán visibles en el área de firmas. Cuando termines el formulario presiona el botón para <strong>crear tu primer compañía</strong>." class="form-horizontal" method="post" action="">
-    {% csrf_token %}
-    {% for field in form %}
-      {% if field.label == 'Nombre de Usuario' %}
-        {% bootstrap_field field %}
-      {% elif field.label == 'Nombres' %}
-        {% bootstrap_field field %}
-      {% elif field.label == 'Apellidos' %}
-        {% bootstrap_field field %}
-      {% else %}
-        {% bootstrap_field field form_group_class="d-none" %}
-      {% endif %}
-    {% endfor %}
-    <div class="control-group">
-      <div class="controls">
-        <button type="submit" class="btn">¡Crea tu Username!</button>
-      </div>
-    </div>
-  </form>
-  {% endif %}
+  </div>
+</form>
+{{ form.media }}
 {% endblock %}
