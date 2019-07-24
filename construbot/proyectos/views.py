@@ -454,7 +454,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
         codes = [x['concept'].code for x in fill_data]
         image_formset_prefix = [x.nested.prefix for x in generator_inline_concept.forms]
         vertice_formset_prefix = [x.vertices.prefix for x in generator_inline_concept.forms]
-        autocomplete_data = [x.initial['concept'].concept_text for x in generator_inline_concept]
+        autocomplete_data = [x['concept_text_input'] for x in fill_data]
         return_dict = {
             'form': form,
             'generator_inline_concept': generator_inline_concept,
