@@ -263,17 +263,6 @@ PASSWORD_HASHERS = [
 
 CHUNKED_UPLOAD_ABSTRACT_MODEL = True
 
-
-def get_directory_path(instance, filename):
-    date_str = strftime('%Y-%m-%d-%H-%M-%S')
-    instance_model = instance._meta.verbose_name_plural
-    instance_customer = instance.cliente.company.customer
-    instance_company = instance.cliente.company.company_name
-    return '{0}-{1}/{2}/{3}/{4}-{5}'.format(
-        instance_customer.id, instance_customer.customer_name, instance_company, instance_model, date_str, filename
-    )
-
-UPLOAD_TO = get_directory_path
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------
