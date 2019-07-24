@@ -1,7 +1,7 @@
 import importlib
+import json
 from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
-from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -920,8 +920,9 @@ class NivelAccesoAutocomplete(AutocompletePoryectos):
 class ContratoChunkedUpload(ChunkedUploadCompleteView):
     model = ChunkedCoreUpload
 
-    def post(self, request, *args, **kwargs):
-        return super(ContratoChunkedUpload, self).post(request, *args, **kwargs)
-
-    def on_completion(self, uploaded_file, request):
-        pass
+    def get_response_data(self, chunked_upload, request):
+        """
+        Data for the response. Should return a dictionary-like object.
+        Called *only* if POST is successful.
+        """
+        return json.dumps({'chunked_id': chunked_upload.upload_id})

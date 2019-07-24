@@ -62,8 +62,9 @@ $(document).ready(function(){
                 md5: md5
               },
               dataType: "json",
-          success: function(data) {
+              success: function(data) {
                 $("#messages").append($('<p>').text(JSON.stringify(data)));
+                $('#id_relacion_id_archivo').attr('value', JSON.parse(data).chunked_id)
               }
             });
           },
