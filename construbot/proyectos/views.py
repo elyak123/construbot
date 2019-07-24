@@ -2,7 +2,6 @@ import importlib
 import json
 from django.conf import settings
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
-from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
