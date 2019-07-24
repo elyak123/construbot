@@ -57,9 +57,6 @@
                 $(evt.currentTarget.parentElement).find(".toggle-button-1").css("display", "none");
                 $(evt.currentTarget.parentElement.parentElement.nextElementSibling).css("display", "block")
             });
-            if(document.getElementById("table_results") != null){
-                lanzar_catalogo_conceptos();
-            }
         }
         $(".lanzar-contrato").on("click", function(evt){
             let url = evt.currentTarget.dataset['url'];
@@ -119,7 +116,7 @@
 <div class="cont_listado">
     <strong>Catálogo de conceptos </strong>
     <div class="float-right">
-        <span class="oi oi-plus icon_right toggle-button-1" style="display:none;"></span><span class="oi oi-minus icon_right-up toggle-button-2"></span>
+        <span class="oi oi-plus icon_right toggle-button-1"></span><span class="oi oi-minus icon_right-up toggle-button-2" style="display:none;"></span>
     </div>
 </div>
 {% endif %}

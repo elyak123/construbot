@@ -40,6 +40,8 @@ $(document).ready(function(){
             // old upload_id and just keep the csrftoken (which is always first).
             form_data.splice(1);
             calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
+            $('.dummy-progreso').toggleClass("d-none");
+            $(this).parent().find(".custom-file-label")[0].innerText = data.fileInput.val().replace(/C:\\fakepath\\/i, '');
             data.submit();
           },
           chunkdone: function (e, data) { // Called after uploading each chunk
@@ -48,9 +50,12 @@ $(document).ready(function(){
                 {"name": "upload_id", "value": data.result.upload_id}
               );
             }
-            $("#messages").append($('<p>').text(JSON.stringify(data.result)));
+            //$("#messages").append($('<p>').text(JSON.stringify(data.result)));
             var progress = parseInt(data.loaded / data.total * 100.0, 10);
-            $("#progress").text(Array(progress).join("=") + "> " + progress + "%");
+            $('.progress-bar').attr('aria-valuenow', progress).css('width', progress+'%');
+            $("#dummy-progreso-progress").text("Progreso: "+progress + " %");
+            //$("#progress").text(Array(progress).join("=") + "> " + progress + "%");
+
           },
           done: function (e, data) { // Called when the file has completely uploaded
             $.ajax({
@@ -63,8 +68,10 @@ $(document).ready(function(){
               },
               dataType: "json",
               success: function(data) {
-                $("#messages").append($('<p>').text(JSON.stringify(data)));
+                //$("#messages").append($('<p>').text(JSON.stringify(data)));
                 $('#id_relacion_id_archivo').attr('value', JSON.parse(data).chunked_id)
+                $('.dummy-progreso').toggleClass("d-none");
+                $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%');
               }
             });
           },

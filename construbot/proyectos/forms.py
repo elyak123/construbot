@@ -16,7 +16,7 @@ class ContratoDummyFileForm(forms.Form):
 
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
-    relacion_id_archivo = forms.CharField(widget=forms.HiddenInput())
+    relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def clean(self):
         result = super(ContratoForm, self).clean()
