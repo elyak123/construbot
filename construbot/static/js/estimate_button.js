@@ -12,7 +12,7 @@ $(document).ready(function(){
     let estimado = 0;
     for(let i = 0; i < elements.length; i++){
       let mult = 1;
-      for(let j = 2; j < 6; j++){
+      for(let j = 4; j < 6; j++){
         mult *= elements[i].children[j].children[0].children[1].value;
       }
       estimado+=mult;
