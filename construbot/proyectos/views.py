@@ -370,7 +370,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
-        context['dummy_file'] = True
+        # context['dummy_file'] = True
         return context
 
 
@@ -574,7 +574,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ContratoEditView, self).get_context_data(**kwargs)
-        context['dummy_file'] = True
+        # context['dummy_file'] = True
         return context
 
     def get_initial(self):
