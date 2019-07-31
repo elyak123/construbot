@@ -25,14 +25,14 @@
 </head>
 <div class="est_cont">
   {% if conceptos.total_imagenes_estimacion.total_images %}
-    <table class="generator bord-doble">
+    <table class="generator">
       <tbody id="content_frame">
         {% for concepto in conceptos %}
           {% if concepto.cantidad_esta_estimacion %}
             <tr class="cc">
-              <td class="concepto_container">
+              <td class="concepto_container sin_borde">
                 <table class="generator">
-                    <thead id="header_frame">
+                    <thead {% if forloop.first %}id{% else %}class{% endif %}="header_frame">
                       <tr>
                         <th class="sin_borde" colspan="10">
                           <div class="cont_est_gen">
@@ -59,8 +59,8 @@
                             </tr>
                           </table>
                         </th>
-                        <th class="sin_borde" colspan="3"></th>
-                        <th class="sin_borde" colspan="3">
+                        <th class="sin_borde" colspan="2"></th>
+                        <th class="sin_borde" colspan="4">
                           <table class="informacion">
                             <tr>
                               <td>CONTRATISTA:</td>
@@ -85,7 +85,7 @@
                       </tr>
                     </thead>
                   <tbody>
-                    <tr class="center color-g header_frame">
+                    <tr class="center color-g">
                       <th rowspan="2">CÓDIGO</th>
                       <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
                       <th colspan="5">VÉRTICES</th>
@@ -103,9 +103,8 @@
                     </tr>
                     {% language 'en' %}
                     <tr class="concepto_info" id="conc-{{ forloop.counter0 }}">
-                      <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.code }} </td>
-                      <td  rowspan="{{ concepto.vertice_count }}" class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}>
-                        <p>{{ concepto.concept_text }}</p>
+                      <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %}> {{ concepto.code }} </td>
+                      <td  {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %} class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}><p>{{ concepto.concept_text }}</p>
                       </td>
                       {% for vertice in concepto.anotar_vertices %}
                         <td> {{ vertice.nombre }} </td>
@@ -123,6 +122,20 @@
                             </td>
                           {% endif %}
                         {% endif %}</tr>
+                      {% empty %}
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td rowspan="1" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                          <td rowspan="1" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                          {% if concepto.observations %}
+                            <td rowspan="1"> {{ concepto.observations|linebreaksbr }} </td>
+                          {% else %}
+                            <td rowspan="1">
+                            </td>
+                          {% endif %}
                       {% endfor %}
                     </tr>
                     <tr class="image" id="img-{{ forloop.counter0 }}">
@@ -172,7 +185,7 @@
     <table class="generator bord-doble">
       <thead id="header_frame">
         <tr>
-          <th class="sin_borde" colspan="8">
+          <th colspan="10">
             <div class="cont_est_gen">
                 <h5 class="m-0"> {{ estimate.project.cliente.cliente_name.upper }} </h5>
                 <h6 class="m-0"> RESIDENCIA DE CONSTRUCCIÓN </h6>
@@ -197,8 +210,8 @@
               </tr>
             </table>
           </th>
-          <th class="sin_borde" colspan="1"></th>
-          <th class="sin_borde" colspan="3">
+          <th class="sin_borde" colspan="2"></th>
+          <th class="sin_borde" colspan="4">
             <table class="informacion">
               <tr>
                 <td>CONTRATISTA:</td>
@@ -218,15 +231,16 @@
         <tr class="center color-g">
           <th rowspan="2">CÓDIGO</th>
           <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
-          <th rowspan="2">NOMBRE</th>
-          <th rowspan="2">LARGO</th>
-          <th rowspan="2">ANCHO</th>
-          <th rowspan="2">ALTO</th>
-          <th rowspan="2">PIEZAS</th>
+          <th colspan="5">VÉRTICES</th>
           <th colspan="2">VOLUMEN EJECUTADO</th>
           <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
         </tr>
         <tr class="center color-b">
+          <th>NOMBRE</th>
+          <th>LARGO</th>
+          <th>ANCHO</th>
+          <th>ALTO</th>
+          <th>PIEZAS</th>
           <th>CANTIDAD</th>
           <th>UNIDAD</th>
         </tr>
@@ -236,8 +250,8 @@
         {% for concepto in conceptos %}
           {% if concepto.cantidad_esta_estimacion %}
             <tr id="conc-{{ forloop.counter0 }}">
-              <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.code }} </td>
-              <td rowspan="{{ concepto.vertice_count }}" class="generatorDescription"><p>{{ concepto.concept_text }}</p></td>
+              <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %}> {{ concepto.code }} </td>
+              <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %} class="generatorDescription"><p>{{ concepto.concept_text }}</p></td>
               {% for vertice in concepto.anotar_vertices %}
                 <td> {{ vertice.nombre }} </td>
                 <td> {{ vertice.largo }} </td>
@@ -252,14 +266,22 @@
                   {% else %}
                     <td rowspan="{{ concepto.vertice_count }}"></td>
                   {% endif %}
-                {% endif %}
-            </tr>
+                {% endif %}</tr>
+              {% empty %}
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td rowspan="1" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                  <td rowspan="1" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                  {% if concepto.observations %}
+                    <td rowspan="1"> {{ concepto.observations|linebreaksbr }} </td>
+                  {% else %}
+                    <td rowspan="1">
+                    </td>
+                  {% endif %}
               {% endfor %}
-
-
-
-
-
             </tr>
           {% endif %}
         {% endfor %}
@@ -267,7 +289,7 @@
       </tbody>
       <tfoot id="footer_generator">
         <tr>
-          <td class="cont_firmas" colspan="8">
+          <td class="cont_firmas" colspan="10">
             <div class="cont_firma">
               <div class="bc subrayado_f"></div>
               <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
@@ -309,7 +331,7 @@
       if (list.length>0) {
         for(var i=0; i<conceptos; i++){
           if(document.getElementById("conc-"+i)!=null){
-            aux = 900-(space_size+document.getElementById("conc-"+i).offsetHeight);
+            aux = 1000-(space_size+document.getElementById("conc-"+i).offsetHeight);
             document.getElementById('img-'+i).style.height = aux+"px";
           }
         }
