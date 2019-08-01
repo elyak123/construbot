@@ -113,6 +113,8 @@ django-redis==4.10.0 \
 django-storages==1.7.1 \
     --hash=sha256:8e35d2c7baeda5dc6f0b4f9a0fc142d25f9a1bf72b8cebfcbc5db4863abc552d \
     --hash=sha256:b1a63cd5ea286ee5a9fb45de6c3c5c0ae132d58308d06f1ce9865cfcd5e470a7
+django-treebeard==4.3 \
+    --hash=sha256:c21db06a8d4943bf2a28d9d7a119058698fb76116df2679ecbf15a46a501de42
 django-wkhtmltopdf==3.2.0 \
     --hash=sha256:4cf07226332b89102e2ab1302fdd6cad402677ebfb2d50efad7cb3056a54151b \
     --hash=sha256:5dc89264b970d63f41b99c6722ccd47b15292598bec84248f3b94e5673dcfeac

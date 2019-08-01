@@ -42,6 +42,7 @@ setup(
         'whitenoise==4.1.2',
         # Models
         'django-model-utils==3.1.2',
+        'django-treebeard==4.3',
         # Images
         'Pillow==5.4.1',
         # User uploads
