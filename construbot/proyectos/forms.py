@@ -17,9 +17,6 @@ MY_DATE_FORMATS = '%Y-%m-%d'
 class ExcelConceptCatalogForm(forms.Form):
     contrato = forms.IntegerField(widget=forms.HiddenInput())
     archivo_excel = forms.FileField(widget=forms.FileInput(
-                attrs={
-                    'accept': 'application/vnd.ms-excel',
-                },
             )
         )
 
