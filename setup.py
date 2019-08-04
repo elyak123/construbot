@@ -70,6 +70,8 @@ setup(
         # FrontEnd Libraries
         'django-autocomplete-light==3.3.2',
         'django-bootstrap4==0.0.8',
+        # xls files handling
+        'openpyxl==2.6.2',
         # WSGI Handler
         # ------------------------------------------------
         'gunicorn==19.7.1',
