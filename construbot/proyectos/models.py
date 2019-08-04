@@ -1,10 +1,11 @@
+from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db.models import Sum, F
-from decimal import Decimal
+from treebeard.mp_tree import MP_Node
 from construbot.core import utils
 from construbot.users.models import Company
 
@@ -97,7 +98,9 @@ class ContratoSet(models.QuerySet):
         return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
 
 
-class Contrato(models.Model):
+class Contrato(MP_Node):
+    node_order_by = ['folio']
+
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
     fecha = models.DateField()
@@ -106,7 +109,9 @@ class Contrato(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
-    file = models.FileField(upload_to=utils.get_directory_path, blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    file = models.FileField(
+        upload_to=utils.get_directory_path, blank=True, null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
