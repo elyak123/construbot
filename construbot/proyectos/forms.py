@@ -14,6 +14,16 @@ MY_DATE_FORMATS = '%Y-%m-%d'
 #     dummy_archivo = forms.FileField()
 
 
+class ExcelConceptCatalogForm(forms.Form):
+    contrato = forms.IntegerField(widget=forms.HiddenInput())
+    archivo_excel = forms.FileField(widget=forms.FileInput(
+                attrs={
+                    'accept': 'application/vnd.ms-excel',
+                },
+            )
+        )
+
+
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
 #     relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
