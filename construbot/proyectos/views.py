@@ -1,6 +1,8 @@
 import importlib
 import json
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView, FormView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
@@ -933,8 +935,15 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
 
 class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
     form_class = forms.ExcelConceptCatalogForm
+    template_name = 'proyectos/simple_form.html'
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ExcelConceptCatalog, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        import pdb; pdb.set_trace()
         data = self.form.cleaned_data
+        import pdb; pdb.set_trace()
         importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
         return super(ExcelConceptCatalog, self).form_valid(form)
