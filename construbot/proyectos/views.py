@@ -1,7 +1,7 @@
 import importlib
 import json
 from django.conf import settings
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView, FormView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -16,7 +16,7 @@ from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago
+    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -929,3 +929,12 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
         Called *only* if POST is successful.
         """
         return json.dumps({'chunked_id': chunked_upload.upload_id})
+
+
+class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
+    form_class = forms.ExcelConceptCatalogForm
+
+    def form_valid(self, form):
+        data = self.form.cleaned_data
+        importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
+        return super(ExcelConceptCatalog, self).form_valid(form)
