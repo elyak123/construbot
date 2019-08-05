@@ -15,50 +15,6 @@
         prefix: setPrefix,
         callbacks: callbacks
     });
-    $("#lanzar-excel").on("click", function(){
-      $.ajax({
-          type: 'GET',
-          url: '/proyectos/contrato/catalogo-import/',
-          success: function(result){
-            $("#modal-body-excel")[0].innerHTML = result;
-            $("#excelModalSubmit").on("click", function(evt){
-              evt.preventDefault();
-              let POST_data = $("#excel-form").serialize();
-              if($("#excel-form").find("input#id_archivo_excel")[0].value != ""){
-                $.ajax({
-                    type: 'POST',
-                    url: '/proyectos/contrato/catalogo-import/',
-                    data: POST_data,
-                    success: function(result){
-                      debugger;
-                      window.location.reload();
-                    },
-                    cache: false,
-                    contentType: false,
-                    processData: false,
-                    xhr: function () {
-                      var myXhr = $.ajaxSettings.xhr();
-                      if (myXhr.upload) {
-                        // For handling the progress of the upload
-                        myXhr.upload.addEventListener('progress', function (e) {
-                          if (e.lengthComputable) {
-                            $('progress').attr({
-                              value: e.loaded,
-                              max: e.total,
-                            });
-                          }
-                        }, false);
-                      }
-                      return myXhr;
-                    }
-                });
-              } else {
-                alert("¡Primero subir un archivo de excel!");
-              }
-            });
-          }
-      });
-    });
   </script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
@@ -77,8 +33,32 @@
   <button type="button" id="lanzar-excel" style="position: absolute; right:40px;" class="btn btn-success" data-toggle="modal" data-target="#excelModal">Importar desde archivo de Excel</button>
   <br>
   <br>
-  <form role="form" method="POST" class="form">
+  <form role="form" method="POST" class="form" enctype="multipart/form-data">
   {% csrf_token  %}
+  <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="excelModal">Subir Catálogo desde Excel</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modal-body-excel">
+          <input type="hidden" name="contrato" value="{{ object.pk }}" id="id_excel_contrato">
+          <div class="form-group">
+            <label for="id_file">Excel a subir: </label>
+            <input type="file" name="excel-file" class="" title="" id="id_excel_file">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
   {% bootstrap_formset_errors formset %}
   <table id="formset" class="form table_sample table_inline table_normal">
     {{ formset.management_form }}

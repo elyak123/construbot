@@ -713,6 +713,17 @@ class CatalogoConceptosInlineFormView(CatalogosView):
     tipo = 'conceptos'
 
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if 'excel-file' in request.FILES.keys():
+            importar_catalogo_conceptos_excel(
+                request.POST['contrato'],
+                request.FILES['excel-file'],
+                self.request.user.currently_at
+            )
+        return super().post(request, *args, **kwargs)
+
+
 class CatalogoUnitsInlineFormView(CatalogosView):
     permiso_requerido = 1
     asignacion_requerida = False
