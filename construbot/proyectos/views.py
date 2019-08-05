@@ -1,9 +1,7 @@
 import importlib
 import json
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView, FormView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -18,7 +16,7 @@ from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel
+    totalsinfacturar, total_sinpago
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -713,17 +711,6 @@ class CatalogoConceptosInlineFormView(CatalogosView):
     tipo = 'conceptos'
 
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if 'excel-file' in request.FILES.keys():
-            importar_catalogo_conceptos_excel(
-                request.POST['contrato'],
-                request.FILES['excel-file'],
-                self.request.user.currently_at
-            )
-        return super().post(request, *args, **kwargs)
-
-
 class CatalogoUnitsInlineFormView(CatalogosView):
     permiso_requerido = 1
     asignacion_requerida = False
@@ -942,19 +929,3 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
         Called *only* if POST is successful.
         """
         return json.dumps({'chunked_id': chunked_upload.upload_id})
-
-
-class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
-    form_class = forms.ExcelConceptCatalogForm
-    template_name = 'proyectos/simple_form.html'
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(ExcelConceptCatalog, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        import pdb; pdb.set_trace()
-        data = self.form.cleaned_data
-        import pdb; pdb.set_trace()
-        importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
-        return super(ExcelConceptCatalog, self).form_valid(form)

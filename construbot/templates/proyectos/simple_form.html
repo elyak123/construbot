@@ -1,7 +1,0 @@
-{% load bootstrap4 %}
-<form role="form" method="POST" id="excel-form" enctype="multipart/form-data">
-  {% csrf_token  %}
-  {% bootstrap_form form %}
-  <button type="submit" id="excelModalSubmit" class="btn btn-primary">Subir archivo</button>
-</form>
-<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
