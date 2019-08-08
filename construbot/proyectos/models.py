@@ -98,7 +98,7 @@ class ContratoSet(models.QuerySet):
         return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
 
 
-class Contrato(models.Model):
+class Contrato(MP_Node):
 
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
@@ -115,44 +115,7 @@ class Contrato(models.Model):
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
 
-    objects = models.Manager()
-    especial = ContratoSet.as_manager()
-
-    @property
-    def company(self):
-        return self.cliente.company
-
-    def get_absolute_url(self):
-        return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
-
-    def get_estimaciones(self):
-        return self.estimate_set.all().order_by('consecutive')
-
-    class Meta:
-        verbose_name = "Contrato"
-        verbose_name_plural = "Contratos"
-
-    def __str__(self):
-        return self.contrato_name
-
-
-class Contrato_Migration(MP_Node):
-
-    folio = models.IntegerField()
-    code = models.CharField(max_length=35, null=True, blank=True)
-    fecha = models.DateField()
-    contrato_name = models.CharField(max_length=300)
-    contrato_shortName = models.CharField(max_length=80)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
-    status = models.BooleanField(default=True)
-    file = models.FileField(
-        upload_to=utils.get_directory_path, blank=True, null=True,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
-    monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
-
+    path = models.CharField(max_length=255, unique=True, null=True, blank=True)
     objects = models.Manager()
     especial = ContratoSet.as_manager()
 
