@@ -115,7 +115,6 @@ class Contrato(MP_Node):
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
 
-    path = models.CharField(max_length=255, unique=True, null=True, blank=True)
     objects = models.Manager()
     especial = ContratoSet.as_manager()
 
