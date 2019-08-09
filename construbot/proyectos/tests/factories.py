@@ -52,6 +52,8 @@ class ContratoFactory(factory.django.DjangoModelFactory):
     monto = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
     cliente = factory.SubFactory(ClienteFactory)
     sitio = factory.SubFactory(SitioFactory)
+    path = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_letters + string.digits)
+    depth = 1
 
     class Meta:
         model = models.Contrato
