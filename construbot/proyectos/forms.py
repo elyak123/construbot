@@ -16,6 +16,10 @@ MY_DATE_FORMATS = '%Y-%m-%d'
 
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
+    """
+    Posiblemente en lugar de hacer for forms.Form podemos sobreescribir form.save(commit=False)
+    y despues hacer self.instance = MP_AddRootHandler.process(**self.cleaned_data)
+    """
 #     relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def clean(self):
