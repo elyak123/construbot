@@ -447,7 +447,10 @@ class ContratoCreationTest(BaseViewTest):
         self.request.user.currently_at = contrato_company
         self.request.user.company.add(contrato_company)
         self.request.user.groups.add(self.admin_group)
-        dicc = {"currently_at": contrato_company.company_name, "folio": 1, 'users': [self.request.user.id]}
+        dicc = {
+            'currently_at': contrato_company.company_name, 'folio': 1, 'users': [self.request.user.id],
+            'depth': 1, 'path': 'random', 'numchild': 0,
+            }
         view = self.get_instance(
             views.ContratoCreationView,
             request=self.request,
@@ -462,9 +465,10 @@ class ContratoCreationTest(BaseViewTest):
         self.request.user.company.add(contrato_company)
         self.request.user.groups.add(self.admin_group)
         dicc = {
-            "currently_at": contrato_company.company_name,
-            "folio": contrato.folio + 1,
-            'users': [self.request.user.id]
+            'currently_at': contrato_company.company_name,
+            'folio': contrato.folio + 1,
+            'users': [self.request.user.id],
+            'depth': 1, 'path': 'random', 'numchild': 0,
         }
         view = self.get_instance(
             views.ContratoCreationView,

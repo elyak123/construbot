@@ -1,6 +1,7 @@
+from django.db import transaction
 from django import forms
 from dal import autocomplete
-# from construbot.core.models import ChunkedCoreUpload
+from treebeard.mp_tree import MP_AddRootHandler
 from .models import (
     Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
     EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
@@ -22,6 +23,16 @@ class ContratoForm(forms.ModelForm):
     """
 #     relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+    def save(self, commit=True):
+        usrs = self.cleaned_data.pop('users')
+        self.cleaned_data.pop('currently_at')
+        with transaction.atomic():
+            self.instance = MP_AddRootHandler(Contrato, **self.cleaned_data).process()
+        super(ContratoForm, self).save(commit=False)
+        self.cleaned_data.update({'users': usrs})
+        self.save_m2m()
+        return self.instance
+
     def clean(self):
         result = super(ContratoForm, self).clean()
         if self.cleaned_data.get('currently_at') is None:
@@ -37,15 +48,6 @@ class ContratoForm(forms.ModelForm):
                 'Actualmente te encuentras en otra compañia, '
                 'es necesario recargar y repetir el proceso.'
             )
-
-#    def save(self, commit=True):
-#        instance = super(ContratoForm, self).save(commit=commit)
-#        if self.cleaned_data.get('relacion_id_archivo'):
-#            file = ChunkedCoreUpload.objects.get(upload_id=self.cleaned_data['relacion_id_archivo'])
-#            instance.file = file.file
-#            instance.save()
-#            file.delete(delete_file=False)
-#        return instance
 
     class Meta:
         model = Contrato

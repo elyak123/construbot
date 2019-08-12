@@ -365,6 +365,9 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
         initial_obj['users'] = [self.request.user.pk]
+        initial_obj['depth'] = 1
+        initial_obj['path'] = 'random'
+        initial_obj['numchild'] = 0
         return initial_obj
 
     def get_context_data(self, **kwargs):

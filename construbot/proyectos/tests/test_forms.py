@@ -30,6 +30,9 @@ class ContratoFormTest(BaseFormTest):
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
@@ -46,6 +49,9 @@ class ContratoFormTest(BaseFormTest):
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
@@ -56,6 +62,7 @@ class ContratoFormTest(BaseFormTest):
         except models.Contrato.DoesNotExist:
             self.fail('Contrato no fue guardado en base de datos.')
         self.assertIsInstance(contrato, models.Contrato)
+        self.assertNotEqual(contrato.path, 'random')
 
     def test_form_actually_changes_contrato(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -69,6 +76,9 @@ class ContratoFormTest(BaseFormTest):
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0
                      }
         form = forms.ContratoForm(data=form_data, instance=contrato_factory)
         form.request = self.request
