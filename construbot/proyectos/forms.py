@@ -1,7 +1,7 @@
 from django.db import transaction
 from django import forms
 from dal import autocomplete
-from treebeard.mp_tree import MP_AddRootHandler
+from treebeard.mp_tree import MP_AddRootHandler, MP_AddChildHandler
 from .models import (
     Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
     EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
@@ -17,17 +17,17 @@ MY_DATE_FORMATS = '%Y-%m-%d'
 
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
-    """
-    Posiblemente en lugar de hacer for forms.Form podemos sobreescribir form.save(commit=False)
-    y despues hacer self.instance = MP_AddRootHandler.process(**self.cleaned_data)
-    """
-#     relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
+    # relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def obj_transaction_process(self):
+        with transaction.atomic():
+            instance = MP_AddRootHandler(Contrato, **self.cleaned_data).process()
+        return instance
 
     def save(self, commit=True):
         usrs = self.cleaned_data.pop('users')
         self.cleaned_data.pop('currently_at')
-        with transaction.atomic():
-            self.instance = MP_AddRootHandler(Contrato, **self.cleaned_data).process()
+        self.instance = self.obj_transaction_process()
         super(ContratoForm, self).save(commit=False)
         self.cleaned_data.update({'users': usrs})
         self.save_m2m()
@@ -109,6 +109,14 @@ class ContratoForm(forms.ModelForm):
             'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
             'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
         }
+
+
+class SubContratoForm(ContratoForm):
+
+    def obj_transaction_process(self):
+        with transaction.atomic():
+            instance = MP_AddChildHandler(self.contrato, **self.cleaned_data).process()
+        return instance
 
 
 class BaseCleanForm(forms.ModelForm):

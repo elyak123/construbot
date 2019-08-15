@@ -342,7 +342,7 @@ class GeneratorPdfPrint(EstimateDetailView):
 
 
 class DummyFileForm(ProyectosMenuMixin, TemplateView):
-    template_name = 'core/dummy_input.html'        
+    template_name = 'core/dummy_input.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
@@ -356,16 +356,23 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         form.request = self.request
         return form
 
-    def get_initial(self):
-        initial_obj = super(ContratoCreationView, self).get_initial()
+    def get_max_id(self):
         max_id = self.form_class.Meta.model.objects.filter(
             cliente__company=self.request.user.currently_at
         ).aggregate(Max('folio'))['folio__max'] or 0
+        return max_id
+
+    def get_depth(self):
+        return 1
+
+    def get_initial(self):
+        initial_obj = super(ContratoCreationView, self).get_initial()
+        max_id = self.get_max_id()
         max_id += 1
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
         initial_obj['users'] = [self.request.user.pk]
-        initial_obj['depth'] = 1
+        initial_obj['depth'] = self.get_depth()
         initial_obj['path'] = 'random'
         initial_obj['numchild'] = 0
         return initial_obj
@@ -374,6 +381,29 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
         # context['dummy_file'] = True
+        return context
+
+
+class SubcontratoCreationView(ContratoCreationView):
+    form_class = forms.SubContratoForm
+
+    def get(self, request, *args, **kwargs):
+        self.contrato = Contrato.objects.get(pk=self.kwargs['pk'])
+        return super().get(request, *args, **kwargs)
+
+    def get_form(self, *args, **kwargs):
+        form = super(SubcontratoCreationView, self).get_form(form_class=None)
+        form.contrato = self.contrato
+
+    def get_max_id(self):
+        return self.contrato.get_children_count()
+
+    def get_depth(self):
+        return self.contrato.get_depth() + 1
+
+    def get_context_data(self, **kwargs):
+        context = super(ContratoCreationView, self).get_context_data(**kwargs)
+        context['subcontrato'] = True
         return context
 
 
