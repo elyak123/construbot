@@ -51,7 +51,11 @@ class ContratoForm(forms.ModelForm):
 
     class Meta:
         model = Contrato
-        fields = '__all__'
+        fields = [
+            'folio', 'code', 'fecha', 'contrato_name',
+            'contrato_shortName', 'cliente', 'sitio',
+            'status', 'file', 'monto', 'users', 'anticipo'
+        ]
         labels = {
             'code': 'Folio del contrato',
             'contrato_name': 'Nombre del contrato',

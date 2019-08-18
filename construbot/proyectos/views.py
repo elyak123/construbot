@@ -394,6 +394,7 @@ class SubcontratoCreationView(ContratoCreationView):
     def get_form(self, *args, **kwargs):
         form = super(SubcontratoCreationView, self).get_form(form_class=None)
         form.contrato = self.contrato
+        return form
 
     def get_max_id(self):
         return self.contrato.get_children_count()
