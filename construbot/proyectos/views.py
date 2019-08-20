@@ -387,9 +387,9 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 class SubcontratoCreationView(ContratoCreationView):
     form_class = forms.SubContratoForm
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.contrato = Contrato.objects.get(pk=self.kwargs['pk'])
-        return super().get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form(self, *args, **kwargs):
         form = super(SubcontratoCreationView, self).get_form(form_class=None)
