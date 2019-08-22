@@ -211,6 +211,29 @@
     {% else %}
         <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
     {% endif %}
+    {% comment %}
+    <div class="cont_listado">
+        <strong>Subcontratos</strong>
+        <a class="float-right" href="">Reporte de Subcontratistas</a>
+        <div class="float-right">
+            <span class="oi oi-plus toggle-button-1" style="display:none"></span><span class="oi oi-minus toggle-button-2"></span>
+        </div>
+    </div>
+    {% if contrato.get_children_count %}
+        <table class="table_sample table_normal toggle-hide">
+            <tbody>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Monto</th>
+                <th>Ejercido</th>
+                <th>Editar</th>
+            </tbody>
+            {% for subcontrato in contrato.get_children %}
+                <tr><td></td></tr>
+            {% endfor %}
+        </table>
+    {% endif%}
+    {% endcomment %}
     <br>
     <br>
     <div class="cont_listado">
