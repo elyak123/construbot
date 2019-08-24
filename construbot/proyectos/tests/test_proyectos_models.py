@@ -32,8 +32,8 @@ class ClienteModelTest(BaseModelTesCase):
 
     def test_contratos_ordenados_query_correct(self):
         cliente = factories.ClienteFactory()
-        contrato_1 = factories.ContratoFactory(cliente=cliente)
-        contrato_2 = factories.ContratoFactory(cliente=cliente)
+        contrato_1 = factories.ContratoFactory(contraparte=cliente)
+        contrato_2 = factories.ContratoFactory(contraparte=cliente)
         factories.ContratoFactory()
         contratos_ordenados = cliente.get_contratos_ordenados()
         qs_control = [repr(x) for x in sorted([contrato_1, contrato_2], key=lambda x: x.fecha, reverse=True)]
@@ -131,7 +131,7 @@ class ConceptoSetTest(BaseModelTesCase):
             {'estimate_cons': 2, 'code': 'TOPO', 'cuantity_estimated': 200},
             {'estimate_cons': 2, 'code': 'OTRO', 'cuantity_estimated': 3490},
         ]
-        contrato = factories.ContratoFactory()
+        contrato = factories.ContratoFactory(contraparte__tipo='CLIENTE')
         estimacion_1 = factories.EstimateFactory(
             draft_by=self.user,  # se ocupa porque si no truena
             supervised_by=self.user,
@@ -255,7 +255,7 @@ class ConceptTest(BaseModelTesCase):
         with self.assertRaises(ValidationError):
             concept_company = user_factories.CompanyFactory()
             unit = factories.UnitFactory()
-            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=concept_company)
+            concept = factories.ConceptoFactory(unit=unit, project__contraparte__company=concept_company)
             concept.full_clean()
 
     def test_importe_contratado(self):
@@ -313,7 +313,7 @@ class ConceptTest(BaseModelTesCase):
         with self.assertRaises(ValidationError):
             company = user_factories.CompanyFactory()
             unit = factories.UnitFactory()
-            concept = factories.ConceptoFactory(unit=unit, project__cliente__company=company)
+            concept = factories.ConceptoFactory(unit=unit, project__contraparte__company=company)
             concept.full_clean()
 
 

@@ -8,13 +8,16 @@ from django.core.files.images import ImageFile
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
 
+# CONTRPARTE_TIPOS = [x[0] for x in models.Contraparte.TIPOS]
+
 
 class ClienteFactory(factory.django.DjangoModelFactory):
     cliente_name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='cliente_')
     company = factory.SubFactory(CompanyFactory)
+    # tipo = factory.fuzzy.FuzzyChoice(CONTRPARTE_TIPOS)
 
     class Meta:
-        model = models.Cliente
+        model = models.Contraparte
 
 
 class SitioFactory(factory.django.DjangoModelFactory):
@@ -28,7 +31,7 @@ class SitioFactory(factory.django.DjangoModelFactory):
 class DestinatarioFactory(factory.django.DjangoModelFactory):
     destinatario_text = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='destinatario_')
     puesto = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters)
-    cliente = factory.SubFactory(ClienteFactory)
+    contraparte = factory.SubFactory(ClienteFactory)
 
     class Meta:
         model = models.Destinatario
@@ -50,7 +53,7 @@ class ContratoFactory(factory.django.DjangoModelFactory):
     )
     status = True
     monto = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
-    cliente = factory.SubFactory(ClienteFactory)
+    contraparte = factory.SubFactory(ClienteFactory)
     sitio = factory.SubFactory(SitioFactory)
     path = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_letters + string.digits)
     depth = 1

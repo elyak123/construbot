@@ -11,12 +11,20 @@ from construbot.users.models import Company
 
 
 # Create your models here.
-class Cliente(models.Model):
+class Contraparte(models.Model):
     """El modelo que representa la relación entre una
     empresa (Company) perteneciente al comprador (Customer)
-    y su cliente (modelo actual)"""
+    y su contraparte en relaciones comerciales (modelo actual)"""
+    TIPOS = (
+        ('CLIENTE', 'Cliente'), ('DESTAJISTA', 'Destajista'), ('SUBCONTRATISTA', 'Subcontratista')
+    )
     cliente_name = models.CharField(max_length=80, unique=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=14, choices=TIPOS, default='CLIENTE')
+
+    @property
+    def tipo_display(self):
+        return dict(self.TIPOS)[self.tipo]
 
     def get_absolute_url(self):
         return reverse('proyectos:cliente_detail', kwargs={'pk': self.id})
@@ -48,7 +56,13 @@ class Units(models.Model):
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
+
+    # def clean(self):
+    #     if self.cliente.tipo != 'CLIENTE':
+    #         raise ValidationError(
+    #             {'cliente': 'La contraparte debe de ser CLIENTE y no {}'.format(self.cliente.tipo)}
+    #         )
 
     @property
     def company(self):
@@ -71,11 +85,12 @@ class Sitio(models.Model):
 class Destinatario(models.Model):
     destinatario_text = models.CharField(max_length=80)
     puesto = models.CharField(max_length=50, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    # TODO: cambiar este campo a contra parte.
+    contraparte = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
 
     @property
     def company(self):
-        return self.cliente.company
+        return self.contraparte.company
 
     def get_absolute_url(self):
         return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
@@ -105,7 +120,8 @@ class Contrato(MP_Node):
     fecha = models.DateField()
     contrato_name = models.CharField(max_length=300)
     contrato_shortName = models.CharField(max_length=80)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    # TODO: cambiar este campo a contra parte, importante para que ContratoSet.asignaciones funcione
+    contraparte = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
     file = models.FileField(
@@ -132,7 +148,7 @@ class Contrato(MP_Node):
 
     @property
     def company(self):
-        return self.cliente.company
+        return self.contraparte.company
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
@@ -187,7 +203,7 @@ class Estimate(models.Model):
 
     @property
     def company(self):
-        return self.project.cliente.company
+        return self.project.contraparte.company
 
     def get_absolute_url(self):
         return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
@@ -354,7 +370,7 @@ class Concept(models.Model):
         return self.concept_text
 
     def clean(self):
-        if not self.unit.company == self.project.cliente.company:
+        if not self.unit.company == self.project.contraparte.company:
             raise ValidationError(
                 {
                     'unit': 'El concepto debe pertenecer a la misma compañia que su unidad.'

@@ -14,7 +14,7 @@ from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
 from construbot.core.models import ChunkedCoreUpload
 from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
     totalsinfacturar, total_sinpago
 
@@ -80,9 +80,9 @@ class ProyectosMenuMixin(auth.AuthenticationTestMixin):
         'Contrato': {
             'model': Contrato,
         },
-        'Cliente': {
+        'Contraparte': {
             'ordering': 'cliente_name',
-            'model': Cliente,
+            'model': Contraparte,
         },
         'Sitio': {
             'ordering': 'sitio_name',
@@ -100,19 +100,19 @@ class ProyectosMenuMixin(auth.AuthenticationTestMixin):
     def get_company_query(self, opcion):
         company_query = {
             'Contrato': {
-                'cliente__company': self.request.user.currently_at,
+                'contraparte__company': self.request.user.currently_at,
             },
-            'Cliente': {
+            'Contraparte': {
                 'company': self.request.user.currently_at
             },
             'Sitio': {
                 'cliente__company': self.request.user.currently_at
             },
             'Destinatario': {
-                'cliente__company': self.request.user.currently_at
+                'contraparte__company': self.request.user.currently_at
             },
             'Estimate': {
-                'project__cliente__company': self.request.user.currently_at
+                'project__contraparte__company': self.request.user.currently_at
             },
         }
         return company_query[opcion]
@@ -166,7 +166,7 @@ class ContratoListView(DynamicList):
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
-                cliente__company=self.request.user.currently_at).order_by(self.ordering)
+                contraparte__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
                 users=self.request.user,
@@ -176,7 +176,7 @@ class ContratoListView(DynamicList):
 
 
 class ClienteListView(DynamicList):
-    model = Cliente
+    model = Contraparte
 
 
 class SitioListView(DynamicList):
@@ -188,8 +188,8 @@ class DestinatarioListView(DynamicList):
 
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel < 3:
-            clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
-            self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
+            clientes = Contrato.especial.asignaciones(self.request.user, Contraparte)
+            self.queryset = Destinatario.objects.filter(contraparte__in=clientes).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
             return self.queryset
@@ -209,7 +209,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
     def get_contrato(self):
         self.contrato = get_object_403_or_404(
-            Contrato, self.request.user, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+            Contrato, self.request.user, pk=self.kwargs['pk'], contraparte__company=self.request.user.currently_at
         )
         return self.contrato
 
@@ -252,12 +252,12 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
             return self.object.get_contratos_ordenados()
         contratos = self.object.contrato_set.filter(
             users=self.request.user,
-             **self.get_company_query('Contrato')).order_by('-fecha')
+            **self.get_company_query('Contrato')).order_by('-fecha')
         return contratos
 
     def get_context_data(self, **kwargs):
         context = super(DynamicDetail, self).get_context_data(**kwargs)
-        if self.model is Sitio or self.model is Cliente:
+        if self.model is Sitio or self.model is Contraparte:
             context['contratos_ordenados'] = self.contratos_ordenados()
         return context
 
@@ -278,7 +278,7 @@ class ContratoDetailView(DynamicDetail):
 
 
 class ClienteDetailView(DynamicDetail):
-    model = Cliente
+    model = Contraparte
 
 
 class SitioDetailView(DynamicDetail):
@@ -358,7 +358,7 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
 
     def get_max_id(self):
         max_id = self.form_class.Meta.model.objects.filter(
-            cliente__company=self.request.user.currently_at
+            contraparte__company=self.request.user.currently_at
         ).aggregate(Max('folio'))['folio__max'] or 0
         return max_id
 
@@ -454,7 +454,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
                 Contrato,
                 self.request.user,
                 pk=self.kwargs.get('pk'),
-                cliente__company=self.request.user.currently_at
+                contraparte__company=self.request.user.currently_at
             )
         return self.project_instance
 
@@ -602,7 +602,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
                 Contrato,
                 self.request.user,
                 pk=self.kwargs['pk'],
-                cliente__company=self.request.user.currently_at
+                contraparte__company=self.request.user.currently_at
             )
         return self.object
 
@@ -648,7 +648,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
                 self.model,
                 self.request.user,
                 pk=self.kwargs['pk'],
-                project__cliente__company=self.request.user.currently_at
+                project__contraparte__company=self.request.user.currently_at
             )
         return self.object
 
@@ -713,7 +713,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
             self.object = get_object_403_or_404(
                 self.model,
                 self.request.user,
-                cliente__company=self.request.user.currently_at,
+                contraparte__company=self.request.user.currently_at,
                 pk=self.kwargs['pk']
             )
         return self.object
@@ -772,7 +772,7 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         self.object = self.get_object()
         if isinstance(self.object, (Contrato, Estimate)):
             return self.enforce_assignment(*self.get_assignment_args())
-        elif isinstance(self.object, Cliente):
+        elif isinstance(self.object, Contraparte):
             return self.permiso_requerido
         return self.nivel_permiso_asignado
 
@@ -834,12 +834,13 @@ class AutocompletePoryectos(BasicAutocomplete):
 
 
 class ClienteAutocomplete(AutocompletePoryectos):
-    model = Cliente
+    model = Contraparte
     ordering = 'cliente_name'
 
     def get_key_words(self):
         key_words = super(ClienteAutocomplete, self).get_key_words()
-        key_words.update({'company': self.request.user.currently_at})
+        key_words.update(
+            {'company': self.request.user.currently_at, 'tipo': 'CLIENTE'})
         return key_words
 
     def get_post_key_words(self):
@@ -859,7 +860,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = get_object_403_or_404(Cliente, self.request.user, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('cliente')))
         kw = {'cliente': cliente}
         return kw
 
@@ -870,11 +871,11 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
 
     def get_key_words(self):
         key_words = super(DestinatarioAutocomplete, self).get_key_words()
-        key_words.update({'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente})
+        key_words.update({'contraparte': Contrato.objects.get(pk=int(self.forwarded.get('project'))).contraparte})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente}
+        kw = {'contraparte': Contrato.objects.get(pk=int(self.forwarded.get('project'))).contraparte}
         return kw
 
 
