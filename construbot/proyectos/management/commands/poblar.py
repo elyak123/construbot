@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Max
 from construbot.users.tests import factories as user_factories
 from construbot.users.utils import establish_access_levels
 from construbot.users.models import NivelAcceso
@@ -119,7 +120,7 @@ class Command(BaseCommand):
             if self.clientes:
                 cliente = self.clientes[round(random() * len(self.clientes)-1)]
                 self.destinatarios.append(factories.DestinatarioFactory(
-                    cliente=cliente,
+                    contraparte=cliente,
                     destinatario_text='destinatario_{0}'.format(i))
                 )
             else:
@@ -131,17 +132,18 @@ class Command(BaseCommand):
         if self.clientes and self.sitios:
             for i in range(0, number):
                 date = date + timedelta(days=1)
-                count_cl = round(random() * len(self.clientes)-1)
                 count_sit = round(random() * len(self.sitios)-1)
-                comp = self.clientes[count_cl].company
-                max_id = len(Contrato.objects.filter(cliente__company=comp))
+                comp = self.sitios[count_sit].cliente.company
+                max_id = Contrato.objects.filter(
+                    contraparte__company=comp).aggregate(Max('folio'))['folio__max'] or 0
+                max_id += 1
                 self.contratos.append(factories.ContratoFactory(
-                    folio=max_id + 1,
-                    code="CON{0}".format(i),
+                    folio=max_id,
+                    code="CON{0}".format(max_id),
                     fecha=date,
-                    contrato_name='Contrato numero {0}'.format(i),
-                    contrato_shortName="ConNum{0}".format(i),
-                    cliente=self.clientes[count_cl],
+                    contrato_name='Contrato numero {0}'.format(max_id),
+                    contrato_shortName="ConNum{0}".format(max_id),
+                    contraparte=self.sitios[count_sit].cliente,
                     sitio=self.sitios[count_sit],)
                 )
         else:
@@ -158,7 +160,7 @@ class Command(BaseCommand):
                     project=contrato,
                     unit=factories.UnitFactory(
                         unit='unit{0}'.format(i),
-                        company=contrato.cliente.company)
+                        company=contrato.contraparte.company)
                 ))
             else:
                 raise ImproperlyConfigured('¡No existen contratos y/o unidades para asignarles a los conceptos!')
