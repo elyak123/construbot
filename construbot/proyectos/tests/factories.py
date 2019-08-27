@@ -58,6 +58,11 @@ class ContratoFactory(factory.django.DjangoModelFactory):
     path = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_letters + string.digits)
     depth = 1
 
+    # @classmethod
+    # para usar esto hay que comentar path y depth
+    # def _create(cls, model_class, *args, **kwargs):
+    #     return models.Contrato.add_root(*args, **kwargs)
+
     class Meta:
         model = models.Contrato
 
