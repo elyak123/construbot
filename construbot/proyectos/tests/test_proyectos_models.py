@@ -115,6 +115,28 @@ class EstimateModelTest(BaseModelTesCase):
             self.assertEqual(mock_properties.call_count, 1)
 
 
+# class AmortizarAnticipo(CBVTestCase):
+#     @tag('current')
+#     def test_amortizacion_anticipo_calcula_diff_positiva(self):
+#         conceptos = mock.Mock()
+#         importe_total_acumulado = mock.Mock()
+#         importe_total_acumulado.return_value = {'total': Decimal('6769073.97')}
+#         conceptos.importe_total_acumulado = importe_total_acumulado
+#         importe_total_contratado = mock.Mock()
+#         importe_total_contratado.return_value = {'total': Decimal('6748332.90')}
+#         conceptos.importe_total_contratado = importe_total_contratado
+#         estimacion = mock.Mock()
+#         total_estimate = mock.Mock()
+#         total_estimate.return_value = {'total': Decimal('2983666.88')}
+#         estimacion.total_estimate = total_estimate
+#         project = mock.Mock()
+#         anticipo = Decimal('30.00')
+#         project.anticipo = anticipo
+#         estimacion.project = project
+#         amortizacion = utils.amortizar_anticipo(conceptos, estimacion)
+#         self.assertEqual(round(amortizacion, 2), Decimal('888877.74'))
+
+
 class ConceptoSetTest(BaseModelTesCase):
 
     def generacion_estimaciones_con_conceptos(self):
