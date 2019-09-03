@@ -210,6 +210,8 @@ docutils==0.14 \
     --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
     --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6
+et-xmlfile==1.0.1 \
+    --hash=sha256:614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b
 factory-boy==2.9.2 \
     --hash=sha256:340c602f6fed2d8dd160397f28f2c0219e937f0488460450e8e5bf2add020ed6 \
     --hash=sha256:b8334bcc3c5b10af9a83ab5b8786f98cb322638dc1e6d320cad01c7f2b420e87
@@ -243,6 +245,9 @@ ipython==7.4.0 \
 itypes==1.1.0 \
     --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073 \
     # via coreapi
+jdcal==1.4.1 \
+    --hash=sha256:1abf1305fce18b4e8aa248cf8fe0c56ce2032392bc64bbd61b5dff2a19ec8bba \
+    --hash=sha256:472872e096eb8df219c23f2689fc336668bdb43d194094b5cc1707e1640acfc8
 jedi==0.13.3 \
     --hash=sha256:2bb0603e3506f708e792c7f4ad8fc2a7a9d9c2d292a358fbbd58da531695595b \
     --hash=sha256:2c6bcd9545c7d6440951b12b44d373479bf18123a401a52025cf98563fbd826c \
@@ -296,6 +301,8 @@ more-itertools==7.0.0 \
 oauthlib==3.0.1 \
     --hash=sha256:0ce32c5d989a1827e3f1148f98b9085ed2370fc939bf524c9c851d8714797298 \
     --hash=sha256:3e1e14f6cde7e5475128d30e97edc3bfb4dc857cb884d8714ec161fdbb3b358e
+openpyxl==2.6.2 \
+    --hash=sha256:1d2af392cef8c8227bd2ac3ebe3a28b25aba74fd4fa473ce106065f0b73bfe2e
 packaging==19.0 \
     --hash=sha256:0c98a5d0be38ed775798ece1b9727178c4469d9c3b4ada66e8e6b7849f8732af \
     --hash=sha256:9e1cbf8c12b1f1ce0bb5344b8d7ecf66a6f8a6e91bcb0c84593ed6d3ab5c4ab3 \

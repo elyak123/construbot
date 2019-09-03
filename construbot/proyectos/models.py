@@ -209,28 +209,41 @@ class Estimate(models.Model):
         return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
 
     def total_estimate(self):
-        total = self.estimateconcept_set.all().aggregate(
+        self.total = self.estimateconcept_set.all().aggregate(
             total=utils.Round(Sum(F('cuantity_estimated') * F('concept__unit_price'))))
-        if not total['total']:
-            total['total'] = Decimal(0)
-        return total
+        if not self.total['total']:
+            self.total['total'] = Decimal(0)
+        return self.total
 
     def amortizacion_anticipo(self):
-        amortizacion = self.total_estimate()['total'] * self.project.anticipo / 100
-        return amortizacion
+        self.total_acumulado = self.conceptos.importe_total_acumulado()['total'] or Decimal('0.00')
+        self.total_contratado = self.conceptos.importe_total_contratado()['total'] or Decimal('0.00')
+        diff = self.total_acumulado - self.total_contratado
+        if not hasattr(self, 'total'):
+            self.total = self.total_estimate()
+        if diff > 0:
+            self.amortizacion = ((self.total['total'] - diff) * self.project.anticipo) / 100
+            return self.amortizacion
+        self.amortizacion = self.total['total'] * self.project.anticipo / 100
+        return self.amortizacion
 
     def get_subtotal(self):
-        monto_total = self.total_estimate()['total']
-        return monto_total - (monto_total * (self.project.anticipo / 100))
+        if not hasattr(self, 'total'):
+            self.total = self.total_estimate()
+        if hasattr(self, 'amortizacion'):
+            return self.total['total'] - self.amortizacion
+        self.subtotal = self.total['total'] - self.amortizacion_anticipo()
+        return self.subtotal
 
     def get_total_retenciones(self):
         total_retenciones = 0
-        subtotal = self.get_subtotal()
+        if not hasattr(self, 'subtotal'):
+            self.subtotal = self.get_subtotal()
         for retencion in self.project.retenciones_set.all():
             if retencion.tipo == 'AMOUNT':
                 aux = retencion.valor
             else:
-                aux = subtotal * (retencion.valor/100)
+                aux = self.subtotal * (retencion.valor/100)
             total_retenciones = total_retenciones+aux
         return total_retenciones
 
@@ -249,13 +262,15 @@ class Estimate(models.Model):
         return retenciones
 
     def get_total_final(self):
-        subtotal = self.get_subtotal()
+        if not hasattr(self, 'subtotal'):
+            self.subtotal = self.get_subtotal()
         total_retenciones = self.get_total_retenciones()
-        return subtotal - total_retenciones
+        return self.subtotal - total_retenciones
 
     def anotaciones_conceptos(self):
         conceptos = Concept.especial.filter(estimate_concept=self).order_by('pk')
-        return conceptos.add_estimateconcept_properties(self.consecutive)
+        self.conceptos = conceptos.add_estimateconcept_properties(self.consecutive)
+        return self.conceptos
 
     class Meta:
         verbose_name = 'Estimacion'

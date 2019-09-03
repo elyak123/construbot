@@ -15,6 +15,7 @@
         prefix: setPrefix,
         callbacks: callbacks
     });
+
   </script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
@@ -30,10 +31,35 @@
   <button type="button" class="btn btn-default add-form-row">
       <span class="oi oi-plus" aria-hidden="true"></span>
   </button>
+  <button type="button" id="lanzar-excel" style="position: absolute; right:40px;" class="btn btn-success" data-toggle="modal" data-target="#excelModal">Importar desde archivo de Excel</button>
   <br>
   <br>
-  <form role="form" method="POST" class="form">
+  <form role="form" method="POST" class="form" enctype="multipart/form-data">
   {% csrf_token  %}
+  <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="excelModal">Subir Catálogo desde Excel</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="modal-body-excel">
+          <input type="hidden" name="contrato" value="{{ object.pk }}" id="id_excel_contrato">
+          <div class="form-group">
+            <label for="id_file">Excel a subir: </label>
+            <input type="file" name="excel-file" class="" title="" id="id_excel_file">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
   {% bootstrap_formset_errors formset %}
   <table id="formset" class="form table_sample table_inline table_normal">
     {{ formset.management_form }}
