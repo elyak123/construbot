@@ -1,12 +1,14 @@
 import tempfile
 import shutil
 from unittest import mock
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.core.files.images import ImageFile
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import override_settings, tag
-from construbot.users.tests import utils
+from test_plus.test import CBVTestCase
+from construbot.users.models import NivelAcceso
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
 from . import factories
@@ -14,14 +16,7 @@ from . import factories
 MOCK_MEDIA_ROOT = tempfile.mkdtemp()
 
 
-class BaseModelTesCase(utils.BaseTestCase):
-
-    def setUp(self):
-        super(BaseModelTesCase, self).setUp()
-        self.request = self.get_request(self.user)
-
-
-class ClienteModelTest(BaseModelTesCase):
+class ClienteModelTest(CBVTestCase):
 
     def test_correct_absolute_url(self):
         cliente = factories.ClienteFactory()
@@ -40,7 +35,7 @@ class ClienteModelTest(BaseModelTesCase):
         self.assertQuerysetEqual(contratos_ordenados, qs_control)
 
 
-class SitioModelTest(BaseModelTesCase):
+class SitioModelTest(CBVTestCase):
 
     def test_sitio_absolute_url_is_correct(self):
         sitio = factories.SitioFactory()
@@ -66,14 +61,19 @@ class SitioModelTest(BaseModelTesCase):
         )
 
 
-class ContratoModelTest(BaseModelTesCase):
+class ContratoModelTest(CBVTestCase):
 
     def test_contrato_absolute_url(self):
         contrato = factories.ContratoFactory()
         self.assertEqual(contrato.get_absolute_url(), '/proyectos/contrato/detalle/{}/'.format(contrato.pk))
 
 
-class EstimateModelTest(BaseModelTesCase):
+class EstimateModelTest(CBVTestCase):
+
+    def setUp(self):
+        self.user_factory = factories.UserFactory
+        self.auxiliar_permission, aux_created = NivelAcceso.objects.get_or_create(nivel=1, nombre='Auxiliar')
+        self.user = self.user_factory(nivel_acceso=self.auxiliar_permission)
 
     def test_estimacion_absolute_url(self):
         estimacion = factories.EstimateFactory(
@@ -114,30 +114,29 @@ class EstimateModelTest(BaseModelTesCase):
         except AttributeError:
             self.assertEqual(mock_properties.call_count, 1)
 
-
-# class AmortizarAnticipo(CBVTestCase):
-#     @tag('current')
-#     def test_amortizacion_anticipo_calcula_diff_positiva(self):
-#         conceptos = mock.Mock()
-#         importe_total_acumulado = mock.Mock()
-#         importe_total_acumulado.return_value = {'total': Decimal('6769073.97')}
-#         conceptos.importe_total_acumulado = importe_total_acumulado
-#         importe_total_contratado = mock.Mock()
-#         importe_total_contratado.return_value = {'total': Decimal('6748332.90')}
-#         conceptos.importe_total_contratado = importe_total_contratado
-#         estimacion = mock.Mock()
-#         total_estimate = mock.Mock()
-#         total_estimate.return_value = {'total': Decimal('2983666.88')}
-#         estimacion.total_estimate = total_estimate
-#         project = mock.Mock()
-#         anticipo = Decimal('30.00')
-#         project.anticipo = anticipo
-#         estimacion.project = project
-#         amortizacion = utils.amortizar_anticipo(conceptos, estimacion)
-#         self.assertEqual(round(amortizacion, 2), Decimal('888877.74'))
+    def test_amortizacion_anticipo_calcula_diff_positiva(self):
+        estimacion = factories.EstimateFactory(
+            supervised_by=self.user, draft_by=self.user, project__anticipo=Decimal('30.00')
+        )
+        estimacion_conceptos = mock.Mock()
+        estimacion_conceptos_importe_total_contratado = mock.Mock()
+        estimacion_conceptos_importe_total_contratado.return_value = {'total': Decimal('6748332.90')}
+        estimacion_conceptos_importe_total_acumulado = mock.Mock()
+        estimacion_conceptos_importe_total_acumulado.return_value = {'total': Decimal('6769073.97')}
+        estimacion.conceptos = estimacion_conceptos
+        estimacion.conceptos.importe_total_acumulado = estimacion_conceptos_importe_total_acumulado
+        estimacion.conceptos.importe_total_contratado = estimacion_conceptos_importe_total_contratado
+        estimacion.total = {'total': Decimal('2983666.88')}
+        amortizacion = estimacion.amortizacion_anticipo()
+        self.assertEqual(round(amortizacion, 2), Decimal('888877.74'))
 
 
-class ConceptoSetTest(BaseModelTesCase):
+class ConceptoSetTest(CBVTestCase):
+
+    def setUp(self):
+        self.user_factory = factories.UserFactory
+        self.auxiliar_permission, aux_created = NivelAcceso.objects.get_or_create(nivel=1, nombre='Auxiliar')
+        self.user = self.user_factory(nivel_acceso=self.auxiliar_permission)
 
     def generacion_estimaciones_con_conceptos(self):
         conceptos_list = [
@@ -271,7 +270,7 @@ class ConceptoSetTest(BaseModelTesCase):
         )
 
 
-class ConceptTest(BaseModelTesCase):
+class ConceptTest(CBVTestCase):
 
     def test_unit_different_company_from_concept_raises(self):
         with self.assertRaises(ValidationError):
@@ -340,7 +339,12 @@ class ConceptTest(BaseModelTesCase):
 
 
 @override_settings(MEDIA_ROOT=MOCK_MEDIA_ROOT)
-class ImageEstimateConceptTest(BaseModelTesCase):
+class ImageEstimateConceptTest(CBVTestCase):
+
+    def setUp(self):
+        self.user_factory = factories.UserFactory
+        self.auxiliar_permission, aux_created = NivelAcceso.objects.get_or_create(nivel=1, nombre='Auxiliar')
+        self.user = self.user_factory(nivel_acceso=self.auxiliar_permission)
 
     def tearDown(self):
         shutil.rmtree(MOCK_MEDIA_ROOT, ignore_errors=True)
