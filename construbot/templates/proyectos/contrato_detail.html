@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load humanize %}
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 {% block javascript %}
@@ -66,7 +65,6 @@
     </script>
 {% endblock javascript %}
 {% block content %}
-{% language 'es' %}
 <h2 class="title" > Reporte de contrato </h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
@@ -93,7 +91,7 @@
         {% if almenos_coordinador %}
         <tr>
             <td>Monto sin IVA</td>
-            <td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
+            <td>$ {{ contrato.monto|intcomma }}</td>
         </tr>
         {% endif %}
         <tr>
@@ -161,7 +159,7 @@
             <tr>
                 <td>{{ estimacion.consecutive }}</td>
                 <td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-                {% if almenos_coordinador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
+                {% if almenos_coordinador %}<td>$ {{ estimacion.total_estimate.total|intcomma }}</td>
                 <td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>{% endif %}
                 <td>
                     <a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a>{% if almenos_coordinador %} /
@@ -198,7 +196,7 @@
             {% for retencion in contrato.retenciones_set.all %}
                 <tr>
                     <td>{{ retencion.nombre }}</td>
-                    <td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{% language 'en' %}{{ retencion.valor|intcomma }}{% endlanguage %}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
+                    <td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor|intcomma }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
                 </tr>
             {% endfor %}
                 <tr>
@@ -211,7 +209,6 @@
     {% else %}
         <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
     {% endif %}
-    {% comment %}
     <div class="cont_listado">
         <strong>Subcontratos</strong>
         <a class="float-right" href="">Reporte de Subcontratistas</a>
@@ -229,11 +226,18 @@
                 <th>Editar</th>
             </tbody>
             {% for subcontrato in contrato.get_children %}
-                <tr><td></td></tr>
+                <tr>
+                    <td>{{ subcontrato.code }}</td>
+                    <td>{{ subcontrato.contraparte }}</td>
+                    <td>{{ subcontrato.monto|intcomma }}</td>
+                    <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                    <td></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No hay subcontratos.</td></tr>
             {% endfor %}
         </table>
     {% endif%}
-    {% endcomment %}
     <br>
     <br>
     <div class="cont_listado">
@@ -255,5 +259,4 @@
         <div id="toggle-hide" style="display:none;" class="cont_message text-center">¡No ha subido el PDF del contrato!, súbalo <a href="{% url 'proyectos:editar_contrato' contrato.id %}">Aquí</a>.</div>
     {% endif %}
 {% endif %}
-{% endlanguage %}
 {% endblock %}

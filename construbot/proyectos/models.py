@@ -120,7 +120,6 @@ class Contrato(MP_Node):
     fecha = models.DateField()
     contrato_name = models.CharField(max_length=300)
     contrato_shortName = models.CharField(max_length=80)
-    # TODO: cambiar este campo a contra parte, importante para que ContratoSet.asignaciones funcione
     contraparte = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
@@ -155,6 +154,13 @@ class Contrato(MP_Node):
 
     def get_estimaciones(self):
         return self.estimate_set.all().order_by('consecutive')
+
+    def ejercido_acumulado(self):
+        consecutivo_estimacion = self.estimate_set.aggregate(models.Max('consecutive'))['consecutive__max']
+        try:
+            return Concept.especial.estimado_a_la_fecha(consecutivo_estimacion)
+        except ValueError:
+            return Decimal('0.00')
 
     class Meta:
         verbose_name = "Contrato"
