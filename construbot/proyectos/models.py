@@ -155,6 +155,10 @@ class Contrato(MP_Node):
     def get_estimaciones(self):
         return self.estimate_set.all().order_by('consecutive')
 
+    def get_top_10_children(self):
+        query = self.get_children()
+        return query.order_by('-monto')[:10]
+
     def ejercido_acumulado(self):
         consecutivo_estimacion = self.estimate_set.aggregate(models.Max('consecutive'))['consecutive__max']
         try:

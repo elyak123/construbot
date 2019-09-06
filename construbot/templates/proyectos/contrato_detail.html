@@ -102,6 +102,12 @@
             <td>¿Terminado?</td>
             <td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
         </tr>
+        {% if not contrato.is_root %}
+            <tr>
+                <td>Contrato Padre</td>
+                <td><a href="{% url 'proyectos:contrato_detail' contrato.get_parent.pk %}">{{ contrato.get_parent.contrato_shortName }}</a></td>
+            </tr>
+        {% endif %}
         {% if almenos_coordinador %}
         <tr>
             <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
@@ -211,33 +217,32 @@
     {% endif %}
     <div class="cont_listado">
         <strong>Subcontratos</strong>
-        <a class="float-right" href="">Reporte de Subcontratistas</a>
         <div class="float-right">
             <span class="oi oi-plus toggle-button-1" style="display:none"></span><span class="oi oi-minus toggle-button-2"></span>
         </div>
+        <a class="float-right" href="">Reporte de Subcontratistas</a>
     </div>
-    {% if contrato.get_children_count %}
-        <table class="table_sample table_normal toggle-hide">
-            <tbody>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Monto</th>
-                <th>Ejercido</th>
-                <th>Editar</th>
-            </tbody>
-            {% for subcontrato in contrato.get_children %}
-                <tr>
-                    <td>{{ subcontrato.code }}</td>
-                    <td>{{ subcontrato.contraparte }}</td>
-                    <td>{{ subcontrato.monto|intcomma }}</td>
-                    <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
-                    <td></td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="5">No hay subcontratos.</td></tr>
-            {% endfor %}
-        </table>
-    {% endif%}
+    <table class="table_sample table_normal toggle-hide">
+        <tbody>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Monto</th>
+            <th>Ejercido</th>
+            <th>Editar</th>
+        </tbody>
+        {% for subcontrato in contrato.get_top_10_children %}
+            <tr>
+                <td>{{ subcontrato.code }}</td>
+                <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
+                <td>{{ subcontrato.monto|intcomma }}</td>
+                <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                <td></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">No hay subcontratos.</td></tr>
+        {% endfor %}
+    </table>
+
     <br>
     <br>
     <div class="cont_listado">
