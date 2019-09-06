@@ -9,21 +9,20 @@ from .models import Contrato, Estimate, Concept, Units
 def contratosvigentes(user):
     if user.nivel_acceso.nivel >= 3:
         contratos = Contrato.objects.select_related('contraparte').filter(
-            status=True, contraparte__company=user.currently_at).annotate(total_estimado=Round(Sum(
+            status=True, contraparte__company=user.currently_at, depth=1).annotate(total_estimado=Round(Sum(
                 F('estimate__estimateconcept__cuantity_estimated') *
                 F('estimate__estimateconcept__concept__unit_price')
             ) / F('monto') * 100
             )).order_by('-monto')
     elif user.nivel_acceso.nivel == 2:
         contratos = Contrato.objects.select_related('contraparte').filter(
-            status=True, contraparte__company=user.currently_at, users=user).annotate(total_estimado=Round(Sum(
-                F('estimate__estimateconcept__cuantity_estimated') *
-                F('estimate__estimateconcept__concept__unit_price')
-            ) / F('monto') * 100
+            status=True, contraparte__company=user.currently_at, users=user, depth=1).annotate(total_estimado=Round(
+                Sum(F('estimate__estimateconcept__cuantity_estimated') *
+                    F('estimate__estimateconcept__concept__unit_price')) / F('monto') * 100
             )).order_by('-monto')
     else:
         contratos = Contrato.objects.select_related('contraparte').filter(
-            status=True, contraparte__company=user.currently_at, users=user
+            status=True, contraparte__company=user.currently_at, users=user, depth=1
             ).order_by('-folio')
     return contratos
 
