@@ -230,17 +230,19 @@
             <th>Ejercido</th>
             <th>Editar</th>
         </tbody>
-        {% for subcontrato in contrato.get_top_10_children %}
-            <tr>
-                <td>{{ subcontrato.code }}</td>
-                <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
-                <td>{{ subcontrato.monto|intcomma }}</td>
-                <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
-                <td></td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="5">No hay subcontratos.</td></tr>
-        {% endfor %}
+        {% if not contrato.is_leaf %}
+            {% for subcontrato in contrato.get_top_10_children %}
+                <tr>
+                    <td>{{ subcontrato.code }}</td>
+                    <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
+                    <td>{{ subcontrato.monto|intcomma }}</td>
+                    <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                    <td></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No hay subcontratos.</td></tr>
+            {% endfor %}
+        {% endif %}
     </table>
 
     <br>
