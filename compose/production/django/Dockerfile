@@ -29,15 +29,6 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk del .build-deps
 ##
 
-RUN apk add --update --no-cache \
-    libgcc libstdc++ libx11 glib libxrender libxext libintl \
-    libcrypto1.0 libssl1.0 \
-    ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family wget
-
-
-RUN wget -O /bin/wkhtmltopdf https://s3-us-west-2.amazonaws.com/elyak123-wkhtmltopdf/wkhtmltopdf
-RUN chmod +x /bin/wkhtmltopdf
-
 COPY ./compose/production/django/gunicorn.sh /gunicorn.sh
 RUN sed -i 's/\r//' /gunicorn.sh
 RUN chmod +x /gunicorn.sh
