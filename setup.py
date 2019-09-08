@@ -65,8 +65,6 @@ setup(
         # Compressing static files
         'rcssmin==1.0.6 ',
         'django-compressor==2.2',
-        # PDF Generation
-        'django-wkhtmltopdf==3.2.0',
         # FrontEnd Libraries
         'django-autocomplete-light==3.3.2',
         'django-bootstrap4==0.0.8',
