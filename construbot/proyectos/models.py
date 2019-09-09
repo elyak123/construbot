@@ -194,6 +194,21 @@ class Retenciones(models.Model):
         return self.nombre
 
 
+class EstimateSet(models.QuerySet):
+
+    def acumulado_subestimaciones(self):
+        conceptos = EstimateConcept.especial.filter(
+            estimate__project=models.OuterRef('project'),
+            estimate__consecutive__lte=models.OuterRef('consecutive')
+        ).annotate(
+            estimado=Sum(
+                F('cuantity_estimated') * F('concept__unit_price'))
+            ).filter(estimate=models.OuterRef('pk')).values('estimado')
+        return self.annotate(
+            acum=models.Subquery(conceptos, output_field=models.DecimalField())
+        )
+
+
 class Estimate(models.Model):
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
@@ -210,6 +225,9 @@ class Estimate(models.Model):
     payment_date = models.DateField(null=True, blank=True)
     mostrar_anticipo = models.BooleanField(default=False)
     mostrar_retenciones = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    especial = EstimateSet.as_manager()
 
     @property
     def company(self):
