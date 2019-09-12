@@ -18,7 +18,7 @@ from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel
+    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel, importar_catalogo_retenciones_excel
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -751,6 +751,16 @@ class CatalogoRetencionesInlineFormView(CatalogosView):
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'retenciones'
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if 'excel-file' in request.FILES.keys():
+            importar_catalogo_retenciones_excel(
+                request.POST['contrato'],
+                request.FILES['excel-file'],
+                self.request.user.currently_at
+            )
+        return super().post(request, *args, **kwargs)
+
 
 class CatalogoConceptosInlineFormView(CatalogosView):
     change_company_ability = False
@@ -1000,8 +1010,6 @@ class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
         return super(ExcelConceptCatalog, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        import pdb; pdb.set_trace()
         data = self.form.cleaned_data
-        import pdb; pdb.set_trace()
         importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
         return super(ExcelConceptCatalog, self).form_valid(form)
