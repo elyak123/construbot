@@ -197,15 +197,28 @@ class Retenciones(models.Model):
 class EstimateSet(models.QuerySet):
 
     def acumulado_subestimaciones(self):
-        conceptos = EstimateConcept.especial.filter(
-            estimate__project=models.OuterRef('project'),
-            estimate__consecutive__lte=models.OuterRef('consecutive')
-        ).annotate(
-            estimado=Sum(
-                F('cuantity_estimated') * F('concept__unit_price'))
-            ).filter(estimate=models.OuterRef('pk')).values('estimado')
+
+        foo = Concept.especial.filter(estimate_concept=models.OuterRef('pk')).annotate(
+            ec=models.Subquery(
+                EstimateConcept.objects.filter(
+                    estimate__consecutive__lte=models.OuterRef('estimate_concept__consecutive')
+                ).order_by().values('concept').annotate(
+                    estimado=Sum(F('cuantity_estimated') * F('concept__unit_price'))
+                ).values('estimado').filter(
+                        concept=models.OuterRef('pk')
+                ),
+                output_field=models.DecimalField()
+            )
+        ).annotate(total=Sum('ec')).values('ec')
+        # conceptos = EstimateConcept.especial.filter(
+        #     estimate__project=models.OuterRef('project'),
+        #     estimate__consecutive__lte=models.OuterRef('consecutive')
+        # ).annotate(
+        #     estimado=Sum(
+        #         F('cuantity_estimated') * F('concept__unit_price'))
+        #     ).filter(estimate=models.OuterRef('pk')).order_by().values('estimado')
         return self.annotate(
-            acum=models.Subquery(conceptos, output_field=models.DecimalField())
+            acum=models.Subquery(foo, output_field=models.DecimalField())
         )
 
 
