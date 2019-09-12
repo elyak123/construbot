@@ -56,7 +56,7 @@ def totalsinfacturar(estimaciones):
 
 
 def importar_catalogo_conceptos_excel(contrato_id, excel, currently_at):
-    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, cliente__company=currently_at)
+    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, contraparte__company=currently_at)
     unidades = {}
     ws = load_workbook(excel).active
     for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
@@ -76,23 +76,17 @@ def importar_catalogo_conceptos_excel(contrato_id, excel, currently_at):
 
 
 def importar_catalogo_retenciones_excel(contrato_id, excel, currently_at):
-    import pdb; pdb.set_trace()
-    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, cliente__company=currently_at)
+    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, contraparte__company=currently_at)
     unidades = {}
     ws = load_workbook(excel).active
-    import pdb; pdb.set_trace()
     for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
         nombre = row[0]
-        tipo = ""
+        tipo = None
         if row[1].lower() == 'porcentaje':
             tipo = 'PERCENTAGE'
         elif row[1].lower() == 'monto':
             tipo = 'AMOUNT'
         valor = row[2]
-        try:
-            Retenciones.objects.create(
-                nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
-            )
-        except Exception as e:
-            pass
-
+        Retenciones.objects.create(
+            nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
+        )
