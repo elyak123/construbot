@@ -198,28 +198,34 @@ class EstimateSet(models.QuerySet):
 
     def acumulado_subestimaciones(self):
 
-        foo = Concept.especial.filter(estimate_concept=models.OuterRef('pk')).annotate(
-            ec=models.Subquery(
-                EstimateConcept.objects.filter(
-                    estimate__consecutive__lte=models.OuterRef('estimate_concept__consecutive')
-                ).order_by().values('concept').annotate(
-                    estimado=Sum(F('cuantity_estimated') * F('concept__unit_price'))
-                ).values('estimado').filter(
-                        concept=models.OuterRef('pk')
-                ),
-                output_field=models.DecimalField()
-            )
-        ).annotate(total=Sum('ec')).values('ec')
-        # conceptos = EstimateConcept.especial.filter(
-        #     estimate__project=models.OuterRef('project'),
-        #     estimate__consecutive__lte=models.OuterRef('consecutive')
-        # ).annotate(
-        #     estimado=Sum(
-        #         F('cuantity_estimated') * F('concept__unit_price'))
-        #     ).filter(estimate=models.OuterRef('pk')).order_by().values('estimado')
+        sql = """
+            SELECT  U1."id", U1."consecutive", U3."contrato_shortName", SUM(U0."cuantity_estimated" * U2."unit_price") AS "estimado", (
+                SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
+                FROM "proyectos_estimateconcept" I0
+                INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                WHERE I3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
+            ) AS "acumulado"
+            FROM "proyectos_estimateconcept" U0
+            INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+            INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+            INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+            WHERE U3."id" = U1."project_id"
+            GROUP BY U1."id", U3."id"
+        """
+
         return self.annotate(
-            acum=models.Subquery(foo, output_field=models.DecimalField())
-        )
+            acum=models.Subquery(
+                EstimateConcept.especial.filter(
+                    estimate__project=models.OuterRef('project'),
+                    estimate__consecutive__lte=models.OuterRef('consecutive')
+                ).annotate(
+                    estimado=Sum(
+                        F('cuantity_estimated') * F('concept__unit_price'))
+                    ).filter(estimate=models.OuterRef('pk')).order_by().values('estimado').annotate(ec=Sum('estimado')),
+                output_field=models.DecimalField())
+            )
 
 
 class Estimate(models.Model):
