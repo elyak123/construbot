@@ -9,7 +9,6 @@ from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -317,29 +316,6 @@ class SubcontratosReport(EstimateDetailView):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
         context['subestimaciones'] = Estimate.especial.acumulado_subestimaciones(
             self.object.start_date, self.finish_date, self.object.project.depth, self.object.project.path)
-        return context
-
-
-class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
-    filename = None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.get_context_data(object=self.object)
-        return super(BasePDFGenerator, self).get(self.request, *args, **kwargs)
-
-    def get_cmd_options(self):
-        return {
-            'orientation': 'Landscape',
-            'page-size': 'Letter',
-            'dpi': '300',
-            'print-media-type ': None
-
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super(BasePDFGenerator, self).get_context_data(**kwargs)
-        context['pdf'] = True
         return context
 
 
