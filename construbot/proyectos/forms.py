@@ -124,6 +124,17 @@ class ContratoForm(forms.ModelForm):
 
 class SubContratoForm(ContratoForm):
 
+    def __init__(self, *args, **kwargs):
+        super(SubContratoForm, self).__init__(*args, **kwargs)
+        self.fields['sitio'].widget = forms.HiddenInput()
+        self.fields['contraparte'].widget = autocomplete.ModelSelect2(
+            url='proyectos:subcontratista-autocomplete',
+            attrs={'data-minimum-input-length': 3}
+        )
+        #  Debido a:
+        #  https://github.com/yourlabs/django-autocomplete-light/issues/790#issuecomment-276309980
+        self.fields['contraparte'].widget.choices = self.fields['contraparte'].choices
+
     def obj_transaction_process(self):
         with transaction.atomic():
             instance = MP_AddChildHandler(self.contrato, **self.cleaned_data).process()

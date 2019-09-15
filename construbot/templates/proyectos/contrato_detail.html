@@ -65,7 +65,7 @@
     </script>
 {% endblock javascript %}
 {% block content %}
-<h2 class="title" > Reporte de contrato </h2>
+<h2 class="title" > Reporte de {% if not contrato.is_root %}sub{% endif %}contrato </h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
     <table class="table_sample table_detalle">
@@ -81,7 +81,7 @@
             <td>{{ contrato.contrato_shortName }}</td>
         </tr>
         <tr>
-            <td>Cliente</td>
+            <td>{{ contrato.contraparte.tipo_display }}</td>
             <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.contraparte.id %}">{{ contrato.contraparte.cliente_name }}</a></td>
         </tr>
         <tr>
@@ -215,36 +215,36 @@
     {% else %}
         <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
     {% endif %}
+    {% if not contrato.is_leaf %}
     <div class="cont_listado">
         <strong>Subcontratos</strong>
         <div class="float-right">
             <span class="oi oi-plus toggle-button-1" style="display:none"></span><span class="oi oi-minus toggle-button-2"></span>
         </div>
         <a class="float-right" href="">Reporte de Subcontratistas</a>
-    </div>
-    <table class="table_sample table_normal toggle-hide">
-        <tbody>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Monto</th>
-            <th>Ejercido</th>
-            <th>Editar</th>
-        </tbody>
-        {% if not contrato.is_leaf %}
-            {% for subcontrato in contrato.get_top_10_children %}
-                <tr>
-                    <td>{{ subcontrato.code }}</td>
-                    <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
-                    <td>{{ subcontrato.monto|intcomma }}</td>
-                    <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
-                    <td></td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="5">No hay subcontratos.</td></tr>
-            {% endfor %}
-        {% endif %}
-    </table>
+        </div>
+        <table class="table_sample table_normal toggle-hide">
+            <tbody>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Monto</th>
+                <th>Ejercido</th>
+                <th>Editar</th>
+            </tbody>
 
+                {% for subcontrato in contrato.get_top_10_children %}
+                    <tr>
+                        <td>{{ subcontrato.code }}</td>
+                        <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
+                        <td>{{ subcontrato.monto|intcomma }}</td>
+                        <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                        <td></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">No hay subcontratos.</td></tr>
+                {% endfor %}
+        </table>
+    {% endif %}
     <br>
     <br>
     <div class="cont_listado">

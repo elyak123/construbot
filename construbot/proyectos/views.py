@@ -389,6 +389,11 @@ class SubcontratoCreationView(ContratoCreationView):
     def get_depth(self):
         return self.contrato.get_depth() + 1
 
+    def get_initial(self):
+        obj = super(SubcontratoCreationView, self).get_initial()
+        obj.update({'sitio': self.contrato.sitio})
+        return obj
+
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['subcontrato'] = True
@@ -834,16 +839,25 @@ class AutocompletePoryectos(BasicAutocomplete):
 class ClienteAutocomplete(AutocompletePoryectos):
     model = Contraparte
     ordering = 'cliente_name'
+    tipo = 'CLIENTE'
 
     def get_key_words(self):
         key_words = super(ClienteAutocomplete, self).get_key_words()
         key_words.update(
-            {'company': self.request.user.currently_at, 'tipo': 'CLIENTE'})
+            {'company': self.request.user.currently_at, 'tipo': self.tipo})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'company': self.request.user.currently_at}
+        kw = {'company': self.request.user.currently_at, 'tipo': self.tipo}
         return kw
+
+
+class SubcontratistaAutocomplete(ClienteAutocomplete):
+    tipo = 'SUBCONTRATISTA'
+
+
+class DestajistaAutocomplete(ClienteAutocomplete):
+    tipo = 'DESTAJISTA'
 
 
 class SitioAutocomplete(AutocompletePoryectos):
@@ -858,7 +872,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('contraparte')))
         kw = {'cliente': cliente}
         return kw
 

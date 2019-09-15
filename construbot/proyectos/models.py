@@ -33,8 +33,8 @@ class Contraparte(models.Model):
         return self.contrato_set.all().order_by('-fecha')
 
     class Meta:
-        verbose_name = "Cliente"
-        verbose_name_plural = "Clientes"
+        verbose_name = "Contraparte"
+        verbose_name_plural = "Contrapartes"
 
     def __str__(self):
         return self.cliente_name

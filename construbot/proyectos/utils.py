@@ -32,21 +32,23 @@ def sumatoria_query(queryset, campo):
 
 
 def estimacionespendientes_facturacion(company, almenos_coordinador, user):
-    kw = {'project__contraparte__company': company, 'invoiced': False}
+    kw = {'project__contraparte__company': company, 'invoiced': False, 'project__depth': 1}
     if not almenos_coordinador:
         kw['project__users'] = user
     return Estimate.objects.select_related('project').filter(**kw)
 
 
 def estimacionespendientes_pago(company, almenos_coordinador, user):
-    kw = {'project__contraparte__company': company, 'invoiced': True, 'paid': False}
+    kw = {'project__contraparte__company': company, 'invoiced': True, 'paid': False, 'project__depth': 1}
     if not almenos_coordinador:
         kw['project__users'] = user
     return Estimate.objects.select_related('project').filter(**kw)
 
 
 def total_sinpago(estimaciones):
-    return estimaciones.aggregate(total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price'))))['total']
+    return estimaciones.aggregate(
+        total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
+    )['total']
 
 
 def totalsinfacturar(estimaciones):
