@@ -199,31 +199,32 @@ class EstimateSet(models.QuerySet):
     def acumulado_subestimaciones(self, start_date, finish_date, depth, path):
         path = path + '%'
         sql = """
-            SELECT  U1."id", U1."consecutive", U3."contrato_shortName", SUM(U0."cuantity_estimated" * U2."unit_price") AS "estimado", (
-                SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
-                FROM "proyectos_estimateconcept" I0
-                INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
-                INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
-                INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
-                WHERE I3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
-            ) AS "acumulado",
-            (
-                SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
-                FROM "proyectos_estimateconcept" I0
-                INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
-                INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
-                INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
-                WHERE I3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
-            )AS "anterior",
-            (
-                SELECT SUM( I0."total_cuantity" * I0."unit_price")
-                FROM "proyectos_concept" I0
-                INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
-                INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
-                INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
-                WHERE I0."project_id" = I1."id" AND I3."id" = U1."id"
-                GROUP BY I3."id"
-            ) AS "contratado"
+            SELECT  U1."id", U1."consecutive", U3."contrato_shortName",
+                SUM(U0."cuantity_estimated" * U2."unit_price") AS "estimado", (
+                    SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
+                    FROM "proyectos_estimateconcept" I0
+                    INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                    INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                    INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                    WHERE I3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
+                ) AS "acumulado",
+                (
+                    SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
+                    FROM "proyectos_estimateconcept" I0
+                    INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                    INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                    INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                    WHERE I3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
+                )AS "anterior",
+                (
+                    SELECT SUM( I0."total_cuantity" * I0."unit_price")
+                    FROM "proyectos_concept" I0
+                    INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
+                    INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
+                    INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
+                    WHERE I0."project_id" = I1."id" AND I3."id" = U1."id"
+                    GROUP BY I3."id"
+                ) AS "contratado"
             FROM "proyectos_estimateconcept" U0
             INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
             INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
@@ -234,7 +235,12 @@ class EstimateSet(models.QuerySet):
                 AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
             GROUP BY U1."id", U3."id"
         """
-        return self.raw(sql, params={'start_date': start_date, 'finish_date': finish_date, 'path': path, 'depth': depth})
+        return self.raw(
+            sql, params={
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            }
+        )
 
 
 class Estimate(models.Model):
