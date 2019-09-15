@@ -65,7 +65,6 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
-    'wkhtmltopdf',  # pdf generation
     'chunked_upload',  # user uploads
     'treebeard',
 ]
