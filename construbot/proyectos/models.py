@@ -197,7 +197,7 @@ class Retenciones(models.Model):
 class EstimateSet(models.QuerySet):
 
     def acumulado_subestimaciones(self, start_date, finish_date, depth, path):
-
+        path = path + '%'
         sql = """
             SELECT  U1."id", U1."consecutive", U3."contrato_shortName", SUM(U0."cuantity_estimated" * U2."unit_price") AS "estimado", (
                 SELECT SUM(I0."cuantity_estimated" * I2."unit_price")
@@ -230,11 +230,11 @@ class EstimateSet(models.QuerySet):
             INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
             WHERE U3."id" = U1."project_id"
                 AND U3."depth" = %(depth)s + 1
-                AND U3."path" LIKE %(path)s%
-                AND U3."finish_date" BETWEEN %(start_date)s AND %(finish_date)s;
+                AND U3."path" LIKE %(path)s
+                AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
             GROUP BY U1."id", U3."id"
         """
-        return self.raw(sql, {'start_date': start_date, 'finish_date': finish_date, 'path': path, 'depth': depth})
+        return self.raw(sql, params={'start_date': start_date, 'finish_date': finish_date, 'path': path, 'depth': depth})
 
 
 class Estimate(models.Model):

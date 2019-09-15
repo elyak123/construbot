@@ -315,11 +315,8 @@ class SubcontratosReport(EstimateDetailView):
 
     def get_context_data(self, kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
-        context['subestimaciones'] = Estimate.objects.filter(
-            finish_date__range=(self.object.start_date, self.finish_date),
-            project__path__startswith=self.object.project.path,
-            project__depth=self.object.depth + 1
-        )
+        context['subestimaciones'] = Estimate.especial.acumulado_subestimaciones(
+            self.object.start_date, self.finish_date, self.object.project.depth, self.object.project.path)
         return context
 
 
