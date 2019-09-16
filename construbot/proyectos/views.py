@@ -9,7 +9,6 @@ from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from wkhtmltopdf.views import PDFTemplateView
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
@@ -18,7 +17,7 @@ from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel, importar_catalogo_retenciones_excel
+    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel, import_retenciones_excel, import_unidades_excel
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -315,34 +314,8 @@ class SubcontratosReport(EstimateDetailView):
 
     def get_context_data(self, kwargs):
         context = super(EstimateDetailView, self).get_context_data(**kwargs)
-        context['subestimaciones'] = Estimate.objects.filter(
-            consecutive=self.object.consecutive,  # Esto no necesariamente es cierto
-            project__path__startswith=self.object.project.path,
-            project__depth=self.object.depth + 1
-        )
-        return context
-
-
-class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
-    filename = None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.get_context_data(object=self.object)
-        return super(BasePDFGenerator, self).get(self.request, *args, **kwargs)
-
-    def get_cmd_options(self):
-        return {
-            'orientation': 'Landscape',
-            'page-size': 'Letter',
-            'dpi': '300',
-            'print-media-type ': None
-
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super(BasePDFGenerator, self).get_context_data(**kwargs)
-        context['pdf'] = True
+        context['subestimaciones'] = Estimate.especial.acumulado_subestimaciones(
+            self.object.start_date, self.finish_date, self.object.project.depth, self.object.project.path)
         return context
 
 
@@ -415,6 +388,11 @@ class SubcontratoCreationView(ContratoCreationView):
 
     def get_depth(self):
         return self.contrato.get_depth() + 1
+
+    def get_initial(self):
+        obj = super(SubcontratoCreationView, self).get_initial()
+        obj.update({'sitio': self.contrato.sitio})
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
@@ -717,6 +695,11 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
     asignacion_requerida = True
     nivel_permiso_asignado = 2
 
+    def post(self, request, *args, **kwargs):
+        if 'excel-file' in request.FILES.keys():
+            self.import_func(**self.get_import_kwargs())
+        return super().post(request, *args, **kwargs)
+
     def get_assignment_args(self):
         self.object = self.get_object()
         return self.object, self.request.user.contrato_set.all()
@@ -749,35 +732,30 @@ class CatalogoRetencionesInlineFormView(CatalogosView):
     change_company_ability = False
     form_class = forms.ContractRetentionInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
+    import_func = import_retenciones_excel
     tipo = 'retenciones'
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if 'excel-file' in request.FILES.keys():
-            importar_catalogo_retenciones_excel(
-                request.POST['contrato'],
-                request.FILES['excel-file'],
-                self.request.user.currently_at
-            )
-        return super().post(request, *args, **kwargs)
+    def get_import_kwargs(self):
+        return {
+            'contrato_id': request.POST['contrato'],
+            'excel': request.FILES['excel-file'],
+            'currently_at': self.request.user.currently_at
+        }
 
 
 class CatalogoConceptosInlineFormView(CatalogosView):
     change_company_ability = False
     form_class = forms.ContractConceptInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
+    import_func = importar_catalogo_conceptos_excel
     tipo = 'conceptos'
 
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if 'excel-file' in request.FILES.keys():
-            importar_catalogo_conceptos_excel(
-                request.POST['contrato'],
-                request.FILES['excel-file'],
-                self.request.user.currently_at
-            )
-        return super().post(request, *args, **kwargs)
+    def get_import_kwargs(self):
+        return {
+            'contrato_id': self.request.POST['contrato'],
+            'excel': self.request.FILES['excel-file'],
+            'currently_at': self.request.user.currently_at
+        }
 
 
 class CatalogoUnitsInlineFormView(CatalogosView):
@@ -786,7 +764,11 @@ class CatalogoUnitsInlineFormView(CatalogosView):
     nivel_permiso_asignado = 1
     form_class = forms.UnitsInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
+    import_func = import_unidades_excel
     tipo = 'unidades'
+
+    def get_import_kwargs(self):
+        pass
 
     def get_object(self):
         obj = self.request.user.currently_at
@@ -871,16 +853,25 @@ class AutocompletePoryectos(BasicAutocomplete):
 class ClienteAutocomplete(AutocompletePoryectos):
     model = Contraparte
     ordering = 'cliente_name'
+    tipo = 'CLIENTE'
 
     def get_key_words(self):
         key_words = super(ClienteAutocomplete, self).get_key_words()
         key_words.update(
-            {'company': self.request.user.currently_at, 'tipo': 'CLIENTE'})
+            {'company': self.request.user.currently_at, 'tipo': self.tipo})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'company': self.request.user.currently_at}
+        kw = {'company': self.request.user.currently_at, 'tipo': self.tipo}
         return kw
+
+
+class SubcontratistaAutocomplete(ClienteAutocomplete):
+    tipo = 'SUBCONTRATISTA'
+
+
+class DestajistaAutocomplete(ClienteAutocomplete):
+    tipo = 'DESTAJISTA'
 
 
 class SitioAutocomplete(AutocompletePoryectos):
@@ -895,7 +886,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('contraparte')))
         kw = {'cliente': cliente}
         return kw
 
@@ -999,6 +990,8 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
         Called *only* if POST is successful.
         """
         return json.dumps({'chunked_id': chunked_upload.upload_id})
+<<<<<<< HEAD
+=======
 
 
 class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
@@ -1013,3 +1006,4 @@ class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
         data = self.form.cleaned_data
         importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
         return super(ExcelConceptCatalog, self).form_valid(form)
+>>>>>>> 2d57a84554d1fe5b2a8479ed54332fa1e68a70a5

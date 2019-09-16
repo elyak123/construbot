@@ -171,6 +171,11 @@ urlpatterns = [
         name='cliente-autocomplete'
     ),
     url(
+        regex=r'subcontratista-autocomplete/$',
+        view=views.SubcontratistaAutocomplete.as_view(create_field='cliente_name'),
+        name='subcontratista-autocomplete'
+    ),
+    url(
         regex=r'sitio-autocomplete/$',
         view=views.SitioAutocomplete.as_view(create_field='sitio_name'),
         name='sitio-autocomplete'

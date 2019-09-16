@@ -65,7 +65,7 @@
     </script>
 {% endblock javascript %}
 {% block content %}
-<h2 class="title" > Reporte de contrato </h2>
+<h2 class="title" > Reporte de {% if not contrato.is_root %}sub{% endif %}contrato </h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
     <table class="table_sample table_detalle">
@@ -81,7 +81,7 @@
             <td>{{ contrato.contrato_shortName }}</td>
         </tr>
         <tr>
-            <td>Cliente</td>
+            <td>{{ contrato.contraparte.tipo_display }}</td>
             <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.contraparte.id %}">{{ contrato.contraparte.cliente_name }}</a></td>
         </tr>
         <tr>

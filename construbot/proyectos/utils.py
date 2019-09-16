@@ -32,21 +32,23 @@ def sumatoria_query(queryset, campo):
 
 
 def estimacionespendientes_facturacion(company, almenos_coordinador, user):
-    kw = {'project__contraparte__company': company, 'invoiced': False}
+    kw = {'project__contraparte__company': company, 'invoiced': False, 'project__depth': 1}
     if not almenos_coordinador:
         kw['project__users'] = user
     return Estimate.objects.select_related('project').filter(**kw)
 
 
 def estimacionespendientes_pago(company, almenos_coordinador, user):
-    kw = {'project__contraparte__company': company, 'invoiced': True, 'paid': False}
+    kw = {'project__contraparte__company': company, 'invoiced': True, 'paid': False, 'project__depth': 1}
     if not almenos_coordinador:
         kw['project__users'] = user
     return Estimate.objects.select_related('project').filter(**kw)
 
 
 def total_sinpago(estimaciones):
-    return estimaciones.aggregate(total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price'))))['total']
+    return estimaciones.aggregate(
+        total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
+    )['total']
 
 
 def totalsinfacturar(estimaciones):
@@ -75,9 +77,8 @@ def importar_catalogo_conceptos_excel(contrato_id, excel, currently_at):
         )
 
 
-def importar_catalogo_retenciones_excel(contrato_id, excel, currently_at):
+def import_retenciones_excel(contrato_id, excel, currently_at):
     contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, contraparte__company=currently_at)
-    unidades = {}
     ws = load_workbook(excel).active
     for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
         nombre = row[0]
@@ -90,3 +91,7 @@ def importar_catalogo_retenciones_excel(contrato_id, excel, currently_at):
         Retenciones.objects.create(
             nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
         )
+
+
+def import_unidades_excel(contrato_id, excel, currently_at):
+    pass

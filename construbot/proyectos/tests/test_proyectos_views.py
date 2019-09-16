@@ -37,40 +37,6 @@ class BaseViewTestTest(utils.BaseTestCase):
         mock_fail.assert_not_called()
 
 
-class PDFViewTest(BaseViewTest):
-    view = views.BasePDFGenerator
-
-    def test_get_cmd_options(self):
-        test_obj = {
-            'orientation': 'Landscape',
-            'page-size': 'Letter',
-            'dpi': '300',
-            'print-media-type ': None
-
-        }
-        result = self.view.get_cmd_options(self)
-        self.assertEqual(result, test_obj)
-
-    def test_get_context_data(self):
-        company_test = factories.CompanyFactory(customer=self.user.customer)
-        self.user.currently_at = company_test
-        estimacion = factories.EstimateFactory(
-            project__contraparte__company=company_test,
-            draft_by=self.user,  # se ocupa porque si no truena
-            supervised_by=self.user
-        )
-        self.view.kwargs = {'pk': estimacion.pk}
-        vw = self.get_instance(
-            self.view,
-            request=self.request
-        )
-        vw.object = estimacion
-        vw.user_groups = ''
-        vw.nivel_permiso_usuario = self.request.user.nivel_acceso.nivel
-        result = vw.get_context_data()
-        self.assertTrue(result['pdf'])
-
-
 class ProyectDashboardViewTest(BaseViewTest):
 
     def test_view_gets_correct_object(self):
