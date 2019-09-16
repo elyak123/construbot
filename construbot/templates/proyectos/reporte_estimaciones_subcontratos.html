@@ -11,15 +11,15 @@
         <th>Estimación Actual</th>
     </thead>
     <tbody>
+        {% for subestimacion in subestimaciones %}
         <tr>
-            {% for subestimacion in subestimaciones %}
-                <td>{{ estimate.project.contrato_shortName }}</td>
+                <td>{{ subestimacion.project.contrato_shortName }}</td>
                 <td>{{ subestimacion.contratado|intcomma }}</td>
                 <td>{{ subestimacion.anterior|intcomma }}</td>
                 <td>{{ subestimacion.acumulado|intcomma }}</td>
                 <td>{{ subestimacion.estimado|intcomma }}</td>
-            {% endfor %}
         </tr>
+        {% endfor %}
     </tbody>
 </table>
 {% endblock content %}
