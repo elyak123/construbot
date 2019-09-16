@@ -101,22 +101,6 @@
     {% endfor %}
     {{ formset.form.media }}
   </table>
-  </form>
-  <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModal" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="excelModal">Subir Catálogo desde Excel</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body" id="modal-body-excel">
-        
-      </div>
-    </div>
-  </div>
-</div>
   <br>
   <div class="cont_buttons">
       <button class="btn"><a href="{% url 'proyectos:contrato_detail' pk=object.pk %}" id="cancelar" data-dismiss="modal">Cancelar</a></button>

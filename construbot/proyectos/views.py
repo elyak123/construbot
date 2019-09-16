@@ -1,5 +1,7 @@
 import importlib
 import json
+from decimal import Decimal
+from django import shortcuts
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -9,15 +11,16 @@ from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
+from openpyxl import load_workbook
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
 from construbot.core.models import ChunkedCoreUpload
 from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
-from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate
+from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate, Retenciones
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel, import_retenciones_excel, import_unidades_excel
+    totalsinfacturar, total_sinpago
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -311,11 +314,13 @@ class EstimateDetailView(DynamicDetail):
 
 
 class SubcontratosReport(EstimateDetailView):
+    template_name = 'proyectos/reporte_estimaciones_subcontratos.html'
 
-    def get_context_data(self, kwargs):
-        context = super(EstimateDetailView, self).get_context_data(**kwargs)
+    def get_context_data(self, *args, **kwargs):
+        #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
+        context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
         context['subestimaciones'] = Estimate.especial.acumulado_subestimaciones(
-            self.object.start_date, self.finish_date, self.object.project.depth, self.object.project.path)
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
         return context
 
 
@@ -697,7 +702,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         if 'excel-file' in request.FILES.keys():
-            self.import_func(**self.get_import_kwargs())
+            self.importar_excel()
         return super().post(request, *args, **kwargs)
 
     def get_assignment_args(self):
@@ -732,30 +737,52 @@ class CatalogoRetencionesInlineFormView(CatalogosView):
     change_company_ability = False
     form_class = forms.ContractRetentionInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
-    import_func = import_retenciones_excel
     tipo = 'retenciones'
 
-    def get_import_kwargs(self):
-        return {
-            'contrato_id': request.POST['contrato'],
-            'excel': request.FILES['excel-file'],
-            'currently_at': self.request.user.currently_at
-        }
+    def importar_excel(self):
+        contrato_instance = shortcuts.get_object_or_404(
+            Contrato, pk=self.request.POST['contrato'],
+            contraparte__company=self.request.user.currently_at
+        )
+        ws = load_workbook(self.request.FILES['excel-file']).active
+        for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
+            nombre = row[0]
+            tipo = None
+            if row[1].lower() == 'porcentaje':
+                tipo = 'PERCENTAGE'
+            elif row[1].lower() == 'monto':
+                tipo = 'AMOUNT'
+            valor = row[2]
+            Retenciones.objects.create(
+                nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
+            )
 
 
 class CatalogoConceptosInlineFormView(CatalogosView):
     change_company_ability = False
     form_class = forms.ContractConceptInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
-    import_func = importar_catalogo_conceptos_excel
     tipo = 'conceptos'
 
-    def get_import_kwargs(self):
-        return {
-            'contrato_id': self.request.POST['contrato'],
-            'excel': self.request.FILES['excel-file'],
-            'currently_at': self.request.user.currently_at
-        }
+    def importar_excel(self):
+        contrato_instance = shortcuts.get_object_or_404(
+            Contrato, pk=self.request.POST['contrato'], contraparte__company=self.request.user.currently_at)
+        unidades = {}
+        ws = load_workbook(self.request.FILES['excel-file']).active
+        for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
+            codigo = row[0]
+            concept_text = row[1]
+            unidad = row[2]
+            cantidad = Decimal(row[3])
+            pu = row[4]
+            if pu in unidades.keys():
+                pu = unidades[pu]
+            else:
+                unidad, created = Units.objects.get_or_create(unit=unidad, company=self.request.user.currently_at)
+            Concept.objects.create(
+                code=codigo, concept_text=concept_text, project=contrato_instance,
+                unit=unidad, total_cuantity=cantidad, unit_price=pu
+            )
 
 
 class CatalogoUnitsInlineFormView(CatalogosView):
@@ -764,10 +791,9 @@ class CatalogoUnitsInlineFormView(CatalogosView):
     nivel_permiso_asignado = 1
     form_class = forms.UnitsInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
-    import_func = import_unidades_excel
     tipo = 'unidades'
 
-    def get_import_kwargs(self):
+    def importar_excel(self):
         pass
 
     def get_object(self):

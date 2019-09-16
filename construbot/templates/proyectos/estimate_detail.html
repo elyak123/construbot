@@ -24,6 +24,9 @@
       </li>
       {% if almenos_coordinador %}
         <li class="nav-item">
+          <a class="nav-link" href="{% url 'proyectos:reporte-subcontratistas' estimate.id %}"><span class="icon_menu oi oi-pencil"></span>Reporte Subcontratistas</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{% url 'proyectos:editar_estimacion' estimate.id %}"><span class="icon_menu oi oi-pencil"></span>Editar</a>
         </li>
       {% endif %}

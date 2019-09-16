@@ -228,7 +228,7 @@
                 <td></td>
               </tr>
             {% empty %}
-              <tr><td colspan="5">No hay subcontratos. Crea uno </td></tr>
+              <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_contrato' contrato.pk %}">aquí</a>.</td></tr>
             {% endfor %}
           </table>
         </div>
