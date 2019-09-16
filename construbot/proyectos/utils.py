@@ -52,4 +52,3 @@ def totalsinfacturar(estimaciones):
     return estimaciones.aggregate(
         total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
     )['total']
-
