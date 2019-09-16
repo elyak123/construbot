@@ -1,9 +1,6 @@
-from decimal import Decimal
 from django.db.models import Sum, F
-from django import shortcuts
-from openpyxl import load_workbook
 from construbot.core.utils import Round
-from .models import Contrato, Estimate, Concept, Units, Retenciones
+from .models import Contrato, Estimate
 
 
 def contratosvigentes(user):
@@ -56,42 +53,3 @@ def totalsinfacturar(estimaciones):
         total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
     )['total']
 
-
-def importar_catalogo_conceptos_excel(contrato_id, excel, currently_at):
-    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, contraparte__company=currently_at)
-    unidades = {}
-    ws = load_workbook(excel).active
-    for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
-        codigo = row[0]
-        concept_text = row[1]
-        unidad = row[2]
-        cantidad = Decimal(row[3])
-        pu = row[4]
-        if pu in unidades.keys():
-            pu = unidades[pu]
-        else:
-            unidad, created = Units.objects.get_or_create(unit=unidad, company=currently_at)
-        Concept.objects.create(
-            code=codigo, concept_text=concept_text, project=contrato_instance,
-            unit=unidad, total_cuantity=cantidad, unit_price=pu
-        )
-
-
-def import_retenciones_excel(contrato_id, excel, currently_at):
-    contrato_instance = shortcuts.get_object_or_404(Contrato, pk=contrato_id, contraparte__company=currently_at)
-    ws = load_workbook(excel).active
-    for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
-        nombre = row[0]
-        tipo = None
-        if row[1].lower() == 'porcentaje':
-            tipo = 'PERCENTAGE'
-        elif row[1].lower() == 'monto':
-            tipo = 'AMOUNT'
-        valor = row[2]
-        Retenciones.objects.create(
-            nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
-        )
-
-
-def import_unidades_excel(contrato_id, excel, currently_at):
-    pass

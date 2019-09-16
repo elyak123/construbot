@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %} Reporte de Estimaciones de Subcontratos {% endblock %}
+{% block content %}
+<table class="table_sample">
+    <thead>
+        <th>Nombre del Contrato</th>
+        <th>Monto contratado</th>
+        <th>Estimado Anterior</th>
+        <th>Acumulado</th>
+        <th>Estimación Actual</th>
+    </thead>
+    <tbody>
+        <tr>
+            {% for subestimacion in subestimaciones %}
+                <td>{{ estimate.project.contrato_shortName }}</td>
+                <td>{{ subestimacion.contratado|intcomma }}</td>
+                <td>{{ subestimacion.anterior|intcomma }}</td>
+                <td>{{ subestimacion.acumulado|intcomma }}</td>
+                <td>{{ subestimacion.estimado|intcomma }}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+{% endblock content %}

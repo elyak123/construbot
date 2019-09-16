@@ -35,11 +35,11 @@ urlpatterns = [
         view=views.CatalogoConceptosInlineFormView.as_view(),
         name='catalogo_conceptos'
     ),
-    url(
-        regex=r'^contrato/catalogo-import/$',
-        view=views.ExcelConceptCatalog.as_view(),
-        name='excel_import'
-    ),
+    # url(
+    #     regex=r'^contrato/catalogo-import/$',
+    #     view=views.ExcelConceptCatalog.as_view(),
+    #     name='excel_import'
+    # ),
     url(
         regex=r'^contrato/retenciones-edit/(?P<pk>\d+)/$',
         view=views.CatalogoRetencionesInlineFormView.as_view(),
@@ -81,6 +81,11 @@ urlpatterns = [
         name='estimate_detail'
     ),
     url(
+        regex=r'^estimacion/(?P<pk>\d+)/reporte-subcontratistas/$',
+        view=views.SubcontratosReport.as_view(),
+        name='reporte-subcontratistas'
+    ),
+    url(
         regex=r'^estimacion/pdf/(?P<pk>\d+)/$',
         view=views.EstimatePdfPrint.as_view(),
         name='estimate_detailpdf'
@@ -110,11 +115,6 @@ urlpatterns = [
         view=views.SubcontratoCreationView.as_view(),
         name='nuevo_contrato'
     ),
-    # url(
-    #     regex=r'^reporte-subcontratistas/(?P<pk>\d+)/$',
-    #     view=views.,
-    #     name='reporte-subcontratistas'
-    # ),
     url(
         regex=r'^cliente/nuevo/$',
         view=views.ClienteCreationView.as_view(),
