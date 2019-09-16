@@ -1016,20 +1016,3 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
         Called *only* if POST is successful.
         """
         return json.dumps({'chunked_id': chunked_upload.upload_id})
-# <<<<<<< HEAD
-# =======
-
-
-# class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
-#     form_class = forms.ExcelConceptCatalogForm
-#     template_name = 'proyectos/simple_form.html'
-
-#     @method_decorator(csrf_exempt)
-#     def dispatch(self, request, *args, **kwargs):
-#         return super(ExcelConceptCatalog, self).dispatch(request, *args, **kwargs)
-
-#     def form_valid(self, form):
-#         data = self.form.cleaned_data
-#         importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
-#         return super(ExcelConceptCatalog, self).form_valid(form)
-# >>>>>>> 2d57a84554d1fe5b2a8479ed54332fa1e68a70a5

@@ -27,7 +27,7 @@
 
 body {
 	font-family: 'Open Sans', sans-serif;
-	font-size: 14px;
+	font-size: 16px;
 }
 a {
 	text-decoration: none;
@@ -120,10 +120,19 @@ a:hover {
 /*FIN DE ESTILOS GENERALES*/
 
 /*ESTILOS PARA CONTRATO DETAIL*/
+.centrado_90 {
+	width: 90%;
+	margin: auto;
+}
+
 .contrato-widget {
 	width: 90%;
 	margin: auto;
 	display: none;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show >.nav-link {
+	background: #086898;
 }
 /*FIN DE ESTILOS PARA CONTRATO DETAIL*/
 

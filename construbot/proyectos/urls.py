@@ -35,11 +35,6 @@ urlpatterns = [
         view=views.CatalogoConceptosInlineFormView.as_view(),
         name='catalogo_conceptos'
     ),
-    # url(
-    #     regex=r'^contrato/catalogo-import/$',
-    #     view=views.ExcelConceptCatalog.as_view(),
-    #     name='excel_import'
-    # ),
     url(
         regex=r'^contrato/retenciones-edit/(?P<pk>\d+)/$',
         view=views.CatalogoRetencionesInlineFormView.as_view(),
