@@ -75,3 +75,11 @@ def importar_catalogo_conceptos_excel(contrato_id, excel, currently_at):
             code=codigo, concept_text=concept_text, project=contrato_instance,
             unit=unidad, total_cuantity=cantidad, unit_price=pu
         )
+
+
+def import_retenciones_excel():
+    pass
+
+
+def import_unidades_excel():
+    pass
