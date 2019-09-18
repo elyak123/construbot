@@ -234,7 +234,7 @@
         </div>
         <div class="tab-pane fade" id="subc" role="tabpanel" aria-labelledby="subc-tab">
           <h2 style="margin-left:5%">Listado de Subcontratos</h2>
-          <br>
+          <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}"><button style="margin-left:5%; margin-bottom: 2%;" class="btn">Agregar subcontratista</button></a>
           <table class="table_sample table_normal toggle-hide">
             <tbody>
               <th>Código</th>
@@ -252,7 +252,7 @@
                 <td></td>
               </tr>
             {% empty %}
-              <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_contrato' contrato.pk %}">aquí</a>.</td></tr>
+              <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}">aquí</a>.</td></tr>
             {% endfor %}
           </table>
         </div>

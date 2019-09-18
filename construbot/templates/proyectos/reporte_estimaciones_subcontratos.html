@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load projecttags %}
 {% block title %} Reporte de Estimaciones de Subcontratos {% endblock %}
 {% block content %}
 <table class="table_sample">
@@ -14,10 +14,10 @@
         {% for subestimacion in subestimaciones %}
         <tr>
                 <td>{{ subestimacion.project.contrato_shortName }}</td>
-                <td>{{ subestimacion.contratado|intcomma }}</td>
-                <td>{{ subestimacion.anterior|intcomma }}</td>
-                <td>{{ subestimacion.acumulado|intcomma }}</td>
-                <td>{{ subestimacion.estimado|intcomma }}</td>
+                <td>{{ subestimacion.contratado|moneda }}</td>
+                <td>{{ subestimacion.anterior|moneda }}</td>
+                <td>{{ subestimacion.acumulado|moneda }}</td>
+                <td>{{ subestimacion.estimado|moneda }}</td>
         </tr>
         {% endfor %}
     </tbody>

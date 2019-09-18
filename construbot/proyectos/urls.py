@@ -108,7 +108,7 @@ urlpatterns = [
     url(
         regex=r'^subcontrato/nuevo/(?P<pk>\d+)/$',
         view=views.SubcontratoCreationView.as_view(),
-        name='nuevo_contrato'
+        name='nuevo_subcontrato'
     ),
     url(
         regex=r'^cliente/nuevo/$',

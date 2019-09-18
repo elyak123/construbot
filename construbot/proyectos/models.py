@@ -4,7 +4,8 @@ from django.db import models
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Value as V
+from django.db.models.functions import Coalesce
 from treebeard.mp_tree import MP_Node
 from construbot.core import utils
 from construbot.users.models import Company
@@ -160,11 +161,11 @@ class Contrato(MP_Node):
         return query.order_by('-monto')[:10]
 
     def ejercido_acumulado(self):
-        consecutivo_estimacion = self.estimate_set.aggregate(models.Max('consecutive'))['consecutive__max']
-        try:
-            return Concept.especial.estimado_a_la_fecha(consecutivo_estimacion)
-        except ValueError:
-            return Decimal('0.00')
+        conceptos = self.concept_set.all()
+        return conceptos.aggregate(
+            total=Coalesce(utils.Round(
+                Sum(models.F('estimateconcept__cuantity_estimated') * models.F('unit_price'))), V(Decimal('0.00')))
+        )['total']
 
     class Meta:
         verbose_name = "Contrato"
@@ -200,8 +201,8 @@ class EstimateSet(models.QuerySet):
         path = path + '%'
         sql = """
             SELECT  U1."id", U1."consecutive", U3."contrato_shortName",
-                COALESCE(SUM(U0."cuantity_estimated" * U2."unit_price"), 0) AS "estimado", (
-                    SELECT COALESCE(SUM(I0."cuantity_estimated" * I2."unit_price"), 0)
+                COALESCE(ROUND(SUM(U0."cuantity_estimated" * U2."unit_price"), 2), 0) AS "estimado", (
+                    SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
                     FROM "proyectos_estimateconcept" I0
                     INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
                     INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
@@ -209,7 +210,7 @@ class EstimateSet(models.QuerySet):
                     WHERE U3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
                 ) AS "acumulado",
                 (
-                    SELECT COALESCE(SUM(I0."cuantity_estimated" * I2."unit_price"), 0)
+                    SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
                     FROM "proyectos_estimateconcept" I0
                     INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
                     INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
@@ -217,7 +218,7 @@ class EstimateSet(models.QuerySet):
                     WHERE I3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
                 )AS "anterior",
                 (
-                    SELECT COALESCE(SUM( I0."total_cuantity" * I0."unit_price"), 0)
+                    SELECT COALESCE(ROUND(SUM( I0."total_cuantity" * I0."unit_price"), 2), 0)
                     FROM "proyectos_concept" I0
                     INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
                     INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")

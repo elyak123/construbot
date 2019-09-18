@@ -34,11 +34,14 @@ class ContratoForm(forms.ModelForm):
     def save(self, commit=True):
         usrs = self.cleaned_data.pop('users')
         self.cleaned_data.pop('currently_at')
-        if not self.instance:
+        if not self.instance.pk:
             self.instance = self.obj_transaction_process()
-        super(ContratoForm, self).save(commit=False)
-        self.cleaned_data.update({'users': usrs})
-        self.save_m2m()
+            super(ContratoForm, self).save(commit=False)
+            self.cleaned_data.update({'users': usrs})
+            self.save_m2m()
+        else:
+            self.cleaned_data.update({'users': usrs})
+            super(ContratoForm, self).save(commit=True)
         return self.instance
 
     def clean(self):
