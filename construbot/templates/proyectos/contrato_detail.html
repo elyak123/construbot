@@ -203,6 +203,8 @@
             </table>
             {% elif contrato.concept_set.exists %}
                 <div class="cont_message text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
+            {% else %}
+                <div class="cont_message text-center"> No existe un catalogo para este contrato aún. Crea uno primero.</div>
             {% endif %}
         </div>
         <div class="tab-pane fade" id="lisr" role="tabpanel" aria-labelledby="lisr-tab">

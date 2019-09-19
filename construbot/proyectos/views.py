@@ -323,7 +323,16 @@ class SubcontratosReport(EstimateDetailView):
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
         context['acumulado'] = Estimate.especial.total_acumulado_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
-        )[0].acumulado
+        )[0]
+        context['actual'] = Estimate.especial.total_actual_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
+        context['anterior'] = Estimate.especial.total_anterior_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0].anterior
+        context['contratado'] = Estimate.especial.total_contratado_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
         return context
 
 

@@ -2,13 +2,16 @@
 {% load projecttags %}
 {% block title %} Reporte de Estimaciones de Subcontratos {% endblock %}
 {% block content %}
+<h2>Estimaciones con fecha de terminación entre {{ estimate.start_date }} y {{ estimate.finish_date }}</h2>
 <table class="table_sample table_normal">
     <thead>
-        <th>Nombre del Contrato</th>
-        <th>Monto contratado</th>
-        <th>Estimado Anterior</th>
-        <th>Acumulado</th>
-        <th>Estimación Actual</th>
+        <tr>
+            <th>Nombre del Contrato</th>
+            <th>Monto contratado</th>
+            <th>Estimado Anterior</th>
+            <th>Acumulado</th>
+            <th>Estimación Actual</th>
+        </tr>
     </thead>
     <tbody>
         {% for subestimacion in subestimaciones %}
@@ -21,5 +24,14 @@
         </tr>
         {% endfor %}
     </tbody>
+    <tfoot>
+        <tr>
+            <td>Totales</td>
+            <td> {{ contratado|moneda }}</td>
+            <td>{{ anterior|moneda }}</td>
+            <td>{{ acumulado|moneda }}</td>
+            <td>{{ actual|moneda }}</td>
+        </tr>
+    </tfoot>
 </table>
 {% endblock content %}
