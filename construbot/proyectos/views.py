@@ -319,8 +319,11 @@ class SubcontratosReport(EstimateDetailView):
     def get_context_data(self, *args, **kwargs):
         #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
         context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
-        context['subestimaciones'] = Estimate.especial.acumulado_subestimaciones(
+        context['subestimaciones'] = Estimate.especial.reporte_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
+        context['acumulado'] = Estimate.especial.total_acumulado_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0].acumulado
         return context
 
 
