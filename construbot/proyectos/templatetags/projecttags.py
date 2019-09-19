@@ -47,9 +47,9 @@ def get_total_final(retenciones, porcentaje, monto_total):
 def intxls(value, use_l10n=True):
     try:
         val = decimal.Decimal(value)
-        if not val:
+        if val == 0 or val is None:
             return '-'
-    except decimal.InvalidOperation:
+    except (TypeError, decimal.InvalidOperation):
         pass
     return intcomma(value)
 

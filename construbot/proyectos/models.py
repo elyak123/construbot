@@ -216,7 +216,8 @@ class EstimateSet(models.QuerySet):
                     INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
                     INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
                     INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
-                    WHERE I3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
+                    WHERE U3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
+                    -- concept.project = contrato.pk and estimacion.consecutive = Estimacion.consecutive -1
                 )AS "anterior",
                 (
                     SELECT COALESCE(ROUND(SUM( I0."total_cuantity" * I0."unit_price"), 2), 0)
@@ -312,30 +313,35 @@ class EstimateSet(models.QuerySet):
     def total_anterior_subestimaciones(self, start_date, finish_date, depth, path):
         path = path + '%'
         sql = """
-            SELECT  U1."id", (
-                SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
-                    FROM "proyectos_estimateconcept" I0
-                    INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
-                    INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
-                    INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
-                    WHERE I3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
-                )AS "anterior"
-            FROM "proyectos_estimateconcept" U0
-            INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
-            INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
-            INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
-            WHERE U3."id" = U1."project_id"
-                AND U3."depth" = %(depth)s + 1
-                AND U3."path" LIKE %(path)s
-                AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
-            GROUP BY U1."id", U3."id"
+           SELECT  COALESCE(SUM("anterior"), 0) as anterior
+           FROM (SELECT U1."id",
+               (
+                    SELECT COALESCE(ROUND(SUM( I2."cuantity_estimated" * I0."unit_price"), 2), 0)
+                        FROM "proyectos_concept" I0
+                        INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
+                        INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
+                        INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
+                        WHERE I0."project_id" = U3."id" AND I3."consecutive" = U1."consecutive" -1
+                        GROUP BY I3."id"
+                    ) AS "anterior"
+                FROM "proyectos_estimateconcept" U0
+                INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+                INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+                INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+                WHERE U3."id" = U1."project_id"
+                    AND U3."depth" =  %(depth)s + 1
+                    AND U3."path" LIKE %(path)s
+                    AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+                GROUP BY U1."id", U3."id"
+           ) AS "cont"
         """
-        return self.raw(
-            sql, params={
+        with connection.cursor() as cursor:
+            cursor.execute(sql, {
                 'start_date': start_date,
                 'finish_date': finish_date, 'path': path, 'depth': depth
-            }
-        )
+            })
+            row = cursor.fetchone()
+        return row
 
     def total_actual_subestimaciones(self, start_date, finish_date, depth, path):
         path = path + '%'

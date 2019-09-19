@@ -79,9 +79,11 @@
           <li class="nav-item">
             <a class="nav-link" id="lisr-tab" data-toggle="tab" href="#lisr" role="tab" aria-controls="lisr" aria-selected="false">Listado de Retenciones</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="subc-tab" data-toggle="tab" href="#subc" role="tab" aria-controls="subc" aria-selected="false">Subcontratos</a>
-          </li>
+          {% if contrato.is_root %}
+            <li class="nav-item">
+              <a class="nav-link" id="subc-tab" data-toggle="tab" href="#subc" role="tab" aria-controls="subc" aria-selected="false">Subcontratos</a>
+            </li>
+          {% endif %}
           <li class="nav-item">
             <a class="nav-link" id="vprev-tab" data-toggle="tab" href="#vprev" role="tab" aria-controls="vprev" data-url="{% if contrato.file %}{{ contrato.file.url }}{% else %}{% endif %}" aria-selected="false">Vista Previa del Contrato</a>
           </li>
@@ -135,9 +137,9 @@
                       </tr>
                   {% endif %}
                   {% if almenos_coordinador %}
-                  <tr>
-                      <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
-                  </tr>
+                    <tr>
+                        <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
+                    </tr>
                   {% endif %}
               </table>
           </div>
@@ -234,30 +236,32 @@
               <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
           {% endif %}
         </div>
-        <div class="tab-pane fade" id="subc" role="tabpanel" aria-labelledby="subc-tab">
-          <h2 style="margin-left:5%">Listado de Subcontratos</h2>
-          <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}"><button style="margin-left:5%; margin-bottom: 2%;" class="btn">Agregar subcontratista</button></a>
-          <table class="table_sample table_normal toggle-hide">
-            <tbody>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Monto</th>
-              <th>Ejercido</th>
-              <th>Editar</th>
-            </tbody>
-            {% for subcontrato in contrato.get_top_10_children %}
-              <tr>
-                <td>{{ subcontrato.code }}</td>
-                <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
-                <td>{{ subcontrato.monto|intcomma }}</td>
-                <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
-                <td></td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}">aquí</a>.</td></tr>
-            {% endfor %}
-          </table>
-        </div>
+        {% if contrato.is_root %}
+          <div class="tab-pane fade" id="subc" role="tabpanel" aria-labelledby="subc-tab">
+            <h2 style="margin-left:5%">Listado de Subcontratos</h2>
+            <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}"><button style="margin-left:5%; margin-bottom: 2%;" class="btn">Agregar subcontratista</button></a>
+            <table class="table_sample table_normal toggle-hide">
+              <tbody>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Monto</th>
+                <th>Ejercido</th>
+                <th>Editar</th>
+              </tbody>
+              {% for subcontrato in contrato.get_top_10_children %}
+                <tr>
+                  <td>{{ subcontrato.code }}</td>
+                  <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
+                  <td>{{ subcontrato.monto|intcomma }}</td>
+                  <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                  <td></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}">aquí</a>.</td></tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
         <div class="tab-pane fade" id="vprev" role="tabpanel" aria-labelledby="vprev-tab">
           <h2 style="margin-left:5%">Vista Previa del Contrato</h2>
           <br>

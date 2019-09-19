@@ -316,8 +316,16 @@ class EstimateDetailView(DynamicDetail):
 class SubcontratosReport(EstimateDetailView):
     template_name = 'proyectos/reporte_estimaciones_subcontratos.html'
 
+    # def get_estimacion_anterior(self):
+    #     anterior_consecutive = self.object.consecutive - 1
+    #     anterior = get_object_403_or_404(
+    #         self.model, self.request.user, project=self.object.project, consecutive=anterior_consecutive
+    #     )
+    #     return anterior
+
     def get_context_data(self, *args, **kwargs):
         #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
+        # anterior = self.get_estimacion_anterior()
         context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
         context['subestimaciones'] = Estimate.especial.reporte_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
@@ -329,7 +337,7 @@ class SubcontratosReport(EstimateDetailView):
         )[0]
         context['anterior'] = Estimate.especial.total_anterior_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
-        )[0].anterior
+        )[0]
         context['contratado'] = Estimate.especial.total_contratado_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
         )[0]
