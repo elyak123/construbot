@@ -1516,7 +1516,8 @@ class ClienteAutocompleteTest(BaseViewTest):
         instance.request = self.request
         instance.q = 'hola'
         dict_control = {
-            'company': self.request.user.currently_at
+            'company': self.request.user.currently_at,
+            'tipo': 'CLIENTE'
         }
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
@@ -1575,7 +1576,7 @@ class SitioAutocompleteTest(BaseViewTest):
         self.user.currently_at = cliente.company
         instance.request = self.request
         instance.q = 'bla bla'
-        instance.forwarded = {'cliente': str(cliente.id)}
+        instance.forwarded = {'contraparte': str(cliente.id)}
         dict_control = {'cliente': cliente}
         self.assertDictEqual(instance.get_post_key_words(), dict_control)
 
@@ -1592,7 +1593,7 @@ class SitioAutocompleteTest(BaseViewTest):
             views.SitioAutocomplete,
             request=request,
         )
-        view.forwarded = {'cliente': str(cliente_autocomplete.id)}
+        view.forwarded = {'contraparte': str(cliente_autocomplete.id)}
         view.q = request.GET.get('q', '')
         view.create_field = 'sitio_name'
         obj = view.create_object(request.POST.get('text'))

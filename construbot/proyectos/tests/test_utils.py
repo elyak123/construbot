@@ -15,11 +15,13 @@ class EstimacionesPendientesdePago(CBVTestCase):
         mock_company = mock.Mock()
         mock_user = mock.Mock()
         utils.estimacionespendientes_pago(mock_company, True, mock_user)
-        mock_filter.assert_called_once_with(project__contraparte__company=mock_company, invoiced=True, paid=False)
+        mock_filter.assert_called_once_with(
+            project__contraparte__company=mock_company, invoiced=True, paid=False, project__depth=1
+        )
 
 
 class EstimacionesPendientesFacturacion(CBVTestCase):
-
+    @tag('current')
     @mock.patch('construbot.proyectos.utils.Estimate.objects.select_related')
     @mock.patch('construbot.proyectos.utils.Estimate.objects.filter')
     def test_estimaciones_pendients_facturacion_returns_qs_on_perms(self, mock_filter, mock_select_related):
@@ -29,4 +31,6 @@ class EstimacionesPendientesFacturacion(CBVTestCase):
         mock_company = mock.Mock()
         mock_user = mock.Mock()
         utils.estimacionespendientes_facturacion(mock_company, True, mock_user)
-        mock_filter.assert_called_once_with(project__contraparte__company=mock_company, invoiced=False)
+        mock_filter.assert_called_once_with(
+            project__contraparte__company=mock_company, invoiced=False, project__depth=1
+        )
