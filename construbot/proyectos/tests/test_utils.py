@@ -21,7 +21,7 @@ class EstimacionesPendientesdePago(CBVTestCase):
 
 
 class EstimacionesPendientesFacturacion(CBVTestCase):
-    @tag('current')
+
     @mock.patch('construbot.proyectos.utils.Estimate.objects.select_related')
     @mock.patch('construbot.proyectos.utils.Estimate.objects.filter')
     def test_estimaciones_pendients_facturacion_returns_qs_on_perms(self, mock_filter, mock_select_related):

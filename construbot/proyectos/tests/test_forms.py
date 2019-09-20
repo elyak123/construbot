@@ -272,14 +272,13 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
 
 class SitioFormTest(BaseFormTest):
 
-    def test_sitio_form_creation_is_not_valid_with_another_company(self):
+    def test_sitio_form_creation_is_not_valid_with_contraparte_not_cliente(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
-        sitio_cliente = factories.ClienteFactory(company=sitio_company, tipo='CLIENTE')
+        sitio_cliente = factories.ClienteFactory(company=sitio_company, tipo='SUBCONTRATISTA')
         self.user.currently_at = sitio_company
         form_data = {
             'sitio_name': "Tamaulipas", 'sitio_location': "Some place",
-            'company': sitio_company_2.id, 'cliente': sitio_cliente
+            'cliente': sitio_cliente.id
         }
         form = forms.SitioForm(data=form_data)
         form.request = self.request
