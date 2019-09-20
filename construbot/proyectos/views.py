@@ -3,9 +3,7 @@ import json
 from decimal import Decimal
 from django import shortcuts
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView, FormView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
@@ -316,16 +314,8 @@ class EstimateDetailView(DynamicDetail):
 class SubcontratosReport(EstimateDetailView):
     template_name = 'proyectos/reporte_estimaciones_subcontratos.html'
 
-    # def get_estimacion_anterior(self):
-    #     anterior_consecutive = self.object.consecutive - 1
-    #     anterior = get_object_403_or_404(
-    #         self.model, self.request.user, project=self.object.project, consecutive=anterior_consecutive
-    #     )
-    #     return anterior
-
     def get_context_data(self, *args, **kwargs):
         #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
-        # anterior = self.get_estimacion_anterior()
         context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
         context['subestimaciones'] = Estimate.especial.reporte_subestimaciones(
             self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)

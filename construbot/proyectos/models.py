@@ -60,11 +60,11 @@ class Sitio(models.Model):
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
     cliente = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
 
-    # def clean(self):
-    #     if self.cliente.tipo != 'CLIENTE':
-    #         raise ValidationError(
-    #             {'cliente': 'La contraparte debe de ser CLIENTE y no {}'.format(self.cliente.tipo)}
-    #         )
+    def clean(self):
+        if self.cliente.tipo != 'CLIENTE':
+            raise ValidationError(
+                {'cliente': 'La contraparte debe de ser CLIENTE y no {}'.format(self.cliente.tipo)}
+            )
 
     @property
     def company(self):
