@@ -30,8 +30,7 @@
             });
         }
         $("#vprev-tab").on("click", function(evt){
-            let url = evt.currentTarget.dataset['url'];
-            $(".contrato-widget").find("object").attr("data", url);
+            $(".contrato-widget").find("object").attr("data", evt.currentTarget.dataset['url']);
         });
 
         function call_previous_info(){
@@ -51,6 +50,7 @@
         }
 
         $(document).keydown(function(event) {
+          event.preventDefault();
           if(event.which == 40){
             call_next_info();
           } else if (event.which == 38){
@@ -61,17 +61,69 @@
     </script>
 {% endblock javascript %}
 {% block content %}
-
+<a class="btn btn-secondary boton-arriba position-fixed" href="#arriba">▲</a>
+<a class="btn btn-secondary boton-abajo position-fixed" href="#abajo">▼</a>
+<h2 style="margin-left:5%" class="title" id="arriba"> Reporte de {% if not contrato.is_root %}sub{% endif %}contrato </h2>
+<div id="dato" data-id="{{ contrato.id }}"></div>
+<div class="cont_table_sample">
+    <table class="table_sample table_detalle">
+        <tr>
+            <th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
+        </tr>
+        <tr>
+            <td>Código de contrato</td>
+            <td>{{ contrato.code }}</td>
+        </tr>
+        <tr>
+            <td>Nombre corto</td>
+            <td>{{ contrato.contrato_shortName }}</td>
+        </tr>
+        <tr>
+            <td>{{ contrato.contraparte.tipo_display }}</td>
+            <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.contraparte.id %}">{{ contrato.contraparte.cliente_name }}</a></td>
+        </tr>
+        <tr>
+            <td>Sitio</td>
+            <td><a href="{% url 'construbot.proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
+        </tr>
+        {% if almenos_coordinador %}
+        <tr>
+            <td>Monto sin IVA</td>
+            <td>$ {{ contrato.monto|intcomma }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td>Fecha de Firma</td>
+            <td>{{ contrato.fecha|date:"d/F/Y" }}</td>
+        </tr>
+        <tr>
+            <td>¿Terminado?</td>
+            <td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
+        </tr>
+        {% if not contrato.is_root %}
+            <tr>
+                <td>Contrato Padre</td>
+                <td><a href="{% url 'proyectos:contrato_detail' contrato.get_parent.pk %}">{{ contrato.get_parent.contrato_shortName }}</a></td>
+            </tr>
+        {% endif %}
+        {% if almenos_coordinador %}
+          <tr>
+              <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
+          </tr>
+        {% endif %}
+    </table>
+</div>
+<br>
+<br>
+<br>
+<br>
 <!-- INICIAN EXPERIMENTOS -->
-<div class="resumes_container">
+<div class="resumes_container" id="abajo">
   <div class="row">
     <div class="col-md-3 mb-3">
-        <ul class="nav nav-pills flex-column" id="myTab" role="tablist">
+        <ul class="nav nav-pills flex-column resumelist" id="myTab" role="tablist">
           <li class="nav-item">
-            <a class="nav-link active" id="reporte-tab" data-toggle="tab" href="#reporte" role="tab" aria-controls="reporte" aria-selected="true">Reporte del Contrato</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="concc-tab" data-toggle="tab" href="#concc" role="tab" aria-controls="concc" aria-selected="false">Catálogo de Conceptos</a>
+            <a class="nav-link active" id="concc-tab" data-toggle="tab" href="#concc" role="tab" aria-controls="concc" aria-selected="false">Catálogo de Conceptos</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" id="listest-tab" data-toggle="tab" href="#listest" role="tab" aria-controls="listest" aria-selected="false">Listado de Estimaciones</a>
@@ -90,61 +142,9 @@
         </ul>
     </div>
       <!-- /.col-md-4 -->
-    <div class="col-md-9">
+    <div class="col-md-9 resumes">
       <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="reporte" role="tabpanel" aria-labelledby="reporte-tab">
-          <h2 style="margin-left:5%" class="title" > Reporte de {% if not contrato.is_root %}sub{% endif %}contrato </h2>
-          <div id="dato" data-id="{{ contrato.id }}"></div>
-          <div class="cont_table_sample">
-              <table class="table_sample table_detalle">
-                  <tr>
-                      <th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
-                  </tr>
-                  <tr>
-                      <td>Código de contrato</td>
-                      <td>{{ contrato.code }}</td>
-                  </tr>
-                  <tr>
-                      <td>Nombre corto</td>
-                      <td>{{ contrato.contrato_shortName }}</td>
-                  </tr>
-                  <tr>
-                      <td>{{ contrato.contraparte.tipo_display }}</td>
-                      <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.contraparte.id %}">{{ contrato.contraparte.cliente_name }}</a></td>
-                  </tr>
-                  <tr>
-                      <td>Sitio</td>
-                      <td><a href="{% url 'construbot.proyectos:sitio_detail' contrato.sitio.id %}">{{ contrato.sitio.sitio_name }}</a></td>
-                  </tr>
-                  {% if almenos_coordinador %}
-                  <tr>
-                      <td>Monto sin IVA</td>
-                      <td>$ {{ contrato.monto|intcomma }}</td>
-                  </tr>
-                  {% endif %}
-                  <tr>
-                      <td>Fecha de Firma</td>
-                      <td>{{ contrato.fecha|date:"d/F/Y" }}</td>
-                  </tr>
-                  <tr>
-                      <td>¿Terminado?</td>
-                      <td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
-                  </tr>
-                  {% if not contrato.is_root %}
-                      <tr>
-                          <td>Contrato Padre</td>
-                          <td><a href="{% url 'proyectos:contrato_detail' contrato.get_parent.pk %}">{{ contrato.get_parent.contrato_shortName }}</a></td>
-                      </tr>
-                  {% endif %}
-                  {% if almenos_coordinador %}
-                    <tr>
-                        <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
-                    </tr>
-                  {% endif %}
-              </table>
-          </div>
-        </div>
-        <div class="tab-pane fade" id="concc" role="tabpanel" aria-labelledby="concc-tab">
+        <div class="tab-pane fade show active" id="concc" role="tabpanel" aria-labelledby="concc-tab">
           <h2 style="margin-left:5%">Catálogo de Conceptos</h2>
           <br>
           <table class="table_sample text-center">
