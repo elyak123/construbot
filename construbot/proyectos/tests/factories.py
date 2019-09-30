@@ -3,21 +3,22 @@ import string
 import datetime
 import factory
 import factory.fuzzy
-from factory.base import enums
 from django.core.files.images import ImageFile
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
-
-# CONTRPARTE_TIPOS = [x[0] for x in models.Contraparte.TIPOS]
 
 
 class ClienteFactory(factory.django.DjangoModelFactory):
     cliente_name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='cliente_')
     company = factory.SubFactory(CompanyFactory)
-    # tipo = factory.fuzzy.FuzzyChoice(CONTRPARTE_TIPOS)
+    tipo = 'CLIENTE'
 
     class Meta:
         model = models.Contraparte
+
+
+class SubcontratistaFactory(ClienteFactory):
+    tipo = 'SUBCONTRATISTA'
 
 
 class SitioFactory(factory.django.DjangoModelFactory):
@@ -66,6 +67,8 @@ class ContratoFactory(factory.django.DjangoModelFactory):
 
 class SubContratoFactory(ContratoFactory):
 
+    contraparte = factory.SubFactory(SubcontratistaFactory)
+
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         try:
@@ -81,8 +84,12 @@ class EstimateFactory(factory.django.DjangoModelFactory):
     consecutive = factory.fuzzy.FuzzyInteger(0, 25)
     draft_by = factory.SubFactory(UserFactory)
     supervised_by = factory.SubFactory(UserFactory)
-    start_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
     finish_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
+
+    @factory.lazy_attribute
+    def start_date(self):
+        date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1), self.finish_date)
+        return date.fuzz()
 
     class Meta:
         model = models.Estimate

@@ -1,5 +1,6 @@
 import tempfile
 import shutil
+import datetime
 from unittest import mock
 from decimal import Decimal
 from django.core.exceptions import ValidationError
@@ -129,6 +130,59 @@ class EstimateModelTest(CBVTestCase):
         estimacion.total = {'total': Decimal('2983666.88')}
         amortizacion = estimacion.amortizacion_anticipo()
         self.assertEqual(round(amortizacion, 2), Decimal('888877.74'))
+
+
+class EstimateSetTest(CBVTestCase):
+    @tag('current')
+    def test_total_actual_subestimaciones(self):
+        root = factories.ContratoFactory()
+        nivel = NivelAcceso.objects.get_or_create(nivel=1)[0]
+        estimate = factories.EstimateFactory(
+            project=root, draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+        )
+        interval = estimate.finish_date - estimate.start_date
+        subfinish_date = estimate.start_date + (interval / 2)
+        sub1 = factories.SubContratoFactory(parent=root)
+        concepto11 = factories.ConceptoFactory(project=sub1)
+        concepto12 = factories.ConceptoFactory(project=sub1)
+        concepto13 = factories.ConceptoFactory(project=sub1)
+        subestimate11 = factories.EstimateFactory(
+            project=sub1, finish_date=subfinish_date,
+            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+        )
+        subestimateconcept111 = factories.EstimateConceptFactory(concept=concepto11, estimate=subestimate11)
+        subestimateconcept112 = factories.EstimateConceptFactory(concept=concepto12, estimate=subestimate11)
+        subestimateconcept113 = factories.EstimateConceptFactory(concept=concepto13, estimate=subestimate11)
+        subestimate12 = factories.EstimateFactory(
+            project=sub1, finish_date=subfinish_date,
+            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+        )
+        subestimateconcept121 = factories.EstimateConceptFactory(concept=concepto11, estimate=subestimate12)
+        subestimateconcept122 = factories.EstimateConceptFactory(concept=concepto12, estimate=subestimate12)
+        subestimateconcept123 = factories.EstimateConceptFactory(concept=concepto13, estimate=subestimate12)
+        sub2 = factories.SubContratoFactory(parent=root)
+        concepto21 = factories.ConceptoFactory(project=sub2)
+        concepto22 = factories.ConceptoFactory(project=sub2)
+        concepto23 = factories.ConceptoFactory(project=sub2)
+        subestimate21 = factories.EstimateFactory(
+            project=sub2, finish_date=subfinish_date,
+            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+        )
+        subestimateconcept211 = factories.EstimateConceptFactory(concept=concepto21, estimate=subestimate21)
+        subestimateconcept212 = factories.EstimateConceptFactory(concept=concepto22, estimate=subestimate21)
+        subestimateconcept213 = factories.EstimateConceptFactory(concept=concepto23, estimate=subestimate21)
+        subestimate22 = factories.EstimateFactory(
+            project=sub2, finish_date=subfinish_date,
+            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel,
+        )
+        subestimateconcept221 = factories.EstimateConceptFactory(concept=concepto21, estimate=subestimate22)
+        subestimateconcept222 = factories.EstimateConceptFactory(concept=concepto22, estimate=subestimate22)
+        subestimateconcept223 = factories.EstimateConceptFactory(concept=concepto23, estimate=subestimate22)
+        sumatoria = sub1.ejercido_acumulado() + sub2.ejercido_acumulado()
+        qs = models.Estimate.especial.total_actual_subestimaciones(
+            estimate.start_date, estimate.finish_date, estimate.project.depth, estimate.project.path
+        )
+        self.assertEqual(sumatoria, qs[0])
 
 
 class ConceptoSetTest(CBVTestCase):
