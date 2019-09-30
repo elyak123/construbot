@@ -1,9 +1,9 @@
 import tempfile
 import string
 import datetime
-from unittest import mock
 import factory
 import factory.fuzzy
+from factory.base import enums
 from django.core.files.images import ImageFile
 from construbot.users.tests.factories import CompanyFactory, UserFactory
 from construbot.proyectos import models
@@ -62,6 +62,18 @@ class ContratoFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Contrato
+
+
+class SubContratoFactory(ContratoFactory):
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        try:
+            parent = kwargs.pop('parent')
+            instance = parent.add_child(**kwargs)
+        except KeyError:
+            raise TypeError('Es necesario incorporar parent en la llamada.')
+        return instance
 
 
 class EstimateFactory(factory.django.DjangoModelFactory):
