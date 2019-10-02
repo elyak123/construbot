@@ -75,10 +75,19 @@ def image_resize(image):
     im = Image.open(image)
     im.thumbnail(new_size, resample=Image.LANCZOS)
     frmt = 'JPEG' if image.name[-3:] == 'jpg' or image.name[-3:] == 'JPG' else image.name[-3:]
-    im.save(output, optimize=True, progressive=True, quality=95, format=frmt)
+    try:
+        im.save(output, optimize=True, progressive=True, quality=95, format=frmt)
+    except (OSError, KeyError):
+        if im.mode in ('RGBA', 'LA'):
+            fill_color = 'white'
+            background = Image.new(im.mode[:-1], im.size, fill_color)
+            background.paste(im, im.split()[-1])
+            im = background
+        im.save(output, optimize=True, progressive=True, quality=95, format=frmt)
     output.seek(0)
     im = InMemoryUploadedFile(
-        output, 'ImageField', "%s.jpg" % image.name.split('.')[0],  'image/{}'.format(frmt), sys.getsizeof(output), None
+        output, 'ImageField', "%s.jpg" % image.name.split('.')[0],
+        'image/{}'.format(frmt), sys.getsizeof(output), None
     )
     return im
 

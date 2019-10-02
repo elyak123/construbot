@@ -1,11 +1,12 @@
 from unittest import mock
+from PIL import Image
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.test import RequestFactory, tag
 from construbot.users.tests import utils, factories
 from .context import ContextManager
 from .utils import BasicAutocomplete, get_directory_path, get_object_403_or_404, \
-    get_rid_of_company_kw, object_or_403
+    get_rid_of_company_kw, object_or_403, image_resize
 # Create your tests here.
 
 
@@ -230,3 +231,23 @@ class DirectoyPathTest(utils.BaseTestCase):
         mock_instance.cliente.company.company_name = 'company'
         path = get_directory_path(mock_instance, 'file.txt')
         self.assertEqual(path, '12-customer/company/models/2018-06-15-17-28-49-file.txt')
+
+
+# class ImagereziseTest(utils.CBVTestCase):
+
+#     def assertNotRaises(self, func, exception, message):
+#         try:
+#             func()
+#         except exception:
+#             self.fail(message)
+#     @tag('current')
+#     @mock.patch.object(Image, 'open')
+#     def test_resize_image_with_rgba(self, mock_open):
+#         im_mock = mock.Mock()
+#         mock_open.return_value = im_mock
+#         im_mock_save = mock.Mock(side_effect=OSError('RGBA'))
+#         im_mock.save = im_mock_save
+#         mock_image = mock.Mock()
+#         mock_image.name = 'bla.jpeg'
+#         image_resize(mock_image)
+#         self.assertEqual(im_mock_save.call_count, 1)
