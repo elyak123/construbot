@@ -142,43 +142,41 @@ class EstimateSetTest(CBVTestCase):
         )
         interval = estimate.finish_date - estimate.start_date
         subfinish_date = estimate.start_date + (interval / 2)
-        sub1 = factories.SubContratoFactory(parent=root)
-        concepto11 = factories.ConceptoFactory(project=sub1)
-        concepto12 = factories.ConceptoFactory(project=sub1)
-        concepto13 = factories.ConceptoFactory(project=sub1)
-        subestimate11 = factories.EstimateFactory(
-            project=sub1, finish_date=subfinish_date,
-            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
-        )
-        subestimateconcept111 = factories.EstimateConceptFactory(concept=concepto11, estimate=subestimate11)
-        subestimateconcept112 = factories.EstimateConceptFactory(concept=concepto12, estimate=subestimate11)
-        subestimateconcept113 = factories.EstimateConceptFactory(concept=concepto13, estimate=subestimate11)
-        subestimate12 = factories.EstimateFactory(
-            project=sub1, finish_date=subfinish_date,
-            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
-        )
-        subestimateconcept121 = factories.EstimateConceptFactory(concept=concepto11, estimate=subestimate12)
-        subestimateconcept122 = factories.EstimateConceptFactory(concept=concepto12, estimate=subestimate12)
-        subestimateconcept123 = factories.EstimateConceptFactory(concept=concepto13, estimate=subestimate12)
-        sub2 = factories.SubContratoFactory(parent=root)
-        concepto21 = factories.ConceptoFactory(project=sub2)
-        concepto22 = factories.ConceptoFactory(project=sub2)
-        concepto23 = factories.ConceptoFactory(project=sub2)
-        subestimate21 = factories.EstimateFactory(
-            project=sub2, finish_date=subfinish_date,
-            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
-        )
-        subestimateconcept211 = factories.EstimateConceptFactory(concept=concepto21, estimate=subestimate21)
-        subestimateconcept212 = factories.EstimateConceptFactory(concept=concepto22, estimate=subestimate21)
-        subestimateconcept213 = factories.EstimateConceptFactory(concept=concepto23, estimate=subestimate21)
-        subestimate22 = factories.EstimateFactory(
-            project=sub2, finish_date=subfinish_date,
-            draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel,
-        )
-        subestimateconcept221 = factories.EstimateConceptFactory(concept=concepto21, estimate=subestimate22)
-        subestimateconcept222 = factories.EstimateConceptFactory(concept=concepto22, estimate=subestimate22)
-        subestimateconcept223 = factories.EstimateConceptFactory(concept=concepto23, estimate=subestimate22)
-        sumatoria = sub1.ejercido_acumulado() + sub2.ejercido_acumulado()
+        for x in range(2):
+            sub = factories.SubContratoFactory(parent=root)
+            for y in range(2):
+                concepto11 = factories.ConceptoFactory(project=sub, unit_price=1)
+                concepto12 = factories.ConceptoFactory(project=sub, unit_price=12)
+                concepto13 = factories.ConceptoFactory(project=sub, unit_price=13)
+                for z in range(2):
+                    subestimate11 = factories.EstimateFactory(
+                        project=sub, finish_date=subfinish_date,
+                        draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+                    )
+                    factories.EstimateConceptFactory(
+                        concept=concepto11, estimate=subestimate11, cuantity_estimated=21
+                    )
+                    factories.EstimateConceptFactory(
+                        concept=concepto12, estimate=subestimate11, cuantity_estimated=1
+                    )
+                    factories.EstimateConceptFactory(
+                        concept=concepto13, estimate=subestimate11, cuantity_estimated=2
+                    )
+                outside_date = estimate.finish_date + datetime.timedelta(days=6)
+                OUT_subestimate = factories.EstimateFactory(
+                    project=sub, finish_date=outside_date,
+                    draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
+                )
+                factories.EstimateConceptFactory(
+                    concept=concepto11, estimate=OUT_subestimate, cuantity_estimated=21
+                )
+                factories.EstimateConceptFactory(
+                    concept=concepto12, estimate=OUT_subestimate, cuantity_estimated=1
+                )
+                factories.EstimateConceptFactory(
+                    concept=concepto13, estimate=OUT_subestimate, cuantity_estimated=2
+                )
+        sumatoria = Decimal('472.00')
         qs = models.Estimate.especial.total_actual_subestimaciones(
             estimate.start_date, estimate.finish_date, estimate.project.depth, estimate.project.path
         )
