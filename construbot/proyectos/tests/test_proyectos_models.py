@@ -133,8 +133,8 @@ class EstimateModelTest(CBVTestCase):
 
 
 class EstimateSetTest(CBVTestCase):
-    @tag('current')
-    def test_total_actual_subestimaciones(self):
+
+    def paquete_subestimaciones(self, contratos, conceptos, estimaciones):
         root = factories.ContratoFactory()
         nivel = NivelAcceso.objects.get_or_create(nivel=1)[0]
         estimate = factories.EstimateFactory(
@@ -142,13 +142,13 @@ class EstimateSetTest(CBVTestCase):
         )
         interval = estimate.finish_date - estimate.start_date
         subfinish_date = estimate.start_date + (interval / 2)
-        for x in range(2):
+        for x in range(contratos):
             sub = factories.SubContratoFactory(parent=root)
-            for y in range(2):
+            for y in range(conceptos):
                 concepto11 = factories.ConceptoFactory(project=sub, unit_price=1)
                 concepto12 = factories.ConceptoFactory(project=sub, unit_price=12)
                 concepto13 = factories.ConceptoFactory(project=sub, unit_price=13)
-                for z in range(2):
+                for z in range(estimaciones):
                     subestimate11 = factories.EstimateFactory(
                         project=sub, finish_date=subfinish_date,
                         draft_by__nivel_acceso=nivel, supervised_by__nivel_acceso=nivel
@@ -176,6 +176,11 @@ class EstimateSetTest(CBVTestCase):
                 factories.EstimateConceptFactory(
                     concept=concepto13, estimate=OUT_subestimate, cuantity_estimated=2
                 )
+        return estimate
+
+    @tag('current')
+    def test_total_actual_subestimaciones(self):
+        estimate = self.paquete_subestimaciones(2, 2, 2)
         sumatoria = Decimal('472.00')
         qs = models.Estimate.especial.total_actual_subestimaciones(
             estimate.start_date, estimate.finish_date, estimate.project.depth, estimate.project.path
