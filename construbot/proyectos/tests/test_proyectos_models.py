@@ -178,7 +178,6 @@ class EstimateSetTest(CBVTestCase):
                 )
         return estimate
 
-    @tag('current')
     def test_total_actual_subestimaciones(self):
         estimate = self.paquete_subestimaciones(2, 2, 2)
         sumatoria = Decimal('472.00')
