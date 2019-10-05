@@ -115,9 +115,9 @@ django-storages==1.7.1 \
     --hash=sha256:b1a63cd5ea286ee5a9fb45de6c3c5c0ae132d58308d06f1ce9865cfcd5e470a7
 django-treebeard==4.3 \
     --hash=sha256:c21db06a8d4943bf2a28d9d7a119058698fb76116df2679ecbf15a46a501de42
-django==2.1.9 \
-    --hash=sha256:5052def4ff0a84bdf669827fdbd7b7cc1ac058f10232be6b21f37c6824f578da \
-    --hash=sha256:bb72b5f8b53f8156280eaea520b548ac128a53f80cebc856c5e0fb555d44d529
+django==2.1.13 \
+    --hash=sha256:79c6cfbc76a4612efc8a80d0094b96f50cb2aa654b2b2b530a4e707fa2985b4b \
+    --hash=sha256:7a28a4eb0167eba491ccfafd7006843b5cdd26d8c93b955a74c2ea74f94efc2c
 djangorestframework==3.9.2 \
     --hash=sha256:8a435df9007c8b7d8e69a21ef06650e3c0cbe0d4b09e55dd1bd74c89a75a9fcd \
     --hash=sha256:f7a266260d656e1cf4ca54d7a7349609dc8af4fe2590edd0ecd7d7643ea94a17
