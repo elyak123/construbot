@@ -1,24 +1,24 @@
 import importlib
 import json
+from decimal import Decimal
+from django import shortcuts
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView, FormView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Max, F, Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from wkhtmltopdf.views import PDFTemplateView
+from openpyxl import load_workbook
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
 from construbot.core.models import ChunkedCoreUpload
 from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
-from .models import Contrato, Cliente, Sitio, Units, Concept, Destinatario, Estimate
+from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate, Retenciones
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago, importar_catalogo_conceptos_excel
+    totalsinfacturar, total_sinpago
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -82,9 +82,9 @@ class ProyectosMenuMixin(auth.AuthenticationTestMixin):
         'Contrato': {
             'model': Contrato,
         },
-        'Cliente': {
+        'Contraparte': {
             'ordering': 'cliente_name',
-            'model': Cliente,
+            'model': Contraparte,
         },
         'Sitio': {
             'ordering': 'sitio_name',
@@ -102,19 +102,19 @@ class ProyectosMenuMixin(auth.AuthenticationTestMixin):
     def get_company_query(self, opcion):
         company_query = {
             'Contrato': {
-                'cliente__company': self.request.user.currently_at,
+                'contraparte__company': self.request.user.currently_at,
             },
-            'Cliente': {
+            'Contraparte': {
                 'company': self.request.user.currently_at
             },
             'Sitio': {
                 'cliente__company': self.request.user.currently_at
             },
             'Destinatario': {
-                'cliente__company': self.request.user.currently_at
+                'contraparte__company': self.request.user.currently_at
             },
             'Estimate': {
-                'project__cliente__company': self.request.user.currently_at
+                'project__contraparte__company': self.request.user.currently_at
             },
         }
         return company_query[opcion]
@@ -168,7 +168,7 @@ class ContratoListView(DynamicList):
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel >= 3:
             self.queryset = self.model.objects.filter(
-                cliente__company=self.request.user.currently_at).order_by(self.ordering)
+                contraparte__company=self.request.user.currently_at).order_by(self.ordering)
         else:
             self.queryset = self.model.objects.filter(
                 users=self.request.user,
@@ -178,7 +178,7 @@ class ContratoListView(DynamicList):
 
 
 class ClienteListView(DynamicList):
-    model = Cliente
+    model = Contraparte
 
 
 class SitioListView(DynamicList):
@@ -190,8 +190,8 @@ class DestinatarioListView(DynamicList):
 
     def get_queryset(self):
         if self.request.user.nivel_acceso.nivel < 3:
-            clientes = Contrato.especial.asignaciones(self.request.user, Cliente)
-            self.queryset = Destinatario.objects.filter(cliente__in=clientes).order_by(
+            clientes = Contrato.especial.asignaciones(self.request.user, Contraparte)
+            self.queryset = Destinatario.objects.filter(contraparte__in=clientes).order_by(
                 Lower(self.model_options[self.model.__name__]['ordering'])
             )
             return self.queryset
@@ -211,7 +211,7 @@ class CatalogoConceptos(ProyectosMenuMixin, ListView):
 
     def get_contrato(self):
         self.contrato = get_object_403_or_404(
-            Contrato, self.request.user, pk=self.kwargs['pk'], cliente__company=self.request.user.currently_at
+            Contrato, self.request.user, pk=self.kwargs['pk'], contraparte__company=self.request.user.currently_at
         )
         return self.contrato
 
@@ -254,12 +254,12 @@ class DynamicDetail(ProyectosMenuMixin, DetailView):
             return self.object.get_contratos_ordenados()
         contratos = self.object.contrato_set.filter(
             users=self.request.user,
-             **self.get_company_query('Contrato')).order_by('-fecha')
+            **self.get_company_query('Contrato')).order_by('-fecha')
         return contratos
 
     def get_context_data(self, **kwargs):
         context = super(DynamicDetail, self).get_context_data(**kwargs)
-        if self.model is Sitio or self.model is Cliente:
+        if self.model is Sitio or self.model is Contraparte:
             context['contratos_ordenados'] = self.contratos_ordenados()
         return context
 
@@ -280,7 +280,7 @@ class ContratoDetailView(DynamicDetail):
 
 
 class ClienteDetailView(DynamicDetail):
-    model = Cliente
+    model = Contraparte
 
 
 class SitioDetailView(DynamicDetail):
@@ -311,26 +311,26 @@ class EstimateDetailView(DynamicDetail):
         return context
 
 
-class BasePDFGenerator(PDFTemplateView, EstimateDetailView):
-    filename = None
+class SubcontratosReport(EstimateDetailView):
+    template_name = 'proyectos/reporte_estimaciones_subcontratos.html'
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.get_context_data(object=self.object)
-        return super(BasePDFGenerator, self).get(self.request, *args, **kwargs)
-
-    def get_cmd_options(self):
-        return {
-            'orientation': 'Landscape',
-            'page-size': 'Letter',
-            'dpi': '300',
-            'print-media-type ': None
-
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super(BasePDFGenerator, self).get_context_data(**kwargs)
-        context['pdf'] = True
+    def get_context_data(self, *args, **kwargs):
+        #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
+        context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
+        context['subestimaciones'] = Estimate.especial.reporte_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
+        context['acumulado'] = Estimate.especial.total_acumulado_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
+        context['actual'] = Estimate.especial.total_actual_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
+        context['anterior'] = Estimate.especial.total_anterior_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
+        context['contratado'] = Estimate.especial.total_contratado_subestimaciones(
+            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+        )[0]
         return context
 
 
@@ -344,7 +344,7 @@ class GeneratorPdfPrint(EstimateDetailView):
 
 
 class DummyFileForm(ProyectosMenuMixin, TemplateView):
-    template_name = 'core/dummy_input.html'        
+    template_name = 'core/dummy_input.html'
 
 
 class ContratoCreationView(ProyectosMenuMixin, CreateView):
@@ -358,21 +358,60 @@ class ContratoCreationView(ProyectosMenuMixin, CreateView):
         form.request = self.request
         return form
 
+    def get_max_id(self):
+        max_id = self.form_class.Meta.model.objects.filter(
+            contraparte__company=self.request.user.currently_at
+        ).aggregate(Max('folio'))['folio__max'] or 0
+        return max_id
+
+    def get_depth(self):
+        return 1
+
     def get_initial(self):
         initial_obj = super(ContratoCreationView, self).get_initial()
-        max_id = self.form_class.Meta.model.objects.filter(
-            cliente__company=self.request.user.currently_at
-        ).aggregate(Max('folio'))['folio__max'] or 0
+        max_id = self.get_max_id()
         max_id += 1
         initial_obj['currently_at'] = self.request.user.currently_at.company_name
         initial_obj['folio'] = max_id
         initial_obj['users'] = [self.request.user.pk]
+        initial_obj['depth'] = self.get_depth()
+        initial_obj['path'] = 'random'
+        initial_obj['numchild'] = 0
         return initial_obj
 
     def get_context_data(self, **kwargs):
         context = super(ContratoCreationView, self).get_context_data(**kwargs)
         context['company'] = self.request.user.currently_at
         # context['dummy_file'] = True
+        return context
+
+
+class SubcontratoCreationView(ContratoCreationView):
+    form_class = forms.SubContratoForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.contrato = Contrato.objects.get(pk=self.kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, *args, **kwargs):
+        form = super(SubcontratoCreationView, self).get_form(form_class=None)
+        form.contrato = self.contrato
+        return form
+
+    def get_max_id(self):
+        return self.contrato.get_children_count()
+
+    def get_depth(self):
+        return self.contrato.get_depth() + 1
+
+    def get_initial(self):
+        obj = super(SubcontratoCreationView, self).get_initial()
+        obj.update({'sitio': self.contrato.sitio})
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(ContratoCreationView, self).get_context_data(**kwargs)
+        context['subcontrato'] = True
         return context
 
 
@@ -422,7 +461,7 @@ class EstimateCreationView(ProyectosMenuMixin, CreateView):
                 Contrato,
                 self.request.user,
                 pk=self.kwargs.get('pk'),
-                cliente__company=self.request.user.currently_at
+                contraparte__company=self.request.user.currently_at
             )
         return self.project_instance
 
@@ -570,7 +609,7 @@ class ContratoEditView(ProyectosMenuMixin, UpdateView):
                 Contrato,
                 self.request.user,
                 pk=self.kwargs['pk'],
-                cliente__company=self.request.user.currently_at
+                contraparte__company=self.request.user.currently_at
             )
         return self.object
 
@@ -616,7 +655,7 @@ class EstimateEditView(ProyectosMenuMixin, UpdateView):
                 self.model,
                 self.request.user,
                 pk=self.kwargs['pk'],
-                project__cliente__company=self.request.user.currently_at
+                project__contraparte__company=self.request.user.currently_at
             )
         return self.object
 
@@ -671,6 +710,11 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
     asignacion_requerida = True
     nivel_permiso_asignado = 2
 
+    def post(self, request, *args, **kwargs):
+        if 'excel-file' in request.FILES.keys():
+            self.importar_excel()
+        return super().post(request, *args, **kwargs)
+
     def get_assignment_args(self):
         self.object = self.get_object()
         return self.object, self.request.user.contrato_set.all()
@@ -681,7 +725,7 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
             self.object = get_object_403_or_404(
                 self.model,
                 self.request.user,
-                cliente__company=self.request.user.currently_at,
+                contraparte__company=self.request.user.currently_at,
                 pk=self.kwargs['pk']
             )
         return self.object
@@ -705,6 +749,24 @@ class CatalogoRetencionesInlineFormView(CatalogosView):
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'retenciones'
 
+    def importar_excel(self):
+        contrato_instance = shortcuts.get_object_or_404(
+            Contrato, pk=self.request.POST['contrato'],
+            contraparte__company=self.request.user.currently_at
+        )
+        ws = load_workbook(self.request.FILES['excel-file']).active
+        for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
+            nombre = row[0]
+            tipo = None
+            if row[1].lower() == 'porcentaje':
+                tipo = 'PERCENTAGE'
+            elif row[1].lower() == 'monto':
+                tipo = 'AMOUNT'
+            valor = row[2]
+            Retenciones.objects.create(
+                nombre=nombre, valor=valor, tipo=tipo, project=contrato_instance
+            )
+
 
 class CatalogoConceptosInlineFormView(CatalogosView):
     change_company_ability = False
@@ -712,16 +774,25 @@ class CatalogoConceptosInlineFormView(CatalogosView):
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'conceptos'
 
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if 'excel-file' in request.FILES.keys():
-            importar_catalogo_conceptos_excel(
-                request.POST['contrato'],
-                request.FILES['excel-file'],
-                self.request.user.currently_at
+    def importar_excel(self):
+        contrato_instance = shortcuts.get_object_or_404(
+            Contrato, pk=self.request.POST['contrato'], contraparte__company=self.request.user.currently_at)
+        unidades = {}
+        ws = load_workbook(self.request.FILES['excel-file']).active
+        for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
+            codigo = row[0]
+            concept_text = row[1]
+            unidad = row[2]
+            cantidad = Decimal(row[3])
+            pu = row[4]
+            if pu in unidades.keys():
+                pu = unidades[pu]
+            else:
+                unidad, created = Units.objects.get_or_create(unit=unidad, company=self.request.user.currently_at)
+            Concept.objects.create(
+                code=codigo, concept_text=concept_text, project=contrato_instance,
+                unit=unidad, total_cuantity=cantidad, unit_price=pu
             )
-        return super().post(request, *args, **kwargs)
 
 
 class CatalogoUnitsInlineFormView(CatalogosView):
@@ -731,6 +802,9 @@ class CatalogoUnitsInlineFormView(CatalogosView):
     form_class = forms.UnitsInlineForm
     template_name = 'proyectos/catalogo-conceptos-inline.html'
     tipo = 'unidades'
+
+    def importar_excel(self):
+        pass
 
     def get_object(self):
         obj = self.request.user.currently_at
@@ -751,7 +825,7 @@ class DynamicDelete(ProyectosMenuMixin, DeleteView):
         self.object = self.get_object()
         if isinstance(self.object, (Contrato, Estimate)):
             return self.enforce_assignment(*self.get_assignment_args())
-        elif isinstance(self.object, Cliente):
+        elif isinstance(self.object, Contraparte):
             return self.permiso_requerido
         return self.nivel_permiso_asignado
 
@@ -813,17 +887,27 @@ class AutocompletePoryectos(BasicAutocomplete):
 
 
 class ClienteAutocomplete(AutocompletePoryectos):
-    model = Cliente
+    model = Contraparte
     ordering = 'cliente_name'
+    tipo = 'CLIENTE'
 
     def get_key_words(self):
         key_words = super(ClienteAutocomplete, self).get_key_words()
-        key_words.update({'company': self.request.user.currently_at})
+        key_words.update(
+            {'company': self.request.user.currently_at, 'tipo': self.tipo})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'company': self.request.user.currently_at}
+        kw = {'company': self.request.user.currently_at, 'tipo': self.tipo}
         return kw
+
+
+class SubcontratistaAutocomplete(ClienteAutocomplete):
+    tipo = 'SUBCONTRATISTA'
+
+
+class DestajistaAutocomplete(ClienteAutocomplete):
+    tipo = 'DESTAJISTA'
 
 
 class SitioAutocomplete(AutocompletePoryectos):
@@ -838,7 +922,7 @@ class SitioAutocomplete(AutocompletePoryectos):
     def get_post_key_words(self):
         # Depende enteramente de la existencia de destinatario en el
         # formulario... suceptible a errores....
-        cliente = get_object_403_or_404(Cliente, self.request.user, pk=int(self.forwarded.get('cliente')))
+        cliente = get_object_403_or_404(Contraparte, self.request.user, pk=int(self.forwarded.get('contraparte')))
         kw = {'cliente': cliente}
         return kw
 
@@ -849,11 +933,11 @@ class DestinatarioAutocomplete(AutocompletePoryectos):
 
     def get_key_words(self):
         key_words = super(DestinatarioAutocomplete, self).get_key_words()
-        key_words.update({'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente})
+        key_words.update({'contraparte': Contrato.objects.get(pk=int(self.forwarded.get('project'))).contraparte})
         return key_words
 
     def get_post_key_words(self):
-        kw = {'cliente': Contrato.objects.get(pk=int(self.forwarded.get('project'))).cliente}
+        kw = {'contraparte': Contrato.objects.get(pk=int(self.forwarded.get('project'))).contraparte}
         return kw
 
 
@@ -942,19 +1026,3 @@ class ContratoChunkedUpload(ChunkedUploadCompleteView):
         Called *only* if POST is successful.
         """
         return json.dumps({'chunked_id': chunked_upload.upload_id})
-
-
-class ExcelConceptCatalog(ProyectosMenuMixin, FormView):
-    form_class = forms.ExcelConceptCatalogForm
-    template_name = 'proyectos/simple_form.html'
-
-    @method_decorator(csrf_exempt)
-    def dispatch(self, request, *args, **kwargs):
-        return super(ExcelConceptCatalog, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        import pdb; pdb.set_trace()
-        data = self.form.cleaned_data
-        import pdb; pdb.set_trace()
-        importar_catalogo_conceptos_excel(data['contrato'], data['archivo_excel'], self.request.user.currently_at)
-        return super(ExcelConceptCatalog, self).form_valid(form)

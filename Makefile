@@ -68,6 +68,10 @@ current: dockerenv
 clean:
 	@docker rm $(shell docker ps -a -q) -f
 
+cleandb: clean
+	@docker rmi $(shell docker images -q landing-construbot_postgres) -f
+	@docker volume rm $(shell docker volume ls -qf "name=construbot_postgres*")
+
 cleanhard: clean
 	@docker rmi $(shell docker images -q) -f
 	@docker volume prune -f

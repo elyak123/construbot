@@ -1,8 +1,9 @@
+from django.db import transaction
 from django import forms
 from dal import autocomplete
-# from construbot.core.models import ChunkedCoreUpload
+from treebeard.mp_tree import MP_AddRootHandler, MP_AddChildHandler
 from .models import (
-    Contrato, Cliente, Sitio, Concept, Destinatario, Estimate,
+    Contrato, Contraparte, Sitio, Concept, Destinatario, Estimate,
     EstimateConcept, ImageEstimateConcept, Retenciones, Units, Vertices)
 from construbot.users.models import Company
 from construbot.proyectos import widgets
@@ -23,7 +24,25 @@ class ExcelConceptCatalogForm(forms.Form):
 
 class ContratoForm(forms.ModelForm):
     currently_at = forms.CharField(widget=forms.HiddenInput())
-#     relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
+    # relacion_id_archivo = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def obj_transaction_process(self):
+        with transaction.atomic():
+            instance = MP_AddRootHandler(Contrato, **self.cleaned_data).process()
+        return instance
+
+    def save(self, commit=True):
+        usrs = self.cleaned_data.pop('users')
+        self.cleaned_data.pop('currently_at')
+        if not self.instance.pk:
+            self.instance = self.obj_transaction_process()
+            super(ContratoForm, self).save(commit=False)
+            self.cleaned_data.update({'users': usrs})
+            self.save_m2m()
+        else:
+            self.cleaned_data.update({'users': usrs})
+            super(ContratoForm, self).save(commit=True)
+        return self.instance
 
     def clean(self):
         result = super(ContratoForm, self).clean()
@@ -41,18 +60,13 @@ class ContratoForm(forms.ModelForm):
                 'es necesario recargar y repetir el proceso.'
             )
 
-#    def save(self, commit=True):
-#        instance = super(ContratoForm, self).save(commit=commit)
-#        if self.cleaned_data.get('relacion_id_archivo'):
-#            file = ChunkedCoreUpload.objects.get(upload_id=self.cleaned_data['relacion_id_archivo'])
-#            instance.file = file.file
-#            instance.save()
-#            file.delete(delete_file=False)
-#        return instance
-
     class Meta:
         model = Contrato
-        fields = '__all__'
+        fields = [
+            'folio', 'code', 'fecha', 'contrato_name',
+            'contrato_shortName', 'contraparte', 'sitio',
+            'status', 'file', 'monto', 'users', 'anticipo'
+        ]
         labels = {
             'code': 'Folio del contrato',
             'contrato_name': 'Nombre del contrato',
@@ -74,14 +88,14 @@ class ContratoForm(forms.ModelForm):
             'folio': forms.TextInput(
                 attrs={'readonly': 'readonly'}
             ),
-            'cliente': autocomplete.ModelSelect2(
+            'contraparte': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}
             ),
             'sitio': autocomplete.ModelSelect2(
                 url='proyectos:sitio-autocomplete',
                 attrs={'data-minimum-input-length': 3},
-                forward=['cliente']
+                forward=['contraparte']
             ),
             'users': autocomplete.ModelSelect2Multiple(
                 url='proyectos:user-autocomplete',
@@ -103,13 +117,32 @@ class ContratoForm(forms.ModelForm):
             'folio': 'ID consecutivo de contrato en la compañía.',
             'contrato_name': 'Nombre completo del proyecto, se utilizará para generar la estimación.',
             'contrato_shortName': 'Identificador corto del contrato para control en listados.',
-            'cliente': '¿Con qué empresa/persona física firmé el contrato?',
+            'contraparte': '¿Con qué empresa/persona física firmé el contrato?',
             'sitio': '¿En qué predio será realizado el proyecto?',
             'status': 'Indique si el proyecto sigue en curso.',
             'monto': 'Cantidad por la cual se firmó el contrato. Sin IVA',
             'users': 'Seleccione a los usuarios a los que les quiere asignar el contrato.',
             'anticipo': 'Indique el porcentaje (de 0% a 100%) de anticipo del proyecto.'
         }
+
+
+class SubContratoForm(ContratoForm):
+
+    def __init__(self, *args, **kwargs):
+        super(SubContratoForm, self).__init__(*args, **kwargs)
+        self.fields['sitio'].widget = forms.HiddenInput()
+        self.fields['contraparte'].widget = autocomplete.ModelSelect2(
+            url='proyectos:subcontratista-autocomplete',
+            attrs={'data-minimum-input-length': 3}
+        )
+        #  Debido a:
+        #  https://github.com/yourlabs/django-autocomplete-light/issues/790#issuecomment-276309980
+        self.fields['contraparte'].widget.choices = self.fields['contraparte'].choices
+
+    def obj_transaction_process(self):
+        with transaction.atomic():
+            instance = MP_AddChildHandler(self.contrato, **self.cleaned_data).process()
+        return instance
 
 
 class BaseCleanForm(forms.ModelForm):
@@ -131,7 +164,7 @@ class BaseCleanForm(forms.ModelForm):
 class ClienteForm(BaseCleanForm):
 
     class Meta:
-        model = Cliente
+        model = Contraparte
         fields = '__all__'
         labels = {
             'cliente_name': 'Nombre del cliente'
@@ -174,10 +207,10 @@ class DestinatarioForm(forms.ModelForm):
         fields = '__all__'
         labels = {
             'destinatario_text': 'Nombre del destinatario',
-            'cliente': '¿En qué empresa trabaja?'
+            'contraparte': '¿En qué empresa trabaja?'
         }
         widgets = {
-            'cliente': autocomplete.ModelSelect2(
+            'contraparte': autocomplete.ModelSelect2(
                 url='proyectos:cliente-autocomplete',
                 attrs={'data-minimum-input-length': 3}
             ),
@@ -185,7 +218,7 @@ class DestinatarioForm(forms.ModelForm):
         help_texts = {
             'destinatario_text': 'Nombre del representante de la empresa que firmará documentos.',
             'puesto': '¿En qué puesto trabaja?',
-            'cliente': '¿Para qué empresa/persona física trabaja?'
+            'contraparte': '¿Para qué empresa/persona física trabaja?'
         }
 
 
@@ -195,10 +228,10 @@ class EstimateForm(forms.ModelForm):
         cleaned_data = super(EstimateForm, self).clean()
         destinatarios_contratos_error_message = 'Destinatarios y contratos no pueden ser de empresas diferentes'
         for auth_by in cleaned_data['auth_by']:
-            if auth_by.cliente.company != cleaned_data['project'].cliente.company:
+            if auth_by.contraparte.company != cleaned_data['project'].contraparte.company:
                 raise forms.ValidationError(destinatarios_contratos_error_message)
         for auth_by_gen in cleaned_data['auth_by_gen']:
-            if auth_by_gen.cliente.company != cleaned_data['project'].cliente.company:
+            if auth_by_gen.contraparte.company != cleaned_data['project'].contraparte.company:
                 raise forms.ValidationError(destinatarios_contratos_error_message)
         pago_sin_fecha_validation_error_message = 'Si la estimación fué pagada, es necesaria fecha de pago.'
         if self.cleaned_data['paid'] and not self.cleaned_data['payment_date']:

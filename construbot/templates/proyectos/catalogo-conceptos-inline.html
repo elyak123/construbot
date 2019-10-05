@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load l10n %}
 {% block css %}
 {% endblock css %}
 {% block javascript %}
@@ -15,7 +16,6 @@
         prefix: setPrefix,
         callbacks: callbacks
     });
-
   </script>
 {% endblock javascript %}
 {% block javascript_no_compress %}
@@ -46,7 +46,7 @@
           </button>
         </div>
         <div class="modal-body" id="modal-body-excel">
-          <input type="hidden" name="contrato" value="{{ object.pk }}" id="id_excel_contrato">
+          <input type="hidden" name="contrato" value="{{ object.pk|unlocalize }}" id="id_excel_contrato">
           <div class="form-group">
             <label for="id_file">Excel a subir: </label>
             <input type="file" name="excel-file" class="" title="" id="id_excel_file">

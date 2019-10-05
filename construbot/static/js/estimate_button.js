@@ -1,20 +1,21 @@
 $(document).ready(function(){
-  let current = $(".calcular-mul")[0];
-  let button = $(".calcular_cantidad");
+  var current = $(".calcular-mul")[0];
+  var button = $(".calcular_cantidad");
   button.on("click", function n(ev){
     calcular(ev);
   });
   function calcular(ev){
     ev.preventDefault();
-    let source = ev.target.parentElement.parentElement;
-    let container = source.parentElement;
-    let elements = $(container).find(".vertices");
-    let estimado = 0;
-    for(let i = 0; i < elements.length; i++){
-      let mult = 1;
-      for(let j = 4; j < 6; j++){
-        mult *= elements[i].children[j].children[0].children[1].value;
-      }
+    var source = ev.target.parentElement.parentElement;
+    var container = source.parentElement;
+    var elements = $(container).find(".vertices");
+    var estimado = 0;
+    for(var i = 0; i < elements.length; i++){
+      var mult = 1;
+      mult*=$(elements[i]).find(".alto").children()[0].value;
+      mult*=$(elements[i]).find(".ancho").children()[0].value;
+      mult*=$(elements[i]).find(".largo").children()[0].value;
+      mult*=$(elements[i]).find(".piezas").children()[0].value;
       estimado+=mult;
     }
     $(container).find("[placeholder='Cantidad estimada']")[0].value = estimado.toFixed(2);

@@ -193,9 +193,8 @@ django-storages==1.7.1 \
     --hash=sha256:b1a63cd5ea286ee5a9fb45de6c3c5c0ae132d58308d06f1ce9865cfcd5e470a7
 django-test-plus==1.0.22 \
     --hash=sha256:cdfa439642c660a1c65af5add140a2dcf360e71daa65740d87e9e53cb8509d6b
-django-wkhtmltopdf==3.2.0 \
-    --hash=sha256:4cf07226332b89102e2ab1302fdd6cad402677ebfb2d50efad7cb3056a54151b \
-    --hash=sha256:5dc89264b970d63f41b99c6722ccd47b15292598bec84248f3b94e5673dcfeac
+django-treebeard==4.3 \
+    --hash=sha256:c21db06a8d4943bf2a28d9d7a119058698fb76116df2679ecbf15a46a501de42
 django==2.1.9 \
     --hash=sha256:5052def4ff0a84bdf669827fdbd7b7cc1ac058f10232be6b21f37c6824f578da \
     --hash=sha256:bb72b5f8b53f8156280eaea520b548ac128a53f80cebc856c5e0fb555d44d529

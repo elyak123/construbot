@@ -1,21 +1,32 @@
+from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
-from django.db.models import Sum, F
-from decimal import Decimal
+from django.db import connection
+from django.db.models import Sum, F, Value as V
+from django.db.models.functions import Coalesce
+from treebeard.mp_tree import MP_Node
 from construbot.core import utils
 from construbot.users.models import Company
 
 
 # Create your models here.
-class Cliente(models.Model):
+class Contraparte(models.Model):
     """El modelo que representa la relación entre una
     empresa (Company) perteneciente al comprador (Customer)
-    y su cliente (modelo actual)"""
+    y su contraparte en relaciones comerciales (modelo actual)"""
+    TIPOS = (
+        ('CLIENTE', 'Cliente'), ('DESTAJISTA', 'Destajista'), ('SUBCONTRATISTA', 'Subcontratista')
+    )
     cliente_name = models.CharField(max_length=80, unique=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=14, choices=TIPOS, default='CLIENTE')
+
+    @property
+    def tipo_display(self):
+        return dict(self.TIPOS)[self.tipo]
 
     def get_absolute_url(self):
         return reverse('proyectos:cliente_detail', kwargs={'pk': self.id})
@@ -24,8 +35,8 @@ class Cliente(models.Model):
         return self.contrato_set.all().order_by('-fecha')
 
     class Meta:
-        verbose_name = "Cliente"
-        verbose_name_plural = "Clientes"
+        verbose_name = "Contraparte"
+        verbose_name_plural = "Contrapartes"
 
     def __str__(self):
         return self.cliente_name
@@ -47,7 +58,13 @@ class Units(models.Model):
 class Sitio(models.Model):
     sitio_name = models.CharField(max_length=80)
     sitio_location = models.CharField(max_length=80, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.cliente.tipo != 'CLIENTE':
+            raise ValidationError(
+                {'cliente': 'La contraparte debe de ser CLIENTE y no {}'.format(self.cliente.tipo)}
+            )
 
     @property
     def company(self):
@@ -70,11 +87,12 @@ class Sitio(models.Model):
 class Destinatario(models.Model):
     destinatario_text = models.CharField(max_length=80)
     puesto = models.CharField(max_length=50, null=True, blank=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    # TODO: cambiar este campo a contra parte.
+    contraparte = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
 
     @property
     def company(self):
-        return self.cliente.company
+        return self.contraparte.company
 
     def get_absolute_url(self):
         return reverse('proyectos:destinatario_detail', kwargs={'pk': self.id})
@@ -97,16 +115,19 @@ class ContratoSet(models.QuerySet):
         return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
 
 
-class Contrato(models.Model):
+class Contrato(MP_Node):
+
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
     fecha = models.DateField()
     contrato_name = models.CharField(max_length=300)
     contrato_shortName = models.CharField(max_length=80)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    contraparte = models.ForeignKey(Contraparte, on_delete=models.CASCADE)
     sitio = models.ForeignKey(Sitio, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
-    file = models.FileField(upload_to=utils.get_directory_path, blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    file = models.FileField(
+        upload_to=utils.get_directory_path, blank=True, null=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     monto = models.DecimalField('monto', max_digits=12, decimal_places=2, default=0.0)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     anticipo = models.DecimalField('anticipo', max_digits=4, decimal_places=2, default=0.0)
@@ -114,15 +135,38 @@ class Contrato(models.Model):
     objects = models.Manager()
     especial = ContratoSet.as_manager()
 
+    @classmethod
+    def get_last_root_node(cls):
+        """
+        :returns:
+
+            The last root node in the tree or ``None`` if it is empty.
+        """
+        try:
+            return cls.get_root_nodes().order_by('-pk')[0]
+        except IndexError:
+            return None
+
     @property
     def company(self):
-        return self.cliente.company
+        return self.contraparte.company
 
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
 
     def get_estimaciones(self):
         return self.estimate_set.all().order_by('consecutive')
+
+    def get_top_10_children(self):
+        query = self.get_children()
+        return query.order_by('-monto')[:10]
+
+    def ejercido_acumulado(self):
+        conceptos = self.concept_set.all()
+        return conceptos.aggregate(
+            total=Coalesce(utils.Round(
+                Sum(models.F('estimateconcept__cuantity_estimated') * models.F('unit_price'))), V(Decimal('0.00')))
+        )['total']
 
     class Meta:
         verbose_name = "Contrato"
@@ -152,6 +196,178 @@ class Retenciones(models.Model):
         return self.nombre
 
 
+class EstimateSet(models.QuerySet):
+
+    def reporte_subestimaciones(self, start_date, finish_date, depth, path):
+        path = path + '%'
+        sql = """
+            SELECT  U1."id", U1."consecutive", U3."contrato_shortName",
+                COALESCE(ROUND(SUM(U0."cuantity_estimated" * U2."unit_price"), 2), 0) AS "estimado", (
+                    SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
+                    FROM "proyectos_estimateconcept" I0
+                    INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                    INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                    INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                    WHERE U3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
+                ) AS "acumulado",
+                (
+                    SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
+                    FROM "proyectos_estimateconcept" I0
+                    INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                    INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                    INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                    WHERE U3."id" = I1."project_id" AND I1."consecutive" = U1."consecutive" - 1
+                    -- concept.project = contrato.pk and estimacion.consecutive = Estimacion.consecutive -1
+                )AS "anterior",
+                (
+                    SELECT COALESCE(ROUND(SUM( I0."total_cuantity" * I0."unit_price"), 2), 0)
+                    FROM "proyectos_concept" I0
+                    INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
+                    INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
+                    INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
+                    WHERE I0."project_id" = I1."id" AND I3."id" = U1."id"
+                    GROUP BY I3."id"
+                ) AS "contratado"
+            FROM "proyectos_estimateconcept" U0
+            INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+            INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+            INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+            WHERE U3."id" = U1."project_id"
+                AND U3."depth" = %(depth)s + 1
+                AND U3."path" LIKE %(path)s
+                AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+            GROUP BY U1."id", U3."id"
+        """
+        return self.raw(
+            sql, params={
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            }
+        )
+
+    def total_acumulado_subestimaciones(self, start_date, finish_date, depth, path):
+        path = path + '%'
+        sql = """
+           SELECT  SUM("acumulado")
+           FROM (SELECT U1."id",
+               (
+                    SELECT COALESCE(ROUND(SUM(I0."cuantity_estimated" * I2."unit_price"), 2), 0)
+                        FROM "proyectos_estimateconcept" I0
+                        INNER JOIN "proyectos_estimate" I1 ON (I0."estimate_id" = I1."id")
+                        INNER JOIN "proyectos_concept" I2 ON (I0."concept_id" = I2."id")
+                        INNER JOIN "proyectos_contrato" I3 ON (I1."project_id" = I3."id")
+                        WHERE U3."id" = I1."project_id" AND U1."consecutive" >= I1."consecutive"
+                    ) AS "acumulado"
+                FROM "proyectos_estimateconcept" U0
+                INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+                INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+                INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+                WHERE U3."id" = U1."project_id"
+                    AND U3."depth" = %(depth)s + 1
+                    AND U3."path" LIKE %(path)s
+                    AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+                GROUP BY U1."id", U3."id"
+           ) AS "cont"
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, {
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            })
+            row = cursor.fetchone()
+        return row
+
+    def total_contratado_subestimaciones(self, start_date, finish_date, depth, path):
+        path = path + '%'
+        sql = """
+           SELECT  SUM("contratado")
+           FROM (SELECT U1."id",
+               (
+                    SELECT COALESCE(ROUND(SUM( I0."total_cuantity" * I0."unit_price"), 2), 0)
+                        FROM "proyectos_concept" I0
+                        INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
+                        INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
+                        INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
+                        WHERE I0."project_id" = I1."id" AND I3."id" = U1."id"
+                        GROUP BY I3."id"
+                    ) AS "contratado"
+                FROM "proyectos_estimateconcept" U0
+                INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+                INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+                INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+                WHERE U3."id" = U1."project_id"
+                    AND U3."depth" = %(depth)s + 1
+                    AND U3."path" LIKE %(path)s
+                    AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+                GROUP BY U1."id", U3."id"
+           ) AS "cont"
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, {
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            })
+            row = cursor.fetchone()
+        return row
+
+    def total_anterior_subestimaciones(self, start_date, finish_date, depth, path):
+        path = path + '%'
+        sql = """
+           SELECT  COALESCE(SUM("anterior"), 0) as anterior
+           FROM (SELECT U1."id",
+               (
+                    SELECT COALESCE(ROUND(SUM( I2."cuantity_estimated" * I0."unit_price"), 2), 0)
+                        FROM "proyectos_concept" I0
+                        INNER JOIN "proyectos_contrato" I1 ON (I0."project_id" = I1."id")
+                        INNER JOIN "proyectos_estimateconcept" I2 ON (I0."id" = I2."concept_id")
+                        INNER JOIN "proyectos_estimate" I3 ON (I3."id" = I2."estimate_id")
+                        WHERE I0."project_id" = U3."id" AND I3."consecutive" = U1."consecutive" -1
+                        GROUP BY I3."id"
+                    ) AS "anterior"
+                FROM "proyectos_estimateconcept" U0
+                INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+                INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+                INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+                WHERE U3."id" = U1."project_id"
+                    AND U3."depth" =  %(depth)s + 1
+                    AND U3."path" LIKE %(path)s
+                    AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+                GROUP BY U1."id", U3."id"
+           ) AS "cont"
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, {
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            })
+            row = cursor.fetchone()
+        return row
+
+    def total_actual_subestimaciones(self, start_date, finish_date, depth, path):
+        path = path + '%'
+        sql = """
+           SELECT  SUM("estimado")
+           FROM (SELECT U1."id", COALESCE(ROUND(SUM(U0."cuantity_estimated" * U2."unit_price"), 2), 0) AS "estimado"
+                FROM "proyectos_estimateconcept" U0
+                INNER JOIN "proyectos_estimate" U1 ON (U0."estimate_id" = U1."id")
+                INNER JOIN "proyectos_concept" U2 ON (U0."concept_id" = U2."id")
+                INNER JOIN "proyectos_contrato" U3 ON(U1."project_id" = U3."id")
+                WHERE U3."id" = U1."project_id"
+                    AND U3."depth" = %(depth)s + 1
+                    AND U3."path" LIKE %(path)s
+                    AND U1."finish_date" BETWEEN %(start_date)s AND %(finish_date)s
+                GROUP BY U1."id", U3."id"
+           ) AS "cont"
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, {
+                'start_date': start_date,
+                'finish_date': finish_date, 'path': path, 'depth': depth
+            })
+            row = cursor.fetchone()
+        return row
+
+
 class Estimate(models.Model):
     project = models.ForeignKey(Contrato, on_delete=models.CASCADE)
     consecutive = models.IntegerField()
@@ -169,9 +385,12 @@ class Estimate(models.Model):
     mostrar_anticipo = models.BooleanField(default=False)
     mostrar_retenciones = models.BooleanField(default=False)
 
+    objects = models.Manager()
+    especial = EstimateSet.as_manager()
+
     @property
     def company(self):
-        return self.project.cliente.company
+        return self.project.contraparte.company
 
     def get_absolute_url(self):
         return str(reverse('proyectos:contrato_detail', kwargs={'pk': self.project.id}))
@@ -353,7 +572,7 @@ class Concept(models.Model):
         return self.concept_text
 
     def clean(self):
-        if not self.unit.company == self.project.cliente.company:
+        if not self.unit.company == self.project.contraparte.company:
             raise ValidationError(
                 {
                     'unit': 'El concepto debe pertenecer a la misma compañia que su unidad.'
