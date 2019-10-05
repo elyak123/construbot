@@ -50,11 +50,13 @@
         }
 
         $(document).keydown(function(event) {
-          event.preventDefault();
-          if(event.which == 40){
-            call_next_info();
-          } else if (event.which == 38){
-            call_previous_info();
+          if(event.which === 40 || event.which === 38){
+            event.preventDefault();
+            if(event.which === 40){
+              call_next_info();
+            }else{
+              call_previous_info();              
+            }
           }
         });
     });
@@ -68,7 +70,7 @@
 <div class="cont_table_sample">
     <table class="table_sample table_detalle">
         <tr>
-            <th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
+            <th colspan="2">Datos Generales</th>
         </tr>
         <tr>
             <td>Código de contrato</td>
@@ -113,10 +115,6 @@
         {% endif %}
     </table>
 </div>
-<br>
-<br>
-<br>
-<br>
 <!-- INICIAN EXPERIMENTOS -->
 <div class="resumes_container" id="abajo">
   <div class="row">
