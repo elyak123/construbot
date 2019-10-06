@@ -18,7 +18,7 @@ from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate, Retenciones
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
-    totalsinfacturar, total_sinpago
+    totalsinfacturar, total_sinpago, path_processing
 
 try:
     auth = importlib.import_module(settings.CONSTRUBOT_AUTHORIZATION_CLASS)
@@ -317,19 +317,20 @@ class SubcontratosReport(EstimateDetailView):
     def get_context_data(self, *args, **kwargs):
         #  Llamamos al super del padre para evitar la ejecucion de queries que no necesitamos.
         context = super(EstimateDetailView, self).get_context_data(*args, **kwargs)
+        path = path_processing(self.object.project.path)
         context['subestimaciones'] = Estimate.especial.reporte_subestimaciones(
-            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path)
+            self.object.start_date, self.object.finish_date, self.object.project.depth, path)
         context['acumulado'] = Estimate.especial.total_acumulado_subestimaciones(
-            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+            self.object.start_date, self.object.finish_date, self.object.project.depth, path
         )[0]
         context['actual'] = Estimate.especial.total_actual_subestimaciones(
-            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+            self.object.start_date, self.object.finish_date, self.object.project.depth, path
         )[0]
         context['anterior'] = Estimate.especial.total_anterior_subestimaciones(
-            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+            self.object.start_date, self.object.finish_date, self.object.project.depth, path
         )[0]
         context['contratado'] = Estimate.especial.total_contratado_subestimaciones(
-            self.object.start_date, self.object.finish_date, self.object.project.depth, self.object.project.path
+            self.object.start_date, self.object.finish_date, self.object.project.depth, path
         )[0]
         return context
 

@@ -52,3 +52,11 @@ def totalsinfacturar(estimaciones):
     return estimaciones.aggregate(
         total=Round(Sum(F('estimateconcept__cuantity_estimated') * F('concept__unit_price')))
     )['total']
+
+
+def path_processing(path):
+    if path[-1] == '%':
+        path = path[:-1] + r'\\%'
+    elif path[-1] == '\\':
+        path = path[:-1] + r'\\\\'
+    return path + '%'

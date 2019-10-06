@@ -200,7 +200,6 @@ class Retenciones(models.Model):
 class EstimateSet(models.QuerySet):
 
     def reporte_subestimaciones(self, start_date, finish_date, depth, path):
-        path = path + '%'
         sql = """
             SELECT  U1."id", U1."consecutive", U3."contrato_shortName",
                 COALESCE(ROUND(SUM(U0."cuantity_estimated" * U2."unit_price"), 2), 0) AS "estimado", (
@@ -247,7 +246,6 @@ class EstimateSet(models.QuerySet):
         )
 
     def total_acumulado_subestimaciones(self, start_date, finish_date, depth, path):
-        path = path + '%'
         sql = """
            SELECT  SUM("acumulado")
            FROM (SELECT U1."id",
@@ -279,7 +277,6 @@ class EstimateSet(models.QuerySet):
         return row
 
     def total_contratado_subestimaciones(self, start_date, finish_date, depth, path):
-        path = path + '%'
         sql = """
            SELECT  SUM("contratado")
            FROM (SELECT U1."id",
@@ -312,7 +309,6 @@ class EstimateSet(models.QuerySet):
         return row
 
     def total_anterior_subestimaciones(self, start_date, finish_date, depth, path):
-        path = path + '%'
         sql = """
            SELECT  COALESCE(SUM("anterior"), 0) as anterior
            FROM (SELECT U1."id",
@@ -345,7 +341,6 @@ class EstimateSet(models.QuerySet):
         return row
 
     def total_actual_subestimaciones(self, start_date, finish_date, depth, path):
-        path = path + '%'
         sql = """
            SELECT  SUM("estimado")
            FROM (SELECT U1."id", COALESCE(ROUND(SUM(U0."cuantity_estimated" * U2."unit_price"), 2), 0) AS "estimado"
