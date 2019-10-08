@@ -289,4 +289,28 @@ $(document).ready(function(){
             $("#select2-id_sitio-container")[0].parentNode.parentNode.parentNode.parentNode.style.display = "none";
         }
     }
+    if($("#llamar-subestimacion").length != null){
+        $("#llamar-subestimacion").on("click", function(evt){
+            var url = evt.target.dataset['url'];
+            $(evt.target).addClass("clicked");
+            $(".clicked").parent().parent().parent().addClass("trclickeado");
+            if($("#subestimacioncontainer").length > 0){
+                var indice = $("#subcontratos-body").children().index($("#subestimacioncontainer"))-1;
+                var row = $("#subcontrato-table")[0].deleteRow(indice);
+            } else {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response){
+                        var indice = $("#subcontratos-body").children().index($($(".trclickeado")[0]))+3;
+                        var row = $("#subcontrato-table")[0].insertRow(indice);
+                        var text = "<td colspan='6' id='subestimacioncontainer'><div>" + response + "</div></td>";
+                        row.innerHTML = text;
+                    },
+                });
+            }
+            $(".clicked").removeClass("clicked");
+            $(".trclickeado").removeClass("trclickeado");  
+        });
+    }
 });
