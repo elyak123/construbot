@@ -382,7 +382,7 @@ a:hover {
 	padding: 8px;
 }
 
-.table_sample tr>th {
+.table_sample>thead>tr>th {
 	text-align: center;
 	padding: 8px;	
 	background-color: #086898;
