@@ -30,7 +30,7 @@
             });
         }
         $("#vprev-tab").on("click", function(evt){
-            $(".contrato-widget").find("object").attr("data", evt.currentTarget.dataset['url']);
+            $(".contrato-visualizer").find("object").attr("data", evt.currentTarget.dataset['url']);
         });
 
         function call_previous_info(){
@@ -206,7 +206,7 @@
             {% elif contrato.concept_set.exists %}
                 <div class="cont_message text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
             {% else %}
-                <div class="cont_message text-center"> No existe un catalogo para este contrato aún. Crea uno primero.</div>
+                <div class="cont_message text-center"> No existe un catalogo para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
             {% endif %}
         </div>
         <div class="tab-pane fade" id="lisr" role="tabpanel" aria-labelledby="lisr-tab">
@@ -266,7 +266,7 @@
           <h2 style="margin-left:5%">Vista Previa del Contrato</h2>
           <br>
           {% if contrato.file %}
-            <div class="contrato-widget toggle-hide">
+            <div class="contrato-visualizer toggle-hide">
               <object data="" type="application/pdf" width="100%" height="600px">
                 </object>
             </div>
