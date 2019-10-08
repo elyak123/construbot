@@ -126,13 +126,9 @@ a:hover {
 	margin: auto;
 }
 
-.contrato-visualizer {
+.contrato-widget {
 	width: 90%;
 	margin: auto;
-}
-
-.contrato-widget {
-	display: none;
 }
 
 .resumes_container {
@@ -386,7 +382,7 @@ a:hover {
 	padding: 8px;
 }
 
-.table_sample > thead > tr > th, .table_sample > tbody > tr > th {
+.table_sample tr>th {
 	text-align: center;
 	padding: 8px;	
 	background-color: #086898;
