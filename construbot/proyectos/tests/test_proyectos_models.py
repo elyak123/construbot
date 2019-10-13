@@ -12,6 +12,7 @@ from test_plus.test import CBVTestCase
 from construbot.users.models import NivelAcceso
 from construbot.users.tests import factories as user_factories
 from construbot.proyectos import models
+from construbot.proyectos.utils import path_processing
 from . import factories
 
 MOCK_MEDIA_ROOT = tempfile.mkdtemp()
@@ -177,12 +178,13 @@ class EstimateSetTest(CBVTestCase):
                     concept=concepto13, estimate=OUT_subestimate, cuantity_estimated=2
                 )
         return estimate
-
+    @tag('current')
     def test_total_actual_subestimaciones(self):
         estimate = self.paquete_subestimaciones(2, 2, 2)
         sumatoria = Decimal('472.00')
+        path = path_processing(estimate.project.path)
         qs = models.Estimate.especial.total_actual_subestimaciones(
-            estimate.start_date, estimate.finish_date, estimate.project.depth, estimate.project.path
+            estimate.start_date, estimate.finish_date, estimate.project.depth, path
         )
         self.assertEqual(sumatoria, qs[0])
 

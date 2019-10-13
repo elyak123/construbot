@@ -117,7 +117,7 @@ class ContratoSet(models.QuerySet):
 
 
 class Contrato(MP_Node):
-    alphabet = string.printable
+    alphabet = ''.join(sorted(string.printable))
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
     fecha = models.DateField()
