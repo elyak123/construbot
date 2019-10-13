@@ -15,9 +15,10 @@ class Round(Func):
     function = 'ROUND'
     template = '%(function)s(%(expressions)s, 2)'
 
+
 class Collate(Func):
     function = 'COLLATE'
-    template = '%(function)s %(expressions)s'
+    template = '%(function)s \"%(expressions)s\"'
 
 
 def get_directory_path(instance, filename):

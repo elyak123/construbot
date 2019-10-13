@@ -148,6 +148,22 @@ class Contrato(MP_Node):
         except IndexError:
             return None
 
+    def get_children(self):
+        """:returns: A queryset of all the node's children"""
+        if self.is_leaf():
+            return super(Contrato, self).get_children()
+        return self.__class__.objects.filter(
+            depth=self.depth + 1,
+            path__range=self._get_children_path_interval(self.path)
+        )
+
+    def get_children_sql(self):
+        sql = '''
+            SELECT * FROM proyectos_contrato
+            WHERE path BETWEEN E'%()s' AND E'%()s' COLLATE "C"
+            ORDER BY path  COLLATE "C";
+        '''
+
     @property
     def company(self):
         return self.contraparte.company
