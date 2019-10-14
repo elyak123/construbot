@@ -8,17 +8,17 @@ def migration_inc_path(node):
     alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     """:returns: The path of the next sibling of a given node path."""
     # newpos = node._str2int(node.path[-node.steplen:]) + 1
-    newpos = NumConv(len(alphabet), alphabet).str2int(node.path[-4:]) + 1
+    newpos = NumConv(len(alphabet), alphabet).str2int(node.path[-9:]) + 1
     # key = node._int2str(newpos)
     key = NumConv(len(alphabet), alphabet).int2str(newpos)
     # if len(key) > node.steplen:
-    if len(key) > 4:
+    if len(key) > 9:
         raise Exception("Path Overflow from: '%s'" % (node.path, ))
     return '{0}{1}{2}'.format(
         # node.path[:-node.steplen],
-        node.path[:-4],
+        node.path[:-9],
         # node.alphabet[0] * (node.steplen - len(key)),
-        alphabet[0] * (4 - len(key)),
+        alphabet[0] * (9 - len(key)),
         key
     )
 
