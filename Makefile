@@ -69,7 +69,7 @@ clean:
 	@docker rm $(shell docker ps -a -q) -f
 
 cleandb: clean
-	@docker rmi $(shell docker images -q landing-construbot_postgres) -f
+	@docker rmi $(shell docker images -q construbot_postgres) -f
 	@docker volume rm $(shell docker volume ls -qf "name=construbot_postgres*")
 
 cleanhard: clean
