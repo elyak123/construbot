@@ -5,7 +5,7 @@ from treebeard.numconv import NumConv
 
 
 def migration_inc_path(node):
-    alphabet = ''.join(sorted(string.printable))
+    alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     """:returns: The path of the next sibling of a given node path."""
     # newpos = node._str2int(node.path[-node.steplen:]) + 1
     newpos = NumConv(len(alphabet), alphabet).str2int(node.path[-4:]) + 1

@@ -16,16 +16,6 @@ class Round(Func):
     template = '%(function)s(%(expressions)s, 2)'
 
 
-class CollateC(Func):
-    function = 'C'
-    template ='(%(expressions)s) COLLATE "%(function)s"'
-
-
-class ERange(Func):
-    function = 'E'
-    template = '%(function)s%(expressions)s'
-
-
 def get_directory_path(instance, filename):
     date_str = strftime('%Y-%m-%d-%H-%M-%S')
     instance_model = instance._meta.verbose_name_plural

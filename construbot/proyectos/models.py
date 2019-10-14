@@ -115,18 +115,8 @@ class ContratoSet(models.QuerySet):
         contratos = self.filter(**kw)
         return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
 
-    def get_children_sql(self, start, end, depth):
-        sql = '''
-            SELECT * FROM proyectos_contrato
-            WHERE path BETWEEN E%(start)s AND E%(end)s COLLATE "C"
-            AND depth = %(depth)s + 1
-            ORDER BY path  COLLATE "C";
-        '''
-        return self.raw(sql, params={'start': start, 'end': end, 'depth': depth})
-
 
 class Contrato(MP_Node):
-    alphabet = ''.join(sorted(string.printable))
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
     fecha = models.DateField()
@@ -156,16 +146,6 @@ class Contrato(MP_Node):
             return cls.get_root_nodes().order_by('-pk')[0]
         except IndexError:
             return None
-
-    def get_children(self):
-        """:returns: A queryset of all the node's children"""
-        if self.is_leaf():
-            return super(Contrato, self).get_children()
-        start, end = self._get_children_path_interval(self.path)
-        start = start.encode('unicode_escape').decode()
-        end = end.encode('unicode_escape').decode()
-        children = self.__class__.especial.get_children_sql(start, end, self.depth)
-        return children
 
     @property
     def company(self):
