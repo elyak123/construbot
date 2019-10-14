@@ -16,9 +16,14 @@ class Round(Func):
     template = '%(function)s(%(expressions)s, 2)'
 
 
-class Collate(Func):
-    function = 'COLLATE'
-    template = '%(function)s \"%(expressions)s\"'
+class CollateC(Func):
+    function = 'C'
+    template ='(%(expressions)s) COLLATE "%(function)s"'
+
+
+class ERange(Func):
+    function = 'E'
+    template = '%(function)s%(expressions)s'
 
 
 def get_directory_path(instance, filename):

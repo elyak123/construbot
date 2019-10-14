@@ -8,7 +8,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import connection
 from django.db.models import Sum, F, Value as V
 from django.db.models.functions import Coalesce
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node, get_result_class
 from construbot.core import utils
 from construbot.users.models import Company
 
@@ -115,6 +115,15 @@ class ContratoSet(models.QuerySet):
         contratos = self.filter(**kw)
         return model.objects.annotate(asignado=models.Exists(contratos)).filter(asignado=True)
 
+    def get_children_sql(self, start, end, depth):
+        sql = '''
+            SELECT * FROM proyectos_contrato
+            WHERE path BETWEEN E%(start)s AND E%(end)s COLLATE "C"
+            AND depth = %(depth)s + 1
+            ORDER BY path  COLLATE "C";
+        '''
+        return self.raw(sql, params={'start': start, 'end': end, 'depth': depth})
+
 
 class Contrato(MP_Node):
     alphabet = ''.join(sorted(string.printable))
@@ -152,17 +161,11 @@ class Contrato(MP_Node):
         """:returns: A queryset of all the node's children"""
         if self.is_leaf():
             return super(Contrato, self).get_children()
-        return self.__class__.objects.filter(
-            depth=self.depth + 1,
-            path__range=self._get_children_path_interval(self.path)
-        )
-
-    def get_children_sql(self):
-        sql = '''
-            SELECT * FROM proyectos_contrato
-            WHERE path BETWEEN E'%()s' AND E'%()s' COLLATE "C"
-            ORDER BY path  COLLATE "C";
-        '''
+        start, end = self._get_children_path_interval(self.path)
+        start = start.encode('unicode_escape').decode()
+        end = end.encode('unicode_escape').decode()
+        children = self.__class__.especial.get_children_sql(start, end, self.depth)
+        return children
 
     @property
     def company(self):
