@@ -117,6 +117,7 @@ class ContratoSet(models.QuerySet):
 
 
 class Contrato(MP_Node):
+    steplen = 9
     folio = models.IntegerField()
     code = models.CharField(max_length=35, null=True, blank=True)
     fecha = models.DateField()
