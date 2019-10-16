@@ -292,25 +292,40 @@ $(document).ready(function(){
     if($("#llamar-subestimacion").length != null){
         $("#llamar-subestimacion").on("click", function(evt){
             var url = evt.target.dataset['url'];
-            $(evt.target).addClass("clicked");
-            $(".clicked").parent().parent().parent().addClass("trclickeado");
-            if($("#subestimacioncontainer").length > 0){
-                var indice = $("#subcontratos-body").children().index($("#subestimacioncontainer"))-1;
-                var row = $("#subcontrato-table")[0].deleteRow(indice);
+            var position = parseInt(evt.target.dataset['position']);
+            //$(".clicked").parent().parent().parent().addClass("trclickeado");
+            if($(".clicked").length > 0 && evt.target == $(".clicked")[0]){
+                var position = parseInt($(".clicked")[0].dataset['position'])+1;
+                var row = $("#subcontrato-table")[0].deleteRow(position);
+                $(evt.target).removeClass("clicked");
+            } else if($(".clicked").length > 0){
+                    $($(".clicked")[0]).removeClass("clicked");
+                    var position = parseInt($(".clicked")[0].dataset['position'])+1;
+                    var row = $("#subcontrato-table")[0].deleteRow(position);
+                    $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response){
+                        var indice = position+1;
+                        var row = $("#subcontrato-table")[0].insertRow(indice);
+                        var text = "<td colspan='6' id='subestimacioncontainer'><div>"+ response +"</div></td>";
+                        row.innerHTML = text;
+                    },
+                    });
+                    $(evt.target).addClass("clicked");
             } else {
                 $.ajax({
                     url: url,
                     type: 'GET',
                     success: function(response){
-                        var indice = $("#subcontratos-body").children().index($($(".trclickeado")[0]))+3;
+                        var indice = position+1;
                         var row = $("#subcontrato-table")[0].insertRow(indice);
-                        var text = "<td colspan='6' id='subestimacioncontainer'><div>" + response + "</div></td>";
+                        var text = "<td colspan='6' id='subestimacioncontainer'><div>"+ response +"</div></td>";
                         row.innerHTML = text;
                     },
                 });
+                $(evt.target).addClass("clicked");
             }
-            $(".clicked").removeClass("clicked");
-            $(".trclickeado").removeClass("trclickeado");  
         });
     }
 });
