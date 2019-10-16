@@ -74,7 +74,7 @@ class DynamicListTest(BaseViewTest):
 
 class DynamicDetailTest(BaseViewTest):
 
-    def test_DynamicListView_returns_correct_object_name_for_template(self):
+    def test_DynamicDetailView_returns_correct_object_name_for_template(self):
         view = self.get_instance(
             views.DynamicDetail,
             request=self.request
@@ -305,6 +305,63 @@ class ContratoDetailTest(BaseViewTest):
         )
         with self.assertRaises(PermissionDenied):
             view.get_object()
+
+
+class SubcontratosReportTest(BaseViewTest):
+    @tag('current')
+    @mock.patch.object(views.DynamicDetail, 'get_context_data')
+    @mock.patch.object(Estimate, 'especial')
+    @mock.patch.object(views.SubcontratosReport, 'test_func', return_value=True)
+    def test_report_context_data_complete(self, mock_test_func, mock_especial, mock_context):
+        with mock.patch('construbot.proyectos.views.path_processing') as path_processing:
+            path_processing.return_value = 'somepath'
+            mock_context.return_value = {}
+            estimate_especial_reporte_subestimaciones = mock.Mock()
+            estimate_especial_reporte_subestimaciones.return_value = "reporte_subestimaciones"
+            estimate_especial_total_acumulado_subestimaciones = mock.Mock()
+            estimate_especial_total_acumulado_subestimaciones.return_value = ["acumulado_subestimaciones"]
+            estimate_especial_total_actual_subestimaciones = mock.Mock()
+            estimate_especial_total_actual_subestimaciones.return_value = ["total_actual_subestimaciones"]
+            estimate_especial_total_anterior_subestimaciones = mock.Mock()
+            estimate_especial_total_anterior_subestimaciones.return_value = ["anterior_subestimaciones"]
+            estimate_especial_total_contratado_subestimaciones = mock.Mock()
+            estimate_especial_total_contratado_subestimaciones.return_value = ["total_contratado_subestimaciones"]
+            mock_especial.reporte_subestimaciones = estimate_especial_reporte_subestimaciones
+            mock_especial.total_acumulado_subestimaciones = estimate_especial_total_acumulado_subestimaciones
+            mock_especial.total_actual_subestimaciones = estimate_especial_total_actual_subestimaciones
+            mock_especial.total_anterior_subestimaciones = estimate_especial_total_anterior_subestimaciones
+            mock_especial.total_contratado_subestimaciones = estimate_especial_total_contratado_subestimaciones
+            view = self.get_instance(
+                views.SubcontratosReport,
+                pk=1,
+                request=self.request
+            )
+            estimate_object = mock.Mock()
+            estimate_object.path = 'blabla'
+            view.object = estimate_object
+            control_dict = {
+                'subestimaciones': 'reporte_subestimaciones',
+                'acumulado': 'acumulado_subestimaciones',
+                'actual': 'total_actual_subestimaciones',
+                'anterior': 'anterior_subestimaciones',
+                'contratado': 'total_contratado_subestimaciones'
+            }
+            self.assertDictEqual(view.get_context_data(), control_dict)
+            estimate_especial_reporte_subestimaciones.assert_called_with(
+                view.object.start_date, view.object.finish_date, view.object.project.depth, 'somepath'
+            )
+            estimate_especial_total_acumulado_subestimaciones.assert_called_with(
+                view.object.start_date, view.object.finish_date, view.object.project.depth, 'somepath'
+            )
+            estimate_especial_total_actual_subestimaciones.assert_called_with(
+                view.object.start_date, view.object.finish_date, view.object.project.depth, 'somepath'
+            )
+            estimate_especial_total_anterior_subestimaciones.assert_called_with(
+                view.object.start_date, view.object.finish_date, view.object.project.depth, 'somepath'
+            )
+            estimate_especial_total_contratado_subestimaciones.assert_called_with(
+                view.object.start_date, view.object.finish_date, view.object.project.depth, 'somepath'
+            )
 
 
 class ClienteDetailTest(BaseViewTest):
