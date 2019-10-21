@@ -6,7 +6,7 @@
     <tr>
       <th class="sin_borde" colspan="10">
         <div class="cont_est_gen">
-          <h5 class="m-0"> {{ estimate.project.cliente.cliente_name.upper }} </h5>
+          <h5 class="m-0"> {{ estimate.project.contraparte.cliente_name.upper }} </h5>
           <h6 class="m-0"> RESIDENCIA DE CONSTRUCCIÓN </h6>
           <h4 class="m-0"> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
         </div>
@@ -35,10 +35,10 @@
           <tr>
             <td>CONTRATISTA:</td>
             <td class="bc subrayado"> 
-              {% if estimate.project.cliente.company.full_name %} 
-                {{ estimate.project.cliente.company.full_name }}
+              {% if estimate.project.contraparte.company.full_name %} 
+                {{ estimate.project.contraparte.company.full_name }}
               {% else %}
-                {{ estimate.project.cliente.company.company_name }}
+                {{ estimate.project.contraparte.company.company_name }}
               {% endif %}
             </td>
           </tr>
@@ -141,9 +141,9 @@
             <p><strong>{{ firma.destinatario_text }}</strong></p>
             {% if firma.puesto %}
               <p><strong>{{ firma.puesto }}</strong></p>
-              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+              <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
             {% else %}
-              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+              <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
               <p style="color:white">-</p>
             {% endif %}
           </div>
