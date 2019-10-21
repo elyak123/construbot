@@ -148,8 +148,8 @@
           <div class="cont_firma">
             <div class="bc subrayado_f"></div>
             <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-            <p> <strong>{% if user.puesto %} {{ user.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
-            <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+          <p> <strong>{% if estimate.supervised_by.puesto %} {{ estimate.supervised_by.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
+          <p> <strong>{{ estimate.project.contraparte.company.full_name }}</strong> </p>
           </div>
           {% for firma in estimate.auth_by.all %}
             <div class="cont_firma">
