@@ -152,6 +152,10 @@ class Contrato(MP_Node):
     def company(self):
         return self.contraparte.company
 
+    def conceptosordenados(self):
+        # Asumimos que si el formset inserta en orden correcto....
+        return self.concept_set.all().select_related('unit').order_by('pk')
+
     def get_absolute_url(self):
         return reverse('construbot.proyectos:contrato_detail', kwargs={'pk': self.id})
 

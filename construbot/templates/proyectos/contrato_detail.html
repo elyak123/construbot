@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load projecttags %}
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 {% block javascript %}
     <script type="text/javascript">
@@ -65,7 +66,7 @@
 {% block content %}
 <a class="btn btn-secondary boton-arriba position-fixed" href="#arriba">▲</a>
 <a class="btn btn-secondary boton-abajo position-fixed" href="#abajo">▼</a>
-<h2 style="margin-left:5%" class="title" id="arriba"> Reporte de {% if not contrato.is_root %}sub{% endif %}contrato </h2>
+<h2 style="margin-left:5%" class="title" id="arriba"> Detalle de {% if not contrato.is_root %}sub{% endif %}contrato {{ contrato.folio }}. {{ contrato.contrato_shortName }}</h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
     <table class="table_sample table_detalle">
@@ -77,8 +78,8 @@
             <td>{{ contrato.code }}</td>
         </tr>
         <tr>
-            <td>Nombre corto</td>
-            <td>{{ contrato.contrato_shortName }}</td>
+            <td>Objeto del contrato</td>
+            <td>{{ contrato.contrato_name }}</td>
         </tr>
         <tr>
             <td>{{ contrato.contraparte.tipo_display }}</td>
@@ -153,13 +154,13 @@
               <th> Cantidad </th>
               <th> Precio unitario </th>
             </tr>
-            {% for concepto in contrato.concept_set.all %}
+            {% for concepto in contrato.conceptosordenados %}
               <tr>
                 <td> {{ concepto.code }} </td>
                 <td> {{ concepto.concept_text }} </td>
                 <td> {{ concepto.unit.unit }} </td>
-                <td> {{ concepto.total_cuantity }} </td>
-                <td> {{ concepto.unit_price }} </td>
+                <td> {{ concepto.total_cuantity|intcomma }} </td>
+                <td> {{ concepto.unit_price|moneda }} </td>
               </tr>
             {% endfor %}
             <tr>

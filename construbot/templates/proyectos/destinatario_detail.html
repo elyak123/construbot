@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load humanize %}
 {% load i18n %}
 
 {% block title %} Detalle de {{ destinatario.destinatario_text }} {% endblock %}
@@ -24,7 +23,7 @@
 		{% endif %}
 		<tr>
 			<td class="td_table_sample">Cliente</td>
-			<td class="td_table_sample">{{ destinatario.cliente.cliente_name }}</td>
+			<td class="td_table_sample">{{ destinatario.contraparte.cliente_name }}</td>
 		</tr>
 	</table>
 </div>
