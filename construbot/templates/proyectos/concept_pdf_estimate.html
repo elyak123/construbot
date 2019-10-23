@@ -6,6 +6,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <link rel="shortcut icon" href="{{ favicon }}">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{% block title %}Estimación PDF{% endblock title %}</title>
   {% bootstrap_css %}
@@ -93,28 +94,28 @@
           <td> {{ concepto.code }} </td>
           <td style="width: fit-content;"> {{ concepto.concept_text }}</td>
           <td> {{ concepto.unit.unit }} </td>
-          <td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intcomma }} </td>
-          <td class="right"> $ {{ concepto.unit_price|floatformat:"2"|intcomma }} </td>
-          <td class="right"> $ {{ concepto.importe_contratado|floatformat:"2"|intcomma }}</td>
+          <td class="right"> {{ concepto.total_cuantity|floatformat:"2"|intxls }} </td>
+          <td class="right"> {{ concepto.unit_price|floatformat:"2"|moneda }} </td>
+          <td class="right"> {{ concepto.importe_contratado|floatformat:"2"|moneda }}</td>
           {% if concepto.cantidad_estimado_anterior %}
-            <td class="right"> {{ concepto.cantidad_estimado_anterior|floatformat:"2"|intcomma }} </td>
-            <td class="right">$ {{ concepto.anterior|floatformat:"2"|intcomma }}</td>
+            <td class="right"> {{ concepto.cantidad_estimado_anterior|floatformat:"2"|intxls }} </td>
+            <td class="right"> {{ concepto.anterior|floatformat:"2"|moneda }}</td>
           {% else %}
             <td style="text-align: center;"> - </td>
             <td style="text-align: center;"> - </td>
           {% endif %}
-          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha|floatformat:"2"|intcomma }} </td>
-          <td class="right"> ${{ concepto.acumulado|floatformat:"2"|intcomma }} </td>
-          <td class="right"> {{ concepto.cantidad_esta_estimacion|floatformat:"2"|intcomma }} </td>
-          <td class="right"> ${{ concepto.estaestimacion|floatformat:"2"|intcomma }} </td>
+          <td class="right"> {{ concepto.cantidad_estimado_ala_fecha|floatformat:"2"|intxls }} </td>
+          <td class="right"> {{ concepto.acumulado|floatformat:"2"|moneda }} </td>
+          <td class="right"> {{ concepto.cantidad_esta_estimacion|floatformat:"2"|intxls }} </td>
+          <td class="right"> {{ concepto.estaestimacion|floatformat:"2"|moneda }} </td>
         </tr>
       {% endfor %}
       <tr>
         <td class="right" colspan="2"><strong>Totales Estimación: </strong></td>
-        <td class="right" colspan="4"> ${{ conceptos.importe_total_contratado.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ conceptos.importe_total_anterior.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ conceptos.importe_total_acumulado.total|floatformat:"2"|intcomma }} </td>
-        <td class="right" colspan="2"> ${{ total_estimacion|floatformat:"2"|intcomma }} </td>
+        <td class="right" colspan="4"> {{ conceptos.importe_total_contratado.total|floatformat:"2"|moneda }} </td>
+        <td class="right" colspan="2"> {{ conceptos.importe_total_anterior.total|floatformat:"2"|moneda }} </td>
+        <td class="right" colspan="2"> {{ conceptos.importe_total_acumulado.total|floatformat:"2"|moneda }} </td>
+        <td class="right" colspan="2"> {{ total_estimacion|floatformat:"2"|moneda }} </td>
       </tr>
       <tr>
       </tr>
@@ -126,12 +127,12 @@
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Amortización de anticipo ({{ estimate.project.anticipo }}%)</strong></td>
-          <td colspan="2" class="text-right"> ${{ estimate.amortizacion_anticipo|floatformat:"2"|intcomma }} </td>
+          <td colspan="2" class="text-right"> {{ estimate.amortizacion_anticipo|floatformat:"2"|moneda }} </td>
         </tr>
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Subtotal de Estimación:</strong></td>
-          <td colspan="2" class="text-right"> ${{ estimate.get_subtotal|floatformat:"2"|intcomma }} </td>
+          <td colspan="2" class="text-right"> {{ estimate.get_subtotal|floatformat:"2"|moneda }} </td>
         </tr>
       {% endif %}
       <tr>
@@ -149,19 +150,19 @@
             {% else %}
             <td colspan="4" class="text-right">{{ retencion.descripcion }} ({{ retencion.valor }}%)</td>
             {% endif %}
-            <td colspan="2" class="text-right"> ${{ retencion.monto|floatformat:"2"|intcomma }} </td>
+            <td colspan="2" class="text-right"> {{ retencion.monto|floatformat:"2"|moneda }} </td>
           </tr>
         {% endfor %}
         <tr>
           <td colspan="6" class="border-w"></td>
           <td colspan="4" class="text-right"><strong>Total de Retenciones:</strong></td>
-          <td colspan="2" class="text-right"> ${{ estimate.get_total_retenciones|floatformat:"2"|intcomma }} </td>
+          <td colspan="2" class="text-right"> {{ estimate.get_total_retenciones|floatformat:"2"|moneda }} </td>
         </tr>
       {% endif %}
       <tr>
         <td colspan="6" class="border-w-sp"></td>
         <td colspan="4" class="text-right"><strong>TOTAL FINAL:</strong></td>
-        <td colspan="2" class="text-right"> ${{ estimate.get_total_final|floatformat:"2"|intcomma }} </td>
+        <td colspan="2" class="text-right"> {{ estimate.get_total_final|floatformat:"2"|moneda }} </td>
       </tr>
       {% endlanguage %}
     </tbody>

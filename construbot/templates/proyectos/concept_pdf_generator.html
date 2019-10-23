@@ -6,6 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="shortcut icon" href="{{ favicon }}">
   <title>{% block title %}Generador PDF{% endblock title %}</title>
   {% bootstrap_css %}
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
@@ -32,7 +33,7 @@
             <tr class="cc">
               <td class="concepto_container sin_borde">
                 <table class="generator">
-                    <thead {% if forloop.first %}id{% else %}class{% endif %}="header_frame">
+                    <thead class="header_frame">
                       <tr>
                         <th class="sin_borde" colspan="10">
                           <div class="cont_est_gen">
@@ -324,9 +325,7 @@
     {% if conceptos.total_imagenes_estimacion.total_images %}
       var conceptos = {{ cantidad_de_conceptos }}; //Variable de contexto.
       var list = document.getElementsByClassName("image");
-      var space_size = document.getElementsByClassName('header_frame').length?document.getElementsByClassName('header_frame')[0].offsetHeight:0 +
-                      document.getElementById("header_frame").offsetHeight +
-                      document.getElementById("footer_frame").offsetHeight;
+      var space_size = document.getElementsByClassName('header_frame')[0].offsetHeight + document.getElementById("footer_frame").offsetHeight;
       var aux;
       if (list.length>0) {
         for(var i=0; i<conceptos; i++){
