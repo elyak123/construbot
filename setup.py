@@ -44,7 +44,7 @@ setup(
         'django-model-utils==3.1.2',
         'django-treebeard==4.3',
         # Images
-        'Pillow==5.4.1',
+        'Pillow==6.2.0',
         # User uploads
         'django-chunked-upload==1.1.3',
         # Password storage
@@ -85,6 +85,8 @@ setup(
         # --------------------------
         # Sentry client
         'sentry-sdk==0.9.0',
+        # pinned in order to requirements hashed work
+        'setuptools==41.4.0',
         # pinned due to security:
         # via django-allauth, django-anymail, requests-oauthlib
         'requests>=2.22.0',

@@ -1,7 +1,7 @@
 # Test dependencies go here.
 -r base.txt
 
-
+setuptools==41.4.0        # via pytest
 
 coverage==4.4.2
 flake8==3.5.0 # pyup: != 2.6.0
