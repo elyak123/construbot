@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	// $('.form-group').removeClass('row');
+    // $('.form-group').removeClass('row');
     var menu = $(".cont_menu_lateral");
     var menu_in = $("#event_menu_in");
     var menu_out = $("#event_menu_out");
@@ -246,14 +246,19 @@ $(document).ready(function(){
     }
     if($(".form-group > label:contains('Image')")){
         ocultar_elementos();
-        $(".add-form-row").on("click", function(){
+        $(".add-form").on("click", function(){
             ocultar_elementos();
         });
         function ocultar_elementos(){
             $(".form-group > label:contains('Image')").hide();
             $("label:contains('Eliminar')").parent().hide();
         }
-        $(document).on("click", ".remove_span", function(event){
+        $(document).on("click", ".remove_ver_div", function(event){
+            let ev = event.target;
+            ev.closest(".remove_ver_div").nextSibling.nextSibling.children[0].children[0].click();
+            ev.closest(".remove_ver_div").parentElement.classList.toggle("background_ver_eliminar");        
+        });
+        $(document).on("click", ".remove_img_span", function(event){
             let ev = event.target;
             ev.closest(".form-group").nextSibling.nextSibling.nextSibling.nextSibling.children[0].children[0].click();
             try {
@@ -284,4 +289,53 @@ $(document).ready(function(){
             $("#select2-id_sitio-container")[0].parentNode.parentNode.parentNode.parentNode.style.display = "none";
         }
     }
+    if($("#llamar-subestimacion").length != null){
+        $("#llamar-subestimacion").on("click", function(evt){
+            var url = evt.target.dataset['url'];
+            var position = parseInt(evt.target.dataset['position']);
+            //$(".clicked").parent().parent().parent().addClass("trclickeado");
+            if($(".clicked").length > 0 && evt.target == $(".clicked")[0]){
+                var position = parseInt($(".clicked")[0].dataset['position'])+1;
+                var row = $("#subcontrato-table")[0].deleteRow(position);
+                $(evt.target).removeClass("clicked");
+                $(evt.target).removeClass("oi-chevron-bottom");
+                $(evt.target).addClass("oi-chevron-right");
+            } else if($(".clicked").length > 0){
+                    $($(".clicked")[0]).removeClass("clicked");
+                    $($(".clicked")[0]).removeClass("oi-chevron-bottom");
+                    $($(".clicked")[0]).addClass("oi-chevron-right");
+                    var position = parseInt($(".clicked")[0].dataset['position'])+1;
+                    var row = $("#subcontrato-table")[0].deleteRow(position);
+                    $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response){
+                        var indice = position+1;
+                        var row = $("#subcontrato-table")[0].insertRow(indice);
+                        var text = "<td colspan='6' id='subestimacioncontainer'><div>"+ response +"</div></td>";
+                        row.innerHTML = text;
+                    },
+                    });
+                    $(evt.target).addClass("clicked");
+                    $($(".clicked")[0]).removeClass("oi-chevron-right");
+                    $($(".clicked")[0]).addClass("oi-chevron-bottom");
+            } else {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response){
+                        var indice = position+1;
+                        var row = $("#subcontrato-table")[0].insertRow(indice);
+                        var text = "<td colspan='6' id='subestimacioncontainer'><div>"+ response +"</div></td>";
+                        row.innerHTML = text;
+                    },
+                });
+                $(evt.target).addClass("clicked");
+                $($(".clicked")[0]).removeClass("oi-chevron-right");
+                $($(".clicked")[0]).addClass("oi-chevron-bottom");
+            }
+        });
+    }
 });
+
+

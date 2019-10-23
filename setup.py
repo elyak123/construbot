@@ -33,7 +33,7 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django>=2.1.9,<2.2',
+        'django>=2.1.11,<2.2',
         # REST
         'djangorestframework==3.9.2',
         'djangorestframework_simplejwt==4.1.2',
@@ -42,8 +42,11 @@ setup(
         'whitenoise==4.1.2',
         # Models
         'django-model-utils==3.1.2',
+        'django-treebeard==4.3',
         # Images
         'Pillow==5.4.1',
+        # User uploads
+        'django-chunked-upload==1.1.3',
         # Password storage
         'argon2-cffi==18.3.0',
         # For user registration, either via email or social
@@ -63,11 +66,11 @@ setup(
         # Compressing static files
         'rcssmin==1.0.6 ',
         'django-compressor==2.2',
-        # PDF Generation
-        'django-wkhtmltopdf==3.2.0',
         # FrontEnd Libraries
         'django-autocomplete-light==3.3.2',
         'django-bootstrap4==0.0.8',
+        # xls files handling
+        'openpyxl==2.6.2',
         # WSGI Handler
         # ------------------------------------------------
         'gunicorn==19.7.1',

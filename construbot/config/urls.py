@@ -25,6 +25,8 @@ urlpatterns += [
     # REST API
     url(r'^api/v1/', include('construbot.api.urls', namespace='api')),
 
+    url(r'^core/', include('construbot.core.urls', namespace='core')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG and not settings.CONSTRUBOT_AS_LIBRARY:  # pragma: no cover

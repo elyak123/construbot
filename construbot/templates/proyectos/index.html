@@ -75,7 +75,7 @@
 				<tr>
 					<td>
 						<a href="{% url 'proyectos:contrato_detail' contrato.pk %}">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</a><br>
-						Cliente: {{ contrato.cliente.cliente_name }}
+						Cliente: {{ contrato.contraparte.cliente_name }}
 					</td>
 					{% if almenos_coordinador %}
 						<td style="text-align:center;">

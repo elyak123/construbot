@@ -76,6 +76,11 @@ urlpatterns = [
         name='estimate_detail'
     ),
     url(
+        regex=r'^estimacion/(?P<pk>\d+)/reporte-subcontratistas/$',
+        view=views.SubcontratosReport.as_view(),
+        name='reporte-subcontratistas'
+    ),
+    url(
         regex=r'^estimacion/pdf/(?P<pk>\d+)/$',
         view=views.EstimatePdfPrint.as_view(),
         name='estimate_detailpdf'
@@ -86,9 +91,24 @@ urlpatterns = [
         name='generator_detailpdf'
     ),
     url(
+        regex=r'^file_chunk_complete/$',
+        view=views.ContratoChunkedUpload.as_view(),
+        name='chunkuploadcomplete'
+    ),
+    url(
+        regex=r'^get_file_chunk_form/$',
+        view=views.DummyFileForm.as_view(),
+        name='chunkupload'
+    ),
+    url(
         regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
         name='nuevo_contrato'
+    ),
+    url(
+        regex=r'^subcontrato/nuevo/(?P<pk>\d+)/$',
+        view=views.SubcontratoCreationView.as_view(),
+        name='nuevo_subcontrato'
     ),
     url(
         regex=r'^cliente/nuevo/$',
@@ -144,6 +164,11 @@ urlpatterns = [
         regex=r'cliente-autocomplete/$',
         view=views.ClienteAutocomplete.as_view(create_field='cliente_name'),
         name='cliente-autocomplete'
+    ),
+    url(
+        regex=r'subcontratista-autocomplete/$',
+        view=views.SubcontratistaAutocomplete.as_view(create_field='cliente_name'),
+        name='subcontratista-autocomplete'
     ),
     url(
         regex=r'sitio-autocomplete/$',

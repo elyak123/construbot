@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from construbot.users.models import Company, Customer, NivelAcceso
 from construbot.api.serializers import CustomerSerializer, UserSerializer
-from construbot.proyectos.models import Cliente, Sitio, Destinatario, \
+from construbot.proyectos.models import Contraparte, Sitio, Destinatario, \
     Contrato, Estimate, Concept, Units, EstimateConcept
 
 User = get_user_model()
@@ -89,9 +89,10 @@ class DataMigration(object):
                 customer=request.user.customer
             )
             request.user.company.add(company)
-            cliente, cliente_created = Cliente.objects.get_or_create(
+            cliente, cliente_created = Contraparte.objects.get_or_create(
                 company=company,
-                cliente_name=obj['cliente_name']
+                cliente_name=obj['cliente_name'],
+                tipo='CLIENTE'
             )
         return Response({'exito': True})
 
@@ -104,9 +105,10 @@ class DataMigration(object):
                 customer=request.user.customer
             )
             request.user.company.add(company)
-            cliente, cliente_created = Cliente.objects.get_or_create(
+            cliente, cliente_created = Contraparte.objects.get_or_create(
                 company=company,
-                cliente_name='Migracion'
+                cliente_name='Migracion',
+                tipo='CLIENTE'
             )
             sitio, sitio_created = Sitio.objects.get_or_create(
                 cliente=cliente,
@@ -122,9 +124,10 @@ class DataMigration(object):
             customer=request.user.customer
         )
         request.user.company.add(company)
-        cliente, cliente_created = Cliente.objects.get_or_create(
+        cliente, cliente_created = Contraparte.objects.get_or_create(
             company=company,
-            cliente_name=request.data.get('cliente')
+            cliente_name=request.data.get('cliente'),
+            tipo='CLIENTE'
         )
         destinatario, destinatario_created = Destinatario.objects.get_or_create(
             cliente=cliente,
@@ -143,9 +146,10 @@ class DataMigration(object):
                 customer=request.user.customer
             )
             request.user.company.add(company)
-            cliente, cliente_created = Cliente.objects.get_or_create(
+            cliente, cliente_created = Contraparte.objects.get_or_create(
                 company=company,
-                cliente_name=obj['cliente']
+                cliente_name=obj['cliente'],
+                tipo='CLIENTE'
             )
             try:
                 sitio = Sitio.objects.get(sitio_name=obj['sitio_name'])

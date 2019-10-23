@@ -1,0 +1,87 @@
+body {
+}
+.mainContainer{
+	position: relative;
+}
+
+h1 {
+	font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    font-size: 60px;
+    color: #ff0000;
+    padding: 0px;
+    margin-bottom: 12px;
+}
+
+.errorMessage {
+    font-family: 'Special Elite', cursive;
+    text-align: center;
+    font-size: 22px;
+    color: #000000;
+    padding: 0px;
+    margin: 0px;
+    position: relative;
+}
+.errorMessageContainer{
+	position: relative;
+    max-width: 726px;
+}
+.derecho{
+    left: 21%;
+    position: relative;
+}
+.torcido {
+	position: absolute;
+    transform: rotate(-7deg);
+    margin-top: 22px;
+    left: 1%;
+}
+
+img {
+    float: left;
+    padding-top: 1.2em;
+}
+
+.desc {
+	font-family: verdana;
+    font-size: 10px;
+    font-weight: normal;
+    color: #999999;
+    position: absolute;
+    top: 36em;
+    left: 50%;
+}
+
+a {
+	color: #999999;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #006bff;
+}
+
+@media (max-width: 735px){
+	.torcido{
+		position: relative;
+	    transform: rotate(-7deg);
+	    margin-top: 22px;
+	    left: 1%;
+	}
+	.derecho{
+	    position: absolute;
+	    left: 10%;
+	    transform: rotate(-7deg);
+	    top: 2em;
+	}
+	img {
+	    float: left;
+	    padding-top: 1.2em;
+	    position: absolute;
+	    top: 11.5em;
+	    left: 0em;
+	}
+	.desc{
+		left: 40%;	
+	}
+}

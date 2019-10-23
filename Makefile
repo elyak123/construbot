@@ -16,6 +16,8 @@ shell: dockerenv
 	@docker-compose -f docker-compose-dev.yml run django python manage.py shell
 
 poblar: dockerenv
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.production/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
+	@sed -i.bak s/DJANGO_SETTINGS_MODULE=construbot.config.settings.test/DJANGO_SETTINGS_MODULE=construbot.config.settings.local/g .env
 	@docker-compose -f docker-compose-dev.yml run django python manage.py poblar	
 
 superuser: dockerenv
@@ -65,6 +67,10 @@ current: dockerenv
 
 clean:
 	@docker rm $(shell docker ps -a -q) -f
+
+cleandb: clean
+	@docker rmi $(shell docker images -q construbot_postgres) -f
+	@docker volume rm $(shell docker volume ls -qf "name=construbot_postgres*")
 
 cleanhard: clean
 	@docker rmi $(shell docker images -q) -f

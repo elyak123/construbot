@@ -6,6 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="shortcut icon" href="{{ favicon }}">
   <title>{% block title %}Generador PDF{% endblock title %}</title>
   {% bootstrap_css %}
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
@@ -25,18 +26,18 @@
 </head>
 <div class="est_cont">
   {% if conceptos.total_imagenes_estimacion.total_images %}
-    <table class="generato">
+    <table class="generator">
       <tbody id="content_frame">
         {% for concepto in conceptos %}
           {% if concepto.cantidad_esta_estimacion %}
             <tr class="cc">
-              <td class="concepto_container">
-                <table>
-                    <thead id="header_frame">
+              <td class="concepto_container sin_borde">
+                <table class="generator">
+                    <thead class="header_frame">
                       <tr>
-                        <th class="sin_borde" colspan="8">
+                        <th class="sin_borde" colspan="10">
                           <div class="cont_est_gen">
-                            <h5 class="m-0"> {{ estimate.project.cliente.cliente_name.upper }} </h5>
+                            <h5 class="m-0"> {{ estimate.project.contraparte.cliente_name.upper }} </h5>
                             <h6 class="m-0"> RESIDENCIA DE CONSTRUCCIÓN </h6>
                             <h4 class="m-0"> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
                           </div>
@@ -59,16 +60,16 @@
                             </tr>
                           </table>
                         </th>
-                        <th class="sin_borde"></th>
-                        <th class="sin_borde" colspan="3">
+                        <th class="sin_borde" colspan="2"></th>
+                        <th class="sin_borde" colspan="4">
                           <table class="informacion">
                             <tr>
                               <td>CONTRATISTA:</td>
                               <td class="bc subrayado">
-                                {% if estimate.project.cliente.company.full_name %} 
-                                  {{ estimate.project.cliente.company.full_name }}
+                                {% if estimate.project.contraparte.company.full_name %} 
+                                  {{ estimate.project.contraparte.company.full_name }}
                                 {% else %}
-                                  {{ estimate.project.cliente.company.company_name }}
+                                  {{ estimate.project.contraparte.company.company_name }}
                                 {% endif %}
                               </td>
                             </tr>
@@ -85,39 +86,61 @@
                       </tr>
                     </thead>
                   <tbody>
-                    <tr class="center color-g header_frame">
+                    <tr class="center color-g">
                       <th rowspan="2">CÓDIGO</th>
                       <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
-                      <th rowspan="2">LARGO</th>
-                      <th rowspan="2">ANCHO</th>
-                      <th rowspan="2">ALTO</th>
+                      <th colspan="5">VÉRTICES</th>
                       <th colspan="2">VOLUMEN EJECUTADO</th>
                       <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
                     </tr>
                     <tr class="center color-b">
+                      <th>NOMBRE</th>
+                      <th>LARGO</th>
+                      <th>ANCHO</th>
+                      <th>ALTO</th>
+                      <th>PIEZAS</th>
                       <th>CANTIDAD</th>
                       <th>UNIDAD</th>
                     </tr>
                     {% language 'en' %}
                     <tr class="concepto_info" id="conc-{{ forloop.counter0 }}">
-                      <td> {{ concepto.code }} </td>
-                      <td class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}>
-                        <p>{{ concepto.concept_text }}</p>
+                      <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %}> {{ concepto.code }} </td>
+                      <td  {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %} class="generatorDescription"{% if pdf %}style="height: auto;"{% endif %}><p>{{ concepto.concept_text }}</p>
                       </td>
-                      <td> {{ concepto.largo }} </td>
-                      <td> {{ concepto.ancho }} </td>
-                      <td> {{ concepto.alto }} </td>
-                      <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-                      <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-                      {% if concepto.observations %}
-                        <td> {{ concepto.observations }} </td>
-                      {% else %}
-                        <td>
-                        </td>
-                      {% endif %}
+                      {% for vertice in concepto.anotar_vertices %}
+                        <td> {{ vertice.nombre }} </td>
+                        <td> {{ vertice.largo }} </td>
+                        <td> {{ vertice.ancho }} </td>
+                        <td> {{ vertice.alto }} </td>
+                        <td> {{ vertice.piezas }} </td>
+                        {% if forloop.first %}
+                          <td rowspan="{{ concepto.vertice_count }}" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                          <td rowspan="{{ concepto.vertice_count }}" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                          {% if concepto.observations %}
+                            <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.observations|linebreaksbr }} </td>
+                          {% else %}
+                            <td rowspan="{{ concepto.vertice_count }}">
+                            </td>
+                          {% endif %}
+                        {% endif %}</tr>
+                      {% empty %}
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td> - </td>
+                          <td rowspan="1" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                          <td rowspan="1" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                          {% if concepto.observations %}
+                            <td rowspan="1"> {{ concepto.observations|linebreaksbr }} </td>
+                          {% else %}
+                            <td rowspan="1">
+                            </td>
+                          {% endif %}
+                      {% endfor %}
                     </tr>
                     <tr class="image" id="img-{{ forloop.counter0 }}">
-                      <td colspan="8" style="text-align: center;">
+                      <td colspan="10" style="text-align: center;">
                           {% if concepto.image_count %}
                             {% for image in concepto.anotar_imagenes %}
                               <img class="estimateImage{{forloop.parentloop.counter}}" src="{{ image.image.url }}" style="max-width:32%">
@@ -129,12 +152,12 @@
                   </tbody>
                   <tfoot id="footer_frame">
                     <tr>
-                      <td class="cont_firmas" colspan="8">
+                      <td class="cont_firmas" colspan="10">
                         <div class="cont_firma">
                           <div class="bc subrayado_f"></div>
-                          <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-                          <p> <strong>{% if user.puesto %} {{ user.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
-                          <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+                          <p><strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong></p>
+                          <p><strong>{% if estimate.supervised_by.puesto %} {{ estimate.supervised_by.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
+                          <p><strong>{{ estimate.project.contraparte.company.full_name }}</strong></p>
                         </div>
                         {% for firma in estimate.auth_by_gen.all %}
                           <div class="cont_firma">
@@ -142,9 +165,9 @@
                             <p><strong>{{ firma.destinatario_text }}</strong></p>
                             {% if firma.puesto %}
                               <p><strong>{{ firma.puesto }}</strong></p>
-                              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                              <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
                             {% else %}
-                              <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                              <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
                               <p style="color:white">-</p>
                             {% endif %}
                           </div>
@@ -163,9 +186,9 @@
     <table class="generator bord-doble">
       <thead id="header_frame">
         <tr>
-          <th class="sin_borde" colspan="8">
+          <th colspan="10">
             <div class="cont_est_gen">
-                <h5 class="m-0"> {{ estimate.project.cliente.cliente_name.upper }} </h5>
+                <h5 class="m-0"> {{ estimate.project.contraparte.cliente_name.upper }} </h5>
                 <h6 class="m-0"> RESIDENCIA DE CONSTRUCCIÓN </h6>
                 <h4 class="m-0"> GENERADOR DE OBRA PARA TRABAJOS POR P.U. </h4>
             </div>
@@ -188,12 +211,12 @@
               </tr>
             </table>
           </th>
-          <th class="sin_borde" colspan="1"></th>
-          <th class="sin_borde" colspan="3">
+          <th class="sin_borde" colspan="2"></th>
+          <th class="sin_borde" colspan="4">
             <table class="informacion">
               <tr>
                 <td>CONTRATISTA:</td>
-                <td class="bc subrayado"> {{ estimate.project.cliente.company.company_name }} </td>
+                <td class="bc subrayado"> {{ estimate.project.contraparte.company.company_name }} </td>
               </tr>
               <tr>
                 <td>PERIODO:</td>
@@ -209,13 +232,16 @@
         <tr class="center color-g">
           <th rowspan="2">CÓDIGO</th>
           <th rowspan="2" style="width: 350px;">DESCRIPCIÓN</th>
-          <th rowspan="2">LARGO</th>
-          <th rowspan="2">ANCHO</th>
-          <th rowspan="2">ALTO</th>
+          <th colspan="5">VÉRTICES</th>
           <th colspan="2">VOLUMEN EJECUTADO</th>
           <th rowspan="2" style="width: 350px;">OBSERVACIONES</th>
         </tr>
         <tr class="center color-b">
+          <th>NOMBRE</th>
+          <th>LARGO</th>
+          <th>ANCHO</th>
+          <th>ALTO</th>
+          <th>PIEZAS</th>
           <th>CANTIDAD</th>
           <th>UNIDAD</th>
         </tr>
@@ -225,21 +251,38 @@
         {% for concepto in conceptos %}
           {% if concepto.cantidad_esta_estimacion %}
             <tr id="conc-{{ forloop.counter0 }}">
-              <td> {{ concepto.code }} </td>
-              <td class="generatorDescription">
-                <p>{{ concepto.concept_text }}</p>
-              </td>
-              <td> {{ concepto.largo }} </td>
-              <td> {{ concepto.ancho }} </td>
-              <td> {{ concepto.alto }} </td>
-              <td class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
-              <td style="text-align:center;"> {{ concepto.unit.unit }} </td>
-              {% if concepto.observations %}
-                <td> {{ concepto.observations }} </td>
-              {% else %}
-                <td>
-                </td>
-              {% endif %}
+              <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %}> {{ concepto.code }} </td>
+              <td {% if concepto.vertice_count %}rowspan="{{ concepto.vertice_count }}"{% endif %} class="generatorDescription"><p>{{ concepto.concept_text }}</p></td>
+              {% for vertice in concepto.anotar_vertices %}
+                <td> {{ vertice.nombre }} </td>
+                <td> {{ vertice.largo }} </td>
+                <td> {{ vertice.ancho }} </td>
+                <td> {{ vertice.alto }} </td>
+                <td> {{ vertice.piezas }} </td>
+                {% if forloop.first %}
+                  <td rowspan="{{ concepto.vertice_count }}" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                  <td rowspan="{{ concepto.vertice_count }}" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                  {% if concepto.observations %}
+                    <td rowspan="{{ concepto.vertice_count }}"> {{ concepto.observations|linebreaksbr }} </td>
+                  {% else %}
+                    <td rowspan="{{ concepto.vertice_count }}"></td>
+                  {% endif %}
+                {% endif %}</tr>
+              {% empty %}
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td> - </td>
+                  <td rowspan="1" class="right"> {{ concepto.cantidad_esta_estimacion|intcomma }} </td>
+                  <td rowspan="1" style="text-align:center;"> {{ concepto.unit.unit }} </td>
+                  {% if concepto.observations %}
+                    <td rowspan="1"> {{ concepto.observations|linebreaksbr }} </td>
+                  {% else %}
+                    <td rowspan="1">
+                    </td>
+                  {% endif %}
+              {% endfor %}
             </tr>
           {% endif %}
         {% endfor %}
@@ -247,12 +290,12 @@
       </tbody>
       <tfoot id="footer_generator">
         <tr>
-          <td class="cont_firmas" colspan="8">
+          <td class="cont_firmas" colspan="10">
             <div class="cont_firma">
               <div class="bc subrayado_f"></div>
-              <p> <strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
-              <p> <strong>{% if user.puesto %} {{ user.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
-              <p> <strong>{{ request.user.currently_at.company_name }}</strong> </p>
+              <p><strong>{{ estimate.supervised_by.first_name }} {{ estimate.supervised_by.last_name }}</strong> </p>
+              <p><strong>{% if estimate.supervised_by.puesto %} {{ estimate.supervised_by.puesto }} {% else %} Supervisor de Obras {% endif %}</strong></p>
+              <p><strong>{{ estimate.project.contraparte.company.full_name }}</strong> </p>
             </div>
             {% for firma in estimate.auth_by_gen.all %}
               <div class="cont_firma">
@@ -260,9 +303,9 @@
                 <p><strong>{{ firma.destinatario_text }}</strong></p>
                 {% if firma.puesto %}
                   <p><strong>{{ firma.puesto }}</strong></p>
-                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                  <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
                 {% else %}
-                  <p><strong>{{ firma.cliente.cliente_name }}</strong></p>
+                  <p><strong>{{ firma.contraparte.cliente_name }}</strong></p>
                   <p style="color:white">-</p>
                 {% endif %}
               </div>
@@ -282,9 +325,7 @@
     {% if conceptos.total_imagenes_estimacion.total_images %}
       var conceptos = {{ cantidad_de_conceptos }}; //Variable de contexto.
       var list = document.getElementsByClassName("image");
-      var space_size = document.getElementsByClassName('header_frame')[0].offsetHeight +
-                      document.getElementById("header_frame").offsetHeight +
-                      document.getElementById("footer_frame").offsetHeight;
+      var space_size = document.getElementsByClassName('header_frame')[0].offsetHeight + document.getElementById("footer_frame").offsetHeight;
       var aux;
       if (list.length>0) {
         for(var i=0; i<conceptos; i++){

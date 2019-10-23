@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load humanize %}
+{% load projecttags %}
 {% block title %} Detalle de {{ contrato.contrato_shortName }} {% endblock %}
 {% block javascript %}
     <script type="text/javascript">
@@ -18,34 +18,6 @@
                     return intcomma(newValue);
                 }
             };
-            function lanzar_catalogo_conceptos(){
-                var data_id = $("#dato")[0].getAttribute("data-id");
-                $.ajax({
-                    url: "{% url 'construbot.proyectos:catalogo_conceptos_listado' contrato.id %}",
-                    success: function(result){
-                        result = result.conceptos;
-                        len = result.length;
-                        if(len>0){
-                            $(".table_results")[0].style.display = "inline-table";
-                            for(i=1; i<=len; i++){
-                                var row = $(".table_results")[0].insertRow(i);
-                                var row_content = "<td>"+result[i-1]["code"]+"</td><td style='text-align:left;'>"+result[i-1]["concept_text"]+"</td><td>"+result[i-1]["unit"]+"</td><td>"+result[i-1]["cuantity"]+"</td><td>"+"$ "+intcomma(result[i-1]["unit_price"])+"</td>";
-                                row.innerHTML = row_content;
-                            }
-                        }
-                    }
-                });
-            }
-            $(".icon_right").on("click", function(){
-                lanzar_catalogo_conceptos();
-            });
-            $(".icon_right-up").on("click", function(){
-                if(len>0){
-                    for(i=0; i<len; i++){
-                        $(".table_results")[0].deleteRow(1);
-                    }
-                }
-            });
             let t1;
             $( ".toggle-button-2" ).click(function(evt) {
                 $(evt.currentTarget.parentElement).find(".toggle-button-2").css("display", "none");
@@ -57,37 +29,61 @@
                 $(evt.currentTarget.parentElement).find(".toggle-button-1").css("display", "none");
                 $(evt.currentTarget.parentElement.parentElement.nextElementSibling).css("display", "block")
             });
-            if(document.getElementById("table_results") != null){
-                lanzar_catalogo_conceptos();
-            }
         }
-        $(".lanzar-contrato").on("click", function(evt){
-            let url = evt.currentTarget.dataset['url'];
-            $(".contrato-widget").find("object").attr("data", url);
+        $("#vprev-tab").on("click", function(evt){
+            $(".contrato-visualizer").find("object").attr("data", evt.currentTarget.dataset['url']);
+        });
+
+        function call_previous_info(){
+          if($(".active.nav-link").parent().prev().length > 0){
+            $(".active.nav-link").parent().prev().children()[0].click();
+          } else {
+            $(".nav-link").last().click();
+          }
+        }
+
+        function call_next_info(){
+          if($(".active.nav-link").parent().next().length > 0){
+            $(".active.nav-link").parent().next().children()[0].click();
+          } else {
+            $(".nav-link").first().click()
+          }
+        }
+
+        $(document).keydown(function(event) {
+          if(event.which === 40 || event.which === 38){
+            event.preventDefault();
+            if(event.which === 40){
+              call_next_info();
+            }else{
+              call_previous_info();              
+            }
+          }
         });
     });
     </script>
 {% endblock javascript %}
 {% block content %}
-{% language 'es' %}
-<h2 class="title" > Reporte de contrato </h2>
+<a class="btn btn-secondary boton-arriba position-fixed" href="#arriba">▲</a>
+<a class="btn btn-secondary boton-abajo position-fixed" href="#abajo">▼</a>
+<h2 style="margin-left:5%" class="title" id="arriba"> Detalle de {% if not contrato.is_root %}sub{% endif %}contrato {{ contrato.folio }}. {{ contrato.contrato_shortName }}</h2>
 <div id="dato" data-id="{{ contrato.id }}"></div>
 <div class="cont_table_sample">
     <table class="table_sample table_detalle">
         <tr>
-            <th colspan="2">{{ contrato.folio }}. {{ contrato.contrato_shortName }}</th>
+            <th colspan="2">Datos Generales</th>
         </tr>
         <tr>
             <td>Código de contrato</td>
             <td>{{ contrato.code }}</td>
         </tr>
         <tr>
-            <td>Nombre corto</td>
-            <td>{{ contrato.contrato_shortName }}</td>
+            <td>Objeto del contrato</td>
+            <td>{{ contrato.contrato_name }}</td>
         </tr>
         <tr>
-            <td>Cliente</td>
-            <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.cliente.id %}">{{ contrato.cliente.cliente_name }}</a></td>
+            <td>{{ contrato.contraparte.tipo_display }}</td>
+            <td><a href="{% url 'construbot.proyectos:cliente_detail' contrato.contraparte.id %}">{{ contrato.contraparte.cliente_name }}</a></td>
         </tr>
         <tr>
             <td>Sitio</td>
@@ -96,7 +92,7 @@
         {% if almenos_coordinador %}
         <tr>
             <td>Monto sin IVA</td>
-            <td>$ {% language 'en' %}{{ contrato.monto|intcomma }}{% endlanguage %}</td>
+            <td>$ {{ contrato.monto|intcomma }}</td>
         </tr>
         {% endif %}
         <tr>
@@ -107,133 +103,180 @@
             <td>¿Terminado?</td>
             <td><strong>{% if status %}Sí{% else %}No{% endif %}</strong></td>
         </tr>
+        {% if not contrato.is_root %}
+            <tr>
+                <td>Contrato Padre</td>
+                <td><a href="{% url 'proyectos:contrato_detail' contrato.get_parent.pk %}">{{ contrato.get_parent.contrato_shortName }}</a></td>
+            </tr>
+        {% endif %}
         {% if almenos_coordinador %}
-        <tr>
-            <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
-        </tr>
+          <tr>
+              <td class="text-center" colspan="2"><a href="{% url 'proyectos:editar_contrato' contrato.pk %}">Editar Contrato</a></td>
+          </tr>
         {% endif %}
     </table>
 </div>
-<br>
-{% if almenos_coordinador %}
-<div class="cont_listado">
-    <strong>Catálogo de conceptos </strong>
-    <div class="float-right">
-        <span class="oi oi-plus icon_right toggle-button-1" style="display:none;"></span><span class="oi oi-minus icon_right-up toggle-button-2"></span>
+<!-- INICIAN EXPERIMENTOS -->
+<div class="resumes_container" id="abajo">
+  <div class="row">
+    <div class="col-md-3 mb-3">
+        <ul class="nav nav-pills flex-column resumelist" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="concc-tab" data-toggle="tab" href="#concc" role="tab" aria-controls="concc" aria-selected="false">Catálogo de Conceptos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="listest-tab" data-toggle="tab" href="#listest" role="tab" aria-controls="listest" aria-selected="false">Listado de Estimaciones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="lisr-tab" data-toggle="tab" href="#lisr" role="tab" aria-controls="lisr" aria-selected="false">Listado de Retenciones</a>
+          </li>
+          {% if contrato.is_root %}
+            <li class="nav-item">
+              <a class="nav-link" id="subc-tab" data-toggle="tab" href="#subc" role="tab" aria-controls="subc" aria-selected="false">Subcontratos</a>
+            </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" id="vprev-tab" data-toggle="tab" href="#vprev" role="tab" aria-controls="vprev" data-url="{% if contrato.file %}{{ contrato.file.url }}{% else %}{% endif %}" aria-selected="false">Vista Previa del Contrato</a>
+          </li>
+        </ul>
     </div>
-</div>
-{% endif %}
-{% if contrato.concept_set.exists %}
-<table id="table_results" class="table_results table_sample">
-    <tr>
-        <th> Código </th>
-        <th style="width:500px;"> Concepto </th>
-        <th> Unidad </th>
-        <th> Cantidad </th>
-        <th> Precio unitario </th>
-    </tr>
-    <tr>
-        <td colspan="5">
-            <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar Catálogo</a>
-        </td>
-    </tr>
-</table>
-{% else %}
-<div id="catalogo-vacio" class="cont_message cont_message_no_result" style="background:white;">
-    ¡No existe catálogo de concepto!, crear <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">aquí</a>.
-</div>
-{% endif %}
-<br>
-<br>
-<div class="cont_listado alert alert-danger" id="cont_est_danger">
-</div>
-<div class="cont_listado">
-    <strong> Listado de estimaciones </strong>
-</div>
-{% if contrato.estimate_set.exists %}
-    <table class="table_sample table_normal">
-        <tbody>
+      <!-- /.col-md-4 -->
+    <div class="col-md-9 resumes">
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="concc" role="tabpanel" aria-labelledby="concc-tab">
+          <h2 style="margin-left:5%">Catálogo de Conceptos</h2>
+          <br>
+          <table class="table_sample text-center">
             <tr>
-                <th> No. </th>
-                <th> Nombre </th>
-                {% if almenos_coordinador %} <th> Monto </th>
-                <th> F. de Pago </th>{% endif %}
-                <th> Editar </th>
+              <th> Código </th>
+              <th style="width:500px;"> Concepto </th>
+              <th> Unidad </th>
+              <th> Cantidad </th>
+              <th> Precio unitario </th>
             </tr>
-        {% for estimacion in contrato.get_estimaciones %}
+            {% for concepto in contrato.conceptosordenados %}
+              <tr>
+                <td> {{ concepto.code }} </td>
+                <td> {{ concepto.concept_text }} </td>
+                <td> {{ concepto.unit.unit }} </td>
+                <td> {{ concepto.total_cuantity|intcomma }} </td>
+                <td> {{ concepto.unit_price|moneda }} </td>
+              </tr>
+            {% endfor %}
             <tr>
-                <td>{{ estimacion.consecutive }}</td>
-                <td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
-                {% if almenos_coordinador %}<td>{% language 'en' %}$ {{ estimacion.total_estimate.total|intcomma }}{% endlanguage %}</td>
-                <td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>{% endif %}
-                <td>
+                <td colspan="5" class="text-center">
+                    <a href="{% url 'construbot.proyectos:catalogo_conceptos' contrato.id %}">Editar Catálogo</a>
+                </td>
+            </tr>
+          </table>
+        </div>
+        <div class="tab-pane fade" id="listest" role="tabpanel" aria-labelledby="listest-tab">
+          <h2 style="margin-left:5%">Listado de Estimaciones</h2>
+          <br>
+          {% if contrato.estimate_set.exists %}
+            <table class="table_sample table_normal">
+              <tbody>
+                <tr>
+                  <th> No. </th>
+                  <th> Nombre </th>
+                  {% if almenos_coordinador %} <th> Monto </th>
+                  <th> F. de Pago </th>{% endif %}
+                  <th> Editar </th>
+                </tr>
+              {% for estimacion in contrato.get_estimaciones %}
+                <tr>
+                  <td>{{ estimacion.consecutive }}</td>
+                  <td><a href="{% url 'proyectos:estimate_detail' estimacion.id %}">Estimación {{ estimacion.consecutive }}</a></td>
+                  {% if almenos_coordinador %}<td>$ {{ estimacion.total_estimate.total|intcomma }}</td>
+                  <td>{{ estimacion.payment_date|date:"d/F/Y" }}</td>{% endif %}
+                  <td>
                     <a href="{% url 'proyectos:editar_estimacion' estimacion.pk %}">Editar</a>{% if almenos_coordinador %} /
                     <a class="anchor_est_delete" data-model="Estimate" data-id="{{ estimacion.id }}" href="#">Eliminar</a>{% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-            <tr>
-                <td colspan="5">
+                  </td>
+                </tr>
+              {% endfor %}
+                <tr>
+                  <td colspan="5">
                     <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crear estimación</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-{% elif contrato.concept_set.exists %}
-    <div class="cont_message text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
-{% endif %}
-<br>
-<br>
-{% if almenos_coordinador %}
-    <div class="cont_listado">
-        <strong> Listado de retenciones </strong>
-        <div class="float-right">
-            <span class="oi oi-plus toggle-button-1" style="display:none"></span><span class="oi oi-minus toggle-button-2"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            {% elif contrato.concept_set.exists %}
+                <div class="cont_message text-center"> No existen estimaciones para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
+            {% else %}
+                <div class="cont_message text-center"> No existe un catalogo para este contrato aún. <a href="{% url 'proyectos:nueva_estimacion' contrato.id %}">Crea una aquí</a>.</div>
+            {% endif %}
         </div>
-    </div>
-    {% if contrato.retenciones_set.exists %}
-        <table class="table_sample table_normal toggle-hide">
-            <tbody>
+        <div class="tab-pane fade" id="lisr" role="tabpanel" aria-labelledby="lisr-tab">
+          <h2 style="margin-left:5%">Listado de Retenciones</h2>
+          <br>
+          {% if contrato.retenciones_set.exists %}
+            <table class="table_sample table_normal toggle-hide">
+              <tbody>
                 <tr>
                     <th> Nombre </th>
                     <th> Valor </th>
                 </tr>
-            {% for retencion in contrato.retenciones_set.all %}
-                <tr>
+                {% for retencion in contrato.retenciones_set.all %}
+                  <tr>
                     <td>{{ retencion.nombre }}</td>
-                    <td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{% language 'en' %}{{ retencion.valor|intcomma }}{% endlanguage %}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
-                </tr>
-            {% endfor %}
-                <tr>
+                    <td>{% if retencion.tipo == 'AMOUNT' %}$ {% endif %}{{ retencion.valor|intcomma }}{% if retencion.tipo == 'PERCENTAGE' %}%{% endif %}</td>
+                  </tr>
+                {% endfor %}
+                  <tr>
                     <td colspan="2">
-                        <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">Editar Retenciones</a>
+                      <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">Editar Retenciones</a>
                     </td>
+                  </tr>
+                </tbody>
+            </table>
+          {% else %}
+              <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
+          {% endif %}
+        </div>
+        {% if contrato.is_root %}
+          <div class="tab-pane fade" id="subc" role="tabpanel" aria-labelledby="subc-tab">
+            <h2 style="margin-left:5%">Listado de Subcontratos</h2>
+            <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}"><button style="margin-left:5%; margin-bottom: 2%;" class="btn">Agregar subcontratista</button></a>
+            <table class="table_sample table_normal toggle-hide">
+              <tbody>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Monto</th>
+                <th>Ejercido</th>
+                <th>Editar</th>
+              </tbody>
+              {% for subcontrato in contrato.get_top_10_children %}
+                <tr>
+                  <td>{{ subcontrato.code }}</td>
+                  <td><a href="{% url 'proyectos:contrato_detail' subcontrato.id %}">{{ subcontrato.contrato_shortName }}</a></td>
+                  <td>{{ subcontrato.monto|intcomma }}</td>
+                  <td>{{ subcontrato.ejercido_acumulado|intcomma }}</td>
+                  <td></td>
                 </tr>
-            </tbody>
-        </table>
-    {% else %}
-        <div id="toggle-hide" class="cont_message text-center">¡No hay retenciones existentes, crear <a href="{% url 'proyectos:catalogo_retenciones' contrato.id %}">aquí</a>.</div>
-    {% endif %}
-    <br>
-    <br>
-    <div class="cont_listado">
-        <strong> Vista previa del contrato </strong>
-        <div class="float-right">
-            {% if contrato.file %}
-            <span data-url={{ contrato.file.url }} class="oi oi-plus toggle-button-1 lanzar-contrato"></span><span class="oi oi-minus toggle-button-2 contraer-contrato" style="display:none"></span>
-            {% else %}
-            <span data-url="" class="oi oi-plus toggle-button-1 lanzar-contrato"></span><span class="oi oi-minus toggle-button-2 contraer-contrato" style="display:none"></span>
-            {% endif %}
+              {% empty %}
+                <tr><td colspan="5">No hay subcontratos. Crea uno <a href="{% url 'proyectos:nuevo_subcontrato' contrato.pk %}">aquí</a>.</td></tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
+        <div class="tab-pane fade" id="vprev" role="tabpanel" aria-labelledby="vprev-tab">
+          <h2 style="margin-left:5%">Vista Previa del Contrato</h2>
+          <br>
+          {% if contrato.file %}
+            <div class="contrato-visualizer toggle-hide">
+              <object data="" type="application/pdf" width="100%" height="600px">
+                </object>
+            </div>
+          {% else %}
+            <div id="toggle-hide" class="cont_message text-center">¡No ha subido el PDF del contrato!, súbalo <a href="{% url 'proyectos:editar_contrato' contrato.id %}">Aquí</a>.</div>
+          {% endif %}
         </div>
+      <!-- /.col-md-8 -->
+      </div>
     </div>
-    {% if contrato.file %}
-        <div class="contrato-widget toggle-hide">
-            <object data="" type="application/pdf" width="100%" height="600px">
-            </object>
-        </div>
-    {% else %}
-        <div id="toggle-hide" style="display:none;" class="cont_message text-center">¡No ha subido el PDF del contrato!, súbalo <a href="{% url 'proyectos:editar_contrato' contrato.id %}">Aquí</a>.</div>
-    {% endif %}
-{% endif %}
-{% endlanguage %}
+  </div>
+</div>
+<!-- TERMINAN EXPERIMENTOS -->
 {% endblock %}

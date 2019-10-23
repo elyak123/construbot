@@ -132,7 +132,7 @@ class UserUpdateViewTest(utils.BaseTestCase):
             'initial': {},
             'prefix': None,
             'user': test_user,
-            'instance': test_user
+            'instance': test_user,
         }
         self.view.kwargs = {'username': test_user.username}
         self.view.object = test_user

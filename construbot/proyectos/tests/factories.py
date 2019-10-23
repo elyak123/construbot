@@ -1,7 +1,6 @@
 import tempfile
 import string
 import datetime
-from unittest import mock
 import factory
 import factory.fuzzy
 from django.core.files.images import ImageFile
@@ -12,9 +11,14 @@ from construbot.proyectos import models
 class ClienteFactory(factory.django.DjangoModelFactory):
     cliente_name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='cliente_')
     company = factory.SubFactory(CompanyFactory)
+    tipo = 'CLIENTE'
 
     class Meta:
-        model = models.Cliente
+        model = models.Contraparte
+
+
+class SubcontratistaFactory(ClienteFactory):
+    tipo = 'SUBCONTRATISTA'
 
 
 class SitioFactory(factory.django.DjangoModelFactory):
@@ -28,7 +32,7 @@ class SitioFactory(factory.django.DjangoModelFactory):
 class DestinatarioFactory(factory.django.DjangoModelFactory):
     destinatario_text = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters, prefix='destinatario_')
     puesto = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_letters)
-    cliente = factory.SubFactory(ClienteFactory)
+    contraparte = factory.SubFactory(ClienteFactory)
 
     class Meta:
         model = models.Destinatario
@@ -50,11 +54,29 @@ class ContratoFactory(factory.django.DjangoModelFactory):
     )
     status = True
     monto = factory.fuzzy.FuzzyDecimal(100000.76, 10000000.56, precision=2)
-    cliente = factory.SubFactory(ClienteFactory)
+    contraparte = factory.SubFactory(ClienteFactory)
     sitio = factory.SubFactory(SitioFactory)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        return models.Contrato.add_root(*args, **kwargs)
 
     class Meta:
         model = models.Contrato
+
+
+class SubContratoFactory(ContratoFactory):
+
+    contraparte = factory.SubFactory(SubcontratistaFactory)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        try:
+            parent = kwargs.pop('parent')
+            instance = parent.add_child(**kwargs)
+        except KeyError:
+            raise TypeError('Es necesario incorporar parent en la llamada.')
+        return instance
 
 
 class EstimateFactory(factory.django.DjangoModelFactory):
@@ -62,8 +84,12 @@ class EstimateFactory(factory.django.DjangoModelFactory):
     consecutive = factory.fuzzy.FuzzyInteger(0, 25)
     draft_by = factory.SubFactory(UserFactory)
     supervised_by = factory.SubFactory(UserFactory)
-    start_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
     finish_date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
+
+    @factory.lazy_attribute
+    def start_date(self):
+        date = factory.fuzzy.FuzzyDate(datetime.date(2008, 1, 1), self.finish_date)
+        return date.fuzz()
 
     class Meta:
         model = models.Estimate

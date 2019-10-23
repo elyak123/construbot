@@ -22,18 +22,21 @@ class ContratoFormTest(BaseFormTest):
         self.user.currently_at = contrato_company
         self.user.is_new = True
         self.user.save()
-        contrato_cliente = factories.ClienteFactory(company=contrato_company)
+        contrato_cliente = factories.ClienteFactory(company=contrato_company, tipo='CLIENTE')
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'contrato_shortName': 'TC1', 'contraparte': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_contrato_form_saves_on_db(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -41,34 +44,41 @@ class ContratoFormTest(BaseFormTest):
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'contrato_shortName': 'TC1', 'contraparte': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0,
                      }
         form = forms.ContratoForm(data=form_data)
         form.request = self.request
-        form.is_valid()
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
         try:
-            contrato = models.Contrato.objects.get(contrato_name='TEST CONTRATO 1', cliente=contrato_cliente)
+            contrato = models.Contrato.objects.get(contrato_name='TEST CONTRATO 1', contraparte=contrato_cliente)
         except models.Contrato.DoesNotExist:
             self.fail('Contrato no fue guardado en base de datos.')
         self.assertIsInstance(contrato, models.Contrato)
+        self.assertNotEqual(contrato.path, 'random')
 
     def test_form_actually_changes_contrato(self):
         contrato_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = contrato_company
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
         contrato_sitio = factories.SitioFactory(cliente=contrato_cliente)
-        contrato_factory = factories.ContratoFactory(cliente=contrato_cliente, sitio=contrato_sitio, monto=90.00)
+        contrato_factory = factories.ContratoFactory(contraparte=contrato_cliente, sitio=contrato_sitio, monto=90.00)
         form_data = {'folio': 1, 'code': 'TEST-1', 'fecha': '1999-12-1', 'contrato_name': 'TEST CONTRATO 1',
-                     'contrato_shortName': 'TC1', 'cliente': contrato_cliente.id, 'sitio': contrato_sitio.id,
+                     'contrato_shortName': 'TC1', 'contraparte': contrato_cliente.id, 'sitio': contrato_sitio.id,
                      'monto': 1222.12,
                      'currently_at': contrato_company.company_name,
                      'users': [self.user.id],
                      'anticipo': 0.0,
+                     'depth': 1,
+                     'path': 'random',
+                     'numchild': 0
                      }
         form = forms.ContratoForm(data=form_data, instance=contrato_factory)
         form.request = self.request
@@ -82,31 +92,31 @@ class ClienteFormTest(BaseFormTest):
     def test_cliente_form_creation_is_valid(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id, 'tipo': 'CLIENTE'}
         form = forms.ClienteForm(data=form_data)
         form.request = self.request
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_cliente_form_saves_on_db(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id, 'tipo': 'CLIENTE'}
         form = forms.ClienteForm(data=form_data)
         form.request = self.request
-        form.is_valid()
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
-        cliente = models.Cliente.objects.get(cliente_name='Juanito')
-        self.assertIsInstance(form.instance, models.Cliente)
+        cliente = models.Contraparte.objects.get(cliente_name='Juanito')
+        self.assertIsInstance(form.instance, models.Contraparte)
         self.assertEqual(form.instance.id, cliente.id)
 
     def test_cliente_edit_form_changes_instance(self):
         cliente_company = user_factories.CompanyFactory(customer=self.user.customer)
         self.user.currently_at = cliente_company
         cliente_factory = factories.ClienteFactory(company=cliente_company, cliente_name='Pepe')
-        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id}
+        form_data = {'cliente_name': 'Juanito', 'company': cliente_company.id, 'tipo': 'CLIENTE'}
         form = forms.ClienteForm(data=form_data, instance=cliente_factory)
         form.request = self.request
-        form.is_valid()
+        self.assertTrue(form.is_valid(), form.errors)
         form.save()
         self.assertEqual(form.instance.cliente_name, 'Juanito')
         self.assertEqual(form.instance.pk, cliente_factory.pk)
@@ -116,16 +126,16 @@ class DestinatarioFormTest(BaseFormTest):
 
     def test_destinatario_form_creation_is_valid(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
-        destinatario_cliente = factories.ClienteFactory(company=destinatario_company)
+        destinatario_cliente = factories.ClienteFactory(company=destinatario_company, tipo='CLIENTE')
         self.user.currently_at = destinatario_company
         form_data = {
             'company': destinatario_company.id,
             'destinatario_text': "Un wey",
-            'cliente': destinatario_cliente.id
+            'contraparte': destinatario_cliente.id
         }
         form = forms.DestinatarioForm(data=form_data)
         form.request = self.request
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_destinatario_form_saves_obj_in_database(self):
         destinatario_company = user_factories.CompanyFactory(customer=self.user.customer)
@@ -134,7 +144,7 @@ class DestinatarioFormTest(BaseFormTest):
         form_data = {
             'company': destinatario_company.id,
             'destinatario_text': 'Un wey',
-            'cliente': destinatario_cliente.id
+            'contraparte': destinatario_cliente.id
         }
         form = forms.DestinatarioForm(data=form_data)
         form.request = self.request
@@ -154,9 +164,9 @@ class DestinatarioFormTest(BaseFormTest):
 
     def test_form_actually_changes_destinatario(self):
         destinatario = factories.DestinatarioFactory()
-        self.user.currently_at = destinatario.cliente.company
-        form_data = {'company': destinatario.cliente.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
-                     'puesto': 'Gerente', 'cliente': destinatario.cliente.id}
+        self.user.currently_at = destinatario.contraparte.company
+        form_data = {'company': destinatario.contraparte.company.id, 'destinatario_text': 'Ing. Rodrigo Cruz',
+                     'puesto': 'Gerente', 'contraparte': destinatario.contraparte.id}
         form = forms.DestinatarioForm(data=form_data, instance=destinatario)
         form.request = self.request
         form.is_valid()
@@ -169,7 +179,7 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
 
     def test_creacion_de_catalogo_conceptos(self):
         contrato = factories.ContratoFactory()
-        unit = factories.UnitFactory(company=contrato.cliente.company)
+        unit = factories.UnitFactory(company=contrato.contraparte.company)
         formset = forms.ContractConceptInlineForm({
             'concept_set-INITIAL_FORMS': '0',
             'concept_set-TOTAL_FORMS': '1',
@@ -185,7 +195,7 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
 
     def test_creacion_de_catalogo_mismo_concepto_renders_error(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
-        contrato = factories.ContratoFactory(cliente__company=contrato_company)
+        contrato = factories.ContratoFactory(contraparte__company=contrato_company)
         self.user.groups.add(self.proyectos_group)
         self.user.company.add(contrato_company)
         self.user.currently_at = contrato_company
@@ -211,14 +221,19 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
             'concept_set-1-DELETE': 'False',
             'concept_set-1-project': str(contrato.id),
         }
-        response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
-        self.assertFormsetError(response, 'formset', None, field=None, errors=['Por favor, corrija la información duplicada en concept_text.'])
+        response = self.client.post(
+            reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data
+        )
+        self.assertFormsetError(
+            response, 'formset', None, field=None,
+            errors=['Por favor, corrija la información duplicada en concept_text.']
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_creacion_de_catalogo_unidad_differente_company_renders_error(self):
         contrato_company = factories.CompanyFactory(customer=self.user.customer)
         contrato_cliente = factories.ClienteFactory(company=contrato_company)
-        contrato = factories.ContratoFactory(cliente=contrato_cliente)
+        contrato = factories.ContratoFactory(contraparte=contrato_cliente)
         self.user.groups.add(self.proyectos_group)
         self.user.nivel_acceso = self.director_permission
         self.user.company.add(contrato_company)
@@ -245,29 +260,37 @@ class CatalogoConceptosFormsetTest(BaseFormTest):
             'concept_set-1-DELETE': 'False',
             'concept_set-1-project': str(contrato.id),
         }
-        response = self.client.post(reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data)
-        self.assertFormsetError(response, 'formset', 1, field='unit', errors=['El concepto debe pertenecer a la misma compañia que su unidad.'])
+        response = self.client.post(
+            reverse('proyectos:catalogo_conceptos', kwargs={'pk': contrato.pk}), formset_data
+        )
+        self.assertFormsetError(
+            response, 'formset', 1, field='unit',
+            errors=['El concepto debe pertenecer a la misma compañia que su unidad.']
+        )
         self.assertEqual(response.status_code, 200)
 
 
 class SitioFormTest(BaseFormTest):
 
-    def test_sitio_form_creation_is_not_valid_with_another_company(self):
+    def test_sitio_form_creation_is_not_valid_with_contraparte_not_cliente(self):
         sitio_company = user_factories.CompanyFactory(customer=self.user.customer)
-        sitio_company_2 = user_factories.CompanyFactory(customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company=sitio_company, tipo='SUBCONTRATISTA')
         self.user.currently_at = sitio_company
-        form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'company': sitio_company_2.id}
+        form_data = {
+            'sitio_name': "Tamaulipas", 'sitio_location': "Some place",
+            'cliente': sitio_cliente.id
+        }
         form = forms.SitioForm(data=form_data)
         form.request = self.request
         self.assertFalse(form.is_valid())
 
     def test_sitio_form_creation_is_valid(self):
-        sitio_cliente = factories.ClienteFactory(company__customer=self.user.customer)
+        sitio_cliente = factories.ClienteFactory(company__customer=self.user.customer, tipo='CLIENTE')
         self.user.currently_at = sitio_cliente.company
         form_data = {'sitio_name': "Tamaulipas", 'sitio_location': "Some place", 'cliente': sitio_cliente.id}
         form = forms.SitioForm(data=form_data)
         form.request = self.request
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_form_actually_changes_sitio(self):
         sitio = factories.SitioFactory()

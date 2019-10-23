@@ -7,6 +7,7 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
+from time import strftime
 import environ
 
 ROOT_DIR = environ.Path(__file__) - 4  # (construbot/construbot/config/settings/base.py - 3 = construbot/)
@@ -64,7 +65,8 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
-    'wkhtmltopdf',  # pdf generation
+    'chunked_upload',  # user uploads
+    'treebeard',
 ]
 
 # Apps specific for this project go here.
@@ -75,6 +77,7 @@ LOCAL_APPS = [
     'construbot.proyectos.apps.ProyectosConfig',
     'construbot.api.apps.ApiConfig',
     'construbot.account_config.apps.AccountConfigConfig',
+    'construbot.core.apps.CoreConfig'
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -257,6 +260,8 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
+
+CHUNKED_UPLOAD_ABSTRACT_MODEL = True
 
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
