@@ -350,8 +350,6 @@ imageformset = forms.inlineformset_factory(
     fields=('image',),
     widgets={'image': widgets.FileNestedWidget()},
     formset=ImageInlineFormset,
-<<<<<<< HEAD
-=======
 )
 
 verticesformset = forms.inlineformset_factory(
@@ -359,7 +357,6 @@ verticesformset = forms.inlineformset_factory(
     Vertices,
     extra=1,
     fields=('nombre', 'largo', 'ancho', 'alto', 'piezas')
->>>>>>> upstream/master
 )
 
 
