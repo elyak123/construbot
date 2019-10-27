@@ -680,6 +680,9 @@ table.estimate * , table.generator * {
 }
 
 @media print {
+	table.estimate * , table.generator * {
+		padding: 2px;
+	}
     #cont_menu_lateral, .cont_nav_navegacion, .title, #div_miniform {
         display: none;
     }

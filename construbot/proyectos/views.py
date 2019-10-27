@@ -785,7 +785,7 @@ class CatalogoConceptosInlineFormView(CatalogosView):
         ws = load_workbook(self.request.FILES['excel-file']).active
         for row in ws.iter_rows(min_row=2, max_col=5, max_row=ws.max_row, values_only=True):
             codigo = row[0]
-            concept_text = row[1]
+            concept_text = " ".join(row[1].splitlines())
             unidad = row[2]
             cantidad = Decimal(row[3])
             pu = row[4]
