@@ -711,6 +711,9 @@ class CatalogosView(ProyectosMenuMixin, UpdateView):
     asignacion_requerida = True
     nivel_permiso_asignado = 2
 
+    def importar_excel(self):
+        raise NotImplementedError('Este metodo debe estar en una subclase.')
+
     def post(self, request, *args, **kwargs):
         if 'excel-file' in request.FILES.keys():
             self.importar_excel()

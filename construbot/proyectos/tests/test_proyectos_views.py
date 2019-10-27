@@ -1,5 +1,6 @@
 import json
 import decimal
+from io import StringIO
 from unittest import mock
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
@@ -423,7 +424,7 @@ class SubcContratoCreationTest(utils.CBVTestCase):
         view.contrato = mock_contrato
         self.assertEqual(view.get_depth(), 2)
         contrato_get_depth.assert_called_once()
-    @tag('current')
+
     @mock.patch.object(views.ContratoCreationView, 'get_initial', return_value={})
     def test_subcontratocreation_get_initial(self, mock_initial):
         view = self.get_instance(
@@ -1329,13 +1330,68 @@ class CatalogoConceptosInlineFormTest(BaseViewTest):
         self.assertEqual(view.get_success_url(), test_url)
 
 
-class CatalogoRetencionesInlineFormTest(BaseViewTest):
+class CatalogoRetencionesInlineFormTest(utils.BaseTestCase):
 
-    def test_get_assignment_returns_according_estimate_model(self):
-        pass
+    @mock.patch('construbot.proyectos.views.shortcuts.get_object_or_404')
+    @mock.patch('construbot.proyectos.views.load_workbook')
+    @mock.patch.object(views.Retenciones.objects, 'create')
+    def test_importar_excel_guarda_retenciones(self, mock_create, mock_workbook, mock_404):
+        mock_contrato = mock.Mock()
+        mock_404.return_value = mock_contrato
+        workbook_active = mock.Mock()
+        workbook_active_iter_rows = mock.Mock()
+        workbook_active_iter_rows.return_value = [['Nombre', 'PORCENTAJE', 50]]
+        workbook_active.iter_rows = workbook_active_iter_rows
+        ws = mock.Mock()
+        ws.active = workbook_active
+        mock_workbook.return_value = ws
+        request = self.factory.post('bla/bla', data={'contrato': 2, 'excel-file': StringIO('test')})
+        mock_user = mock.Mock()
+        user_currently_at = mock.Mock()
+        mock_user.currently_at = user_currently_at
+        request.user = mock_user
+        view = self.get_instance(
+            views.CatalogoRetencionesInlineFormView,
+            request=request
+        )
+        view.importar_excel()
+        mock_create.assert_called_once_with(nombre='Nombre', valor=50, tipo='PERCENTAGE', project=mock_contrato)
+
+    @mock.patch('construbot.proyectos.views.shortcuts.get_object_or_404')
+    @mock.patch('construbot.proyectos.views.load_workbook')
+    @mock.patch.object(views.Retenciones.objects, 'create')
+    def test_importar_excel_guarda_retenciones_monto(self, mock_create, mock_workbook, mock_404):
+        mock_contrato = mock.Mock()
+        mock_404.return_value = mock_contrato
+        workbook_active = mock.Mock()
+        workbook_active_iter_rows = mock.Mock()
+        workbook_active_iter_rows.return_value = [['Nombre', 'monto', 50]]
+        workbook_active.iter_rows = workbook_active_iter_rows
+        ws = mock.Mock()
+        ws.active = workbook_active
+        mock_workbook.return_value = ws
+        request = self.factory.post('bla/bla', data={'contrato': 2, 'excel-file': StringIO('test')})
+        mock_user = mock.Mock()
+        user_currently_at = mock.Mock()
+        mock_user.currently_at = user_currently_at
+        request.user = mock_user
+        view = self.get_instance(
+            views.CatalogoRetencionesInlineFormView,
+            request=request
+        )
+        view.importar_excel()
+        mock_create.assert_called_once_with(nombre='Nombre', valor=50, tipo='AMOUNT', project=mock_contrato)
 
 
 class CatalogoConceptosTest(BaseViewTest):
+
+    @mock.patch.object(views.CatalogosView, 'importar_excel')
+    @mock.patch.object(views.UpdateView, 'post')
+    def test_importar_excel_excecuted_on_excelfile_in_request(self, mock_post, mock_importar):
+        factory = self.factory.post('bla/bla', data={'excel-file': StringIO('test')})
+        self.post(views.CatalogosView, request=factory)
+        mock_importar.assert_called_with()
+        mock_post.assert_called_with(factory)
 
     def test_json_formed_correctly(self):
         company = factories.CompanyFactory(customer=self.user.customer)
