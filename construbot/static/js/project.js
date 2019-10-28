@@ -289,8 +289,8 @@ $(document).ready(function(){
             $("#select2-id_sitio-container")[0].parentNode.parentNode.parentNode.parentNode.style.display = "none";
         }
     }
-    if($("#llamar-subestimacion").length != null){
-        $("#llamar-subestimacion").on("click", function(evt){
+    if($(".llamar-subestimacion").length != null){
+        $(".llamar-subestimacion").on("click", function(evt){
             var url = evt.target.dataset['url'];
             var position = parseInt(evt.target.dataset['position']);
             //$(".clicked").parent().parent().parent().addClass("trclickeado");
