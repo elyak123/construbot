@@ -301,9 +301,10 @@ $(document).ready(function(){
                 $(evt.target).removeClass("oi-chevron-bottom");
                 $(evt.target).addClass("oi-chevron-right");
             } else if($(".clicked").length > 0){
-                    $($(".clicked")[0]).removeClass("clicked");
                     $($(".clicked")[0]).removeClass("oi-chevron-bottom");
                     $($(".clicked")[0]).addClass("oi-chevron-right");
+                    $($(".clicked")[0]).removeClass("clicked");
+                    $(evt.target).addClass("clicked");
                     var position = parseInt($(".clicked")[0].dataset['position'])+1;
                     var row = $("#subcontrato-table")[0].deleteRow(position);
                     $.ajax({
@@ -316,7 +317,6 @@ $(document).ready(function(){
                         row.innerHTML = text;
                     },
                     });
-                    $(evt.target).addClass("clicked");
                     $($(".clicked")[0]).removeClass("oi-chevron-right");
                     $($(".clicked")[0]).addClass("oi-chevron-bottom");
             } else {
