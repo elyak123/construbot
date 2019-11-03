@@ -53,7 +53,7 @@ setup(
         # Well-built with regular release cycles!
         'django-allauth==0.39.1',
         # Python-PostgreSQL Database Adapter
-        'psycopg2>=2.84',
+        'psycopg2>=2.8.4',
         # Unicode slugification
         'awesome-slugify==1.6.5',
         # Time zones support
