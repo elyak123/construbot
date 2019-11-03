@@ -289,8 +289,8 @@ $(document).ready(function(){
             $("#select2-id_sitio-container")[0].parentNode.parentNode.parentNode.parentNode.style.display = "none";
         }
     }
-    if($("#llamar-subestimacion").length != null){
-        $("#llamar-subestimacion").on("click", function(evt){
+    if($(".llamar-subestimacion").length != null){
+        $(".llamar-subestimacion").on("click", function(evt){
             var url = evt.target.dataset['url'];
             var position = parseInt(evt.target.dataset['position']);
             //$(".clicked").parent().parent().parent().addClass("trclickeado");
@@ -301,22 +301,25 @@ $(document).ready(function(){
                 $(evt.target).removeClass("oi-chevron-bottom");
                 $(evt.target).addClass("oi-chevron-right");
             } else if($(".clicked").length > 0){
-                    $($(".clicked")[0]).removeClass("clicked");
                     $($(".clicked")[0]).removeClass("oi-chevron-bottom");
                     $($(".clicked")[0]).addClass("oi-chevron-right");
+                    var pos_1 = parseInt($(".clicked")[0].dataset['position'])+1;
+                    var row = $("#subcontrato-table")[0].deleteRow(pos_1);
+                    $($(".clicked")[0]).removeClass("clicked");
+
+
+                    $(evt.target).addClass("clicked");
                     var position = parseInt($(".clicked")[0].dataset['position'])+1;
-                    var row = $("#subcontrato-table")[0].deleteRow(position);
                     $.ajax({
                     url: url,
                     type: 'GET',
                     success: function(response){
-                        var indice = position+1;
+                        var indice = position;
                         var row = $("#subcontrato-table")[0].insertRow(indice);
                         var text = "<td colspan='6' id='subestimacioncontainer'><div>"+ response +"</div></td>";
                         row.innerHTML = text;
                     },
                     });
-                    $(evt.target).addClass("clicked");
                     $($(".clicked")[0]).removeClass("oi-chevron-right");
                     $($(".clicked")[0]).addClass("oi-chevron-bottom");
             } else {
