@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='estimateconcept',
             name='cuantity_estimated',
-            field=models.DecimalField(decimal_places=8, max_digits=12, verbose_name='cuantity_estimated'),
+            field=models.DecimalField(decimal_places=8, max_digits=20, verbose_name='cuantity_estimated'),
         ),
     ]
