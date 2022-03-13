@@ -48,7 +48,8 @@ setup(
         # User uploads
         'django-chunked-upload==1.1.3',
         # Password storage
-        'argon2-cffi==18.3.0',
+        'cffi==1.15.0',
+        'argon2-cffi==19.1.0',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
         'django-allauth==0.39.1',
@@ -86,7 +87,8 @@ setup(
         # Sentry client
         'sentry-sdk==0.9.0',
         # pinned in order to requirements hashed work
-        'setuptools==41.4.0',
+        'pip==21.3.1',
+        'setuptools==59.6.0',
         # pinned due to security:
         # via django-allauth, django-anymail, requests-oauthlib
         'requests>=2.22.0',

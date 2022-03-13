@@ -1,13 +1,24 @@
+from allauth.account.forms import ChangePasswordForm, SetPasswordForm
+from allauth.account.views import (
+    AccountInactiveView,
+    ConfirmEmailView,
+    EmailVerificationSentView,
+    EmailView,
+    LoginView,
+    LogoutView,
+    PasswordChangeView,
+    PasswordResetDoneView,
+    PasswordResetFromKeyDoneView,
+    PasswordResetFromKeyView,
+    PasswordResetView,
+    PasswordSetView,
+    SignupView
+)
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from allauth.account.views import (
-    LoginView, SignupView, PasswordChangeView,
-    PasswordSetView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView,
-    PasswordResetFromKeyDoneView, LogoutView, EmailVerificationSentView,
-    AccountInactiveView, EmailView, ConfirmEmailView)
-from allauth.account.forms import ChangePasswordForm, SetPasswordForm
+
 from construbot.users.auth import AuthenticationTestMixin
 
 User = get_user_model()
