@@ -32,6 +32,9 @@ setup(
     author_email='elyak.123@gmail.com',
     python_requires='>=3.6.1',
     install_requires=[
+        # Pinned
+        'pyjwt==2.4.0',
+        'cryptography==37.0.2',
         # Conservative Django
         'django>=2.1.11,<2.2',
         # REST
@@ -48,10 +51,11 @@ setup(
         # User uploads
         'django-chunked-upload==1.1.3',
         # Password storage
-        'argon2-cffi==18.3.0',
+        'argon2-cffi==21.3.0',
+        'cffi==1.15.1',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
-        'django-allauth==0.39.1',
+        'django-allauth==0.51.0',
         # Python-PostgreSQL Database Adapter
         'psycopg2>=2.8.4',
         # Unicode slugification
@@ -91,6 +95,7 @@ setup(
         # via django-allauth, django-anymail, requests-oauthlib
         'requests>=2.22.0',
         'urllib3>=1.24.2',
+
     ],
     classifiers=[
         'Environment :: Web Environment',
