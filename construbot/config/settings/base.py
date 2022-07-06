@@ -339,6 +339,11 @@ STATICFILES_FINDERS += ['compressor.finders.CompressorFinder']
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
 ADMIN_URL = r'^admin/'
 
+# New in Django 3.2
+# https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
