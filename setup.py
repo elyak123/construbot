@@ -32,9 +32,6 @@ setup(
     author_email='elyak.123@gmail.com',
     python_requires='>=3.6.1',
     install_requires=[
-        # Pinned
-        'pyjwt==2.4.0',
-        'cryptography==37.0.2',
         # Conservative Django
         'django==3.2.14',
         # REST
