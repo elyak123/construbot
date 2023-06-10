@@ -33,7 +33,7 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django==3.2.14',
+        'django[argon2]==3.2.14',
         # REST
         'djangorestframework==3.13.1',
         'djangorestframework_simplejwt==5.2.0',
@@ -45,9 +45,6 @@ setup(
         'django-treebeard==4.5.1',
         # Images
         'Pillow==6.2.0',
-        # Password storage
-        'argon2-cffi==21.3.0',
-        'cffi==1.15.1',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
         'django-allauth==0.51.0',
