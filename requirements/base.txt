@@ -10,23 +10,23 @@ argon2-cffi==21.3.0
     # via django
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
-asgiref==3.5.2
+asgiref==3.7.2
     # via django
 awesome-slugify==1.6.5
     # via django-construbot (setup.py)
-beautifulsoup4==4.11.1
+beautifulsoup4==4.12.2
     # via django-bootstrap4
 billiard==3.6.4.0
     # via celery
-boto3==1.9.165
-    # via django-construbot (setup.py)
-botocore==1.12.165
+boto3==1.26.151
+    # via django-storages
+botocore==1.29.151
     # via
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via django-construbot (setup.py)
-certifi==2019.3.9
+certifi==2023.5.7
     # via
     #   requests
     #   sentry-sdk
@@ -34,7 +34,7 @@ cffi==1.15.1
     # via
     #   argon2-cffi-bindings
     #   cryptography
-chardet==3.0.4
+charset-normalizer==3.1.0
     # via requests
 click==8.1.3
     # via
@@ -48,9 +48,9 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cryptography==37.0.2
+cryptography==41.0.1
     # via pyjwt
-defusedxml==0.7.0
+defusedxml==0.7.1
     # via python3-openid
 django[argon2]==3.2.14
     # via
@@ -67,9 +67,9 @@ django[argon2]==3.2.14
     #   djangorestframework-simplejwt
 django-allauth==0.51.0
     # via django-construbot (setup.py)
-django-anymail==6.0
+django-anymail==6.0.1
     # via django-construbot (setup.py)
-django-appconf==1.0.3
+django-appconf==1.0.5
     # via django-compressor
 django-autocomplete-light==3.9.4
     # via django-construbot (setup.py)
@@ -83,7 +83,7 @@ django-model-utils==4.2.0
     # via django-construbot (setup.py)
 django-redis==5.2.0
     # via django-construbot (setup.py)
-django-storages==1.12.3
+django-storages[boto3]==1.13.2
     # via django-construbot (setup.py)
 django-treebeard==4.5.1
     # via django-construbot (setup.py)
@@ -93,41 +93,39 @@ djangorestframework==3.13.1
     #   djangorestframework-simplejwt
 djangorestframework-simplejwt==5.2.0
     # via django-construbot (setup.py)
-docutils==0.14
-    # via botocore
-et-xmlfile==1.0.1
+et-xmlfile==1.1.0
     # via openpyxl
 gunicorn==19.7.1
     # via django-construbot (setup.py)
-idna==2.8
+idna==3.4
     # via requests
 jdcal==1.4.1
     # via openpyxl
-jmespath==0.9.4
+jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-kombu==5.2.4
+kombu==5.3.0
     # via celery
-oauthlib==3.0.1
+oauthlib==3.2.2
     # via requests-oauthlib
 openpyxl==2.6.2
     # via django-construbot (setup.py)
-pillow==6.2.0
+pillow==9.5.0
     # via django-construbot (setup.py)
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.38
     # via click-repl
 psycopg2==2.8.6
     # via django-construbot (setup.py)
-pycparser==2.19
+pycparser==2.21
     # via cffi
-pyjwt[crypto]==2.6.0
+pyjwt[crypto]==2.7.0
     # via
     #   django-allauth
     #   djangorestframework-simplejwt
-python-dateutil==2.8.0
+python-dateutil==2.8.2
     # via botocore
-python3-openid==3.1.0
+python3-openid==3.2.0
     # via django-allauth
 pytz==2022.1
     # via
@@ -143,39 +141,40 @@ redis==3.2.1
     # via
     #   django-construbot (setup.py)
     #   django-redis
-regex==2019.3.12
+regex==2023.6.3
     # via awesome-slugify
-requests==2.22.0
+requests==2.31.0
     # via
     #   django-allauth
     #   django-anymail
-    #   django-construbot (setup.py)
     #   requests-oauthlib
-requests-oauthlib==1.2.0
+requests-oauthlib==1.3.1
     # via django-allauth
 rjsmin==1.2.0
     # via django-compressor
-s3transfer==0.2.1
+s3transfer==0.6.1
     # via boto3
-sentry-sdk==0.9.0
+sentry-sdk==1.25.1
     # via django-construbot (setup.py)
-six==1.12.0
+six==1.16.0
     # via
     #   click-repl
     #   django-anymail
-    #   django-appconf
     #   django-autocomplete-light
     #   python-dateutil
-soupsieve==2.3.2.post1
+soupsieve==2.4.1
     # via beautifulsoup4
-sqlparse==0.4.2
+sqlparse==0.4.4
     # via django
+typing-extensions==4.6.3
+    # via
+    #   asgiref
+    #   kombu
 unidecode==0.4.21
     # via awesome-slugify
-urllib3==1.25.3
+urllib3==1.26.16
     # via
     #   botocore
-    #   django-construbot (setup.py)
     #   requests
     #   sentry-sdk
 vine==5.0.0
@@ -183,7 +182,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via prompt-toolkit
 whitenoise==4.1.2
     # via django-construbot (setup.py)

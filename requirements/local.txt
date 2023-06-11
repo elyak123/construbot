@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/local.txt --resolver=backtracking requirements/local.in
 #
-alabaster==0.7.12
+alabaster==0.7.13
     # via sphinx
 amqp==5.1.1
     # via
@@ -22,21 +22,19 @@ argon2-cffi-bindings==21.2.0
     # via
     #   -r requirements/base.txt
     #   argon2-cffi
-asgiref==3.5.2
+asgiref==3.7.2
     # via
     #   -r requirements/base.txt
     #   django
-asttokens==2.0.5
+asttokens==2.2.1
     # via stack-data
-attrs==21.4.0
-    # via pytest
 awesome-slugify==1.6.5
     # via -r requirements/base.txt
-babel==2.6.0
+babel==2.12.1
     # via sphinx
-backcall==0.1.0
+backcall==0.2.0
     # via ipython
-beautifulsoup4==4.11.1
+beautifulsoup4==4.12.2
     # via
     #   -r requirements/base.txt
     #   django-bootstrap4
@@ -44,16 +42,20 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-boto3==1.9.165
-    # via -r requirements/base.txt
-botocore==1.12.165
+boto3==1.26.151
+    # via
+    #   -r requirements/base.txt
+    #   django-storages
+botocore==1.29.151
     # via
     #   -r requirements/base.txt
     #   boto3
     #   s3transfer
+build==0.10.0
+    # via pip-tools
 celery==5.2.7
     # via -r requirements/base.txt
-certifi==2019.3.9
+certifi==2023.5.7
     # via
     #   -r requirements/base.txt
     #   requests
@@ -63,7 +65,7 @@ cffi==1.15.1
     #   -r requirements/base.txt
     #   argon2-cffi-bindings
     #   cryptography
-chardet==3.0.4
+charset-normalizer==3.1.0
     # via
     #   -r requirements/base.txt
     #   requests
@@ -91,22 +93,22 @@ coreapi==2.3.3
     # via -r requirements/local.in
 coreschema==0.0.4
     # via coreapi
-coverage==4.4.2
+coverage==5.5
     # via
     #   -r requirements/local.in
     #   coveralls
     #   django-coverage-plugin
 coveralls==1.2.0
     # via -r requirements/local.in
-cryptography==37.0.2
+cryptography==41.0.1
     # via
     #   -r requirements/base.txt
     #   pyjwt
-decorator==4.4.0
+decorator==5.1.1
     # via
     #   ipdb
     #   ipython
-defusedxml==0.7.0
+defusedxml==0.7.1
     # via
     #   -r requirements/base.txt
     #   python3-openid
@@ -128,9 +130,9 @@ django[argon2]==3.2.14
     #   djangorestframework-simplejwt
 django-allauth==0.51.0
     # via -r requirements/base.txt
-django-anymail==6.0
+django-anymail==6.0.1
     # via -r requirements/base.txt
-django-appconf==1.0.3
+django-appconf==1.0.5
     # via
     #   -r requirements/base.txt
     #   django-compressor
@@ -154,7 +156,7 @@ django-model-utils==4.2.0
     # via -r requirements/base.txt
 django-redis==5.2.0
     # via -r requirements/base.txt
-django-storages==1.12.3
+django-storages[boto3]==1.13.2
     # via -r requirements/base.txt
 django-test-plus==2.2.0
     # via -r requirements/local.in
@@ -168,90 +170,92 @@ djangorestframework-simplejwt==5.2.0
     # via -r requirements/base.txt
 docopt==0.6.2
     # via coveralls
-docutils==0.14
-    # via
-    #   -r requirements/base.txt
-    #   botocore
-    #   sphinx
-et-xmlfile==1.0.1
+docutils==0.20.1
+    # via sphinx
+et-xmlfile==1.1.0
     # via
     #   -r requirements/base.txt
     #   openpyxl
-executing==0.8.3
+exceptiongroup==1.1.1
+    # via pytest
+executing==1.2.0
     # via stack-data
 factory-boy==2.9.2
     # via -r requirements/local.in
-faker==1.0.4
+faker==18.10.1
     # via factory-boy
 gunicorn==19.7.1
     # via -r requirements/base.txt
-idna==2.8
+idna==3.4
     # via
     #   -r requirements/base.txt
     #   requests
-imagesize==1.1.0
+imagesize==1.4.1
     # via sphinx
-iniconfig==1.1.1
+iniconfig==2.0.0
     # via pytest
 ipdb==0.13.9
     # via -r requirements/local.in
-ipython==8.4.0
+ipython==8.14.0
     # via ipdb
-itypes==1.1.0
+itypes==1.2.0
     # via coreapi
 jdcal==1.4.1
     # via
     #   -r requirements/base.txt
     #   openpyxl
-jedi==0.18.1
+jedi==0.18.2
     # via ipython
-jinja2==2.10.1
+jinja2==3.1.2
     # via
     #   -r requirements/local.in
     #   coreschema
     #   sphinx
-jmespath==0.9.4
+jmespath==1.0.1
     # via
     #   -r requirements/base.txt
     #   boto3
     #   botocore
-kombu==5.2.4
+kombu==5.3.0
     # via
     #   -r requirements/base.txt
     #   celery
 markdown==2.6.11
     # via -r requirements/local.in
-markupsafe==1.1.1
-    # via jinja2
-matplotlib-inline==0.1.3
+markupsafe==2.1.3
+    # via
+    #   jinja2
+    #   werkzeug
+matplotlib-inline==0.1.6
     # via ipython
-oauthlib==3.0.1
+oauthlib==3.2.2
     # via
     #   -r requirements/base.txt
     #   requests-oauthlib
 openpyxl==2.6.2
     # via -r requirements/base.txt
-packaging==19.0
+packaging==23.1
     # via
+    #   build
     #   pytest
     #   sphinx
 parso==0.8.3
     # via jedi
-pexpect==4.6.0
+pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==6.2.0
+pillow==9.5.0
     # via -r requirements/base.txt
 pip-autoremove==0.9.0
     # via -r requirements/local.in
-pip-tools==4.2.0
+pip-tools==6.13.0
     # via -r requirements/local.in
 pipdeptree==2.2.1
     # via -r requirements/local.in
 pluggy==1.0.0
     # via pytest
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.38
     # via
     #   -r requirements/base.txt
     #   -r requirements/local.in
@@ -259,28 +263,26 @@ prompt-toolkit==3.0.30
     #   ipython
 psycopg2==2.8.6
     # via -r requirements/base.txt
-ptyprocess==0.6.0
+ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-py==1.11.0
-    # via pytest
-pycparser==2.19
+pycparser==2.21
     # via
     #   -r requirements/base.txt
     #   cffi
-pygments==2.12.0
+pygments==2.15.1
     # via
     #   ipython
     #   sphinx
-pyjwt[crypto]==2.6.0
+pyjwt[crypto]==2.7.0
     # via
     #   -r requirements/base.txt
     #   django-allauth
     #   djangorestframework-simplejwt
-pyparsing==2.3.1
-    # via packaging
-pytest==7.1.2
+pyproject-hooks==1.0.0
+    # via build
+pytest==7.3.2
     # via
     #   pytest-django
     #   pytest-sugar
@@ -288,19 +290,18 @@ pytest-django==4.5.2
     # via -r requirements/local.in
 pytest-sugar==0.9.0
     # via -r requirements/local.in
-python-dateutil==2.8.0
+python-dateutil==2.8.2
     # via
     #   -r requirements/base.txt
     #   botocore
     #   faker
-python3-openid==3.1.0
+python3-openid==3.2.0
     # via
     #   -r requirements/base.txt
     #   django-allauth
 pytz==2022.1
     # via
     #   -r requirements/base.txt
-    #   babel
     #   celery
     #   django
     #   djangorestframework
@@ -312,11 +313,11 @@ redis==3.2.1
     # via
     #   -r requirements/base.txt
     #   django-redis
-regex==2019.3.12
+regex==2023.6.3
     # via
     #   -r requirements/base.txt
     #   awesome-slugify
-requests==2.22.0
+requests==2.31.0
     # via
     #   -r requirements/base.txt
     #   coreapi
@@ -325,7 +326,7 @@ requests==2.22.0
     #   django-anymail
     #   requests-oauthlib
     #   sphinx
-requests-oauthlib==1.2.0
+requests-oauthlib==1.3.1
     # via
     #   -r requirements/base.txt
     #   django-allauth
@@ -333,73 +334,76 @@ rjsmin==1.2.0
     # via
     #   -r requirements/base.txt
     #   django-compressor
-s3transfer==0.2.1
+s3transfer==0.6.1
     # via
     #   -r requirements/base.txt
     #   boto3
 selenium==3.12.0
     # via -r requirements/local.in
-sentry-sdk==0.9.0
+sentry-sdk==1.25.1
     # via -r requirements/base.txt
-six==1.12.0
+six==1.16.0
     # via
     #   -r requirements/base.txt
     #   asttokens
     #   click-repl
     #   django-anymail
-    #   django-appconf
     #   django-autocomplete-light
     #   django-coverage-plugin
-    #   faker
-    #   packaging
-    #   pip-tools
     #   python-dateutil
-snowballstemmer==1.2.1
+snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.3.2.post1
+soupsieve==2.4.1
     # via
     #   -r requirements/base.txt
     #   beautifulsoup4
 sphinx==2.1.1
     # via -r requirements/local.in
-sphinxcontrib-applehelp==1.0.1
+sphinxcontrib-applehelp==1.0.4
     # via sphinx
-sphinxcontrib-devhelp==1.0.1
+sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==1.0.2
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.2
+sphinxcontrib-qthelp==1.0.3
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.3
+sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlparse==0.4.2
+sqlparse==0.4.4
     # via
     #   -r requirements/base.txt
     #   django
     #   django-debug-toolbar
-stack-data==0.3.0
+stack-data==0.6.2
     # via ipython
-termcolor==1.1.0
+termcolor==2.3.0
     # via pytest-sugar
-text-unidecode==1.2
-    # via faker
 toml==0.10.2
     # via ipdb
 tomli==2.0.1
-    # via pytest
-traitlets==5.3.0
+    # via
+    #   build
+    #   pyproject-hooks
+    #   pytest
+traitlets==5.9.0
     # via
     #   ipython
     #   matplotlib-inline
+typing-extensions==4.6.3
+    # via
+    #   -r requirements/base.txt
+    #   asgiref
+    #   ipython
+    #   kombu
 unidecode==0.4.21
     # via
     #   -r requirements/base.txt
     #   awesome-slugify
-uritemplate==3.0.0
+uritemplate==4.1.1
     # via coreapi
-urllib3==1.25.3
+urllib3==1.26.16
     # via
     #   -r requirements/base.txt
     #   botocore
@@ -411,12 +415,14 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via
     #   -r requirements/base.txt
     #   prompt-toolkit
-werkzeug==0.16.0
+werkzeug==2.3.6
     # via -r requirements/local.in
+wheel==0.40.0
+    # via pip-tools
 whitenoise==4.1.2
     # via -r requirements/base.txt
 

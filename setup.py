@@ -44,7 +44,7 @@ setup(
         'django-model-utils==4.2.0',
         'django-treebeard==4.5.1',
         # Images
-        'Pillow==6.2.0',
+        'Pillow>=9.2.0',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
         'django-allauth==0.51.0',
@@ -73,20 +73,19 @@ setup(
 
         # Static and Media Storage
         # ------------------------------------------------
-        'boto3==1.9.165',
-        'django-storages==1.12.3',
+        'django-storages[boto3]==1.13.2',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
         'django-anymail>=6.0,<6.1',
         # --------------------------
         # Sentry client
-        'sentry-sdk==0.9.0',
+        'sentry-sdk>=1.14.0',
         # pinned in order to requirements hashed work
         'setuptools==41.4.0',
         # pinned due to security:
         # via django-allauth, django-anymail, requests-oauthlib
-        'requests>=2.22.0',
-        'urllib3>=1.24.2',
+        # 'requests>=2.22.0',
+        # 'urllib3>=1.24.2',
 
     ],
     classifiers=[
