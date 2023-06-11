@@ -48,8 +48,6 @@ setup(
         'django-treebeard==4.5.1',
         # Images
         'Pillow==6.2.0',
-        # User uploads
-        'django-chunked-upload==1.1.3',
         # Password storage
         'argon2-cffi==21.3.0',
         'cffi==1.15.1',

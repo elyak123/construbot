@@ -91,16 +91,6 @@ urlpatterns = [
         name='generator_detailpdf'
     ),
     url(
-        regex=r'^file_chunk_complete/$',
-        view=views.ContratoChunkedUpload.as_view(),
-        name='chunkuploadcomplete'
-    ),
-    url(
-        regex=r'^get_file_chunk_form/$',
-        view=views.DummyFileForm.as_view(),
-        name='chunkupload'
-    ),
-    url(
         regex=r'^contrato/nuevo/$',
         view=views.ContratoCreationView.as_view(),
         name='nuevo_contrato'

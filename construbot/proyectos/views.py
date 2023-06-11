@@ -13,8 +13,6 @@ from openpyxl import load_workbook
 from construbot.users.models import Company, NivelAcceso
 from construbot.proyectos import forms
 from construbot.core.utils import BasicAutocomplete, get_object_403_or_404
-from construbot.core.models import ChunkedCoreUpload
-from chunked_upload.views import ChunkedUploadCompleteView
 from .apps import ProyectosConfig
 from .models import Contrato, Contraparte, Sitio, Units, Concept, Destinatario, Estimate, Retenciones
 from .utils import contratosvigentes, estimacionespendientes_facturacion, estimacionespendientes_pago,\
@@ -1020,13 +1018,3 @@ class NivelAccesoAutocomplete(AutocompletePoryectos):
             key_words['nombre__unaccent__icontains'] = self.q
         return key_words
 
-
-class ContratoChunkedUpload(ChunkedUploadCompleteView):
-    model = ChunkedCoreUpload
-
-    def get_response_data(self, chunked_upload, request):
-        """
-        Data for the response. Should return a dictionary-like object.
-        Called *only* if POST is successful.
-        """
-        return json.dumps({'chunked_id': chunked_upload.upload_id})
