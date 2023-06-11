@@ -1,4 +1,4 @@
-FROM python:3.6.8-alpine3.8
+FROM python:3.9.13-alpine3.16
 
 ENV PYTHONUNBUFFERED 1
 
@@ -11,7 +11,7 @@ RUN apk add bash git
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
-    && pip install pip-tools==3.3.1 \
+    && pip install pip-tools==6.8.0 \
     && pip-sync requirements/base.txt requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \

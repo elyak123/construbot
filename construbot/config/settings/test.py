@@ -63,3 +63,8 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
 # django_coverage_plugin.plugin.DjangoTemplatePluginException: 
 # Template debugging must be enabled in settings.
 TEMPLATES[0]['OPTIONS']['debug'] = True
+
+# For Django-coverage-plugin.
+# The plugin tries to call settings.FILE_CHARSET but this attribute was deprecated
+# in Django 3.1. This variable overrides it so the tests can run.
+FILE_CHARSET = 'utf-8'

@@ -33,42 +33,38 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django>=2.1.11,<2.2',
+        'django[argon2]==3.2.14',
         # REST
-        'djangorestframework==3.9.2',
-        'djangorestframework_simplejwt==4.1.2',
+        'djangorestframework==3.13.1',
+        'djangorestframework_simplejwt==5.2.0',
         # Configuration
-        'django-environ==0.4.5',
+        'django-environ==0.9.0',
         'whitenoise==4.1.2',
         # Models
-        'django-model-utils==3.1.2',
-        'django-treebeard==4.3',
+        'django-model-utils==4.2.0',
+        'django-treebeard==4.5.1',
         # Images
-        'Pillow==6.2.0',
-        # User uploads
-        'django-chunked-upload==1.1.3',
-        # Password storage
-        'argon2-cffi==18.3.0',
+        'Pillow>=9.2.0',
         # For user registration, either via email or social
         # Well-built with regular release cycles!
-        'django-allauth==0.39.1',
+        'django-allauth==0.51.0',
         # Python-PostgreSQL Database Adapter
-        'psycopg2>=2.8.4',
+        'psycopg2==2.8.6',
         # Unicode slugification
         'awesome-slugify==1.6.5',
         # Time zones support
-        'pytz==2017.3',
+        'pytz==2022.1',
         # Redis support
-        'django-redis==4.10.0',
+        'django-redis==5.2.0',
         'redis==3.2.1',
         # Celery support
-        'celery==4.2.1',
+        'celery==5.2.7',
         # Compressing static files
-        'rcssmin==1.0.6 ',
-        'django-compressor==2.2',
+        'rcssmin==1.1.0',
+        'django-compressor==4.0',
         # FrontEnd Libraries
-        'django-autocomplete-light==3.3.2',
-        'django-bootstrap4==0.0.8',
+        'django-autocomplete-light==3.9.4',
+        'django-bootstrap4==22.1',
         # xls files handling
         'openpyxl==2.6.2',
         # WSGI Handler
@@ -77,20 +73,20 @@ setup(
 
         # Static and Media Storage
         # ------------------------------------------------
-        'boto3==1.9.165',
-        'django-storages==1.7.1',
+        'django-storages[boto3]==1.13.2',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
         'django-anymail>=6.0,<6.1',
         # --------------------------
         # Sentry client
-        'sentry-sdk==0.9.0',
+        'sentry-sdk>=1.14.0',
         # pinned in order to requirements hashed work
         'setuptools==41.4.0',
         # pinned due to security:
         # via django-allauth, django-anymail, requests-oauthlib
-        'requests>=2.22.0',
-        'urllib3>=1.24.2',
+        # 'requests>=2.22.0',
+        # 'urllib3>=1.24.2',
+
     ],
     classifiers=[
         'Environment :: Web Environment',

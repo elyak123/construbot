@@ -65,7 +65,6 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
-    'chunked_upload',  # user uploads
     'treebeard',
 ]
 
@@ -261,8 +260,6 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
 ]
 
-CHUNKED_UPLOAD_ABSTRACT_MODEL = True
-
 # PASSWORD VALIDATION
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------
@@ -339,6 +336,11 @@ STATICFILES_FINDERS += ['compressor.finders.CompressorFinder']
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
 ADMIN_URL = r'^admin/'
 
+# New in Django 3.2
+# https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
@@ -360,3 +362,29 @@ NIVELES_ACCESO = [
 FAVICON_URL = env('FAVICON_URL', default='')
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS=10240
+
+BOOTSTRAP4 = {
+    # The complete URL to the Bootstrap CSS file
+    # Note that a URL can be either a string,
+    # e.g. "https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css",
+    # or a dict like the default value below.
+    "css_url": {
+        "href": "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css",
+        "integrity": "sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn",
+        "crossorigin": "anonymous",
+    },
+
+    # The complete URL to the Bootstrap bundle JavaScript file
+    "javascript_url": {
+        "url": "https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js",
+        "integrity": "sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns",
+        "crossorigin": "anonymous",
+    },
+
+    # The URL to the jQuery JavaScript file (full)
+    "jquery_url": {
+        "url": "https://code.jquery.com/jquery-3.5.1.min.js",
+        "integrity": "sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2",
+        "crossorigin": "anonymous",
+    },
+}

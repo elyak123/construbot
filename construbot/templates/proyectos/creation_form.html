@@ -21,10 +21,7 @@
       <script src="{% static 'js/spark-md5.js' %}"></script>
       <script type="text/javascript" src="{% static 'js/dummy_files.js' %}"></script>
     {% endif %}
-    <script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/autocomplete.init.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/forward.js' %}"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
+    {{ form.media }}
   <script type="text/javascript">
     $(document).ready(function(){
       if($("#id_fecha").length){

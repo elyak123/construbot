@@ -15,8 +15,8 @@
 {% endblock javascript_no_compress %}
 {% block javascript %}
     <script type="text/javascript">
-        var setImgPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
-        var setVerPrefix = '{{ vertice_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#39;|\[|\]|\s/g, '')});
+        var setImgPrefix = '{{ image_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#x27;|\[|\]|\s/g, '')});
+        var setVerPrefix = '{{ vertice_formset_prefix }}'.split(',').map(function(x){return x.replace(/&#x27;|\[|\]|\s/g, '')});
     </script>
     <script src="{% static 'js/inlineform.js' %}"></script>
     <script src="{% static 'js/estimate_button.js' %}"></script>
@@ -99,6 +99,7 @@
             });
         });
     </script>
+    {{ form.media }}
 {% endblock javascript %}
 {% block content %}
 {% language 'es' %}
@@ -189,8 +190,8 @@
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
     </form>
-    {% block jquery %}
-      {{ form.media }}
-    {% endblock jquery %}
+    {% comment %} {% block jquery %}
+        {{ block.super }}
+    {% endblock jquery %} {% endcomment %}
 {% endlanguage %}
 {% endblock %}

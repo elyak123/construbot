@@ -1,6 +1,6 @@
 [run]
 branch = True
-omit = *migrations*, *tests*
+omit = *migrations*, *tests*, *.txt, *.pyc, *.pyo, *__init__*, *apps.py, *admin.py, *wsgi.py, *asgi.py, *urls.py, *settings.py, *construbot/config/*
 plugins =
     django_coverage_plugin
 [report]
@@ -21,7 +21,7 @@ exclude_lines =
     if __name__ == .__main__.:
 skip_covered = True
 precision = 2
-sort = Miss
+sort = -Miss
 omit =
     setup.py
     */migrations/*
