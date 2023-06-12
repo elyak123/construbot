@@ -33,7 +33,7 @@ setup(
     python_requires='>=3.6.1',
     install_requires=[
         # Conservative Django
-        'django[argon2]==3.2.14',
+        'django[argon2]==3.2.19',
         # REST
         'djangorestframework==3.13.1',
         'djangorestframework_simplejwt==5.2.0',
@@ -80,13 +80,7 @@ setup(
         # --------------------------
         # Sentry client
         'sentry-sdk>=1.14.0',
-        # pinned in order to requirements hashed work
-        'setuptools==41.4.0',
-        # pinned due to security:
-        # via django-allauth, django-anymail, requests-oauthlib
-        # 'requests>=2.22.0',
-        # 'urllib3>=1.24.2',
-
+        'setuptools>=65.5.1',
     ],
     classifiers=[
         'Environment :: Web Environment',

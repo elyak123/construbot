@@ -1,6 +1,10 @@
-FROM python:3.9.13-alpine3.16
+FROM python:3.9.17-alpine3.18
 
 ENV PYTHONUNBUFFERED 1
+
+ARG SETUPTOOLS_VERSION=65.5.1
+ARG PIP_VERSION=23.1.2
+ARG PIP_TOOLS_VERSION=6.13.0
 
 COPY ./requirements /requirements
 # Paquetes que se ocupan despues de hacer build
@@ -11,7 +15,9 @@ RUN apk add bash git
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash \
-    && pip install pip-tools==6.8.0 \
+    && pip install --upgrade pip==${PIP_VERSION} \
+    && pip install setuptools>=${SETUPTOOLS_VERSION} \
+    && pip install pip-tools==${PIP_TOOLS_VERSION} \
     && pip-sync requirements/base.txt requirements/local.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
