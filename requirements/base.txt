@@ -52,7 +52,7 @@ cryptography==41.0.1
     # via pyjwt
 defusedxml==0.7.1
     # via python3-openid
-django[argon2]==3.2.14
+django[argon2]==3.2.19
     # via
     #   django-allauth
     #   django-anymail

@@ -1,6 +1,10 @@
-FROM python:3.6.8-alpine3.8
+FROM python:3.9.17-alpine3.18
 
 ENV PYTHONUNBUFFERED 1
+
+ARG SETUPTOOLS_VERSION=65.5.1
+ARG PIP_VERSION=23.1.2
+ARG PIP_TOOLS_VERSION=6.13.0
 
 RUN addgroup -S django && adduser -S -G django django
 
@@ -12,7 +16,9 @@ COPY ./requirements /requirements
 ##
 RUN apk add --no-cache --virtual .build-deps \
   build-base postgresql-dev gcc musl-dev jpeg-dev zlib-dev libffi-dev bash git \
-    && pip install pip-tools==3.3.1 \
+    && pip install --upgrade pip==${PIP_VERSION} \
+    && pip install setuptools>=${SETUPTOOLS_VERSION} \
+    && pip install pip-tools==${PIP_TOOLS_VERSION} \
     && pip-sync requirements/base.txt \
     && find /usr/local \
         \( -type d -a -name test -o -name tests \) \
