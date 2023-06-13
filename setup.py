@@ -30,7 +30,7 @@ setup(
     url='https://www.construbot.com.mx/',
     author='Javier Llamas Ramirez',
     author_email='elyak.123@gmail.com',
-    python_requires='>=3.6.1',
+    python_requires='>=3.9.17',
     install_requires=[
         # Conservative Django
         'django[argon2]==3.2.19',
@@ -80,7 +80,6 @@ setup(
         # --------------------------
         # Sentry client
         'sentry-sdk>=1.14.0',
-        'setuptools>=65.5.1',
     ],
     classifiers=[
         'Environment :: Web Environment',

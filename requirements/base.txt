@@ -18,9 +18,9 @@ beautifulsoup4==4.12.2
     # via django-bootstrap4
 billiard==3.6.4.0
     # via celery
-boto3==1.26.151
+boto3==1.26.152
     # via django-storages
-botocore==1.29.151
+botocore==1.29.152
     # via
     #   boto3
     #   s3transfer
@@ -186,6 +186,3 @@ wcwidth==0.2.6
     # via prompt-toolkit
 whitenoise==4.1.2
     # via django-construbot (setup.py)
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
