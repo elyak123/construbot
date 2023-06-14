@@ -130,7 +130,7 @@ django[argon2]==3.2.19
     #   djangorestframework-simplejwt
 django-allauth==0.51.0
     # via -r requirements/base.txt
-django-anymail==6.0.1
+django-anymail==10.0
     # via -r requirements/base.txt
 django-appconf==1.0.5
     # via
@@ -347,7 +347,6 @@ six==1.16.0
     #   -r requirements/base.txt
     #   asttokens
     #   click-repl
-    #   django-anymail
     #   django-autocomplete-light
     #   django-coverage-plugin
     #   python-dateutil
@@ -407,6 +406,7 @@ urllib3==1.26.16
     # via
     #   -r requirements/base.txt
     #   botocore
+    #   django-anymail
     #   requests
     #   sentry-sdk
 vine==5.0.0
@@ -423,7 +423,7 @@ werkzeug==2.3.6
     # via -r requirements/local.in
 wheel==0.40.0
     # via pip-tools
-whitenoise==4.1.2
+whitenoise==6.4.0
     # via -r requirements/base.txt
 
 # The following packages are considered to be unsafe in a requirements file:

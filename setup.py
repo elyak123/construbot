@@ -39,7 +39,7 @@ setup(
         'djangorestframework_simplejwt==5.2.0',
         # Configuration
         'django-environ==0.9.0',
-        'whitenoise==4.1.2',
+        'whitenoise==6.4.0',
         # Models
         'django-model-utils==4.2.0',
         'django-treebeard==4.5.1',
@@ -76,7 +76,7 @@ setup(
         'django-storages[boto3]==1.13.2',
         # Email backends for Mailgun, Postmark, SendGrid and more
         # -------------------------------------------------------
-        'django-anymail>=6.0,<6.1',
+        'django-anymail>=10.0,<11.0',
         # --------------------------
         # Sentry client
         'sentry-sdk>=1.14.0',

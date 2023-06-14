@@ -67,7 +67,7 @@ django[argon2]==3.2.19
     #   djangorestframework-simplejwt
 django-allauth==0.51.0
     # via django-construbot (setup.py)
-django-anymail==6.0.1
+django-anymail==10.0
     # via django-construbot (setup.py)
 django-appconf==1.0.5
     # via django-compressor
@@ -159,7 +159,6 @@ sentry-sdk==1.25.1
 six==1.16.0
     # via
     #   click-repl
-    #   django-anymail
     #   django-autocomplete-light
     #   python-dateutil
 soupsieve==2.4.1
@@ -175,6 +174,7 @@ unidecode==0.4.21
 urllib3==1.26.16
     # via
     #   botocore
+    #   django-anymail
     #   requests
     #   sentry-sdk
 vine==5.0.0
@@ -184,5 +184,5 @@ vine==5.0.0
     #   kombu
 wcwidth==0.2.6
     # via prompt-toolkit
-whitenoise==4.1.2
+whitenoise==6.4.0
     # via django-construbot (setup.py)
